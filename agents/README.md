@@ -15,6 +15,10 @@
   - handoff / review / escalation の正本
 - [task_catalog.yaml](/mnt/l/workspace/project_template/agents/task_catalog.yaml)
   - machine-readable catalog
+- [canonical/ARTIFACT_PLACEMENT.md](/mnt/l/workspace/project_template/agents/canonical/ARTIFACT_PLACEMENT.md)
+  - task 文書と run artifact の置き分け
+- [canonical/CLI_ENTRYPOINTS.md](/mnt/l/workspace/project_template/agents/canonical/CLI_ENTRYPOINTS.md)
+  - agent ごとの入口差分と bootstrap 入口
 
 ## Runtime Entry Points
 

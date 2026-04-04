@@ -8,6 +8,8 @@
 - 人間向けハブ: `agents/README.md`
 - canonical layout: `agents/canonical/README.md`
 - skill registry: `agents/canonical/skills.md`
+- artifact placement canon: `agents/canonical/ARTIFACT_PLACEMENT.md`
+- CLI entrypoint canon: `agents/canonical/CLI_ENTRYPOINTS.md`
 - Codex / Copilot discovery path: `.agents/skills/`
 - Claude compatibility path: `.claude/skills/`
 

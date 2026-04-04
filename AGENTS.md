@@ -26,6 +26,8 @@ Use this file as the runtime entrypoint for Codex and GitHub Copilot agents.
 - Workflow catalog: `agents/TASK_WORKFLOWS.md`
 - Communication protocol: `agents/COMMUNICATION_PROTOCOL.md`
 - Machine-readable task catalog: `agents/task_catalog.yaml`
+- Artifact placement: `agents/canonical/ARTIFACT_PLACEMENT.md`
+- CLI entrypoints: `agents/canonical/CLI_ENTRYPOINTS.md`
 
 ## Skills
 

@@ -21,6 +21,10 @@
   - workflow family
 - `agents/COMMUNICATION_PROTOCOL.md`
   - handoff / review ルール
+- `agents/canonical/ARTIFACT_PLACEMENT.md`
+  - task 文書と run artifact の置き分け
+- `agents/canonical/CLI_ENTRYPOINTS.md`
+  - Codex / Claude / Copilot の入口差分
 - `.agents/skills/`
   - Codex / Copilot 向け canonical skill path
 - `.claude/skills/`

@@ -16,6 +16,7 @@
 
 - Project skills are curated under `.agents/skills/`.
 - If a task matches a project skill, use the skill before inventing a new local workflow.
+- CLI/runtime differences are summarized in `agents/canonical/CLI_ENTRYPOINTS.md`.
 
 ## Validation
 
