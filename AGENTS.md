@@ -58,6 +58,7 @@ Use this file as the runtime entrypoint for Codex and GitHub Copilot agents.
 ## Python And Markdown Baseline
 
 - Python changes should normally pass `pyright python/`, `pytest python/tests/`, and `ruff check python/ --select D,E,F,I,UP`.
+- Dependency-sensitive changes should normally inspect `pipdeptree --warn fail` and `deptry python`.
 - Markdown-heavy changes should normally pass `python3 scripts/tools/check_markdown_lint.py documents`.
 - If links changed, also run `python3 scripts/tools/audit_and_fix_links.py documents`.
 

@@ -19,6 +19,16 @@
 - [run_pytest_with_logs.sh](/mnt/l/workspace/project_template/scripts/run_pytest_with_logs.sh)
   - pytest をログ付きで実行します。
 
+ベースライン依存:
+- `psutil`
+  - process / memory / CPU の観測に使います。
+- `pipdeptree`
+  - install 済み依存の tree と衝突確認に使います。
+- `deptry`
+  - import と依存定義のズレ確認に使います。
+- `snakeviz`
+  - `cProfile` の可視化に使います。
+
 ### ドキュメント整備
 
 - [tools/check_markdown_lint.py](/mnt/l/workspace/project_template/scripts/tools/check_markdown_lint.py)
@@ -40,6 +50,8 @@ bash scripts/run_comprehensive_review.sh
 python3 -m pyright python/
 python3 -m pytest python/tests/ -q --tb=short
 python3 -m ruff check python/ --select D,E,F,I,UP
+pipdeptree --warn fail
+deptry python
 python3 scripts/tools/check_markdown_lint.py documents
 python3 scripts/tools/audit_and_fix_links.py documents
 ```

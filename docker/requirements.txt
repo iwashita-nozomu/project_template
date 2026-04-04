@@ -12,6 +12,10 @@ pytest>=8
 # Development & Analysis
 pyright
 pydeps
+pipdeptree
+deptry
+snakeviz
+psutil
 pydocstyle
 ruff
 

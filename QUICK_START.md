@@ -41,6 +41,7 @@ bash scripts/guide.sh
 bash scripts/view_conventions.sh
 make ci-quick
 python3 -m pytest python/tests/ -q --tb=short
+pipdeptree --warn fail
 python3 scripts/tools/check_markdown_lint.py documents
 ```
 
@@ -72,6 +73,7 @@ python3 scripts/tools/audit_and_fix_links.py documents
 - 共通開発環境は `docker/` を基準にします。
 - Python 依存を追加する場合は `docker/Dockerfile` と `docker/requirements.txt` を同時に更新します。
 - Markdown の体裁ルールは `.markdownlint.json` と `documents/conventions/common/05_docs.md` を基準にします。
+- 依存棚卸しは `pipdeptree` と `deptry` を baseline にします。
 
 ## 7. 終了時の整理
 

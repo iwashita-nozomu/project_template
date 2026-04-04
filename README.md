@@ -32,6 +32,7 @@
 - 実装変更では、必要なテストと文書更新を同じ変更でそろえます。
 - 実験は 1 回の run を fresh 実行として扱い、途中停止 run を正式結果として継ぎ足しません。
 - Python の静的解析とテスト、Markdown の体裁とリンク確認を日常運用に含めます。
+- 標準の観測・依存棚卸し用として `psutil`、`pipdeptree`、`deptry`、`snakeviz` を baseline に含めます。
 
 ## まず読むもの
 
@@ -81,6 +82,8 @@ make ci
 python3 -m pyright python/
 python3 -m pytest python/tests/ -q --tb=short
 python3 -m ruff check python/ --select D,E,F,I,UP
+pipdeptree --warn fail
+deptry python
 python3 scripts/tools/check_markdown_lint.py documents
 python3 scripts/tools/audit_and_fix_links.py documents
 make tools-help
