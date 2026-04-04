@@ -15,7 +15,7 @@ ci-quick:
 
 # 開発環境初期化
 dev-setup: git_init
-	@echo "✅ Dev environment ready. Start with: bash scripts/setup_worktree.sh <branch-name>"
+	@echo "✅ Dev environment ready. Start with: make ci-quick"
 
 # ツール情報表示
 tools-help:

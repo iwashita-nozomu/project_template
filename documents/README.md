@@ -1,64 +1,45 @@
 # ドキュメント ハブ
 
 `documents/` は、この repo の正本文書だけを置く場所です。
-古い proposal、日付付き report、途中経過の summary は置きません。履歴は Git で追います。
+テンプレートとして残すべき汎用ルール、設計、実験手法、agent 運用、開発環境の入口だけをここから辿れるようにします。
 
 ## 最初に読む
 
-- [worktree-lifecycle.md](/workspace/documents/worktree-lifecycle.md)
-- [conventions/README.md](/workspace/documents/conventions/README.md)
-- [coding-conventions-project.md](/workspace/documents/coding-conventions-project.md)
-
-実験を扱う場合は、追加で次を読みます。
-
-- [experiment-workflow.md](/workspace/documents/experiment-workflow.md)
-- [coding-conventions-experiments.md](/workspace/documents/coding-conventions-experiments.md)
-- [experiment-report-style.md](/workspace/documents/experiment-report-style.md)
-
-## 規約
-
-- [conventions/README.md](/workspace/documents/conventions/README.md)
-- [coding-conventions-python.md](/workspace/documents/coding-conventions-python.md)
-- [coding-conventions-testing.md](/workspace/documents/coding-conventions-testing.md)
-- [coding-conventions-project.md](/workspace/documents/coding-conventions-project.md)
-- [coding-conventions-reviews.md](/workspace/documents/coding-conventions-reviews.md)
-
-## 設計
-
-- [design/README.md](/workspace/documents/design/README.md)
-- [design/protocols.md](/workspace/documents/design/protocols.md)
-- [design/jax_util/README.md](/workspace/documents/design/jax_util/README.md)
-- [experiment_runner.md](/workspace/documents/experiment_runner.md)
+- [conventions/README.md](/mnt/l/workspace/project_template/documents/conventions/README.md)
+- [coding-conventions-project.md](/mnt/l/workspace/project_template/documents/coding-conventions-project.md)
+- [WORKFLOW_INVENTORY.md](/mnt/l/workspace/project_template/documents/WORKFLOW_INVENTORY.md)
 
 ## 実験・研究
 
-- [experiment-workflow.md](/workspace/documents/experiment-workflow.md)
-- [research-workflow.md](/workspace/documents/research-workflow.md)
-- [experiment-critical-review.md](/workspace/documents/experiment-critical-review.md)
-- [experiment-report-style.md](/workspace/documents/experiment-report-style.md)
+- [experiment-workflow.md](/mnt/l/workspace/project_template/documents/experiment-workflow.md)
+- [research-workflow.md](/mnt/l/workspace/project_template/documents/research-workflow.md)
+- [experiment-critical-review.md](/mnt/l/workspace/project_template/documents/experiment-critical-review.md)
+- [experiment-report-style.md](/mnt/l/workspace/project_template/documents/experiment-report-style.md)
+- [coding-conventions-experiments.md](/mnt/l/workspace/project_template/documents/coding-conventions-experiments.md)
 
-## レビュー・運用
+## コーディング規約
 
-- [REVIEW_PROCESS.md](/workspace/documents/REVIEW_PROCESS.md)
-- [WORKFLOW_INVENTORY.md](/workspace/documents/WORKFLOW_INVENTORY.md)
-- [AGENTS_COORDINATION.md](/workspace/documents/AGENTS_COORDINATION.md)
-- [WORKTREE_SCOPE_TEMPLATE.md](/workspace/documents/WORKTREE_SCOPE_TEMPLATE.md)
+- [conventions/README.md](/mnt/l/workspace/project_template/documents/conventions/README.md)
+- [coding-conventions-project.md](/mnt/l/workspace/project_template/documents/coding-conventions-project.md)
+- [coding-conventions-testing.md](/mnt/l/workspace/project_template/documents/coding-conventions-testing.md)
+- [coding-conventions-reviews.md](/mnt/l/workspace/project_template/documents/coding-conventions-reviews.md)
+- 言語補足が必要な場合だけ `coding-conventions-python.md` や `coding-conventions-cpp.md` を読みます。
 
-## ツール入口
+## agent・review・運用
 
-- [tools/README.md](/workspace/documents/tools/README.md)
-- [tools/TOOLS_DIRECTORY.md](/workspace/documents/tools/TOOLS_DIRECTORY.md)
-- [scripts/README.md](/workspace/scripts/README.md)
+- [AGENTS_COORDINATION.md](/mnt/l/workspace/project_template/documents/AGENTS_COORDINATION.md)
+- [REVIEW_PROCESS.md](/mnt/l/workspace/project_template/documents/REVIEW_PROCESS.md)
+- [tools/README.md](/mnt/l/workspace/project_template/documents/tools/README.md)
+- [tools/TOOLS_DIRECTORY.md](/mnt/l/workspace/project_template/documents/tools/TOOLS_DIRECTORY.md)
 
 ## 困ったとき
 
-- [TROUBLESHOOTING.md](/workspace/documents/TROUBLESHOOTING.md)
-- [README.md](/workspace/README.md)
-- [QUICK_START.md](/workspace/QUICK_START.md)
+- [TROUBLESHOOTING.md](/mnt/l/workspace/project_template/documents/TROUBLESHOOTING.md)
+- [README.md](/mnt/l/workspace/project_template/README.md)
+- [QUICK_START.md](/mnt/l/workspace/project_template/QUICK_START.md)
 
 ## 文書管理ルール
 
-- `documents/` に正本以外を置くことを禁止します。
-- 規約変更時は、対応する文書を同じ変更で更新しなければなりません。
-- 曖昧な規範表現を使うことを禁止します。
-- 補助メモは `notes/`、日付ログは `diary/`、project-wide report は `reports/` に置きます。
+- `documents/` に正本以外を置きません。
+- 規約変更時は、対応する正本を同じ変更で更新します。
+- 履歴説明、日付付き報告、個別実験のメモは `notes/` 側へ分離します。

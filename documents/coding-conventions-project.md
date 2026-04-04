@@ -1,134 +1,59 @@
 # プロジェクト全体の運用規約
 
-この文書は、Docker 環境・ドキュメント運用・サブモジュールの位置づけをまとめる高レベル文書です。
-文書は参照の連鎖で読ませず、この文書単体でも全体方針が分かるように保ちます。
+この文書は、テンプレート repo 全体に共通する高レベル方針をまとめます。
 
 ## 1. 対象
 
-- 対象は `/workspace` 配下の全体構成です。
-- 安定サブモジュールは `base` / `solvers` / `optimizers` / `hlo` とします。
-- `neuralnetwork` と `experiment_runner` は実験段階、`solvers/archive` は保管領域として扱います。
+- 対象は repo 全体です。
+- 言語や実装形態に依らず、実装、実験、文書、補助スクリプトを同じ原則で扱います。
 
-## 2. 文書構造
+## 2. ディレクトリの考え方
 
-- general なコーディング方針は `coding-conventions*.md` と `conventions/` に置きます。
-- base の型・Protocol・共通クラスは `design/jax_util/base_components.md` と `design/protocols.md` に置きます。
-- 安定サブモジュールの API 詳細は `design/jax_util/` にサブモジュール単位で置きます。
-- `experiment_runner` の設計補足は `documents/experiment_runner.md` に置きます。
-- 補助資料は `notes/` に置きます。`documents/` には正本以外を置きません。
-- 現在有効なレビュー文書は `./reviews/` に置き、project-wide な進捗報告や集計レポートは `./reports/` に置きます。
-- 軽量なメモと実験の考察は `./notes/` に置きます。
-- 日付ごとの作業ログは `./diary/` に置きます。
-- `./documents/` には正本だけを残し、proposal / report / summary / `.bak` のような履歴物は常設しません。
-- 一時的な分析や履歴を残したい場合は、新しいファイルを増やさず Git 履歴で追います。
-- 正本に昇格させる内容は、既存の canonical document へ統合してから元ファイルを削除します。
-- agent team の role 一覧と team shape は `agents/README.md` だけに要約を残し、`documents/AGENTS_COORDINATION.md` や `.github/AGENTS.md` へ再掲しません。
-- `./notes/experiments/` のメモは実験ごとに分けます。
-- 削除予定の worktree から吸い出したメモは `./notes/worktrees/` に置きます。
-- `./diary/` は日付ファイルへ逐次追記する運用を基本とします。
-- `./notes/` と `./diary/` では、文献由来の記述に対象文献を明示し、アイデアや考察はラベルで区別します。
+- `documents/` は正本です。
+- `notes/` は知見、比較メモ、補助整理です。
+- `agents/` はエージェント運用の正本です。
+- `scripts/` はチェックや補助操作の入口です。
+- `docker/` は共通開発環境の定義です。
+- `experiments/` は実験コードと生成物の置き場です。
+- `python/`, `src/`, `include/`, `lib/` は実装スロットです。全部を使う必要はありません。
 
-## 3. Docker 環境の方針
+## 3. 文書運用
 
-### 基本ルール
+- `documents/` には正本だけを置きます。
+- 実装変更でルールや設計が変わる場合は、対応する文書を同じ変更で更新します。
+- 日付付きの途中報告、個別メモ、比較の試行錯誤は `notes/` に置きます。
+- agent team の要約は `agents/README.md` に集約し、他の入口へ複製しません。
 
-- 既定の実行環境は `docker/Dockerfile` を基準にします。
-- 追加パッケージが必要な場合は、**`docker/Dockerfile` と `docker/requirements.txt` を同時に更新**します。
+## 4. 開発環境
 
-### 仮想環境（`.venv` 等）の禁止
+- 共通実行環境が必要な場合は `docker/` を基準にします。
+- Python 依存を追加する場合は `docker/Dockerfile` と `docker/requirements.txt` を同時に更新します。
+- 開発環境の更新では、必要な README と運用文書も同じ変更で更新します。
+- Python を使う場合でも、repo 全体の入口を Python 専用にはしません。
 
-**ローカル仮想環境の作成は厳禁です。以下のツールは使用しません：**
+## 5. テストとレビュー
 
-- `python -m venv`
-- `virtualenv`
-- `conda`
-- `pyenv`
-- その他の仮想環境構築ツール
+- 実装変更には、対応するテストまたは検証手順を同じ変更でそろえます。
+- 仕上げ前に `make ci-quick`、必要に応じて `make ci` を流します。
+- 文書変更ではリンク切れと記述の入口整合を確認します。
 
-**禁止対象ディレクトリ：**
+## 6. 実験運用
 
-- `.venv`, `.venv-*` (venv)
-- `venv/`, `env/` (virtualenv)
-- `.conda/`, `conda-env/` (conda)
-- その他の `.env*` ディレクトリ
+- 実験コードと生成物は `experiments/` 配下に集約します。
+- 1 回の run は fresh 実行として扱います。
+- partial run を正式結果として継ぎ足しません。
+- 複数 run をまたぐ知見は `notes/experiments/` または `notes/themes/` に残します。
+- topic ごとの report を top-level `reports/` に置きません。
 
-**理由：**
+## 7. branch 方針
 
-- Docker 環境が単一真実であり、ローカル仮想環境との差異が問題を隠蔽
-- CI/CD パイプラインとの整合性を保つため
-- 依存パッケージの一元管理で再現性を確保
-- `.gitignore` を通じた管理を避けリポジトリの複雑性低減
+- 既定の統合先は `main` です。
+- 恒常的な branch 分割は行いません。
+- 短期 branch は、レビューや安全な切り分けが必要なときだけ使います。
+- 統合が済んだ branch は削除し、運用知識は `documents/` か `notes/` に吸収します。
 
-**代わりに Docker 環境を使用してください：**
+## 8. 規約文の書き方
 
-```bash
-# Docker コンテナ内で作業
-docker build docker -t jax_util:latest
-docker run -it -v /workspace:/workspace jax_util:latest bash
-
-# または VS Code Dev Containers 拡張を使用
-# (Dockerfile が自動検出される)
-```
-
-### パッケージ管理
-
-- テストやスクリプトは `PYTHONPATH=/workspace/python` を基本とします。
-- ライブラリ本体の import パスは `jax_util.*` を基本とします。
-- 実験実行基盤は standalone module のため、`experiment_runner.*` を使います。
-
-## 4. サブモジュールの位置づけ
-
-| パス                              | 状態     | 役割                                                              |
-| --------------------------------- | -------- | ----------------------------------------------------------------- |
-| `python/jax_util/base`            | 安定     | 型・定数・作用素の基盤。                                          |
-| `python/jax_util/solvers`         | 安定     | 数値ソルバと関連ユーティリティ。                                  |
-| `python/jax_util/optimizers`      | 安定     | `solvers` を利用する最適化アルゴリズム。                          |
-| `python/jax_util/hlo`             | 安定     | HLO ダンプと解析補助。                                            |
-| `python/jax_util/neuralnetwork`   | 実験段階 | forward / train の整理中。                                        |
-| `python/experiment_runner`        | 実験段階 | host/child 実行、worker slot 管理、run 内 progress 記録の共通部。 |
-| `python/jax_util/solvers/archive` | 保管     | 現在使わないアルゴリズムの退避先。                                |
-| `python/tests`                    | 安定     | 検証とログ出力。                                                  |
-| `scripts`                         | 安定     | テスト・ログ・依存解析の補助。                                    |
-| `experiments`                     | 実験運用 | 長時間実験、結果整理、レポート生成。                              |
-| `reviews`                         | 安定     | 現在有効なレビュー文書。                                          |
-| `notes`                           | 安定     | 実験メモ、考察。                                                  |
-| `diary`                           | 安定     | 日付ごとの作業ログ。                                              |
-| `documents`                       | 安定     | 規約と設計書の一次情報源。                                        |
-| `reports`                         | 安定     | project-wide な review、automation、management report。           |
-
-## 5. 共通ルール
-
-- `Scalar` / `Vector` / `Matrix` を優先します。
-- `Matrix` は `(n, batch)` にします。
-- 線形作用素の適用は `@`、合成は `*` にします。
-- 反復は `jax.lax.scan` / `jax.lax.while_loop` / `jax.lax.fori_loop` を優先します。
-- ログ出力は `DEBUG` ガードの内側でのみ行います。
-
-## 6. ドキュメント更新ルール
-
-- 実装変更が入った場合は、該当する `documents/` の文書を同時に更新します。
-- 規約を増やすときは `documents/conventions/` に追記します。
-- base の型・Protocol・クラスを変えるときは `documents/design/jax_util/base_components.md` と必要に応じて `documents/design/protocols.md` を更新します。
-- 安定サブモジュールの API を変えるときは `documents/design/jax_util/` の対応ファイルを更新します。
-- 文書は参照の一覧ではなく、責務ごとのまとまりとして編成します。
-- 実装パスへの参照は、実装上の制約を明示する必要がある場合に限ります。
-- `.bak`、日付付き report、proposal、completion summary を `documents/` の正本として残しません。
-- `documents/` の規約文書では、曖昧な規範表現を禁止します。
-- 禁止事項は `禁止`、必須事項は `必須` または `しなければなりません`、許可事項は `許可`、任意事項は `任意` と明記します。
-- `原則`、`望ましい`、`できれば`、`構いません`、`してよい`、`必要なら` を、遵守確認の対象になる規約文の代わりに使ってはいけません。
-
-## 7. タスク運用
-
-- `task.md` は実装の進行管理に使います。
-- 粒度はファイル単位で統一します。
-- 完了した項目は `task.md` から削除し、仕様や判断は `documents/` に残します。
-
-## 8. ブランチ運用
-
-- 実装コードと生成物は、既定では同じ branch で扱います。
-- 別 branch / worktree の使用は、長時間 run の隔離、巨大生成物の退避、破壊的な試行の切り分けに限って許可します。
-- worktree を使う場合は VS Code やホスト OS から見える共有パスに置き、既定では `/workspace/.worktrees/<name>` を使います。
-- 実験コードそのものも report も `experiments/` 配下に集約し、1 回の実験結果は `experiments/<topic>/result/<run_name>/` と `experiments/report/<run_name>.md` にそろえます。
-- `main` には再生成可能なコード・文書・最小限の雛形だけを置き、大きな JSON・画像・ログを常設しません。
-- 実験 run は 1 回の fresh 実行で完走する前提で書き、途中停止した run を再開しません。
-- 途中で止まった場合は、partial 出力を正規結果として継ぎ足さず、新しい run_name と新しい出力先で 0 から再実行します。
+- 禁止事項は `禁止` と明記します。
+- 必須事項は `必須` または `しなければなりません` と書きます。
+- 曖昧な規範表現で運用ルールをぼかしません。

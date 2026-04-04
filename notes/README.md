@@ -1,133 +1,34 @@
-# 📓 ノート・メモ ハブ（notes）
+# Notes Hub
 
-> 実験・知見・メモを topic 別に整理するディレクトリ
+`notes/` は、正本ではないが長期に残したい知見を置く場所です。
+テンプレートとして残すのは、実験メモ、テーマ整理、横断知識の 3 系統です。
 
-**入口ガイド:** `notes/` には 5 つのカテゴリがあります。以下から選択してください。
+## カテゴリ
 
-______________________________________________________________________
+- [`experiments/`](./experiments/README.md)
+  - 個別実験や比較の要約
+- [`themes/`](./themes/README.md)
+  - 複数実験から得たテーマ別知見
+- [`knowledge/`](./knowledge/README.md)
+  - 実務で繰り返し参照する短い知識メモ
 
-## 🎯 5 カテゴリから選ぶ（参照ナビゲーション）
+## 置くもの
 
-### 📊 **実験レポート・結果が見たい**
-👉 [`experiments/`](./experiments/README.md)
-- Smolyak 実験、ベンチマーク結果
-- 詳細分析・グラフ・統計
+- `documents/` に昇格させるほどではないが残したい判断
+- 複数 run をまたいだ比較
+- 調査メモ、文献整理、設計上の注意点
 
-### 💡 **知識・Tips を探したい**
-👉 [`knowledge/`](./knowledge/README.md)
-- パス問題解決、Docker 設定、環境構築のコツ
-- 横断的な短型ナレッジ
+## 置かないもの
 
-### 🏷️ **テーマ別に試行錯誤を見たい**
-👉 [`themes/`](./themes/README.md)
-- 複数実験から得た工夫・パターン
-- アルゴリズム・チューニング・設計改善
+- branch ごとの履歴台帳
+- worktree 固有の作業ログ
+- 正本ルールそのもの
+- 巨大な生成物や raw ログ
 
-### 🌿 **Branch ごとのメモ・リンク集**
-👉 [`branches/`](./branches/README.md)
-- branch ごとのスコープと関連メモ
-- 削除予定 branch の履歴参照
+## 書き方
 
-### 🗂️ **削除対象ワークツリーのメモ**
-👉 [`worktrees/`](./worktrees/README.md)
-- 削除予定 worktree から吸い上げたナレッジ
-- 今後の参考資料
-
-______________________________________________________________________
-
-## 📂 カテゴリ詳細
-
-**各カテゴリの選択ガイド：**
-
-| カテゴリ         | ディレクトリ                                              | 用途                                   | 所要読時間 | 最初に読む    |
-| ---------------- | --------------------------------------------------------- | -------------------------------------- | ---------- | ------------- |
-| **実験メモ**     | [`experiments/`](./experiments/README.md)                 | 実験レポート・観察・結論               | 15～30分   | 👈 ここから   |
-| **知識メモ**     | [`knowledge/`](./knowledge/README.md)                     | 横断的な短型知識（パス解決・設定など） | 5～10分    | 実務時        |
-| **テーマ別**     | [`themes/`](./themes/README.md)                           | 複数実験から得た知見・工夫             | 10～20分   | テーマ確認時  |
-| **ブランチ**     | [`branches/`](./branches/README.md)                       | branch ごとのメモ・リンク集            | 5～15分    | branch 確認時 |
-| **ワークツリー** | [`worktrees/`](./worktrees/README.md)                     | 削除対象 WT から吸い上げたメモ         | 5分        | 管理者向け    |
-| **実験結果**     | [`experiments/results/`](./experiments/results/README.md) | JSON ログ・集計                        | 参照       | 技術者向け    |
-
-______________________________________________________________________
-
-## 🎯 使い方
-
-### 新規開発者向け
-
-1. [`experiments/README.md`](./experiments/README.md) — 実験の手引きを確認
-1. 興味のあるテーマを [`themes/`](./themes/README.md) で探索
-1. 必要に応じて [`knowledge/`](./knowledge/README.md) で知識を参照
-
-### 特定の branch・テーマを調べたい
-
-- [`branches/README.md`](./branches/README.md) → 該当 branch のメモ
-- [`themes/README.md`](./themes/README.md) → テーマ別メモ
-
-______________________________________________________________________
-
-## 📝 対象ドキュメント
-
-`notes/` は、`documents/` ほど強い規約文書ではないが、`main` に残しておきたいメモを置くためのディレクトリです。
-
-- `experiments/`
-  - 実験結果の所在、定性的な考察、branch 対応を残します。
-  - 実験メモは実験ごとに分けて置きます。
-  - `results/` には、`main` に持ち帰る最小限の final JSON を置きます。
-- `themes/`
-  - 複数の実験や branch から得た知見、実装上の工夫、失敗例を、話題ごとにまとめます。
-- `knowledge/`
-  - パス解決、環境設定、実験運用のような横断的な知識を短く残します。
-- `branches/`
-  - branch ごとの要約と、関連 note への入口を残します。
-- `worktrees/`
-  - 削除予定の worktree から吸い出した知見、運用メモ、整理方針を残します。
-
-設計や規約の一次情報は引き続き `documents/` に置き、`notes/` は補助的な記録として使います。
-
-## Main Carry-Over Rule
-
-- `main` に残したい要約・観測・判断のうち、規約・レビュー・実コードに属さないものは `notes/` に置きます。
-- worktree を削除する前に、残すべき `notes/` は `main` に commit 済み、または `main` に merge 済みでなければなりません。
-- `results/*` branch に raw 結果を残す場合でも、`main` から辿るための report や extraction note は `notes/` 側へ持ち帰ります。
-- `main` に持ち帰る実験結果は、完走した fresh run の final JSON と要約 note に限ります。
-- 途中停止した partial run は診断材料として扱い、resume 前提の正本にはしません。
-
-## Action Log Rule
-
-- worktree 上の意味ある操作は、1 か所の append-only な note に逐次残します。
-- 既定の action log 置き場は `notes/worktrees/worktree_<topic>_YYYY-MM-DD.md` です。
-- scope 更新、編集開始、テスト実行、実験開始/停止、branch 統合判断のような節目は必ず追記します。
-- worktree 内でも、最終的に `main` に持ち帰るのと同じ相対パスへ書きます。
-  - 例: `.worktrees/<name>/notes/worktrees/worktree_<topic>_YYYY-MM-DD.md`
-  - 例: `.worktrees/<name>/notes/experiments/<topic>.md`
-  - 例: `.worktrees/<name>/notes/branches/<branch_topic>.md`
-
-## Format
-
-- `notes/` の文書は Markdown で書きます。
-- GitHub Flavored Markdown の数式記法を使ってよく、インライン数式は `$...$`、独立数式は `$$...$$` を使います。
-- 長い導出よりは、実験の意図、観察、判断、次の調査ポイントを優先して残します。
-- 一文ごとに空行を挟まず、短い段落として読める形で書きます。
-- 箇条書きだけに崩さず、必要なところは小見出しと短い本文で report として読める形を優先します。
-- 1 つの note を開いたときに、主要な branch、source JSON、主要結果、結論、次の課題がその場で読めるようにします。
-- リンクは補助として使いますが、重要情報をリンク先へ分散しすぎません。
-- `notes/experiments/` では、複数実験を 1 枚に混ぜず、実験ごとに別ファイルを作ります。
-- `notes/branches/` では、branch ごとに 1 ファイルを基本とし、詳細 note へのリンク集として使います。
-- `notes/themes/` では、特定 topic の知見を report より短く、branch より一般化した形でまとめます。
-- `notes/knowledge/` では、実務で繰り返し参照する横断的な短い箇条書きメモを置きます。
-- 安定知見だけでなく、効いた工夫、うまくいかなかった工夫、未確定の仮説もラベル付きで残せます。
-- `notes/worktrees/` では、削除対象の worktree ごとにメモを分けます。
-- 一度 `main` に置いた過去の note 本文は書き換えません。
-- 補足や訂正が必要な場合は、既存本文を差し替えず、末尾へ `Addendum:` や `Correction:` を付けて追記します。
-- `notes/` のタイトルや先頭 H1 は、日付よりトピックを主にして付けます。
-- 日付が必要な場合は、タイトルの主語にせず、副題や metadata として添えます。
-
-## Source And Idea Marking
-
-- 文献から得た情報は、必ず対象文献を明示します。
-- 出典は少なくとも、文献名、著者、年、必要な場合はローカルの保存先や branch 上の位置まで辿れるように書きます。
-- その topic に標準的な論文、教科書、サーベイがある場合は、既知の代表文献を優先して引きます。
-- 観測結果だけで書かず、文献で支えられる部分はできるだけ文献で支えます。
-- 自分の発案は `Idea:` のように明示し、文献上の既知事項と混ぜません。
-- 自分の解釈や比較は `Interpretation:` や `Consideration:` として区別します。
-- 考察の根拠として文献確認が必要な場合は、必要に応じて調べ直し、その文献を明記します。
+- Markdown で書きます。
+- タイトルは日付より topic を主にします。
+- 文献由来の内容は出典を明示します。
+- 自分の仮説や解釈は `Idea:` や `Interpretation:` で分けます。
+- 重要情報をリンク先に逃がしすぎません。
