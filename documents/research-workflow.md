@@ -234,13 +234,13 @@ decision は次の 4 つに固定します。
 - `Limitation:`
 - `Decision:`
 - `Next Idea:`
-- `Branch Reflection:`
+- `Run Reflection:`
 
-`Branch Reflection:` には、少なくとも次を書きます。
+`Run Reflection:` には、少なくとも次を書きます。
 
-- どの branch / worktree で検証したか
-- どの commit をどこへ反映したか
-- 同じ branch で完結したか、別 branch / worktree を使ったか
+- どの commit と run directory で検証したか
+- どの結果や判断をどこへ反映したか
+- 例外的に branch / worktree を使った場合は、その理由と carry-over 方針
 
 ## 6.5 集計と定量的考察の作法
 

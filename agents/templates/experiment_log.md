@@ -37,6 +37,6 @@
 
 <!-- What this run still does not justify, missing evidence, and overclaim risk. -->
 
-## Branch Reflection
+## Run Reflection
 
-<!-- Which branch/worktree this run belongs to and what should be reflected next. -->
+<!-- Which commit, run directory, and execution context this run belongs to, and what should be reflected next. -->

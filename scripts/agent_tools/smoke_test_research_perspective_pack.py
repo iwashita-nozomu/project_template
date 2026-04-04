@@ -9,6 +9,8 @@ import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
+import yaml
+
 from agent_team import create_run_bundle, load_team_config, resolve_role, resolve_role_write_scope
 
 
@@ -75,10 +77,19 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def ensure_text_contains(content: str, needle: str) -> None:
-    """Raise when one expected token is missing."""
-    if needle not in content:
-        raise RuntimeError(f"missing expected text: {needle}")
+def ensure(condition: bool, message: str) -> None:
+    """Raise when one expected condition is not met."""
+    if not condition:
+        raise RuntimeError(message)
+
+
+def find_by_id(entries: object, entry_id: str) -> dict[str, object]:
+    """Return one mapping entry from a list of id-tagged items."""
+    ensure(isinstance(entries, list), f"expected list while looking for {entry_id}")
+    for entry in entries:
+        if isinstance(entry, dict) and entry.get("id") == entry_id:
+            return entry
+    raise RuntimeError(f"missing entry with id={entry_id}")
 
 
 def prepare_workspace(workspace_root: Path) -> None:
@@ -106,12 +117,31 @@ def prepare_workspace(workspace_root: Path) -> None:
 
 def validate_task_catalog() -> None:
     """Check that the task catalog exposes the review pack."""
-    content = TASK_CATALOG.read_text(encoding="utf-8")
-    ensure_text_contains(content, "review_packs:")
-    ensure_text_contains(content, "id: research_perspective_review")
-    ensure_text_contains(content, "id: T9")
+    data = yaml.safe_load(TASK_CATALOG.read_text(encoding="utf-8"))
+    ensure(isinstance(data, dict), "task catalog did not parse as a mapping")
+
+    research_family = find_by_id(data.get("workflow_families"), "research_driven_change")
+    family_roles = research_family.get("roles", {})
+    ensure(isinstance(family_roles, dict), "research family roles must be a mapping")
+    family_specialists = family_roles.get("specialists", [])
+    ensure(isinstance(family_specialists, list), "research family specialists must be a list")
+    ensure("T9" in research_family.get("tasks", []), "research family is missing T9")
+
+    task_t9 = find_by_id(data.get("tasks"), "T9")
+    t9_specialists = task_t9.get("specialists", [])
+    ensure(isinstance(t9_specialists, list), "T9 specialists must be a list")
+
+    review_pack = find_by_id(data.get("review_packs"), "research_perspective_review")
+    pack_specialists = review_pack.get("specialists", [])
+    ensure(isinstance(pack_specialists, list), "review pack specialists must be a list")
+    ensure("T9" in review_pack.get("default_for_tasks", []), "review pack must default to T9")
+    ensure("T4" in review_pack.get("optional_for_tasks", []), "review pack should be optional for T4")
+    ensure("T5" in review_pack.get("optional_for_tasks", []), "review pack should be optional for T5")
+
     for role_id in PERSPECTIVE_ROLE_IDS:
-        ensure_text_contains(content, f"- {role_id}")
+        ensure(role_id in family_specialists, f"research family missing specialist {role_id}")
+        ensure(role_id in t9_specialists, f"T9 missing specialist {role_id}")
+        ensure(role_id in pack_specialists, f"review pack missing specialist {role_id}")
 
 
 def validate_runtime_surfaces(report_dir: Path, workspace_root: Path) -> None:
@@ -151,8 +181,11 @@ def validate_runtime_surfaces(report_dir: Path, workspace_root: Path) -> None:
         if artifact_path.resolve() not in scope.allowed_files:
             raise RuntimeError(f"role {role_id} missing allowed file for {artifact_path}")
 
-        ensure_text_contains(manifest_text, f"  - id: {role_id}")
-        ensure_text_contains(manifest_text, f"      - {artifact_name}")
+        ensure(f"  - id: {role_id}" in manifest_text, f"manifest missing role {role_id}")
+        ensure(
+            f"      - {artifact_name}" in manifest_text,
+            f"manifest missing artifact {artifact_name}",
+        )
 
 
 def main() -> int:

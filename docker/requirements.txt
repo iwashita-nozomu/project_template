@@ -22,6 +22,7 @@ ruff
 # Documentation & Formatting
 mdformat
 mdformat-myst
+pyyaml>=6
 
 # Security & Audit
 jsonschema>=4.0.0

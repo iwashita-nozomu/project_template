@@ -87,11 +87,11 @@
 
 ## Reproducibility Record
 
-<!-- Branch, commit, worktree, final JSON, raw JSONL, renderer / plot command. -->
+<!-- Commit, exact command, environment, final JSON, raw JSONL, renderer / plot command. -->
 
 ## Artifacts and Carry-Over
 
-<!-- Which outputs stay on results branch and which artifacts are carried back to main. -->
+<!-- Which outputs remain as run artifacts in main and which results are promoted into durable docs, notes, or summaries. -->
 
 ## Critical Review
 
