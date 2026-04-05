@@ -17,16 +17,16 @@ ______________________________________________________________________
 make ci
 
 # docstring チェックのみ
-pydocstyle python/jax_util/
+pydocstyle python/
 
 # 個別ファイルの Docstring チェック
-pydocstyle python/jax_util/solvers/pcg.py
+pydocstyle python/tests/tools/test_mirror_skill_shims.py
 
 # 自動修正（import 順序など）
-ruff check --fix python/jax_util/
+ruff check --fix python/
 
 # 型チェック
-pyright python/jax_util/
+pyright
 ```
 
 ______________________________________________________________________
@@ -177,10 +177,10 @@ ______________________________________________________________________
 
 ```bash
 # フェーズ 1 の完成度をチェック
-pydocstyle python/jax_util/ 2>&1 | grep -c "^python" || echo "✅ すべて修正完了"
+pydocstyle python/ 2>&1 | grep -c "^python" || echo "✅ すべて修正完了"
 
 # 個別ファイルの検証
-pydocstyle python/jax_util/base/linearoperator.py
+pydocstyle python/tests/tools/test_mirror_skill_shims.py
 ```
 
 ______________________________________________________________________
@@ -217,9 +217,9 @@ def pcg_solve(A, b, x0=None, rtol=1e-5):
 # ✅ 修正後
 class PCGState(eqx.Module):
     """PCG ソルバーの計算状態。
-    
+
     共役勾配法の各イテレーション状態を保持します。
-    
+
     Attributes:
         x: 現在の近似解
         r: 現在の残差
@@ -236,18 +236,18 @@ def pcg_solve(
     rtol: Scalar = 1e-5,
 ) -> tuple[Vector, int, dict[str, Any]]:
     """PCG ソルバーを実行。
-    
+
     対称正定値行列システム Ax = b を解きます。
-    
+
     Args:
         A: 対称正定値線形作用素
         b: 右辺ベクトル
         x0: 初期近似解
         rtol: 相対誤差許容度
-        
+
     Returns:
         tuple: (x, n_iter, info)
-        
+
     See Also:
         slq_solve: SLQ ソルバー
     """
@@ -322,10 +322,10 @@ ______________________________________________________________________
 
 ```bash
 # 自動チェックと修正
-ruff check --fix python/jax_util/
+ruff check --fix python/
 
 # Manual verification
-grep -r "from .* import \*" python/jax_util/
+grep -r "from .* import \*" python/
 # 上記が何も出力しなければ OK
 ```
 
@@ -335,7 +335,7 @@ ______________________________________________________________________
 
 **全体進捗**: `__/_` 完了
 
-```
+```text
 フェーズ 1: モジュール Docstring
 ├─ GROUP 1 (BASE): [ ] 0/5
 ├─ GROUP 2 (SOLVERS): [ ] 0/7
@@ -377,12 +377,12 @@ make ci
 make ci-quick
 
 # 個別ツール実行
-pydocstyle python/jax_util/
-pyright python/jax_util/
-ruff check python/jax_util/
+pydocstyle python/
+pyright
+ruff check python/
 ```
 
-### ガイドライン
+## ガイドライン
 
 - **Docstring テンプレート**: [coding-conventions-python.md](./coding-conventions-python.md#-docstring-%E3%83%86%E3%83%B3%E3%83%97%E3%83%AC%E3%83%BC%E3%83%88)
 - **`__all__` ルール**: [DOCSTRING_GUIDE.md](./DOCSTRING_GUIDE.md#-__all__-%E5%AE%9A%E7%BE%A9%E3%82%AC%E3%82%A4%E3%83%89)

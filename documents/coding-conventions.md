@@ -51,8 +51,8 @@ mdformat --check path/to/file.md
 
 ### CI 統合
 
-Markdown 整形とリンク監査は `mdformat` や `scripts/tools/audit_and_fix_links.py` で個別に実行します。
-`make ci` や `scripts/ci/run_all_checks.sh` は Python 系チェックの正本であり、Markdown チェックは別フローとして扱います。
+Markdown 整形とリンク監査は `mdformat` に加えて `make docs-check` で確認します。
+`make ci`、`make ci-quick`、`scripts/ci/run_all_checks.sh` は同じ文書チェックを呼び出します。
 
 ## Python 実装向けの追加規約
 

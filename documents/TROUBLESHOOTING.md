@@ -6,7 +6,7 @@
 
 - `make ci-quick` を再実行して、どの段階で落ちているかを切り分けます。
 - Python 関連なら `docker/requirements.txt` と設定ファイルの不整合を確認します。
-- 文書関連なら `scripts/tools/check_markdown_lint.py` と `scripts/tools/audit_and_fix_links.py` を流します。
+- 文書関連なら `make docs-check` を流します。
 
 ## Docker build が通らない
 

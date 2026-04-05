@@ -76,12 +76,12 @@ log_info() {
 
 log_success() {
     echo "[$(date '+%H:%M:%S')] ✅ $*" | tee -a "$LOG_DIR/comprehensive_review.log"
-    ((SUCCESS_COUNT++))
+    ((SUCCESS_COUNT+=1))
 }
 
 log_error() {
     echo "[$(date '+%H:%M:%S')] ❌ $*" | tee -a "$LOG_DIR/comprehensive_review.log"
-    ((FAILURE_COUNT++))
+    ((FAILURE_COUNT+=1))
 }
 
 log_info "================================================"
@@ -98,7 +98,7 @@ log_info "【Python Checks】"
 
 # Pyright
 log_info "1/4️⃣ Type checking with pyright..."
-if "$PYTHON_BIN" -m pyright python/jax_util --strict > "$LOG_DIR/pyright.log" 2>&1; then
+if "$PYTHON_BIN" -m pyright > "$LOG_DIR/pyright.log" 2>&1; then
     log_success "pyright: OK"
 else
     log_error "pyright: FAILED (see $LOG_DIR/pyright.log)"
@@ -107,7 +107,7 @@ fi
 # Ruff
 log_info ""
 log_info "2/4️⃣ Style check with ruff..."
-if "$PYTHON_BIN" -m ruff check python/jax_util > "$LOG_DIR/ruff.log" 2>&1; then
+if "$PYTHON_BIN" -m ruff check python/ > "$LOG_DIR/ruff.log" 2>&1; then
     log_success "ruff: OK"
 else
     log_error "ruff: FAILED (see $LOG_DIR/ruff.log)"
@@ -207,15 +207,11 @@ log_info ""
 log_info "【Document Checks】"
 
 log_info ""
-log_info "8️⃣ Markdown format check..."
-if command -v mdformat &> /dev/null; then
-    if mdformat --check documents/ > "$LOG_DIR/mdformat.log" 2>&1; then
-        log_success "mdformat: OK"
-    else
-        log_error "mdformat: FAILED (see $LOG_DIR/mdformat.log)"
-    fi
+log_info "8️⃣ Documentation checks..."
+if bash "$SCRIPT_DIR/ci/run_docs_checks.sh" > "$LOG_DIR/docs_check.log" 2>&1; then
+    log_success "docs-check: OK"
 else
-    log_info "mdformat not installed, skipping..."
+    log_error "docs-check: FAILED (see $LOG_DIR/docs_check.log)"
 fi
 
 # ===== Summary =====

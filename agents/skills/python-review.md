@@ -12,7 +12,7 @@ Python 差分を型、テスト、lint、境界設計の観点で厳密に確認
 
 ## Required Checks
 
-- `pyright python/`
+- `pyright`
 - `pytest python/tests/`
 - `ruff check python/ --select D,E,F,I,UP`
 

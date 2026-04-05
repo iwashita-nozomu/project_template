@@ -11,6 +11,8 @@
   - 入口確認に使います。
 - [ci/run_all_checks.sh](/mnt/l/workspace/project_template/scripts/ci/run_all_checks.sh)
   - 主要なチェックをまとめて実行します。
+- [ci/run_docs_checks.sh](/mnt/l/workspace/project_template/scripts/ci/run_docs_checks.sh)
+  - repo-wide の Markdown 体裁とリンクを確認します。
 - [ci/check_docker_build.sh](/mnt/l/workspace/project_template/scripts/ci/check_docker_build.sh)
   - `docker/Dockerfile` の build 可否と最小限の runtime smoke check を確認します。
 - [run_comprehensive_review.sh](/mnt/l/workspace/project_template/scripts/run_comprehensive_review.sh)
@@ -53,15 +55,14 @@
 make agent-checks
 make ci-quick
 make ci
+make docs-check
 make docker-build-check
 bash scripts/run_comprehensive_review.sh
-python3 -m pyright python/
+python3 -m pyright
 python3 -m pytest python/tests/ -q --tb=short
 python3 -m ruff check python/ --select D,E,F,I,UP
 pipdeptree --warn fail
 deptry python
-python3 scripts/tools/check_markdown_lint.py documents
-python3 scripts/tools/audit_and_fix_links.py documents
 python3 scripts/tools/mirror_skill_shims.py --target .claude/skills --prune
 python3 scripts/agent_tools/smoke_test_research_perspective_pack.py
 ```

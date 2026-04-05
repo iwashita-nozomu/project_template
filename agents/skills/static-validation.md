@@ -13,5 +13,4 @@
 
 - `make ci-quick`
 - `make ci`
-- `python3 scripts/tools/check_markdown_lint.py documents`
-- `python3 scripts/tools/audit_and_fix_links.py documents`
+- `make docs-check`

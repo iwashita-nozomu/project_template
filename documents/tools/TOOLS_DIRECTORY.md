@@ -5,6 +5,7 @@
 ## CI・検証
 
 - `scripts/ci/run_all_checks.sh`
+- `scripts/ci/run_docs_checks.sh`
 - `scripts/run_comprehensive_review.sh`
 - `scripts/run_pytest_with_logs.sh`
 

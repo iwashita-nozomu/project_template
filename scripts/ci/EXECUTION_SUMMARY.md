@@ -1,7 +1,7 @@
 # PRE-REVIEW.SH — 実行完了レポート
 
-**実行日時**: 2026-03-21  
-**スクリプト**: `/workspace/scripts/ci/pre_review.sh`  
+**実行日時**: 2026-03-21
+**スクリプト**: `/workspace/scripts/ci/pre_review.sh`
 **最終状態**: ✅ **正常に動作確認完了**
 
 ---
@@ -30,7 +30,7 @@ scripts/ci/pre_review.sh
 
 実行時に以下を自動実行：
 - ✅ Pyright strict mode による型チェック
-- ✅ pytest による単体テスト  
+- ✅ pytest による単体テスト
 - 予定: pydocstyle による docstring 検証
 - 予定: Ruff による コード品質吸収
 
@@ -84,14 +84,14 @@ import jax_util.solvers._test_jax as test_jax_module
 
 **理由**: `_test_jax.py` は `python/tests/solvers/test_jax_debug.py` に移動済み
 
-### 2. テストファイル整理
+## 2. テストファイル整理
 
-#### スキップしたテスト:
+### スキップしたテスト:
 - `python/tests/solvers/test_jax_debug.py` — 相対インポート問題
 - `python/tests/solvers/test_solver_internal_branches.py` — モジュール参照削除
 - その他削除モジュール参照テスト（compute_scheduler など）
 
-#### 理由: これらは古い参照または削除済みモジュールからのテスト
+### 理由: これらは古い参照または削除済みモジュールからのテスト
 
 ---
 
@@ -164,7 +164,7 @@ scripts/ci/pre_review.sh
 
 ### 期待される出力
 
-```
+```text
 ==========================================
 PRE-REVIEW QA CHECKS
 ==========================================
@@ -188,9 +188,9 @@ PRE-REVIEW QA CHECKS
 
 ---
 
-##終了コード
+## 終了コード
 
-- `0` : すべてのチェック成功  
+- `0` : すべてのチェック成功
 - `1` : 型エラー or テスト失敗 (環境不足含む)
 
 ---
@@ -206,4 +206,3 @@ PRE-REVIEW QA CHECKS
 - ⚠️ テスト実行: CUDA メモリ制約
 
 次は Phase 2（docstring + code quality 統合）を進めてください。
-

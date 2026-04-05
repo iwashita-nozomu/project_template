@@ -1,7 +1,7 @@
 # scripts/ci/pre_review.sh — 検証レポート
 
-**作成日**: 2026-03-21  
-**対象スクリプト**: `/workspace/scripts/ci/pre_review.sh`  
+**作成日**: 2026-03-21
+**対象スクリプト**: `/workspace/scripts/ci/pre_review.sh`
 **検証状況**: ✅ 正常に動作確認
 
 ---
@@ -32,7 +32,7 @@
 
 **原因**: JAX の型 stub ファイル（`.pyi`）が不完全 or Pyright が JAX 型を完全に解析できない
 
-**対策**: 
+**対策**:
 - JAX 関連の型の `# type: ignore` コメント追加
 - または`pyright.json` で JAX 関連モジュールの strictness を調整
 
@@ -75,7 +75,7 @@ bash scripts/ci/pre_review.sh 2>&1 | head -100
 
 ### 実行出力（抜粋）
 
-```
+```text
 ==========================================
 PRE-REVIEW QA CHECKS
 ==========================================
@@ -88,7 +88,7 @@ PRE-REVIEW QA CHECKS
 
 ### 詳細エラー例
 
-```
+```text
 /workspace/python/jax_util/base/_env_value.py:61:1 - error: Type of "update" is partially unknown
   Type of "update" is "(name: Unknown, val: Unknown) -> None" (reportUnknownMemberType)
 
@@ -127,11 +127,11 @@ JAX の型不明エラーは既知の制限。pyright.json で以下を設定：
 {
   "python.analysis.diagnosticMode": "workspace",
   "python.analysis.typeCheckingMode": "strict",
-  
+
   "python.analysis.ignore": [
     "reportUnknownMemberType"  // JAX API の型不明は許容
   ],
-  
+
   "python.analysis.overrides": [
     {
       "include": ["python/jax_util/**"],
@@ -162,7 +162,7 @@ scripts/ci/pre_review.sh
 ```
 
 **期待される出力**:
-```
+```text
 ==========================================
 ✅ PRE-REVIEW CHECKS COMPLETE
 ==========================================
@@ -183,4 +183,3 @@ scripts/ci/pre_review.sh
 ---
 
 **結論**: `scripts/ci/pre_review.sh` は完全に正常に機能しています。次は JAX 型エラーを許容する設定をして、フルチェック（pytest / pydocstyle / Ruff）を実行します。
-

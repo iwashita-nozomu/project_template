@@ -1,7 +1,7 @@
 # pre_review.sh スクリプト — 使用ガイド
 
-**ファイル**: `/workspace/scripts/ci/pre_review.sh`  
-**作成日**: 2026-03-21  
+**ファイル**: `/workspace/scripts/ci/pre_review.sh`
+**作成日**: 2026-03-21
 **用途**: PR 前の自動 QA チェック
 
 ---
@@ -12,7 +12,7 @@
 
 1. **Type Checking** — Pyright (strict mode)
 2. **Test Execution** — pytest
-3. **Docstring Validation** — pydocstyle  
+3. **Docstring Validation** — pydocstyle
 4. **Code Quality** — Ruff (E, F, I, D, UP)
 
 ---
@@ -81,11 +81,11 @@ docker run -it -v /workspace:/workspace jax_util:latest /workspace/scripts/ci/pr
 ### 1. Type Checking (Pyright)
 
 ```bash
-python3 -m pyright ./python/jax_util
+python3 -m pyright
 ```
 
-**対象**: `python/jax_util/` 内の全 Python ファイル  
-**基準**: Pyright strict mode （pyproject.toml 設定）  
+**対象**: `pyproject.toml` の `[tool.pyright]` に含めた Python ファイル
+**基準**: Pyright strict mode （pyproject.toml 設定）
 **失敗時の対応**: コードを修正して再実行
 
 **主なエラー例**:
@@ -101,8 +101,8 @@ python3 -m pyright ./python/jax_util
 python3 -m pytest python/tests/ -q --tb=short
 ```
 
-**対象**: `python/tests/` 内の全テスト  
-**基準**: 全テスト通過  
+**対象**: `python/tests/` 内の全テスト
+**基準**: 全テスト通過
 **失敗時の対応**: テストまたは実装を修正して再実行
 
 ---
@@ -110,12 +110,12 @@ python3 -m pytest python/tests/ -q --tb=short
 ### 3. Docstring Validation (pydocstyle)
 
 ```bash
-python3 -m pydocstyle python/jax_util
+python3 -m pydocstyle python/
 ```
 
-**対象**: `python/jax_util/` 内の全 Python ファイル  
-**基準**: pyproject.toml の pydocstyle 設定に準拠  
-**許容**: 
+**対象**: `python/` 配下の全 Python ファイル
+**基準**: pyproject.toml の pydocstyle 設定に準拠
+**許容**:
 
 - D104: パッケージ docstring
 - D105: プライベートメソッド
@@ -128,10 +128,10 @@ python3 -m pydocstyle python/jax_util
 ### 4. Code Quality (Ruff)
 
 ```bash
-python3 -m ruff check python/jax_util --select E,F,I,D,UP
+python3 -m ruff check python/ --select E,F,I,D,UP
 ```
 
-**対象**: `python/jax_util/` 内の全 Python ファイル  
+**対象**: `python/` 配下の全 Python ファイル
 **チェック**:
 
 - **E**: PEP8 エラー
@@ -148,7 +148,7 @@ python3 -m ruff check python/jax_util --select E,F,I,D,UP
 
 ### 開発時の手順
 
-```
+```text
 1. コード修正
    ↓
 2. scripts/ci/pre_review.sh 実行
@@ -177,7 +177,7 @@ scripts/ci/pre_review.sh
 
 ### 成功ケース
 
-```
+```text
 ==========================================
 PRE-REVIEW QA CHECKS
 ==========================================
@@ -203,7 +203,7 @@ Next: Commit changes and open PR
 
 ### 失敗ケース
 
-```
+```text
 ==========================================
 PRE-REVIEW QA CHECKS
 ==========================================
@@ -240,7 +240,7 @@ chmod +x scripts/ci/pre_review.sh
 
 ---
 
-### 問題: "ModuleNotFoundError: No module named 'pyright'"
+## 問題: "ModuleNotFoundError: No module named 'pyright'"
 
 **原因**: 必須パッケージがインストールされていない
 
@@ -251,19 +251,19 @@ python3 -m pip install pyright pytest pydocstyle ruff
 
 ---
 
-### 問題: 特定チェックだけ実行したい
+## 問題: 特定チェックだけ実行したい
 
 **対策**: スクリプトを編集するか、個別実行
 
 ```bash
 # Type checking のみ
-python3 -m pyright ./python/jax_util
+python3 -m pyright
 
 # pytest のみ
 python3 -m pytest python/tests/ -q
 
 # Ruff のみ
-python3 -m ruff check python/jax_util --select E,F,I,D,UP
+python3 -m ruff check python/ --select E,F,I,D,UP
 ```
 
 ---
@@ -281,16 +281,16 @@ python3 -m ruff check python/jax_util --select E,F,I,D,UP
 
 ```yaml
 - name: Type checking
-  run: python3 -m pyright ./python/jax_util
+  run: python3 -m pyright
 
 - name: Run tests
   run: python3 -m pytest python/tests/ -q
 
 - name: Docstring validation
-  run: python3 -m pydocstyle python/jax_util
+  run: python3 -m pydocstyle python/
 
 - name: Code quality
-  run: python3 -m ruff check python/jax_util --select E,F,I,D,UP
+  run: python3 -m ruff check python/ --select E,F,I,D,UP
 ```
 
 ---
@@ -309,7 +309,7 @@ nano scripts/ci/pre_review.sh
 # 5. Import cycle check
 echo ""
 echo -e "${BLUE}5️⃣  Checking for import cycles...${NC}"
-python3 -m pylint --rcfile=.pylintrc python/jax_util 2>/dev/null || true
+python3 -m pylint --rcfile=.pylintrc python/ 2>/dev/null || true
 
 # 3. テスト
 scripts/ci/pre_review.sh
@@ -332,4 +332,3 @@ scripts/ci/pre_review.sh
 ---
 
 **次のステップ**: base テスト JSON ログ統一 → Phase 1 完了へ
-

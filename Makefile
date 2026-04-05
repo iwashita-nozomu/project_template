@@ -1,4 +1,4 @@
-.PHONY: git_init ci ci-quick dev-setup tools-help agent-checks docker-check docker-build-check
+.PHONY: git_init ci ci-quick docs-check dev-setup tools-help agent-checks docker-check docker-build-check
 
 # Git 初期化（初回のみ）
 git_init:
@@ -12,6 +12,10 @@ ci:
 # CI 高速モード（ruff skip）
 ci-quick:
 	bash scripts/ci/run_all_checks.sh --quick
+
+# repo-wide Markdown lint / link checks
+docs-check:
+	bash scripts/ci/run_docs_checks.sh
 
 # agent runtime / skill drift checks
 agent-checks:

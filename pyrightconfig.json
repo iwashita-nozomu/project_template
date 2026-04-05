@@ -1,21 +1,3 @@
 {
-  "typeCheckingMode": "strict",
-  "include": ["./python"],
-  "exclude": [
-    "**/node_modules",
-    "**/__pycache__",
-    "**/build",
-    "**/dist"
-  ],
-  "extraPaths": ["./python"],
-  "reportUnknownParameterType": "none",
-  "reportUnknownArgumentType": "none",
-  "reportUnknownVariableType": "none",
-  "reportUnknownMemberType": "none",
-  "reportUnusedVariable": "none",
-  "reportAny": "warning",
-  "diagnosticSeverityOverrides": {
-    "reportUnknownMemberType": "none",
-    "reportAny": "none"
-  }
+  "extends": "./pyproject.toml"
 }

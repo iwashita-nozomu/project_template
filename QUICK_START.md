@@ -31,7 +31,7 @@ agent を使う場合は次を見ます。
 ```bash
 git status --short
 make ci-quick
-python3 -m pyright python/
+python3 -m pyright
 ```
 
 ## 3. 実装前の確認
@@ -40,9 +40,9 @@ python3 -m pyright python/
 bash scripts/guide.sh
 bash scripts/view_conventions.sh
 make ci-quick
+make docs-check
 python3 -m pytest python/tests/ -q --tb=short
 pipdeptree --warn fail
-python3 scripts/tools/check_markdown_lint.py documents
 ```
 
 フルチェック:
@@ -56,10 +56,9 @@ make ci
 ```bash
 make ci-quick
 make ci
+make docs-check
 make docker-build-check
 bash scripts/run_comprehensive_review.sh
-python3 scripts/tools/check_markdown_lint.py documents
-python3 scripts/tools/audit_and_fix_links.py documents
 ```
 
 ## 5. 実験の基本
@@ -78,7 +77,7 @@ python3 scripts/tools/audit_and_fix_links.py documents
 - Markdown の体裁ルールは `.markdownlint.json` と `documents/conventions/common/05_docs.md` を基準にします。
 - 依存棚卸しは `pipdeptree` と `deptry` を baseline にします。
 
-Codex CLI は `docker/Dockerfile` に同梱します。コンテナ内で使うときは次です。
+Codex CLI は `docker/Dockerfile` に同梱します。コンテナ内では `codex login`、API key を使う場合は `printenv OPENAI_API_KEY | codex login --with-api-key` を使います。
 
 ```bash
 docker build -t project-template -f docker/Dockerfile .

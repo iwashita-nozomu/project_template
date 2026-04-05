@@ -28,34 +28,5 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r docker/requirements.txt
 
-      - name: Install package
-        run: pip install -e python
-
-      - name: Check skill mirror drift
-        run: python scripts/tools/mirror_skill_shims.py --target .claude/skills --prune --check
-
-      - name: Smoke test research perspective pack
-        run: python scripts/agent_tools/smoke_test_research_perspective_pack.py
-
-      - name: Run pytest with coverage
-        run: python -m pytest python/tests/ \
-          --cov=python/jax_util \
-          --cov-report=term \
-          --cov-report=html \
-          -v
-
-      - name: Run type checking (strict mode)
-        run: python -m pyright ./python/jax_util
-
-      - name: Run docstring validation
-        run: python -m pydocstyle ./python/jax_util
-
-      - name: Run code quality checks
-        run: python -m ruff check ./python --select E,F,I,D,UP
-
-      - name: Upload coverage report
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: coverage-report-${{ matrix.python-version }}
-          path: htmlcov/
+      - name: Run repository CI
+        run: make ci

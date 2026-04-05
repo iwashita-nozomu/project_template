@@ -118,7 +118,7 @@ echo "JAX test platform: ${JAX_PLATFORMS}"
 # 1. Type checking
 echo ""
 echo -e "${BLUE}1️⃣  Type Checking (Pyright strict mode)...${NC}"
-if python3 -m pyright ./python/jax_util; then
+if python3 -m pyright; then
     echo -e "${GREEN}✅ Type checking passed${NC}"
     write_report "pyright=pass"
 else
@@ -147,7 +147,7 @@ fi
 # 3. Docstring validation
 echo ""
 echo -e "${BLUE}3️⃣  Docstring validation (pydocstyle)...${NC}"
-if python3 -m pydocstyle python/jax_util; then
+if python3 -m pydocstyle python/; then
     echo -e "${GREEN}✅ Docstring validation passed${NC}"
     write_report "pydocstyle=pass"
 else
@@ -158,7 +158,7 @@ fi
 # 4. Code quality
 echo ""
 echo -e "${BLUE}4️⃣  Code quality checks (Ruff)...${NC}"
-if python3 -m ruff check python/jax_util --select E,F,I,D,UP; then
+if python3 -m ruff check python/ --select E,F,I,D,UP; then
     echo -e "${GREEN}✅ Code quality checks passed${NC}"
     write_report "ruff=pass"
 else

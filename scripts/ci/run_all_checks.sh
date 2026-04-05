@@ -4,7 +4,8 @@ set -euo pipefail
 # ═══════════════════════════════════════════════════════════════════════════
 # 統合 CI スクリプト
 #
-# 用途: pytest + pyright + pydocstyle + ruff を一括実行してプロジェクト品質を検証
+# 用途: agent/runtime・Markdown・pytest・pyright・pydocstyle・ruff を一括実行して
+#       プロジェクト品質を検証
 #
 # 使用方法:
 #   bash scripts/ci/run_all_checks.sh           # 全テスト・解析実行
@@ -24,9 +25,9 @@ set -euo pipefail
 #   - 1: テスト失敗 または解析エラー
 #
 # 関連ドキュメント:
-#   - scripts/ci/README.md: ローカル CI 実行ガイド
-#   - documents/FILE_CHECKLIST_OPERATIONS.md#チェックリスト3: テスト実行
-#   - .github/workflows/ci.yml: GitHub Actions ワークフロー（同等チェックを直接実行）
+#   - documents/WORKFLOW_INVENTORY.md: repo-wide workflow inventory
+#   - documents/REVIEW_PROCESS.md: review と validation の正本
+#   - .github/workflows/ci.yml: GitHub Actions ワークフロー
 #
 # ═══════════════════════════════════════════════════════════════════════════
 
@@ -96,8 +97,18 @@ else
 fi
 echo ""
 
-# 1. pytest 実行
-echo "1️⃣  pytest を実行中..."
+# 1. Markdown / link checks
+echo "1️⃣  documentation checks を実行中..."
+if bash scripts/ci/run_docs_checks.sh 2>&1; then
+  echo "✅ documentation checks 成功"
+else
+  echo "❌ documentation checks 失敗"
+  EXIT_CODE=1
+fi
+echo ""
+
+# 2. pytest 実行
+echo "2️⃣  pytest を実行中..."
 if "$PYTHON_BIN" -m pytest python/tests/ -q --tb=short 2>&1; then
   echo "✅ pytest 成功"
 else
@@ -106,9 +117,9 @@ else
 fi
 echo ""
 
-# 2. pyright 実行
-echo "2️⃣  pyright を実行中..."
-if "$PYTHON_BIN" -m pyright python/ 2>&1; then
+# 3. pyright 実行
+echo "3️⃣  pyright を実行中..."
+if "$PYTHON_BIN" -m pyright 2>&1; then
   echo "✅ pyright 成功"
 else
   echo "❌ pyright 失敗"
@@ -116,9 +127,9 @@ else
 fi
 echo ""
 
-# 3. pydocstyle 実行（Docstring 検証）
-echo "3️⃣  pydocstyle を実行中... (Docstring チェック)"
-if "$PYTHON_BIN" -m pydocstyle python/jax_util/ 2>&1; then
+# 4. pydocstyle 実行（Docstring 検証）
+echo "4️⃣  pydocstyle を実行中... (Docstring チェック)"
+if "$PYTHON_BIN" -m pydocstyle python/ 2>&1; then
   echo "✅ pydocstyle 成功"
 else
   echo "❌ pydocstyle 失敗（詳細: documents/DOCSTRING_GUIDE.md を参照）"
@@ -126,9 +137,9 @@ else
 fi
 echo ""
 
-# 4. ruff (QUICK_MODE でスキップ可能)
+# 5. ruff (QUICK_MODE でスキップ可能)
 if [ $QUICK_MODE -eq 0 ]; then
-  echo "4️⃣  ruff を実行中..."
+  echo "5️⃣  ruff を実行中..."
   echo "   - E,F: コード品質（エラー・警告）"
   echo "   - I: Import 順序チェック"
   echo "   - D: Docstring 検証"

@@ -16,7 +16,7 @@
 | **4. 型チェック実行** | `pyright` で検証 | 2 分 | [07_type_checker.md](./conventions/python/07_type_checker.md) |
 | **5. テスト作成** | ユニットテストを書く | 15 分 | [coding-conventions-testing.md](./coding-conventions-testing.md) |
 
-### よくある間違い
+## よくある間違い
 
 ```python
 # ❌ NG: 型注釈なし
@@ -29,7 +29,7 @@ def my_function(x: jnp.ndarray) -> jnp.ndarray:
     return x + 1
 ```
 
-### 📝 Docstring テンプレート
+## 📝 Docstring テンプレート
 
 **モジュール docstring**:
 ```python
@@ -52,10 +52,10 @@ def my_function(x: jnp.ndarray) -> jnp.ndarray:
 ```python
 class MyClass:
     """クラスの概要（1行）。
-    
+
     より詳細な説明をここに書きます。
     複数行になっても OK です。
-    
+
     Attributes:
         attr1 (Type): 属性の説明
         attr2 (Type): 属性の説明
@@ -66,19 +66,19 @@ class MyClass:
 ```python
 def my_function(x: Vector, y: Scalar) -> Matrix:
     """関数の概要（1行）。
-    
+
     より詳細な説明。前提条件やアルゴリズムの概略を書きます。
-    
+
     Args:
         x: ベクトル入力の説明
         y: スカラー係数の説明
-        
+
     Returns:
         出力行列の説明
-        
+
     Raises:
         ValueError: 条件を満たさない場合の説明
-        
+
     Example:
         >>> x = jnp.array([1, 2, 3])
         >>> y = 2.0

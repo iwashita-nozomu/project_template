@@ -7,6 +7,8 @@
 
 - `scripts/ci/run_all_checks.sh`
   - 主要なチェックをまとめて実行します。
+- `scripts/ci/run_docs_checks.sh`
+  - repo-wide の Markdown 体裁とリンク監査をまとめて実行します。
 - `scripts/run_comprehensive_review.sh`
   - repo 全体の確認をまとめて実行します。
 - `scripts/run_pytest_with_logs.sh`

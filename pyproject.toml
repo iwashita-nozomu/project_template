@@ -34,12 +34,15 @@ select = ["E", "F", "I", "D", "UP"]
 # D: docstring チェック
 # UP: Python 最新構文への自動升格
 
+[tool.ruff.lint.pydocstyle]
+convention = "pep257"
+
 [tool.pyright]
 # 型検査は strict を基本方針とします。
 typeCheckingMode = "strict"
 
-# 既定の baseline は通常運用する実装モジュールに限定します。
-include = ["./python/jax_util", "./python/experiment_runner"]
+# この template では `python/` 全体を baseline として扱います。
+include = ["./python"]
 exclude = [
   "**/.*",
   "**/node_modules",
@@ -49,7 +52,6 @@ exclude = [
   "**/reports",
   "**/experiments",
   "**/*.egg-info",
-  "./python/jax_util/solvers/archive",
   "./references",
   "./notes",
   "./diary",
@@ -59,10 +61,9 @@ exclude = [
   "./scripts",
   "./.worktrees",
 ]
-ignore = ["./python/tests"]
 
 # ローカルパッケージ解決のため、python を追加します。
-extraPaths = ["./python", "./python/jax_util", "./python/experiment_runner"]
+extraPaths = ["./python"]
 stubPath = "./python/typings"
 
 
@@ -77,10 +78,10 @@ reportMissingTypeStubs = "warning"
 # D102: パブリックメソッド docstring 必須
 # D103: 関数 docstring 必須
 # D104-D105: パッケージ/Magic method は除外
-match = "python/(jax_util|experiment_runner)/.*\\.py"
-match_dir = "python"
+match = ".*\\.py"
+match_dir = ".*"
 # プライベート関数 (_prefix) の docstring チェックは除外
-ignore = ["D104", "D105", "D107"]
+ignore = ["D104", "D105", "D107", "D203"]
 
 [tool.pytest.ini_options]
 testpaths = ["python/tests"]

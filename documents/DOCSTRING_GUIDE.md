@@ -39,7 +39,7 @@ ______________________________________________________________________
 参考資料:
     - documents/coding-conventions-python.md
     - [リンク]
-    
+
 実装例:
     >>> from jax_util.module_name import PublicClass
     >>> obj = PublicClass(...)
@@ -58,22 +58,22 @@ from __future__ import annotations
 
 ______________________________________________________________________
 
-### 2. クラス Docstring（**必須**）
+## 2. クラス Docstring（**必須**）
 
 ```python
 class LinearOperator(eqx.Module):
     """線形演算子の抽象クラス。
-    
+
     行列・線形変換を表現する基本クラス。
     `shape` プロパティで次元情報を提供し、
     `__matmul__` と `__mul__` で演算をサポートします。
-    
+
     Attributes:
         shape (tuple): 演算子の形状 (m, n)
-        
+
     See Also:
         NonLinearOperator: 非線形演算子
-        
+
     Example:
         >>> class MyOp(LinearOperator):
         ...     def __init__(self, mv):
@@ -83,11 +83,11 @@ class LinearOperator(eqx.Module):
         ...         return (n, n)
         ...     def __matmul__(self, x):
         ...         return self.mv(x)
-        
+
         >>> A = MyOp(my_matrix_vector_product)
         >>> result = A @ vector
     """
-    
+
     @property
     def shape(self) -> Tuple[int, ...]:
         """演算子の形状 (m, n)。"""
@@ -102,42 +102,42 @@ class LinearOperator(eqx.Module):
 
 ______________________________________________________________________
 
-### 3. 関数 Docstring（**必須**）
+## 3. 関数 Docstring（**必須**）
 
 ```python
 def linear_solve(
-    A: LinearOperator, 
-    b: Vector, 
+    A: LinearOperator,
+    b: Vector,
     x0: Optional[Vector] = None
 ) -> Tuple[Vector, int, Dict[str, Any]]:
     """線形方程式 Ax = b を解く。
-    
+
     前処理付き CG 法で疎行列の線形方程式を解きます。
     行列 A は対称正定値である必要があります。
-    
+
     Args:
         A: 対称正定値行列演算子
         b: 右辺ベクトル (shape=(n,))
         x0: 初期推定値。省略時は零ベクトル
-        
+
     Returns:
         解ベクトル x (shape=(n,))
         反復回数 (int)
         メタデータ dict
-        
+
     Raises:
         ValueError: A が正方行列でない
         ValueError: b の次元が A と一致しない
-        
+
     Example:
         >>> import jax.numpy as jnp
         >>> from jax_util.solvers import linear_solve
-        >>> 
+        >>>
         >>> A = LinearOperator(jax_matvec_product, shape=(100, 100))
         >>> b = jnp.ones(100)
         >>> x, iterations, info = linear_solve(A, b)
         >>> print(f"収束: {iterations} 反復")
-        
+
     Notes:
         - 数値安定性確保のため正規化を内部で実施
         - 予条件行列を指定可能（将来）
@@ -199,7 +199,7 @@ __all__ = ["public_func", "_private_func"]
 from . import some_module as *
 ```
 
-### 良い例 ✅
+## 良い例 ✅
 
 ```python
 """エクスポート構造を明示。"""
@@ -253,16 +253,16 @@ ______________________________________________________________________
 
 ```bash
 # docstring チェック（pydocstyle）
-pydocstyle python/jax_util/
+pydocstyle python/
 
 # スタイル + import + docstring チェック（ruff）
-ruff check python/jax_util/ --select D
+ruff check python/ --select D
 
 # 型チェック
-pyright python/jax_util/
+pyright
 ```
 
-### CI/CD パイプライン
+## CI/CD パイプライン
 
 ```bash
 # make ci で実行
