@@ -8,4 +8,5 @@ description: Use when reviewing experiment reports for evidence traceability, re
 1. Read `agents/skills/report-review.md`.
 1. Check `documents/experiment-report-style.md`.
 1. Verify that major conclusions cite specific results.
+1. Check reproducibility details, limitations, and critical-review sections.
 1. Distinguish report-only rewrite issues from missing-evidence issues.

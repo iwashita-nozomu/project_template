@@ -16,16 +16,42 @@
 
 - `documents/worktree-lifecycle.md`
 - `documents/WORKTREE_SCOPE_TEMPLATE.md`
+- `documents/BRANCH_SCOPE.md`
+- `notes/worktrees/README.md`
 - `scripts/tools/check_worktree_scopes.sh`
 - `scripts/agent_tools/validate_role_write_scope.py`
 
+## Expected Outcome
+
+- `WORKTREE_SCOPE.md` と実際の worktree 状態の差分が見えている
+- scope drift、runtime output drift、carry-over 漏れがあれば記録されている
+- この worktree を継続してよいか、scope を直すべきか、cleanup に進むべきか判断できる
+
 ## Mandatory Checklist
 
-- `WORKTREE_SCOPE.md` がある
-- editable directories の外に repo edit が出ていない
-- runtime output が許可ディレクトリに収まっている
-- worktree の目的と branch 名が一致している
-- carry-over すべき note や result が取り残されていない
+- `WORKTREE_SCOPE.md` が存在し、branch、path、editable directories、runtime output directories が current state と一致する
+- `git status --short --branch` で見える dirty state が説明可能である
+- `git diff --name-only` の変更が editable directories の中に収まっている
+- runtime output が `WORKTREE_SCOPE.md` に書いた場所へ収まっている
+- action log と必要なら branch summary が current state に追随している
+- `git worktree list --porcelain` で duplicate / stale worktree が無いか確認している
+- carry-over すべき note、report、result の置き場が消える前提になっていない
+
+## Default Sequence
+
+1. `WORKTREE_SCOPE.md`、action log、必要なら branch summary を読み、scope と carry-over 先を確認します。
+1. `git status --short --branch`、`git diff --name-only`、`git worktree list --porcelain` を見て drift を洗います。
+1. `bash scripts/tools/check_worktree_scopes.sh` で repo 内の worktree scope 配置を確認します。
+1. specialist run bundle を伴う場合は、必要に応じて `validate_role_write_scope.py` で write policy 逸脱を見ます。
+1. drift や cleanup risk があれば、action log に残してから継続、修正、削除判断へ進みます。
+
+## Default Commands
+
+- `git status --short --branch`
+- `git diff --name-only`
+- `git worktree list --porcelain`
+- `bash scripts/tools/check_worktree_scopes.sh`
+- `python3 scripts/agent_tools/validate_role_write_scope.py --report-dir reports/agents/<run-id> --workspace-root . --role <role-id>`
 
 ## Boundary
 

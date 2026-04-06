@@ -17,6 +17,35 @@
 - `agents/skills/python-review.md`
 - `documents/REVIEW_PROCESS.md`
 
+## Expected Outcome
+
+- severity つき findings が優先順で出ている
+- behavior、設計境界、doc/test alignment の崩れが見えている
+- `no findings` の場合でも residual risk や未確認項目が残っている
+
+## Mandatory Checklist
+
+- 実際の diff と changed file list を先に読んでいる
+- 変更の目的に対して、実装、テスト、文書が揃っているか見ている
+- backward compatibility と call site 影響を見ている
+- error handling、defaults、削除影響、rename 影響を見ている
+- validation が十分か、欠けているなら明示している
+
+## Review Sequence
+
+1. `git diff --stat` と changed files を見て、review 対象を固定します。
+1. behavior が変わる箇所から順に読み、回帰点を探します。
+1. API、config、doc、test の追随を確認します。
+1. findings を `fix now` と `follow-up` に分け、evidence を添えて返します。
+1. Python-heavy diff なら `python-review` を追加し、より厳密に閉じます。
+
+## Findings Format
+
+- `severity`
+- `finding`
+- `required change`
+- `evidence`
+
 ## Review Stance
 
 - finding を先に出します。

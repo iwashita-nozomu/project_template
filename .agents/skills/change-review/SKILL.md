@@ -5,6 +5,7 @@ description: Use for code review, doc review, or AI-generated diff review when y
 
 # Change Review
 
+1. Read `agents/skills/change-review.md`.
 1. Review the actual diff first.
 1. Report findings before summaries.
 1. Prioritize:
@@ -12,4 +13,5 @@ description: Use for code review, doc review, or AI-generated diff review when y
    - missing validation
    - missing tests
    - stale documentation
+1. Separate `fix now` from `follow-up`.
 1. Use `documents/REVIEW_PROCESS.md` for repo review expectations.

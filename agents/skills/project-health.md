@@ -14,8 +14,38 @@
 ## Core References
 
 - `documents/WORKFLOW_INVENTORY.md`
+- `documents/REVIEW_PROCESS.md`
 - `scripts/run_comprehensive_review.sh`
 - `scripts/docker_dependency_validator.py`
+
+## Expected Outcome
+
+- CI / docs / agent runtime / environment のどこに drift があるか分かる
+- routine maintenance で今すぐ直すものと監視継続でよいものが分かる
+- repo-wide な review を開くべきか、局所修正で済むか判断できる
+
+## Monitoring Areas
+
+- agent runtime と skill mirror の同期
+- `make ci-quick` で見る基礎品質
+- Docker / dependency / runtime の drift
+- docs、workflow、tool 導線の stale 化
+- 長く残っている worktree、branch、未整理 note
+
+## Default Sequence
+
+1. 直近の変更有無に関わらず、まず `make agent-checks` と `make ci-quick` で基礎状態を見ます。
+1. 環境 drift を疑う場合は `python3 scripts/docker_dependency_validator.py` を追加します。
+1. repo-wide な兆候がある場合は `bash scripts/run_comprehensive_review.sh` へ進みます。
+1. findings を `fix now`、`follow-up`、`watch` に分けます。
+1. ルール変更が必要なら `documents/` または `agents/` の正本更新へつなぎます。
+
+## Default Commands
+
+- `make agent-checks`
+- `make ci-quick`
+- `python3 scripts/docker_dependency_validator.py`
+- `bash scripts/run_comprehensive_review.sh`
 
 ## Boundary
 

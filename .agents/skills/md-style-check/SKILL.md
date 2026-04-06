@@ -8,4 +8,5 @@ description: Use when Markdown files changed and you need formatting, heading, a
 1. Read `agents/skills/md-style-check.md`.
 1. Check `documents/conventions/common/05_docs.md`.
 1. Run markdown lint and link checks appropriate to the changed files.
+1. Check heading hierarchy, command/path formatting, and broken links together.
 1. Treat broken links and heading drift as real findings.
