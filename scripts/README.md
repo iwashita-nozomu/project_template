@@ -15,6 +15,14 @@
   - repo-wide の Markdown 体裁とリンクを確認します。
 - [ci/check_docker_build.sh](/mnt/l/workspace/project_template/scripts/ci/check_docker_build.sh)
   - `docker/Dockerfile` の build 可否、`docker` CLI、run-time `safe.directory` 設定を確認します。
+- [ci/run_container_pack.py](/mnt/l/workspace/project_template/scripts/ci/run_container_pack.py)
+  - repo 定義の runtime pack を build / smoke します。
+- [ci/run_in_repo_container.py](/mnt/l/workspace/project_template/scripts/ci/run_in_repo_container.py)
+  - repo workspace を mount した container command を実行します。
+- [ci/run_python_in_dockerfile.py](/mnt/l/workspace/project_template/scripts/ci/run_python_in_dockerfile.py)
+  - Python file を rule ベースで container 実行します。
+- [ci/run_codex_in_repo_container.py](/mnt/l/workspace/project_template/scripts/ci/run_codex_in_repo_container.py)
+  - nested Codex を canonical container 内で起動します。
 - [run_comprehensive_review.sh](/mnt/l/workspace/project_template/scripts/run_comprehensive_review.sh)
   - repo 全体の確認用です。
 
@@ -36,6 +44,7 @@
 ### ドキュメント整備
 
 - [tools/check_markdown_lint.py](/mnt/l/workspace/project_template/scripts/tools/check_markdown_lint.py)
+- [tools/check_markdown_math.py](/mnt/l/workspace/project_template/scripts/tools/check_markdown_math.py)
 - [tools/audit_and_fix_links.py](/mnt/l/workspace/project_template/scripts/tools/audit_and_fix_links.py)
 - [tools/fix_markdown_docs.py](/mnt/l/workspace/project_template/scripts/tools/fix_markdown_docs.py)
 - [tools/find_similar_documents.py](/mnt/l/workspace/project_template/scripts/tools/find_similar_documents.py)
@@ -48,6 +57,14 @@
 - [agent_tools/validate_role_write_scope.py](/mnt/l/workspace/project_template/scripts/agent_tools/validate_role_write_scope.py)
 - [agent_tools/smoke_test_research_perspective_pack.py](/mnt/l/workspace/project_template/scripts/agent_tools/smoke_test_research_perspective_pack.py)
   - research perspective review pack の runtime と bundle を smoke test します。
+- [agent_tools/worktree_scope_lint.py](/mnt/l/workspace/project_template/scripts/agent_tools/worktree_scope_lint.py)
+  - `WORKTREE_SCOPE.md` の placeholder と drift を確認します。
+- [agent_tools/worktree_start.py](/mnt/l/workspace/project_template/scripts/agent_tools/worktree_start.py)
+  - worktree kickoff summary を出します。
+- [worktree_start.sh](/mnt/l/workspace/project_template/scripts/worktree_start.sh)
+  - worktree kickoff の user-facing 入口です。
+- [push_origin.sh](/mnt/l/workspace/project_template/scripts/push_origin.sh)
+  - commit 後の canonical push 入口です。
 
 ## よく使うコマンド
 
@@ -57,12 +74,18 @@ make ci-quick
 make ci
 make docs-check
 make docker-build-check
+make docker-build-check-host-docker
+make docker-shell
+make docker-codex
+make docker-codex-host-docker
 bash scripts/run_comprehensive_review.sh
 python3 -m pyright
 python3 -m pytest python/tests/ -q --tb=short
 python3 -m ruff check python/ --select D,E,F,I,UP
 pipdeptree --warn fail
 deptry python
+python3 scripts/ci/run_container_pack.py --pack docker/packs/default.toml --print-only
+python3 scripts/ci/run_codex_in_repo_container.py --print-only
 python3 scripts/tools/mirror_skill_shims.py --target .claude/skills --prune
 python3 scripts/agent_tools/smoke_test_research_perspective_pack.py
 ```

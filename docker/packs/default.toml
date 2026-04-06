@@ -1,0 +1,28 @@
+[pack]
+name = "default"
+dockerfile = "docker/Dockerfile"
+context = "."
+image_tag = "project-template:default-runtime-pack"
+
+[smoke]
+shell = "/bin/bash"
+commands = [
+  "python3 --version",
+  "python3 -m pip --version",
+  "node --version",
+  "npm --version",
+  "codex --version",
+  "docker --version",
+  "python3 scripts/docker_dependency_validator.py",
+  "python3 -c \"import jax; print(jax.__version__)\"",
+  "safe_dirs=\"$(git config --global --get-all safe.directory || true)\"",
+  "printf '%s\\n' \"$safe_dirs\" | grep -Fx '/workspace' >/dev/null",
+]
+
+[runtime]
+shell = "/bin/bash"
+workdir = "/workspace"
+workspace_mount = "/workspace"
+env = [
+  "AUTO_GIT_SAFE_DIRECTORY=1",
+]

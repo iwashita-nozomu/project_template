@@ -8,6 +8,8 @@
   - workflow family 選択と handoff 整理
 - `artifact-placement`
   - task 文書、run artifact、repo 正本の置き分け
+- `from_another_agent`
+  - 前回 run の carry-over と optional follow-up を吸う
 - `subagent-bootstrap`
   - specialist 起動、report bundle、write-scope 整理
 - `static-check`

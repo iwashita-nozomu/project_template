@@ -23,6 +23,7 @@ ruff
 mdformat
 mdformat-myst
 pyyaml>=6
+tomli>=2.0.1
 
 # Security & Audit
 jsonschema>=4.0.0

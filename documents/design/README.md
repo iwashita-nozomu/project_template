@@ -12,6 +12,8 @@
   - `jax_util` 配下のモジュール設計入口
 - [experiment_runner.md](../experiment_runner.md)
   - `experiment_runner` の契約と実行モデル
+- [../remote-execution-repo-contract.md](../remote-execution-repo-contract.md)
+  - remote execution を受ける repo の最小契約
 
 ## `jax_util` 詳細設計
 

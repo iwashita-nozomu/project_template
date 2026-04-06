@@ -5,6 +5,8 @@ on:
     paths:
       - "docker/**"
       - "scripts/ci/check_docker_build.sh"
+      - "scripts/ci/container_runtime.py"
+      - "scripts/ci/run_container_pack.py"
       - ".github/workflows/docker-build.yml"
       - "Makefile"
   push:
@@ -12,6 +14,8 @@ on:
     paths:
       - "docker/**"
       - "scripts/ci/check_docker_build.sh"
+      - "scripts/ci/container_runtime.py"
+      - "scripts/ci/run_container_pack.py"
       - ".github/workflows/docker-build.yml"
       - "Makefile"
   workflow_dispatch:
@@ -22,5 +26,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run Docker build check
-        run: bash scripts/ci/check_docker_build.sh --pull --tag project-template:ci
+      - name: Run default Docker pack check
+        run: bash scripts/ci/check_docker_build.sh --pack docker/packs/default.toml --pull --tag project-template:ci-default
+
+      - name: Run host-docker Docker pack check
+        run: bash scripts/ci/check_docker_build.sh --pack docker/packs/default-host-docker.toml --pull --tag project-template:ci-host-docker

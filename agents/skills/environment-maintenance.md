@@ -16,6 +16,10 @@ Docker、CI、dependency、runtime guidance を同じ変更でそろえます。
 
 - `documents/coding-conventions-project.md`
 - `documents/WORKFLOW_INVENTORY.md`
+- `docker/README.md`
+- `docker/packs/`
+- `docker/codex-container-profiles.toml`
+- `docker/python-execution-rules.toml`
 - `docker/`
 - `README.md`
 - `agents/templates/environment_change_proposal.md`
@@ -40,6 +44,7 @@ Docker、CI、dependency、runtime guidance を同じ変更でそろえます。
 ## Validation
 
 - `make docker-build-check`
+- `make docker-build-check-host-docker`
 - `make ci-quick`
 - 必要なら `make ci`
 - 文書更新を含む場合は `make docs-check`

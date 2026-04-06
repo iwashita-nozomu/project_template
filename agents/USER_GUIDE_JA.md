@@ -34,6 +34,7 @@
 - worktree を切った直後は `worktree-start` で scope と action log を固定し、drift や cleanup 判断は `worktree-health` を使います。
 - repo 全体を横断して見るときは `project-review`、必要なら `comprehensive-review` と `project-health` を追加します。
 - 文書の置き場で迷う場合は `artifact-placement` を見ます。
+- 前回 agent run から引き継ぐ TODO や optional follow-up がある場合は `from_another_agent` を先に見ます。
 - CLI 差分で迷う場合は `codex-cli`、`claude-code-cli`、`copilot-cli` を見ます。
 - Docker、CI、dependency、repo-wide tool 導入案では `environment-maintenance` を使います。
 

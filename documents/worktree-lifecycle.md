@@ -23,6 +23,8 @@
 - [WORKTREE_SCOPE_TEMPLATE.md](/mnt/l/workspace/project_template/documents/WORKTREE_SCOPE_TEMPLATE.md) を基に、worktree root の `WORKTREE_SCOPE.md` を current state へ合わせます。
 - [WORKTREE_LOG_TEMPLATE.md](/mnt/l/workspace/project_template/notes/worktrees/WORKTREE_LOG_TEMPLATE.md) を基に action log を作るか更新し、branch、path、purpose、次の一手を最初に残します。
 - branch が複数 session 続く、または handoff 前提なら `notes/branches/` に summary を置きます。
+- `notes/guardrails/README.md` と `notes/failures/README.md` を見て、今回の task で踏みやすい avoid pattern と既知 failure を確認します。
+- `python3 scripts/agent_tools/worktree_scope_lint.py --current` か `bash scripts/worktree_start.sh --current` で scope の placeholder と kickoff 欄を確認します。
 - `git status --short --branch` と `git worktree list --porcelain` を確認し、必要なら `bash scripts/tools/check_worktree_scopes.sh` を実行します。
 - dirty state、conflict risk、scope drift の兆候があれば、編集前に action log に残します。
 

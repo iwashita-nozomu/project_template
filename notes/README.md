@@ -15,6 +15,10 @@
   - branch 例外運用時の要約と入口
 - [`worktrees/`](./worktrees/README.md)
   - 削除対象 worktree から吸い上げた要約と action log
+- [`guardrails/`](./guardrails/README.md)
+  - 繰り返し踏みやすい avoid pattern と実務 guardrail
+- [`failures/`](./failures/README.md)
+  - 再発させたくない failure の短い記録
 
 `branches/` と `worktrees/` は常用カテゴリではありません。`documents/worktree-lifecycle.md` に従って branch / worktree を例外運用した場合だけ使います。
 
@@ -25,6 +29,7 @@
 - 調査メモ、文献整理、設計上の注意点
 - `main` に持ち帰る最小限の実験要約
 - 例外的な branch / worktree 運用で失いたくない判断
+- host 固有の Git mirror 手順
 
 ## 置かないもの
 
@@ -56,3 +61,4 @@
 - 自分の仮説や解釈は `Idea:`、`Interpretation:`、`Consideration:` で分けます。
 - 重要情報をリンク先に逃がしすぎません。
 - 一度 `main` に置いた過去の note 本文はむやみに書き換えません。補足が必要なら追記で対応します。
+- host 固有の Git mirror や bare repo hook は `notes/github-mirror-procedure.md` に残します。

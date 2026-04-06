@@ -13,6 +13,10 @@ skill_families:
     purpose: Decide where task documents, reports, notes, and repo-wide canon belong.
     canonical_doc: agents/skills/artifact-placement.md
     shim: .agents/skills/artifact-placement/SKILL.md
+  - id: from_another_agent
+    purpose: Pull forward relevant carry-over, TODOs, and optional follow-ups from prior agent runs.
+    canonical_doc: agents/skills/from_another_agent.md
+    shim: .agents/skills/from_another_agent/SKILL.md
   - id: subagent-bootstrap
     purpose: Bootstrap run bundles and specialist delegation without breaking write-scope rules.
     canonical_doc: agents/skills/subagent-bootstrap.md

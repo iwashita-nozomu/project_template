@@ -1,4 +1,4 @@
-.PHONY: git_init ci ci-quick docs-check dev-setup tools-help agent-checks docker-check docker-build-check
+.PHONY: git_init ci ci-quick docs-check dev-setup tools-help agent-checks docker-check docker-build-check docker-build-check-host-docker docker-shell docker-codex docker-codex-host-docker
 
 # Git 初期化（初回のみ）
 git_init:
@@ -28,7 +28,23 @@ docker-check:
 
 # Docker イメージ build 可否の確認
 docker-build-check:
-	bash scripts/ci/check_docker_build.sh
+	bash scripts/ci/check_docker_build.sh --pack docker/packs/default.toml
+
+# Docker socket を mount した build smoke check
+docker-build-check-host-docker:
+	bash scripts/ci/check_docker_build.sh --pack docker/packs/default-host-docker.toml
+
+# 既定 pack の shell を起動
+docker-shell:
+	python3 scripts/ci/run_in_repo_container.py --pack docker/packs/default.toml --shell-session --tty
+
+# nested Codex を既定 pack で起動
+docker-codex:
+	python3 scripts/ci/run_codex_in_repo_container.py
+
+# nested Codex を host Docker socket 付き pack で起動
+docker-codex-host-docker:
+	python3 scripts/ci/run_codex_in_repo_container.py --profile host-docker
 
 # 開発環境初期化
 dev-setup: git_init

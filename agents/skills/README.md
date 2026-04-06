@@ -19,6 +19,7 @@
 | `repo-onboarding` | unfamiliar repo の最短入口確認 | `agents/skills/repo-onboarding.md` | `.agents/skills/repo-onboarding/SKILL.md` |
 | `agent-orchestration` | workflow family 選択と role/handoff 整理 | `agents/skills/agent-orchestration.md` | `.agents/skills/agent-orchestration/SKILL.md` |
 | `artifact-placement` | task 文書、run artifact、repo 正本の置き分け | `agents/skills/artifact-placement.md` | `.agents/skills/artifact-placement/SKILL.md` |
+| `from_another_agent` | 前回 run の carry-over と optional follow-up の取捨選択 | `agents/skills/from_another_agent.md` | `.agents/skills/from_another_agent/SKILL.md` |
 | `subagent-bootstrap` | run bundle と specialist 起動 | `agents/skills/subagent-bootstrap.md` | `.agents/skills/subagent-bootstrap/SKILL.md` |
 | `codex-cli` | Codex 用の入口と読順 | `agents/skills/codex-cli.md` | `.agents/skills/codex-cli/SKILL.md` |
 | `codex-task-workflow` | Codex の context-independent task 実行 | `agents/skills/codex-task-workflow.md` | `.agents/skills/codex-task-workflow/SKILL.md` |
@@ -52,6 +53,7 @@
 - Codex では `AGENTS.md` と `agents/canonical/CODEX_WORKFLOW.md` を先に読みます。
 - task ごとの skill 選択は、このディレクトリか `catalog.yaml` を見て決めます。
 - specialist を使う場合の Codex-specific routing は `agents/canonical/CODEX_SUBAGENTS.md` を見ます。
+- 前の agent の carry-over を吸う必要がある task では `from_another_agent` を最初に見ます。
 - 文献調査が主タスクなら `literature-survey` を先に見ます。
 - 研究系の task では `research-workflow` を outer loop、`research-perspective-review` を大きい review pack として使います。
 - 実験結果を見ながら code change を継続反復する task では `experiment-change-loop` を使います。

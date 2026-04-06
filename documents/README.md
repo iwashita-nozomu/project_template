@@ -8,6 +8,9 @@
 - [conventions/README.md](/mnt/l/workspace/project_template/documents/conventions/README.md)
 - [coding-conventions-project.md](/mnt/l/workspace/project_template/documents/coding-conventions-project.md)
 - [WORKFLOW_INVENTORY.md](/mnt/l/workspace/project_template/documents/WORKFLOW_INVENTORY.md)
+- [WORKFLOW_GUIDE.md](/mnt/l/workspace/project_template/documents/WORKFLOW_GUIDE.md)
+- [FILE_CHECKLIST_OPERATIONS.md](/mnt/l/workspace/project_template/documents/FILE_CHECKLIST_OPERATIONS.md)
+- [remote-execution-repo-contract.md](/mnt/l/workspace/project_template/documents/remote-execution-repo-contract.md)
 
 ## 実験・研究
 
@@ -32,7 +35,9 @@
 - [REVIEW_PROCESS.md](/mnt/l/workspace/project_template/documents/REVIEW_PROCESS.md)
 - [BRANCH_SCOPE.md](/mnt/l/workspace/project_template/documents/BRANCH_SCOPE.md)
 - [WORKTREE_SCOPE_TEMPLATE.md](/mnt/l/workspace/project_template/documents/WORKTREE_SCOPE_TEMPLATE.md)
+- [WORKFLOW_GUIDE_OPERATIONS.md](/mnt/l/workspace/project_template/documents/WORKFLOW_GUIDE_OPERATIONS.md)
 - [workflow-references.md](/mnt/l/workspace/project_template/documents/workflow-references.md)
+- [templates/README.md](/mnt/l/workspace/project_template/documents/templates/README.md)
 - [tools/README.md](/mnt/l/workspace/project_template/documents/tools/README.md)
 - [tools/TOOLS_DIRECTORY.md](/mnt/l/workspace/project_template/documents/tools/TOOLS_DIRECTORY.md)
 

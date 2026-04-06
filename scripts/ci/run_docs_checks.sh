@@ -35,6 +35,7 @@ echo "════════════════════════�
 echo ""
 
 "$PYTHON_BIN" scripts/tools/check_markdown_lint.py "${MARKDOWN_TARGETS[@]}"
+"$PYTHON_BIN" scripts/tools/check_markdown_math.py "${MARKDOWN_TARGETS[@]}"
 "$PYTHON_BIN" scripts/tools/audit_and_fix_links.py --check "${MARKDOWN_TARGETS[@]}"
 
 echo ""

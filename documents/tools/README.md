@@ -9,6 +9,12 @@
   - 主要なチェックをまとめて実行します。
 - `scripts/ci/run_docs_checks.sh`
   - repo-wide の Markdown 体裁とリンク監査をまとめて実行します。
+- `scripts/ci/run_container_pack.py`
+  - repo 定義の runtime pack を build / smoke します。
+- `scripts/ci/run_in_repo_container.py`
+  - repo workspace を mount した container command を実行します。
+- `scripts/ci/run_codex_in_repo_container.py`
+  - nested Codex を canonical container 内で起動します。
 - `scripts/run_comprehensive_review.sh`
   - repo 全体の確認をまとめて実行します。
 - `scripts/run_pytest_with_logs.sh`
@@ -19,6 +25,10 @@
   - Markdown のリンク監査です。
 - `scripts/agent_tools/bootstrap_agent_run.py`
   - agent 実行の入口です。
+- `scripts/worktree_start.sh`
+  - worktree kickoff の user-facing 入口です。
+- `scripts/push_origin.sh`
+  - commit 後の canonical push 入口です。
 
 ## 補足
 

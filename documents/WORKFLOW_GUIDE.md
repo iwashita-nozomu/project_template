@@ -1,0 +1,119 @@
+# ユーザー向けワークフローガイド
+
+この文書は、この template repo を人が日常的に使うときの入口です。
+`documents/WORKFLOW_INVENTORY.md` が自動化入口の目録なら、ここでは「何ができるか」と「どの順で進めるか」を利用者目線でまとめます。
+
+## 役割別ガイド
+
+- 実装者:
+  - `documents/WORKFLOW_GUIDE_IMPLEMENTER.md`
+- 実験者:
+  - `documents/WORKFLOW_GUIDE_EXPERIMENTER.md`
+- 運用者:
+  - `documents/WORKFLOW_GUIDE_OPERATIONS.md`
+
+## まず決めること
+
+作業を始める前に、次の 3 点を切ります。
+
+1. 実装変更か、文書変更か、実験変更か、環境変更か
+1. 正本を更新する task か、補助 note で足りる task か
+1. `make ci-quick` で足りるか、`make ci` や Docker check まで必要か
+
+## やりたいこと別の入口
+
+| やりたいこと | 最初に読む | 主に触る場所 | 最低限の確認 |
+| --- | --- | --- | --- |
+| repo の全体像を知りたい | `README.md`, `QUICK_START.md` | `documents/`, `scripts/`, `docker/` | `make ci-quick` |
+| Python 実装を直したい | `documents/coding-conventions-python.md` | `python/`, `python/tests/` | `make ci-quick` |
+| 文書だけ更新したい | `documents/README.md` | `documents/`, `notes/` | `make docs-check` |
+| Docker / 依存を更新したい | `docker/README.md` | `docker/`, `scripts/ci/` | `make docker-build-check` |
+| container で Python file を再現したい | `docker/README.md` | `docker/`, `scripts/ci/` | `python3 scripts/ci/run_python_in_dockerfile.py ... --print-only` |
+| nested Codex を container 内で動かしたい | `docker/README.md` | `docker/`, `scripts/ci/`, `.state/` | `python3 scripts/ci/run_codex_in_repo_container.py --print-only` |
+| 実験を進めたい | `documents/experiment-workflow.md` | `experiments/`, `notes/` | report と result の対応確認 |
+| research-driven な改善をしたい | `documents/research-workflow.md` | `documents/`, `experiments/`, `notes/` | review loop の完結 |
+| agent を使いたい | `agents/README.md` | `agents/`, `reports/agents/` | `make agent-checks` |
+
+## 標準フロー
+
+### 1. 日常の実装変更
+
+1. 変更対象を決めます。
+1. 変更前に baseline を確認します。
+1. 実装と文書を同じ変更でそろえます。
+1. `make ci-quick` で早い確認をします。
+1. 仕上げ前に `make ci` まで通します。
+
+```bash
+git status --short
+make ci-quick
+python3 -m pyright
+python3 -m pytest python/tests/ -q --tb=short
+make ci
+```
+
+### 2. 文書だけを更新するとき
+
+- repo-wide のルールや手順:
+  - `documents/`
+- cross-run の補助知見:
+  - `notes/`
+- agent 間で共有する運用:
+  - `agents/`
+
+```bash
+make docs-check
+python3 scripts/tools/check_markdown_lint.py documents
+python3 scripts/tools/audit_and_fix_links.py --check documents
+```
+
+### 3. Docker / 環境を更新するとき
+
+Docker / tool / runtime に触る task では、少なくとも次を同じ変更で扱います。
+
+- `docker/Dockerfile`
+- `docker/requirements.txt`
+- `docker/README.md`
+- 必要なら `README.md`、`QUICK_START.md`、`documents/coding-conventions-project.md`
+
+```bash
+python3 scripts/docker_dependency_validator.py
+make docker-build-check
+python3 scripts/ci/run_container_pack.py --pack docker/packs/default.toml --print-only
+```
+
+host Docker socket も必要なら次です。
+
+```bash
+make docker-build-check-host-docker
+python3 scripts/ci/run_container_pack.py --pack docker/packs/default-host-docker.toml --print-only
+```
+
+### 4. Worktree を例外運用するとき
+
+新しい worktree を切るか、既存 worktree を再開するときは `worktree-start` を使います。
+
+```bash
+bash scripts/worktree_start.sh work/my-topic-YYYYMMDD
+python3 scripts/agent_tools/worktree_scope_lint.py --current
+```
+
+scope drift や cleanup readiness を見たいときは `worktree-health` を使います。
+
+### 5. closeout
+
+変更を閉じる前に、次を揃えます。
+
+1. 必要な validation を実行する
+1. action log や note を current state に更新する
+1. commit する
+1. `origin` へ push する
+1. そのあとで完了報告する
+
+```bash
+git status --short
+make ci-quick
+git add <files>
+git commit -m "<type>: <summary>"
+bash scripts/push_origin.sh
+```

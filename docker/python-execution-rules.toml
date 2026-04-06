@@ -1,0 +1,10 @@
+[defaults]
+default_pack = "docker/packs/default.toml"
+
+[[rule]]
+name = "repo-python"
+dockerfile = "docker/Dockerfile"
+match_roots = ["python/", "scripts/", "experiments/"]
+pack = "docker/packs/default.toml"
+python_bin = "python3"
+workdir = "/workspace"

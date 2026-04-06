@@ -16,7 +16,7 @@
 - `scripts/`
   - チェック、整形、補助運用の入口です。
 - `docker/`
-  - 共通開発環境の定義です。
+  - 共通開発環境、runtime pack、nested Codex profile の定義です。
 - `experiments/`
   - 実験コード、run ごとの生成物、report を置く場所です。使わないプロジェクトでは空でも構いません。
 - `python/`
@@ -38,6 +38,7 @@
 
 - `QUICK_START.md`
 - `documents/README.md`
+- `documents/WORKFLOW_GUIDE.md`
 - `documents/conventions/README.md`
 - `documents/coding-conventions-python.md`
 - 開発環境を触る場合は `docker/`
@@ -92,7 +93,7 @@ make tools-help
 
 ## Docker で Codex を使う
 
-`docker/Dockerfile` には Codex CLI と `docker` CLI を同梱します。コンテナに入ったあと、認証は各自の OpenAI アカウントで行います。対話認証は `codex login`、API key を使う場合は `printenv OPENAI_API_KEY | codex login --with-api-key` を使えます。
+`docker/Dockerfile` には Codex CLI と `docker` CLI を同梱します。container runtime の正本は [docker/README.md](/mnt/l/workspace/project_template/docker/README.md) で、build / smoke は `docker/packs/*.toml` と `scripts/ci/run_container_pack.py` から実行します。コンテナに入ったあと、認証は各自の OpenAI アカウントで行います。対話認証は `codex login`、API key を使う場合は `printenv OPENAI_API_KEY | codex login --with-api-key` を使えます。
 
 `docker/Dockerfile` か `docker/requirements.txt` を更新した変更では、`make docker-build-check` を通して build 可否を確認します。ローカルに `docker` / `podman` がない場合は、GitHub Actions の `Docker Build` workflow を使います。
 
@@ -119,6 +120,9 @@ build 確認だけを行う場合は次です。
 
 ```bash
 make docker-build-check
+make docker-build-check-host-docker
+python3 scripts/ci/run_container_pack.py --pack docker/packs/default.toml --print-only
+python3 scripts/ci/run_codex_in_repo_container.py --print-only
 ```
 
 ## 詳細入口

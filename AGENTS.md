@@ -6,11 +6,13 @@ Use this file as the runtime entrypoint for Codex and GitHub Copilot agents.
 ## Read First
 
 - `README.md`
+- `documents/WORKFLOW_GUIDE.md`
 - `agents/README.md`
 - `agents/canonical/README.md`
 - `agents/canonical/CODEX_WORKFLOW.md`
 - `agents/skills/README.md`
 - `documents/AGENTS_COORDINATION.md`
+- `docker/README.md`
 
 ## Repo Defaults
 
@@ -84,6 +86,7 @@ Use this file as the runtime entrypoint for Codex and GitHub Copilot agents.
 
 - If you touch Python dependencies, update `docker/Dockerfile` and `docker/requirements.txt` together.
 - Repo-wide tool introduction proposals should follow `environment-maintenance` and `agents/templates/environment_change_proposal.md`.
+- Container runtime selection should follow `docker/packs/*.toml`, `docker/codex-container-profiles.toml`, and `docker/python-execution-rules.toml`.
 - Worktree kickoff and scope refresh should use `worktree-start`; drift and cleanup checks should use `worktree-health`.
 - Final completion reports should normally be sent only after commit and push are done. If push is blocked or intentionally skipped, state that explicitly in the report.
 - Prefer repository docs and checked-in scripts over agent-specific guesses.

@@ -23,6 +23,7 @@ worktree を作った直後は、最低限次を残します。
 
 - branch 名、worktree path、purpose
 - `WORKTREE_SCOPE.md` の所在と main carry-over target
+- `notes/guardrails/README.md` と `notes/failures/README.md` を見たか、その中で今回 relevant な項目
 - `git status --short --branch` と `git worktree list --porcelain` の確認結果
 - 今から最初にやる 1 手
 

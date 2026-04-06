@@ -37,6 +37,8 @@
 
 - [documents/worktree-lifecycle.md](/mnt/l/workspace/project_template/documents/worktree-lifecycle.md)
 - [documents/coding-conventions-project.md](/mnt/l/workspace/project_template/documents/coding-conventions-project.md)
+- [notes/guardrails/README.md](/mnt/l/workspace/project_template/notes/guardrails/README.md)
+- [notes/failures/README.md](/mnt/l/workspace/project_template/notes/failures/README.md)
 - `documents/<relevant_rule>.md`
 - `agents/skills/<relevant_skill>.md`
 - `notes/<existing_context>.md`
