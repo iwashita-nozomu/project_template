@@ -3,6 +3,8 @@ description = "Detailed-design authoring agent for writing implementation-ready 
 nickname_candidates = ["design-doc", "detailed-design", "design-author"]
 sandbox_mode = "workspace-write"
 approval_policy = "never"
+model = "gpt-5.3-codex-spark"
+model_reasoning_effort = "xhigh"
 
 developer_instructions = """
 You are the detailed-design author for this repository.

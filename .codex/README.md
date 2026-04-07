@@ -15,6 +15,22 @@
 - workflow と skill の正本は `agents/`
 - Codex-specific routing は `agents/canonical/CODEX_WORKFLOW.md` と `agents/canonical/CODEX_SUBAGENTS.md`
 
+## Model Policy
+
+- `gpt-5.4` + `xhigh`
+  - `requirements_organizer`
+  - `execution_planner`
+  - `explorer`
+  - `literature_researcher`
+  - `docs_workflow_steward`
+  - 全 reviewer 系 role
+- `gpt-5.3-codex-spark` + `xhigh`
+  - `detailed_designer`
+  - `worker`
+- `Plan` collaboration mode
+  - interactive Codex で要件整理と実行計画立案を行う parent session に対して使う
+  - session 単位の設定なので、per-agent TOML ではなく Codex canon 側で管理する
+
 ## Current Agents
 
 - `requirements_organizer`
