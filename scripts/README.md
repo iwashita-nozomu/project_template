@@ -18,7 +18,7 @@ ownership と surface 種別は [documents/SHARED_RUNTIME_SURFACES.md](/mnt/l/wo
 - [ci/run_docs_checks.sh](/mnt/l/workspace/project_template/scripts/ci/run_docs_checks.sh)
   - repo-wide の Markdown 体裁とリンクを確認します。
 - [ci/check_docker_build.sh](/mnt/l/workspace/project_template/scripts/ci/check_docker_build.sh)
-  - `docker/Dockerfile` の build 可否、`docker` CLI、run-time `safe.directory` 設定を確認します。
+  - `docker/Dockerfile` の build 可否、`docker` CLI、image 側の `safe.directory` 設定を確認します。
 - [ci/run_container_pack.py](/mnt/l/workspace/project_template/scripts/ci/run_container_pack.py)
   - repo 定義の runtime pack を build / smoke します。
 - [ci/run_in_repo_container.py](/mnt/l/workspace/project_template/scripts/ci/run_in_repo_container.py)

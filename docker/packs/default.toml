@@ -15,14 +15,13 @@ commands = [
   "docker --version",
   "python3 scripts/docker_dependency_validator.py",
   "python3 -c \"import jax; print(jax.__version__)\"",
-  "safe_dirs=\"$(git config --global --get-all safe.directory || true)\"",
+  "safe_dirs=\"$(git config --get-all safe.directory || true)\"",
   "printf '%s\\n' \"$safe_dirs\" | grep -Fx '/workspace' >/dev/null",
+  "printf '%s\\n' \"$safe_dirs\" | grep -Fx '/mnt/git/template.git' >/dev/null",
+  "printf '%s\\n' \"$safe_dirs\" | grep -Fx '/mnt/git/agent-canon.git' >/dev/null",
 ]
 
 [runtime]
 shell = "/bin/bash"
 workdir = "/workspace"
 workspace_mount = "/workspace"
-env = [
-  "AUTO_GIT_SAFE_DIRECTORY=1",
-]

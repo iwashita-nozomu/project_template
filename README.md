@@ -106,7 +106,7 @@ make tools-help
 
 repo-wide な tool 導入案は `agents/templates/environment_change_proposal.md` に理由、Docker 影響、validation、rollback を残します。
 
-`safe.directory` は build 時に固定せず、container 起動時に現在の working directory を自動登録します。追加の path が必要な場合は `GIT_SAFE_DIRECTORIES=/workspace:/mnt/git/template.git` のように環境変数で渡します。
+`safe.directory` は run-time entrypoint ではなく image build 時に system git config へ固定します。既定では `/workspace`、`/mnt/git/template.git`、`/mnt/git/agent-canon.git` を登録します。これは host の `uid:gid` と `HOME` を container 実行時に差し替える nested Codex でも効くようにするためです。
 
 container 内では `PYTHONPATH=/workspace/python` を前提にします。
 

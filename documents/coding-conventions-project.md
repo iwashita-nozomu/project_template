@@ -31,7 +31,8 @@
 - `docker/Dockerfile` または `docker/requirements.txt` を更新した変更では、`make docker-build-check` を必須にします。
 - 開発環境の更新では、必要な README と運用文書も同じ変更で更新します。
 - Python を使う場合でも、repo 全体の入口を Python 専用にはしません。
-- `safe.directory` の登録値を build 時に固定することを禁止します。container ごとの差分は run 時の環境変数で渡さなければなりません。
+- canonical container の `safe.directory` は Docker image 側で明示設定しなければなりません。run-time entrypoint や ad hoc env だけで後付けすることを禁止します。
+- host `uid:gid` や `HOME` を container 実行時に差し替える場合でも効くように、git safe directory は user-local ではなく container-wide に効く方法を優先します。
 - Docker container 内から Docker を使う手順を正本にする場合は、同梱するのは CLI だけとし、host socket mount または別 daemon が必要であることを文書へ明記しなければなりません。
 
 ## 4.5 環境依存ツール導入提案のルール

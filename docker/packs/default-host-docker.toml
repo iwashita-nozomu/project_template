@@ -15,9 +15,6 @@ commands = [
 shell = "/bin/bash"
 workdir = "/workspace"
 workspace_mount = "/workspace"
-env = [
-  "AUTO_GIT_SAFE_DIRECTORY=1",
-]
 mounts = [
   "/var/run/docker.sock:/var/run/docker.sock",
 ]

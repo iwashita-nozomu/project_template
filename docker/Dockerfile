@@ -28,14 +28,14 @@ RUN pip install --no-cache-dir "jax[cuda12]"
 COPY docker/requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
-COPY docker/entrypoint.sh /usr/local/bin/project-template-entrypoint
-RUN chmod +x /usr/local/bin/project-template-entrypoint \
- && docker --version
-
 WORKDIR /workspace
 ENV PYTHONPATH=/workspace/python
-ENV AUTO_GIT_SAFE_DIRECTORY=1
-ENV GIT_SAFE_DIRECTORIES=
 
-ENTRYPOINT ["/usr/local/bin/project-template-entrypoint"]
+# host uid:gid や HOME を container 起動時に差し替えても見えるよう、
+# git の safe.directory は user-local ではなく system config へ固定する。
+RUN git config --system --add safe.directory /workspace \
+ && git config --system --add safe.directory /mnt/git/template.git \
+ && git config --system --add safe.directory /mnt/git/agent-canon.git \
+ && docker --version
+
 CMD ["/bin/bash"]

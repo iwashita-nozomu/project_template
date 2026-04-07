@@ -103,7 +103,7 @@ python3 scripts/ci/run_container_pack.py --pack docker/packs/default-host-docker
 python3 scripts/ci/run_codex_in_repo_container.py --profile host-docker
 ```
 
-`safe.directory` は build 時に固定しません。entrypoint が run 時の `PWD` を自動登録し、追加 path は `GIT_SAFE_DIRECTORIES` で渡します。
+`safe.directory` は run-time entrypoint ではなく image build 時に system git config へ固定します。既定では `/workspace`、`/mnt/git/template.git`、`/mnt/git/agent-canon.git` を登録します。これは host の `uid:gid` と `HOME` を container 実行時に差し替える nested Codex でも効くようにするためです。
 
 host に `docker` group が設定されていても、現在の shell がその group をまだ持っていない場合があります。`getent group docker` にユーザー名が出ても `id` に `docker` が無いときは、新しい login shell を開いてから `make docker-build-check` を実行します。一時確認だけなら `sg docker -c 'docker version'` で daemon 到達性を切り分けられます。
 
