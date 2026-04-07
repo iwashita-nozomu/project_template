@@ -4,7 +4,7 @@
 詳細な台帳ではなく、いま残すべき実行導線だけを整理します。
 
 agent/worktree helper のうち shared canon に属するものは `vendor/agent-canon/` が正本です。
-この文書では product 側の実行入口として root path を案内します。
+ownership と validation は [SHARED_RUNTIME_SURFACES.md](/mnt/l/workspace/project_template/documents/SHARED_RUNTIME_SURFACES.md) を参照し、この文書では product 側の実行入口だけを案内します。
 
 ## よく使うもの
 
@@ -36,8 +36,6 @@ agent/worktree helper のうち shared canon に属するものは `vendor/agent
   - Markdown の体裁確認です。
 - `scripts/tools/audit_and_fix_links.py`
   - Markdown のリンク監査です。
-- `scripts/agent_tools/bootstrap_agent_run.py`
-  - agent 実行の入口です。
 - `scripts/worktree_start.sh`
   - worktree kickoff の user-facing 入口です。
 - `scripts/sync_agent_canon.sh`
@@ -53,4 +51,5 @@ agent/worktree helper のうち shared canon に属するものは `vendor/agent
 ## 参照先
 
 - [scripts/README.md](/mnt/l/workspace/project_template/scripts/README.md)
+- [SHARED_RUNTIME_SURFACES.md](/mnt/l/workspace/project_template/documents/SHARED_RUNTIME_SURFACES.md)
 - [TOOLS_DIRECTORY.md](/mnt/l/workspace/project_template/documents/tools/TOOLS_DIRECTORY.md)

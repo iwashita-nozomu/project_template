@@ -12,6 +12,7 @@
 - shared canon の同期は [scripts/sync_agent_canon.sh](/mnt/l/workspace/project_template/scripts/sync_agent_canon.sh) から行います
 - template repo には committed snapshot を残すので、`git clone <template>` 直後でも shared canon を参照できます
 - root の `AGENTS.md`, `agents/`, `.agents/`, `.claude/`, `CLAUDE.md`, `.github/AGENTS.md`, `.github/copilot-instructions.md`, `.codex/config.toml`, `.codex/agents`, `.codex/README.md`, `documents/agent-canon-subtree-migration.md`, `documents/BRANCH_SCOPE.md`, `documents/AGENTS_COORDINATION.md`, `documents/REVIEW_PROCESS.md`, `documents/SKILL_IMPLEMENTATION_GUIDE.md`, `documents/WORKTREE_SCOPE_TEMPLATE.md`, `documents/implementation-waterfall-workflow.md`, `documents/workflow-references.md`, `documents/worktree-lifecycle.md`, `notes/themes/from_another_agent.md`, `notes/worktrees/README.md`, `notes/worktrees/WORKTREE_LOG_TEMPLATE.md`, `python/tests/agent_tools/__init__.py`, `python/tests/agent_tools/test_smoke_test_research_perspective_pack.py`, `python/tests/tools/test_mirror_skill_shims.py`, `scripts/agent_tools/`, `scripts/setup_worktree.sh`, `scripts/sync_agent_canon.sh`, `scripts/worktree_start.sh`, `scripts/tools/check_worktree_scopes.sh`, `scripts/tools/create_worktree.sh`, `scripts/tools/mirror_skill_shims.py` は、この snapshot を指す symlink view にします
+- `documents/SHARED_RUNTIME_SURFACES.md` は shared runtime surface の ownership をまとめる正本です
 - `.github/workflows/agent-coordination.yml` は、この snapshot を正本とする root 同期コピーにします
 
 よく使うコマンド:

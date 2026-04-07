@@ -4,7 +4,7 @@
 テンプレートとして残すべき共通スクリプトだけをここから辿れるようにします。
 
 shared agent canon 由来の runtime surface は `vendor/agent-canon/` を source of truth にします。
-ここでは `scripts/agent_tools/`、`worktree_start.sh`、`sync_agent_canon.sh`、`tools/mirror_skill_shims.py` がそれに当たります。
+ownership と surface 種別は [documents/SHARED_RUNTIME_SURFACES.md](/mnt/l/workspace/project_template/documents/SHARED_RUNTIME_SURFACES.md) を参照します。
 
 ## よく使うもの
 
@@ -69,14 +69,14 @@ shared agent canon 由来の runtime surface は `vendor/agent-canon/` を sourc
 
 ### agent 補助
 
+- [documents/SHARED_RUNTIME_SURFACES.md](/mnt/l/workspace/project_template/documents/SHARED_RUNTIME_SURFACES.md)
+  - shared agent/worktree surface の ownership と validation の正本です。
 - [agent_tools/bootstrap_agent_run.py](/mnt/l/workspace/project_template/scripts/agent_tools/bootstrap_agent_run.py)
+  - agent 実行の bootstrap 入口です。
 - [agent_tools/validate_role_write_scope.py](/mnt/l/workspace/project_template/scripts/agent_tools/validate_role_write_scope.py)
+  - role ごとの write scope を検証します。
 - [agent_tools/smoke_test_research_perspective_pack.py](/mnt/l/workspace/project_template/scripts/agent_tools/smoke_test_research_perspective_pack.py)
   - research perspective review pack の runtime と bundle を smoke test します。
-- [agent_tools/worktree_scope_lint.py](/mnt/l/workspace/project_template/scripts/agent_tools/worktree_scope_lint.py)
-  - `WORKTREE_SCOPE.md` の placeholder と drift を確認します。
-- [agent_tools/worktree_start.py](/mnt/l/workspace/project_template/scripts/agent_tools/worktree_start.py)
-  - worktree kickoff summary を出します。
 - [worktree_start.sh](/mnt/l/workspace/project_template/scripts/worktree_start.sh)
   - worktree kickoff の user-facing 入口です。
 - [sync_agent_canon.sh](/mnt/l/workspace/project_template/scripts/sync_agent_canon.sh)

@@ -115,6 +115,8 @@ bash scripts/sync_agent_canon.sh pull
 make agent-checks
 ```
 
+ownership と surface 種別は `documents/SHARED_RUNTIME_SURFACES.md` を参照します。
+
 product 側で shared canon を直した変更を upstream へ戻すときは、`vendor/agent-canon/` 配下だけを専用 commit に分けてから `push` を使います。
 
 ### 6. closeout

@@ -28,11 +28,7 @@
 
 ## agent 補助
 
-次の root path は runtime surface ですが、正本は `vendor/agent-canon/` です。
-- `scripts/agent_tools/bootstrap_agent_run.py`
-- `scripts/agent_tools/validate_role_write_scope.py`
-- `scripts/agent_tools/worktree_scope_lint.py`
-- `scripts/agent_tools/worktree_start.py`
+shared agent/worktree surface の ownership は `documents/SHARED_RUNTIME_SURFACES.md` を正本にします。
 - `scripts/sync_agent_canon.sh`
 
 ## 例外運用
