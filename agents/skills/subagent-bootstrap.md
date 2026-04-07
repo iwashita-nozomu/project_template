@@ -28,3 +28,4 @@ python3 scripts/agent_tools/bootstrap_agent_run.py \
 
 repo-changing task では、最低でも `scheduler`、`schedule_reviewer`、`designer`、`design_reviewer` を explicit に有効化します。
 調査が必要なら `researcher` と `research_reviewer` も追加します。
+計画レビュー agent と詳細設計レビュー agent は、同じ instance を使い回しません。

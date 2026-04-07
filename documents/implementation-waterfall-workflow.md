@@ -45,6 +45,7 @@
 
 この workflow では、最小でも次の stage を順に通します。
 
+1. subagent bootstrap
 1. 要件整理
 1. 調査
 1. 実行計画立案

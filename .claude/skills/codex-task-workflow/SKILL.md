@@ -7,6 +7,7 @@ description: Use when Codex needs a context-independent execution path for a rep
 
 1. Read `agents/canonical/CODEX_WORKFLOW.md`.
 1. Classify the task with `agents/TASK_WORKFLOWS.md` before touching files.
+1. For repo-editing tasks, bootstrap subagents before implementation and keep the plan reviewer and detailed design reviewer separate.
 1. Use `agents/canonical/ARTIFACT_PLACEMENT.md` before creating task-facing documents.
 1. Load only the minimal extra skills the task needs.
 1. If the task needs explicit handoff or specialist roles, bootstrap `reports/agents/<run-id>/` first.
