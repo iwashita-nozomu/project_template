@@ -35,6 +35,7 @@
 ## agent・review・運用
 
 - [AGENTS_COORDINATION.md](/mnt/l/workspace/project_template/documents/AGENTS_COORDINATION.md)
+- [agent-canon-subtree-migration.md](/mnt/l/workspace/project_template/documents/agent-canon-subtree-migration.md)
 - [REVIEW_PROCESS.md](/mnt/l/workspace/project_template/documents/REVIEW_PROCESS.md)
 - [BRANCH_SCOPE.md](/mnt/l/workspace/project_template/documents/BRANCH_SCOPE.md)
 - [WORKTREE_SCOPE_TEMPLATE.md](/mnt/l/workspace/project_template/documents/WORKTREE_SCOPE_TEMPLATE.md)

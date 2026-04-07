@@ -9,6 +9,10 @@
   - root `AGENTS.md` を入口にする運用の根拠です。
 - [Subagents - Codex | OpenAI Developers](https://developers.openai.com/codex/subagents)
   - Codex subagent の置き方と使い分けの根拠です。
+- [Git - git-worktree Documentation](https://git-scm.com/docs/git-worktree)
+  - worktree ごとに snapshot を持つ、という運用整理の根拠です。
+- [About Git subtree merges - GitHub Docs](https://docs.github.com/en/get-started/using-git/about-git-subtree-merges)
+  - shared canon を subtree として product repo へ取り込む運用整理の参考です。
 - [Models | OpenAI API](https://developers.openai.com/api/docs/models)
   - current model lineup と mainline chooser の根拠です。
 - [GPT-5.4 Model | OpenAI API](https://developers.openai.com/api/docs/models/gpt-5.4)

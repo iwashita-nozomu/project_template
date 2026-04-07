@@ -34,6 +34,7 @@
 | 実験を進めたい | `documents/experiment-workflow.md` | `experiments/`, `experiments/registry.toml`, `notes/`, `scripts/experiments/` | report と result の対応確認 |
 | research-driven な改善をしたい | `documents/research-workflow.md` | `documents/`, `experiments/`, `notes/` | review loop の完結 |
 | agent を使いたい | `agents/README.md` | `agents/`, `reports/agents/` | `make agent-checks` |
+| shared agent canon を subtree で同期したい | `documents/agent-canon-subtree-migration.md` | `vendor/`, `scripts/sync_agent_canon.sh` | `make agent-checks` |
 
 ## 標準フロー
 
@@ -102,7 +103,19 @@ python3 scripts/agent_tools/worktree_scope_lint.py --current
 
 scope drift や cleanup readiness を見たいときは `worktree-health` を使います。
 
-### 5. closeout
+### 5. shared agent canon を同期するとき
+
+shared agent canon を別 repo に切り出したあとは、product 側では subtree snapshot を同期します。
+
+```bash
+bash scripts/sync_agent_canon.sh status
+bash scripts/sync_agent_canon.sh pull
+make agent-checks
+```
+
+product 側で shared canon を直した変更を upstream へ戻すときは、`vendor/agent-canon/` 配下だけを専用 commit に分けてから `push` を使います。
+
+### 6. closeout
 
 変更を閉じる前に、次を揃えます。
 
