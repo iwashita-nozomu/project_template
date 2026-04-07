@@ -1,9 +1,9 @@
 # ドキュメント ハブ
 
 `documents/` は、この repo の正本文書だけを置く場所です。
-workflow 系の正本は shared agent canon に寄せ、product root では symlink view として同じ path を使います。
+workflow 系の正本は shared agent canon に寄せ、template root と派生 repo root では symlink view として同じ path を使います。
 experiment canon のうち、再利用する review guide、registry contract、report style、scaffold 方針も shared agent canon に寄せます。
-ここでは「agent/workflow canon」「experiment canon」「product/environment canon」を分けて辿れるようにします。
+ここでは「agent/workflow canon」「experiment canon」「template/environment canon」を分けて辿れるようにします。
 
 ## 最初に読む
 
@@ -44,7 +44,7 @@ experiment canon のうち、再利用する review guide、registry contract、
 - [coding-conventions-reviews.md](/mnt/l/workspace/project_template/documents/coding-conventions-reviews.md)
 - 言語補足が必要な場合だけ `coding-conventions-python.md` や `coding-conventions-cpp.md` を読みます。
 
-## Product・Environment・Contract
+## Template・Environment・Contract
 
 - [templates/README.md](/mnt/l/workspace/project_template/documents/templates/README.md)
 - [tools/README.md](/mnt/l/workspace/project_template/documents/tools/README.md)

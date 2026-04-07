@@ -4,7 +4,7 @@
 テンプレートとして残すべき共通スクリプトだけをここから辿れるようにします。
 
 shared agent canon 由来の runtime surface は `vendor/agent-canon/` を source of truth にします。
-experiment helper、registry checker、review / validation runner、docs-check helper、container runtime helper も shared canon 側へ寄せ、product root では同じ path の入口だけを残します。
+experiment helper、registry checker、review / validation runner、docs-check helper、container runtime helper も shared canon 側へ寄せ、template root と派生 repo root では同じ path の入口だけを残します。
 ownership と surface 種別は [documents/SHARED_RUNTIME_SURFACES.md](/mnt/l/workspace/project_template/documents/SHARED_RUNTIME_SURFACES.md) を参照します。
 
 ## よく使うもの
