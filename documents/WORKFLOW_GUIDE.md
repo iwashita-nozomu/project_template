@@ -108,7 +108,7 @@ scope drift や cleanup readiness を見たいときは `worktree-health` を使
 shared agent canon を別 repo に切り出したあとは、product 側では subtree snapshot を同期します。
 
 ```bash
-bash scripts/sync_agent_canon.sh snapshot
+bash scripts/sync_agent_canon.sh link-root
 bash scripts/sync_agent_canon.sh status
 bash scripts/sync_agent_canon.sh pull
 make agent-checks

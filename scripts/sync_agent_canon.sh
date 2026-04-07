@@ -5,10 +5,12 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PREFIX="${AGENT_CANON_PREFIX:-vendor/agent-canon}"
 REMOTE_NAME="${AGENT_CANON_REMOTE_NAME:-agent-canon}"
 DEFAULT_BRANCH="${AGENT_CANON_BRANCH:-main}"
+FORCE_RELINK="${AGENT_CANON_FORCE_RELINK:-0}"
 
 usage() {
   cat <<EOF
 Usage:
+  bash scripts/sync_agent_canon.sh link-root
   bash scripts/sync_agent_canon.sh snapshot
   bash scripts/sync_agent_canon.sh add <remote-url> [branch]
   bash scripts/sync_agent_canon.sh pull [branch]
@@ -19,6 +21,7 @@ Environment overrides:
   AGENT_CANON_PREFIX
   AGENT_CANON_REMOTE_NAME
   AGENT_CANON_BRANCH
+  AGENT_CANON_FORCE_RELINK=1
 EOF
 }
 
@@ -49,34 +52,72 @@ require_existing_remote() {
   git -C "$ROOT_DIR" remote get-url "$REMOTE_NAME" >/dev/null 2>&1 || die "remote '$REMOTE_NAME' is not configured"
 }
 
+ensure_prefix_exists() {
+  [ -d "$ROOT_DIR/$PREFIX" ] || die "prefix '$PREFIX' does not exist"
+}
+
+build_link_specs() {
+  cat <<EOF
+agents:${PREFIX}/agents
+.agents:${PREFIX}/.agents
+.claude:${PREFIX}/.claude
+.codex/README.md:../${PREFIX}/.codex/README.md
+.codex/agents:../${PREFIX}/.codex/agents
+documents/AGENTS_COORDINATION.md:../${PREFIX}/documents/AGENTS_COORDINATION.md
+documents/REVIEW_PROCESS.md:../${PREFIX}/documents/REVIEW_PROCESS.md
+documents/implementation-waterfall-workflow.md:../${PREFIX}/documents/implementation-waterfall-workflow.md
+documents/workflow-references.md:../${PREFIX}/documents/workflow-references.md
+scripts/agent_tools:../${PREFIX}/scripts/agent_tools
+scripts/tools/mirror_skill_shims.py:../../${PREFIX}/scripts/tools/mirror_skill_shims.py
+EOF
+}
+
+link_path() {
+  local path="$1"
+  local target="$2"
+  local abs_path="$ROOT_DIR/$path"
+  rm -rf "$abs_path"
+  mkdir -p "$(dirname "$abs_path")"
+  ln -s "$target" "$abs_path"
+}
+
+ensure_link_root_safe() {
+  local force="${1:-0}"
+  local -a paths=()
+  local status=""
+  local spec=""
+
+  if [ "$force" = "1" ] || [ "$FORCE_RELINK" = "1" ]; then
+    return
+  fi
+
+  while IFS= read -r spec; do
+    paths+=("${spec%%:*}")
+  done < <(build_link_specs)
+
+  [ "${#paths[@]}" -gt 0 ] || return
+  status="$(git -C "$ROOT_DIR" status --short -- "${paths[@]}")"
+  if [ -n "$status" ]; then
+    echo "$status" >&2
+    die "shared surface has uncommitted changes; commit or stash them first, or rerun with AGENT_CANON_FORCE_RELINK=1"
+  fi
+}
+
+cmd_link_root() {
+  local force="${1:-0}"
+  ensure_prefix_exists
+  ensure_link_root_safe "$force"
+
+  local spec=""
+  while IFS= read -r spec; do
+    local path="${spec%%:*}"
+    local target="${spec#*:}"
+    link_path "$path" "$target"
+  done < <(build_link_specs)
+}
+
 cmd_snapshot() {
-  local prefix_root="$ROOT_DIR/$PREFIX"
-  local items=(
-    "agents"
-    ".agents"
-    ".claude/agents"
-    ".claude/skills"
-    ".codex/README.md"
-    ".codex/agents"
-    "documents/AGENTS_COORDINATION.md"
-    "documents/REVIEW_PROCESS.md"
-    "documents/implementation-waterfall-workflow.md"
-    "documents/workflow-references.md"
-    "scripts/agent_tools"
-    "scripts/tools/mirror_skill_shims.py"
-  )
-
-  mkdir -p "$prefix_root"
-
-  local rel=""
-  for rel in "${items[@]}"; do
-    local src="$ROOT_DIR/$rel"
-    local dst="$prefix_root/$rel"
-    [ -e "$src" ] || die "snapshot source '$rel' does not exist"
-    rm -rf "$dst"
-    mkdir -p "$(dirname "$dst")"
-    cp -a "$src" "$dst"
-  done
+  cmd_link_root
 }
 
 cmd_add() {
@@ -86,6 +127,7 @@ cmd_add() {
   ensure_remote "$remote_url"
   git -C "$ROOT_DIR" fetch "$REMOTE_NAME" "$branch"
   git -C "$ROOT_DIR" subtree add --prefix="$PREFIX" "$REMOTE_NAME" "$branch" --squash
+  cmd_link_root 1
 }
 
 cmd_pull() {
@@ -94,6 +136,7 @@ cmd_pull() {
   require_existing_remote
   git -C "$ROOT_DIR" fetch "$REMOTE_NAME" "$branch"
   git -C "$ROOT_DIR" subtree pull --prefix="$PREFIX" "$REMOTE_NAME" "$branch" --squash
+  cmd_link_root 1
 }
 
 cmd_push() {
@@ -106,6 +149,7 @@ cmd_push() {
 
 cmd_status() {
   local remote_url=""
+  local spec=""
   if git -C "$ROOT_DIR" remote get-url "$REMOTE_NAME" >/dev/null 2>&1; then
     remote_url="$(git -C "$ROOT_DIR" remote get-url "$REMOTE_NAME")"
   fi
@@ -123,6 +167,18 @@ cmd_status() {
   else
     echo "prefix_status=missing"
   fi
+  while IFS= read -r spec; do
+    local path="${spec%%:*}"
+    local target="${spec#*:}"
+    local abs_path="$ROOT_DIR/$path"
+    if [ -L "$abs_path" ] && [ "$(readlink "$abs_path")" = "$target" ]; then
+      echo "link[$path]=ok"
+    elif [ -e "$abs_path" ]; then
+      echo "link[$path]=drift"
+    else
+      echo "link[$path]=missing"
+    fi
+  done < <(build_link_specs)
 }
 
 main() {
@@ -131,6 +187,9 @@ main() {
 
   local subcommand="${1:-}"
   case "$subcommand" in
+    link-root)
+      cmd_link_root
+      ;;
     snapshot)
       cmd_snapshot
       ;;

@@ -2,6 +2,7 @@
 
 この文書は、shared agent canon を別 repo `agent-canon` として切り出し、product template 側へ `git subtree` で取り込むための正本です。
 目的は、`git clone <template>` だけで新しい product を始められることを維持しながら、agent 運用の正本を upstream repo へ分離することです。
+この template ではすでに `vendor/agent-canon/` に committed snapshot を持ち、shared surface の大半を root symlink view に寄せています。
 
 ## 1. この構成を選ぶ理由
 
@@ -40,40 +41,39 @@ product-repo/
 ├─ python/
 ├─ docker/
 ├─ documents/
+│  ├─ AGENTS_COORDINATION.md
+│  ├─ REVIEW_PROCESS.md
+│  ├─ implementation-waterfall-workflow.md
+│  └─ workflow-references.md
 └─ scripts/
+   ├─ agent_tools/
+   └─ tools/mirror_skill_shims.py
 ```
 
 原則:
 - root `AGENTS.md` と root `.codex/` は product repo の runtime entrypoint として残します
 - shared canon の実体は `vendor/agent-canon/` の subtree snapshot に寄せます
+- shared canon を root から使う surface は symlink view に寄せます
 - product 固有の README、Docker、CI、実装、server 運用文書は root 側に残します
 
 ## 4. 所有境界
 
 ### 4.1 `agent-canon` へ移すもの
 
-phase 1 で移す対象:
+shared canon の正本として扱う対象:
 - `agents/`
-- `.agents/skills/`
-- `.claude/agents/`
-- `.claude/skills/`
+- `.agents/`
+- `.claude/`
 - `.codex/README.md`
 - `.codex/agents/`
-- `agents/templates/`
-- `scripts/agent_tools/`
-- `scripts/tools/mirror_skill_shims.py`
-- `vendor/agent-canon/AGENTS.md`
-- `vendor/agent-canon/README.md`
-
-phase 2 で移す候補:
 - `documents/AGENTS_COORDINATION.md`
 - `documents/REVIEW_PROCESS.md`
 - `documents/implementation-waterfall-workflow.md`
 - `documents/workflow-references.md`
-
-phase 2 を後ろにずらす理由:
-- これらの文書は link と root path の参照がまだ強い
-- product 固有の Docker / server / experiment 文書との導線が密結合している
+- `scripts/agent_tools/`
+- `scripts/tools/mirror_skill_shims.py`
+- `vendor/agent-canon/AGENTS.md`
+- `vendor/agent-canon/README.md`
 
 ### 4.2 product template に残すもの
 
@@ -92,37 +92,59 @@ phase 2 を後ろにずらす理由:
 補足:
 - `docker` 以外の全部を `agent-canon` へ移すわけではありません
 - implementation、experiment、server operation、generic project bootstrap は product template 側に残します
+- root の `agents/`、`.agents/`、`.claude/`、`.codex/agents`、`.codex/README.md`、`documents/AGENTS_COORDINATION.md`、`documents/REVIEW_PROCESS.md`、`documents/implementation-waterfall-workflow.md`、`documents/workflow-references.md`、`scripts/agent_tools/`、`scripts/tools/mirror_skill_shims.py` は shared canon への symlink view にします
 
 ### 4.3 vendor-aware 化が必要な support surface
 
-shared canon を subtree 化すると、次の script は `vendor/agent-canon/` を見られるように直す必要があります。
+shared canon を vendor 正本へ寄せても、root path はそのまま使えるようにします。
+この template では次を root symlink view にしたので、呼び出し側の path は変えずに済みます。
 
 - `scripts/tools/mirror_skill_shims.py`
 - `scripts/agent_tools/bootstrap_agent_run.py`
 - `scripts/agent_tools/smoke_test_research_perspective_pack.py`
 - `scripts/agent_tools/validate_role_write_scope.py`
 - `scripts/agent_tools/agent_team.py`
-
-この移行では、これらを即座に動かし替えるのではなく、まず template 側に committed snapshot を作り、次の pass で vendor-aware 化します。
+- `scripts/agent_tools/worktree_scope_lint.py`
+- `scripts/agent_tools/worktree_start.py`
 
 ## 5. wrapper の考え方
 
-root 側は次のような薄い wrapper にします。
+root 側は次のような薄い wrapper と symlink view にします。
 
 - `AGENTS.md`
   - Codex / Copilot の root entrypoint
   - `vendor/agent-canon/` 内の正本への導線だけを持つ
+- `.codex/config.toml`
+  - product-scoped Codex runtime 設定だけを持つ
 - `.codex/README.md`
-  - project-scoped Codex runtime の入口
-  - model policy や subagent inventory の正本を `vendor/agent-canon/` へ向ける
+  - `vendor/agent-canon/.codex/README.md` への symlink view
+- `documents/AGENTS_COORDINATION.md`
+  - `vendor/agent-canon/documents/AGENTS_COORDINATION.md` への symlink view
+- `documents/REVIEW_PROCESS.md`
+  - `vendor/agent-canon/documents/REVIEW_PROCESS.md` への symlink view
+- `documents/implementation-waterfall-workflow.md`
+  - `vendor/agent-canon/documents/implementation-waterfall-workflow.md` への symlink view
+- `documents/workflow-references.md`
+  - `vendor/agent-canon/documents/workflow-references.md` への symlink view
 - `CLAUDE.md`
   - shared canon を参照する adapter に限定する
 - `.github/copilot-instructions.md`
   - Copilot 固有差分だけに限定する
+- `agents/`
+  - `vendor/agent-canon/agents/` への symlink view
+- `.agents/`
+  - `vendor/agent-canon/.agents/` への symlink view
+- `.claude/`
+  - `vendor/agent-canon/.claude/` への symlink view
+- `scripts/agent_tools/`
+  - `vendor/agent-canon/scripts/agent_tools/` への symlink view
+- `scripts/tools/mirror_skill_shims.py`
+  - `vendor/agent-canon/scripts/tools/mirror_skill_shims.py` への symlink view
 
 重要:
 - subtree 配下にも `AGENTS.md` は置けますが、通常は canon 開発 subtree 用 override としてのみ使います
 - product runtime の正面入口は root に固定します
+- shared canon の source of truth は root 側ではなく `vendor/agent-canon/` です
 
 ## 6. worktree と subtree の関係
 
@@ -136,33 +158,39 @@ root 側は次のような薄い wrapper にします。
 
 ## 7. 標準運用
 
-### 7.1 template 側 snapshot を更新
+### 7.1 root symlink surface を修復
 
-外部 repo を作る前でも、template 側には committed snapshot を置きます。
+```bash
+bash scripts/sync_agent_canon.sh link-root
+```
+
+### 7.2 互換 alias
+
+既存の `snapshot` command は後方互換のため `link-root` の alias として残します。
 
 ```bash
 bash scripts/sync_agent_canon.sh snapshot
 ```
 
-### 7.2 初回取り込み
+### 7.3 初回取り込み
 
 ```bash
 bash scripts/sync_agent_canon.sh add git@github.com:<org>/agent-canon.git
 ```
 
-### 7.3 upstream から更新取得
+### 7.4 upstream から更新取得
 
 ```bash
 bash scripts/sync_agent_canon.sh pull
 ```
 
-### 7.4 product 側の shared canon 変更を upstream へ戻す
+### 7.5 product 側の shared canon 変更を upstream へ戻す
 
 ```bash
 bash scripts/sync_agent_canon.sh push
 ```
 
-### 7.5 現在の設定確認
+### 7.6 現在の設定確認
 
 ```bash
 bash scripts/sync_agent_canon.sh status
@@ -170,55 +198,27 @@ bash scripts/sync_agent_canon.sh status
 
 ## 8. 移行フェーズ
 
-### Phase 0. この変更で入れる土台
+### Phase 0. template 側の基盤整備
 
+この template で完了していること:
 - migration 正本を作る
-- `vendor/` の reserved path を作る
+- `vendor/agent-canon/` の committed snapshot を置く
 - subtree sync script を追加する
-- committed snapshot を `vendor/agent-canon/` に作る
-- index 文書に導線を足す
+- root `AGENTS.md` を薄い wrapper にする
+- root の shared docs / scripts / discovery surface を symlink view に寄せる
 
 ### Phase 1. upstream `agent-canon` repo を作る
 
-- `agents/`
-- `.agents/skills/`
-- `.claude/skills/`
-- `.codex/agents/`
-- `agents/templates/`
-
-を upstream repo へ移す
+残タスク:
+- `vendor/agent-canon/` の履歴を upstream repo として切り出す
+- template 側に subtree remote を設定する
+- `subtree add / pull / push` の正規運用へ移る
 
 exit 条件:
 - upstream repo 単体で shared canon を保持できる
 - product 側に subtree add / split できる snapshot history を持てる
 
-### Phase 2. template の runtime entrypoint を薄くする
-
-- root `AGENTS.md`
-- root `.codex/README.md`
-- `CLAUDE.md`
-- `.github/copilot-instructions.md`
-
-を vendor 参照の wrapper へ薄化する
-
-exit 条件:
-- Codex discovery は root で完結する
-- shared canon の正本は subtree 側だけになる
-
-### Phase 3. support script を vendor-aware 化する
-
-対象:
-- mirror
-- bootstrap
-- smoke test
-- role write scope
-- agent team runtime
-
-exit 条件:
-- `make agent-checks` が `vendor/agent-canon/` 前提で通る
-- root 側 wrapper と vendor 側 canon の参照が一致する
-
-### Phase 4. product bootstrap command を追加する
+### Phase 2. product bootstrap command を追加する
 
 候補:
 - `scripts/bootstrap_product.py`
@@ -235,7 +235,7 @@ exit 条件:
 
 抑止:
 - root `AGENTS.md` と root `.codex/` は最後まで消さない
-- subtree 化前に wrapper へ薄化しない
+- wrapper は product 固有情報だけに絞る
 
 ### shared canon と product 固有文書が混ざる
 
