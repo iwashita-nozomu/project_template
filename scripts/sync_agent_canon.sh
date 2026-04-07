@@ -63,12 +63,20 @@ agents:${PREFIX}/agents
 .claude:${PREFIX}/.claude
 .codex/README.md:../${PREFIX}/.codex/README.md
 .codex/agents:../${PREFIX}/.codex/agents
+documents/BRANCH_SCOPE.md:../${PREFIX}/documents/BRANCH_SCOPE.md
 documents/AGENTS_COORDINATION.md:../${PREFIX}/documents/AGENTS_COORDINATION.md
 documents/REVIEW_PROCESS.md:../${PREFIX}/documents/REVIEW_PROCESS.md
+documents/SKILL_IMPLEMENTATION_GUIDE.md:../${PREFIX}/documents/SKILL_IMPLEMENTATION_GUIDE.md
+documents/WORKTREE_SCOPE_TEMPLATE.md:../${PREFIX}/documents/WORKTREE_SCOPE_TEMPLATE.md
 documents/implementation-waterfall-workflow.md:../${PREFIX}/documents/implementation-waterfall-workflow.md
 documents/workflow-references.md:../${PREFIX}/documents/workflow-references.md
+documents/worktree-lifecycle.md:../${PREFIX}/documents/worktree-lifecycle.md
 scripts/agent_tools:../${PREFIX}/scripts/agent_tools
+scripts/setup_worktree.sh:../${PREFIX}/scripts/setup_worktree.sh
 scripts/tools/mirror_skill_shims.py:../../${PREFIX}/scripts/tools/mirror_skill_shims.py
+scripts/tools/check_worktree_scopes.sh:../../${PREFIX}/scripts/tools/check_worktree_scopes.sh
+scripts/tools/create_worktree.sh:../../${PREFIX}/scripts/tools/create_worktree.sh
+scripts/worktree_start.sh:../${PREFIX}/scripts/worktree_start.sh
 EOF
 }
 

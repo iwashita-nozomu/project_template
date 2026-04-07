@@ -34,7 +34,7 @@
 - Python の静的解析とテスト、Markdown の体裁とリンク確認を日常運用に含めます。
 - 標準の観測・依存棚卸し用として `psutil`、`pipdeptree`、`deptry`、`snakeviz` を baseline に含めます。
 
-shared agent canon は `vendor/agent-canon/` に committed snapshot として同梱します。将来的に upstream `agent-canon` repo を切っても、`git clone <template>` 直後の workspace だけで agent 関連の正本を参照できます。root の `agents/`, `.agents/`, `.claude/`, `.codex/agents`, `.codex/README.md`, `documents/AGENTS_COORDINATION.md`, `documents/REVIEW_PROCESS.md`, `documents/implementation-waterfall-workflow.md`, `documents/workflow-references.md`, `scripts/agent_tools/`, `scripts/tools/mirror_skill_shims.py` は、この snapshot を指す runtime surface として扱います。
+shared agent canon は `vendor/agent-canon/` に committed snapshot として同梱します。将来的に upstream `agent-canon` repo を切っても、`git clone <template>` 直後の workspace だけで agent 関連の正本を参照できます。root の `agents/`, `.agents/`, `.claude/`, `.codex/agents`, `.codex/README.md`, `documents/BRANCH_SCOPE.md`, `documents/AGENTS_COORDINATION.md`, `documents/REVIEW_PROCESS.md`, `documents/SKILL_IMPLEMENTATION_GUIDE.md`, `documents/WORKTREE_SCOPE_TEMPLATE.md`, `documents/implementation-waterfall-workflow.md`, `documents/workflow-references.md`, `documents/worktree-lifecycle.md`, `scripts/agent_tools/`, `scripts/setup_worktree.sh`, `scripts/worktree_start.sh`, `scripts/tools/check_worktree_scopes.sh`, `scripts/tools/create_worktree.sh`, `scripts/tools/mirror_skill_shims.py` は、この snapshot を指す runtime surface として扱います。
 
 ## まず読むもの
 
