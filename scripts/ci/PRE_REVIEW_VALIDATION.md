@@ -47,7 +47,7 @@
 **確認方法**: 個別実行
 
 ```bash
-python3 -m pytest python/tests/ -q --tb=short
+python3 -m pytest tests/ -q --tb=short
 ```
 
 ---

@@ -61,7 +61,7 @@ scripts/ci/pre_review.sh
 #### scripts/ci/pre_review.sh
 
 ```bash
-PYTHONPATH=/workspace/python python3 -m pytest python/tests/ ...
+PYTHONPATH=/workspace/python python3 -m pytest tests/ ...
 ```
 
 **改善**: PYTHONPATH を明示的に設定して import エラーを解決
@@ -82,13 +82,13 @@ import jax_util.solvers._test_jax as test_jax_module
 # from . import _test_jax  # 削除（_test_jax.py は移動済み）
 ```
 
-**理由**: `_test_jax.py` は `python/tests/solvers/test_jax_debug.py` に移動済み
+**理由**: `_test_jax.py` は `tests/solvers/test_jax_debug.py` に移動済み
 
 ## 2. テストファイル整理
 
 ### スキップしたテスト:
-- `python/tests/solvers/test_jax_debug.py` — 相対インポート問題
-- `python/tests/solvers/test_solver_internal_branches.py` — モジュール参照削除
+- `tests/solvers/test_jax_debug.py` — 相対インポート問題
+- `tests/solvers/test_solver_internal_branches.py` — モジュール参照削除
 - その他削除モジュール参照テスト（compute_scheduler など）
 
 ### 理由: これらは古い参照または削除済みモジュールからのテスト
@@ -149,7 +149,7 @@ import jax_util.solvers._test_jax as test_jax_module
 | `pyrightconfig.json` | JAX 型許容設定追加 | Unknown 型エラー許容 |
 | `scripts/ci/pre_review.sh` | PYTHONPATH 追加、テストフィルタ追加 | Import エラー解決 |
 | `python/jax_util/solvers/__init__.py` | `_test_jax` 参照削除 | 削除モジュール参照削除 |
-| `python/tests/solvers/test_solver_internal_branches.py` | `_test_jax` import コメント化 | モジュール削除対応 |
+| `tests/solvers/test_solver_internal_branches.py` | `_test_jax` import コメント化 | モジュール削除対応 |
 
 ---
 

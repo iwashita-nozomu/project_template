@@ -8,25 +8,25 @@ import sys
 from pathlib import Path
 
 CHECK_SCRIPT = (
-    Path(__file__).resolve().parents[3]
+    Path(__file__).resolve().parents[2]
     / "scripts"
     / "ci"
     / "check_experiment_registry.py"
 )
 CREATE_TOPIC_SCRIPT = (
-    Path(__file__).resolve().parents[3]
+    Path(__file__).resolve().parents[2]
     / "scripts"
     / "experiments"
     / "create_experiment_topic.py"
 )
 SCRIPT = (
-    Path(__file__).resolve().parents[3]
+    Path(__file__).resolve().parents[2]
     / "scripts"
     / "experiments"
     / "run_managed_experiment.py"
 )
 SYNC_CONTEXT_SCRIPT = (
-    Path(__file__).resolve().parents[3]
+    Path(__file__).resolve().parents[2]
     / "scripts"
     / "experiments"
     / "sync_experiment_registry_context.py"

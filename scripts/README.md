@@ -100,8 +100,8 @@ make docker-codex
 make docker-codex-host-docker
 bash scripts/run_comprehensive_review.sh
 python3 -m pyright
-python3 -m pytest python/tests/ -q --tb=short
-python3 -m ruff check python/ --select D,E,F,I,UP
+python3 -m pytest tests/ -q --tb=short
+python3 -m ruff check python tests --select D,E,F,I,UP
 pipdeptree --warn fail
 deptry python
 python3 scripts/ci/run_container_pack.py --pack docker/packs/default.toml --print-only
@@ -129,5 +129,5 @@ python3 scripts/experiments/run_managed_experiment.py --topic _template --use-re
 
 - [README.md](/mnt/l/workspace/project_template/README.md)
 - [QUICK_START.md](/mnt/l/workspace/project_template/QUICK_START.md)
-- [documents/WORKFLOW_INVENTORY.md](/mnt/l/workspace/project_template/documents/WORKFLOW_INVENTORY.md)
+- [documents/tools/README.md](/mnt/l/workspace/project_template/documents/tools/README.md)
 - [agents/README.md](/mnt/l/workspace/project_template/agents/README.md)

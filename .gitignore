@@ -19,7 +19,7 @@ dist/
 
 # Logs
 logs/
-python/tests/logs/
+tests/logs/
 
 # Local git worktrees
 .worktrees/

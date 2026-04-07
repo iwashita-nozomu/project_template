@@ -107,7 +107,7 @@ fi
 # Ruff
 log_info ""
 log_info "2/4️⃣ Style check with ruff..."
-if "$PYTHON_BIN" -m ruff check python/ > "$LOG_DIR/ruff.log" 2>&1; then
+if "$PYTHON_BIN" -m ruff check python tests > "$LOG_DIR/ruff.log" 2>&1; then
     log_success "ruff: OK"
 else
     log_error "ruff: FAILED (see $LOG_DIR/ruff.log)"
@@ -116,7 +116,7 @@ fi
 # Pytest
 log_info ""
 log_info "3/4️⃣ Test execution..."
-if "$PYTHON_BIN" -m pytest python/tests/ -v --tb=short > "$LOG_DIR/pytest.log" 2>&1; then
+if "$PYTHON_BIN" -m pytest tests/ -v --tb=short > "$LOG_DIR/pytest.log" 2>&1; then
     log_success "pytest: OK"
 else
     log_error "pytest: FAILED (see $LOG_DIR/pytest.log)"

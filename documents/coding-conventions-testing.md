@@ -1,6 +1,6 @@
 # テスト規約（共通）
 
-この文書は、`python/tests/` 配下のテストを対象にします。
+この文書は、`tests/` 配下のテストを対象にします。
 
 ## 🚀 クイックリファレンス
 
@@ -8,40 +8,40 @@
 
 | 用途 | コマンド | 詳細 |
 |---|---|---|
-| **最初の pytest 実行** | `pytest python/tests/base/test_*.py -v` | → [実行方法](#32-標準出力を表示する) |
+| **最初の pytest 実行** | `pytest tests/base/test_*.py -v` | → [実行方法](#32-標準出力を表示する) |
 | **ユニットテスト作成** | 想定解 + 比較検証 | → [想定解](#4-想定解と標準出力ログ) |
 | **統合テスト設計** | 異なるレイヤー・複数ケース | → [分類](#2-配置と分類) |
 | **エッジケーステスト** | 乱数 seed 固定 + 悪条件 | → [乱数](#5-乱数大規模テスト) |
-| **テスト失敗の診断** | JSON ログを `python/tests/logs/` 確認 | → [実行方法](#3-実行方法) |
+| **テスト失敗の診断** | JSON ログを `tests/logs/` 確認 | → [実行方法](#3-実行方法) |
 
 ---
 
 ## 1. 対象と目的
 
-- 対象は `python/tests/` 配下のテストです。
+- 対象は `tests/` 配下のテストです。
 - 目的は、再現可能な数値検証とログ保存の運用を揃えることです。
 
 ## 2. 配置と分類
 
-- テストは `python/tests/` に集約します。
+- テストは `tests/` に集約します。
 - 分類は次の通りです。
-  - `python/tests/base/`: 単体テスト（高速）。
-  - `python/tests/solvers/`: 数値ソルバの検証（中〜高コスト）。
-  - `python/tests/optimizers/`: 最適化アルゴリズムの検証（中〜高コスト）。
-  - `python/tests/hlo/`: HLO 関連ユーティリティの検証（低〜中コスト）。
-  - `python/tests/neuralnetwork/`: 実験段階の NN 系検証。
+  - `tests/base/`: 単体テスト（高速）。
+  - `tests/solvers/`: 数値ソルバの検証（中〜高コスト）。
+  - `tests/optimizers/`: 最適化アルゴリズムの検証（中〜高コスト）。
+  - `tests/hlo/`: HLO 関連ユーティリティの検証（低〜中コスト）。
+  - `tests/neuralnetwork/`: 実験段階の NN 系検証。
 - 大規模ケースは `case` や `*_large` の名称で明示します。
 
 ## 3. 実行方法
 
 - **pytest を基本**にし、一括実行を標準とします。
-- テストは `python/tests/` を対象に収集します。
+- テストは `tests/` を対象に収集します。
 - `if __name__ == "__main__":` による単体実行は **補助的に許可**します。
 - 各テストファイルは `_run_all_tests()` を定義し、`if __name__ == "__main__": _run_all_tests()` の形で単体実行できるようにします。
 
 ### 3.1 標準出力を表示する
 
-- ファイル単位: `pytest -q -s python/tests/solvers/test_slq.py`
+- ファイル単位: `pytest -q -s tests/solvers/test_slq.py`
 - 全体: `pytest -q -s`
 
 ### 3.2 `python file.py` での補助実行

@@ -2,10 +2,10 @@
 set -euo pipefail
 
 # このスクリプトは pytest のログを実行ごとのディレクトリに保存します。
-# 保存場所は python/tests/logs/[YYYYMMDD]-[HHMMSS]/ です。
+# 保存場所は tests/logs/[YYYYMMDD]-[HHMMSS]/ です。
 
 ROOT_DIR="/workspace"
-LOG_ROOT="${ROOT_DIR}/python/tests/logs"
+LOG_ROOT="${ROOT_DIR}/tests/logs"
 RUN_DIR="${LOG_ROOT}/[$(date +%Y%m%d)]-[$(date +%H%M%S)]"
 RAW_LOG="${RUN_DIR}/pytest.raw.txt"
 JSON_LOG="${RUN_DIR}/pytest.jsonl"

@@ -4,7 +4,7 @@
 
 - `pyright` の正本設定は `pyproject.toml` の `[tool.pyright]` に置く。
 - repo root の `pyrightconfig.json` は editor / tool 互換のための shim とし、`extends = "./pyproject.toml"` だけを持たせる。
-- baseline の対象は `python/jax_util/` 全体とし、`solvers/archive` は `exclude`、`python/tests/` は `ignore` とする。
+- baseline の対象は `python/jax_util/` と `tests/` 全体とし、`solvers/archive` は `exclude` とする。
 - VSCode / Pylance で third-party import が missing になるときは、まず workspace の selected interpreter を疑う。repo では `.vscode/settings.json` の `python.defaultInterpreterPath` を `/usr/bin/python3` に合わせる。
 
 ## Baseline Run
@@ -15,7 +15,7 @@
 
 ## Targeted Run
 
-- test を触ったときは `pyright python/tests/<subdir-or-file>` を追加で回す。
+- test を触ったときは `pyright tests/<subdir-or-file>` を追加で回す。
 - 大きな変更では、baseline と touched path の両方を残す。
 
 ## Recording

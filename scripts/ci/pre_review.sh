@@ -131,11 +131,11 @@ fi
 echo ""
 echo -e "${BLUE}2️⃣  Running pytest...${NC}"
 # 注: 削除/移動したテストをスキップ (-k オプション)
-if python3 -m pytest python/tests/ -q --tb=short \
-  --ignore=python/tests/solvers/test_jax_debug.py \
-  --ignore=python/tests/solvers/test_solver_internal_branches.py \
-  --ignore=python/tests/functional/test_protocols_and_smolyak_helpers.py \
-  --ignore=python/tests/functional/test_smolyak.py; then
+if python3 -m pytest tests/ -q --tb=short \
+  --ignore=tests/solvers/test_jax_debug.py \
+  --ignore=tests/solvers/test_solver_internal_branches.py \
+  --ignore=tests/functional/test_protocols_and_smolyak_helpers.py \
+  --ignore=tests/functional/test_smolyak.py; then
     echo -e "${GREEN}✅ All tests passed${NC}"
     write_report "pytest=pass"
 else
@@ -147,7 +147,7 @@ fi
 # 3. Docstring validation
 echo ""
 echo -e "${BLUE}3️⃣  Docstring validation (pydocstyle)...${NC}"
-if python3 -m pydocstyle python/; then
+if python3 -m pydocstyle python tests; then
     echo -e "${GREEN}✅ Docstring validation passed${NC}"
     write_report "pydocstyle=pass"
 else
@@ -158,7 +158,7 @@ fi
 # 4. Code quality
 echo ""
 echo -e "${BLUE}4️⃣  Code quality checks (Ruff)...${NC}"
-if python3 -m ruff check python/ --select E,F,I,D,UP; then
+if python3 -m ruff check python tests --select E,F,I,D,UP; then
     echo -e "${GREEN}✅ Code quality checks passed${NC}"
     write_report "ruff=pass"
 else

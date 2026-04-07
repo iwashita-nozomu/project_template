@@ -1,1 +1,0 @@
-../../../vendor/agent-canon/python/tests/agent_tools/test_smoke_test_research_perspective_pack.py

@@ -12,9 +12,9 @@
 - `pyright` の設定は `pyproject.toml` の `[tool.pyright]` を正本とします。
 - repo root の `pyrightconfig.json` は editor / tool 互換のための薄いラッパーに限り、`extends = "./pyproject.toml"` だけを持たせます。独自設定は足しません。
 - 既定の `pyright` 実行は repo root で行い、`pyproject.toml` に含めた対象だけを baseline として常時 clean に保ちます。
-- 現在の baseline は `python/` 全体です。template 初期状態のように `python/tests/` だけが存在する段階でも、checked-in の Python ファイルを baseline として常時 clean に保ちます。
+- 現在の baseline は `python/` と `tests/` 全体です。template 初期状態のように `tests/` だけが存在する段階でも、checked-in の Python ファイルを baseline として常時 clean に保ちます。
 - VSCode / Pylance で third-party import を解決するときは、workspace で選ばれた Python interpreter が使われます。repo 側では `.vscode/settings.json` の `python.defaultInterpreterPath` を基準にし、差分がある場合は `Python: Select Interpreter` で合わせます。
-- `python/tests/` を触った場合も、まず既定の `pyright` を通し、必要なら対象 path を明示して追加実行します。
+- `tests/` を触った場合も、まず既定の `pyright` を通し、必要なら対象 path を明示して追加実行します。
 - 実験段階やテストで `pyright` エラーが残る場合は、黙って放置せず `task.md`、`reviews/`、または関連 note に未解消として残します。
 - cast 等のプログラマによる型安全性の確保は避け、pyright による型安全性の確保を優先します。
 - 型の境界は `python/jax_util/base/protocols.py` と `python/jax_util/base/linearoperator.py` に集約し、単一の基準で整合を保ちます。
@@ -26,7 +26,7 @@
 ## 実行例
 
 - baseline 全体: `pyright`
-- テストを触ったとき: `pyright python/tests/<subdir-or-file>`
+- テストを触ったとき: `pyright tests/<subdir-or-file>`
 - 特定モジュールだけを確認したいとき: `pyright python/<subdir-or-file>`
 
 ### 例外（最小限の ignore）

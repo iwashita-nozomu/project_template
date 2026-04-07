@@ -98,10 +98,10 @@ python3 -m pyright
 ### 2. Test Execution (pytest)
 
 ```bash
-python3 -m pytest python/tests/ -q --tb=short
+python3 -m pytest tests/ -q --tb=short
 ```
 
-**対象**: `python/tests/` 内の全テスト
+**対象**: `tests/` 内の全テスト
 **基準**: 全テスト通過
 **失敗時の対応**: テストまたは実装を修正して再実行
 
@@ -110,7 +110,7 @@ python3 -m pytest python/tests/ -q --tb=short
 ### 3. Docstring Validation (pydocstyle)
 
 ```bash
-python3 -m pydocstyle python/
+python3 -m pydocstyle python tests
 ```
 
 **対象**: `python/` 配下の全 Python ファイル
@@ -128,7 +128,7 @@ python3 -m pydocstyle python/
 ### 4. Code Quality (Ruff)
 
 ```bash
-python3 -m ruff check python/ --select E,F,I,D,UP
+python3 -m ruff check python tests --select E,F,I,D,UP
 ```
 
 **対象**: `python/` 配下の全 Python ファイル
@@ -260,10 +260,10 @@ python3 -m pip install pyright pytest pydocstyle ruff
 python3 -m pyright
 
 # pytest のみ
-python3 -m pytest python/tests/ -q
+python3 -m pytest tests/ -q
 
 # Ruff のみ
-python3 -m ruff check python/ --select E,F,I,D,UP
+python3 -m ruff check python tests --select E,F,I,D,UP
 ```
 
 ---
@@ -284,13 +284,13 @@ python3 -m ruff check python/ --select E,F,I,D,UP
   run: python3 -m pyright
 
 - name: Run tests
-  run: python3 -m pytest python/tests/ -q
+  run: python3 -m pytest tests/ -q
 
 - name: Docstring validation
-  run: python3 -m pydocstyle python/
+  run: python3 -m pydocstyle python tests
 
 - name: Code quality
-  run: python3 -m ruff check python/ --select E,F,I,D,UP
+  run: python3 -m ruff check python tests --select E,F,I,D,UP
 ```
 
 ---

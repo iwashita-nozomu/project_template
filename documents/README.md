@@ -1,24 +1,35 @@
 # ドキュメント ハブ
 
 `documents/` は、この repo の正本文書だけを置く場所です。
-テンプレートとして残すべき汎用ルール、設計、実験手法、agent 運用、開発環境の入口だけをここから辿れるようにします。
+workflow 系の正本は shared agent canon に寄せ、product root では symlink view として同じ path を使います。
+ここでは「agent/workflow canon」「experiment canon」「product/environment canon」を分けて辿れるようにします。
 
 ## 最初に読む
 
 - [conventions/README.md](/mnt/l/workspace/project_template/documents/conventions/README.md)
 - [coding-conventions-project.md](/mnt/l/workspace/project_template/documents/coding-conventions-project.md)
-- [WORKFLOW_INVENTORY.md](/mnt/l/workspace/project_template/documents/WORKFLOW_INVENTORY.md)
 - [WORKFLOW_GUIDE.md](/mnt/l/workspace/project_template/documents/WORKFLOW_GUIDE.md)
 - [implementation-waterfall-workflow.md](/mnt/l/workspace/project_template/documents/implementation-waterfall-workflow.md)
 - [FILE_CHECKLIST_OPERATIONS.md](/mnt/l/workspace/project_template/documents/FILE_CHECKLIST_OPERATIONS.md)
 - [remote-execution-repo-contract.md](/mnt/l/workspace/project_template/documents/remote-execution-repo-contract.md)
 - [server-host-contract.md](/mnt/l/workspace/project_template/documents/server-host-contract.md)
 
-## 実験・研究
+## Agent・Workflow Canon
 
+- [WORKFLOW_GUIDE.md](/mnt/l/workspace/project_template/documents/WORKFLOW_GUIDE.md)
+- [implementation-waterfall-workflow.md](/mnt/l/workspace/project_template/documents/implementation-waterfall-workflow.md)
 - [experiment-workflow.md](/mnt/l/workspace/project_template/documents/experiment-workflow.md)
-- [experiment-registry.md](/mnt/l/workspace/project_template/documents/experiment-registry.md)
 - [research-workflow.md](/mnt/l/workspace/project_template/documents/research-workflow.md)
+- [AGENTS_COORDINATION.md](/mnt/l/workspace/project_template/documents/AGENTS_COORDINATION.md)
+- [agent-canon-subtree-migration.md](/mnt/l/workspace/project_template/documents/agent-canon-subtree-migration.md)
+- [REVIEW_PROCESS.md](/mnt/l/workspace/project_template/documents/REVIEW_PROCESS.md)
+- [BRANCH_SCOPE.md](/mnt/l/workspace/project_template/documents/BRANCH_SCOPE.md)
+- [WORKTREE_SCOPE_TEMPLATE.md](/mnt/l/workspace/project_template/documents/WORKTREE_SCOPE_TEMPLATE.md)
+- [workflow-references.md](/mnt/l/workspace/project_template/documents/workflow-references.md)
+
+## 実験・研究 Canon
+
+- [experiment-registry.md](/mnt/l/workspace/project_template/documents/experiment-registry.md)
 - [experiment-critical-review.md](/mnt/l/workspace/project_template/documents/experiment-critical-review.md)
 - [experiment-report-style.md](/mnt/l/workspace/project_template/documents/experiment-report-style.md)
 - [coding-conventions-experiments.md](/mnt/l/workspace/project_template/documents/coding-conventions-experiments.md)
@@ -32,18 +43,13 @@
 - [coding-conventions-reviews.md](/mnt/l/workspace/project_template/documents/coding-conventions-reviews.md)
 - 言語補足が必要な場合だけ `coding-conventions-python.md` や `coding-conventions-cpp.md` を読みます。
 
-## agent・review・運用
+## Product・Environment・Contract
 
-- [AGENTS_COORDINATION.md](/mnt/l/workspace/project_template/documents/AGENTS_COORDINATION.md)
-- [agent-canon-subtree-migration.md](/mnt/l/workspace/project_template/documents/agent-canon-subtree-migration.md)
-- [REVIEW_PROCESS.md](/mnt/l/workspace/project_template/documents/REVIEW_PROCESS.md)
-- [BRANCH_SCOPE.md](/mnt/l/workspace/project_template/documents/BRANCH_SCOPE.md)
-- [WORKTREE_SCOPE_TEMPLATE.md](/mnt/l/workspace/project_template/documents/WORKTREE_SCOPE_TEMPLATE.md)
-- [WORKFLOW_GUIDE_OPERATIONS.md](/mnt/l/workspace/project_template/documents/WORKFLOW_GUIDE_OPERATIONS.md)
-- [workflow-references.md](/mnt/l/workspace/project_template/documents/workflow-references.md)
 - [templates/README.md](/mnt/l/workspace/project_template/documents/templates/README.md)
 - [tools/README.md](/mnt/l/workspace/project_template/documents/tools/README.md)
 - [tools/TOOLS_DIRECTORY.md](/mnt/l/workspace/project_template/documents/tools/TOOLS_DIRECTORY.md)
+- [remote-execution-repo-contract.md](/mnt/l/workspace/project_template/documents/remote-execution-repo-contract.md)
+- [server-host-contract.md](/mnt/l/workspace/project_template/documents/server-host-contract.md)
 
 ## 困ったとき
 

@@ -16,6 +16,6 @@
 - `python/jax_util/optimizers/`: `solvers` を利用する最適化アルゴリズムを置きます。
 - `python/jax_util/neuralnetwork/`: 実験段階の実装を置き、安定 API 文書へは混ぜません。
 - `python/jax_util/solvers/archive/`: 現在使わない実装の保管場所とし、新規実装や修正の対象外とします。
-- `python/tests/`: テストだけを置きます。
+- `tests/`: テストだけを置きます。
 - `scripts/`: 実行補助とログ整形だけを置きます。
 - `documents/`: 規約と設計書の一次情報源とします。

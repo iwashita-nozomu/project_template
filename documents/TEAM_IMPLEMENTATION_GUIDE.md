@@ -17,13 +17,13 @@ ______________________________________________________________________
 make ci
 
 # docstring チェックのみ
-pydocstyle python/
+pydocstyle python tests
 
 # 個別ファイルの Docstring チェック
-pydocstyle python/tests/tools/test_mirror_skill_shims.py
+pydocstyle tests/tools/test_mirror_skill_shims.py
 
 # 自動修正（import 順序など）
-ruff check --fix python/
+ruff check --fix python tests
 
 # 型チェック
 pyright
@@ -177,10 +177,10 @@ ______________________________________________________________________
 
 ```bash
 # フェーズ 1 の完成度をチェック
-pydocstyle python/ 2>&1 | grep -c "^python" || echo "✅ すべて修正完了"
+pydocstyle python tests 2>&1 | grep -c "^python" || echo "✅ すべて修正完了"
 
 # 個別ファイルの検証
-pydocstyle python/tests/tools/test_mirror_skill_shims.py
+pydocstyle tests/tools/test_mirror_skill_shims.py
 ```
 
 ______________________________________________________________________
@@ -322,7 +322,7 @@ ______________________________________________________________________
 
 ```bash
 # 自動チェックと修正
-ruff check --fix python/
+ruff check --fix python tests
 
 # Manual verification
 grep -r "from .* import \*" python/
@@ -377,9 +377,9 @@ make ci
 make ci-quick
 
 # 個別ツール実行
-pydocstyle python/
+pydocstyle python tests
 pyright
-ruff check python/
+ruff check python tests
 ```
 
 ## ガイドライン

@@ -44,7 +44,7 @@ bash scripts/guide.sh
 bash scripts/view_conventions.sh
 make ci-quick
 make docs-check
-python3 -m pytest python/tests/ -q --tb=short
+python3 -m pytest tests/ -q --tb=short
 pipdeptree --warn fail
 ```
 

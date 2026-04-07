@@ -21,7 +21,7 @@
   - 実験コード、run ごとの生成物、report を置く場所です。使わないプロジェクトでは空でも構いません。
 - `python/`
   - 実装本体、共通 runtime、テスト対象コードの主置き場です。
-- `python/tests/`
+- `tests/`
   - pytest ベースのテストを置く場所です。
 
 ## 基本方針
@@ -91,8 +91,8 @@ make docs-check
 make experiment-check
 make docker-build-check
 python3 -m pyright
-python3 -m pytest python/tests/ -q --tb=short
-python3 -m ruff check python/ --select D,E,F,I,UP
+python3 -m pytest tests/ -q --tb=short
+python3 -m ruff check python tests --select D,E,F,I,UP
 pipdeptree --warn fail
 deptry python
 make tools-help

@@ -71,8 +71,8 @@ experiments/report/
 
 ### 5. テスト
 
-- 汎用 runtime のテストは `python/tests/experiment_runner/` に置きます。
-- topic 固有 helper のうち再利用価値が高いものは、対応する unit test を `python/tests/` 側へ追加します。
+- 汎用 runtime のテストは `tests/experiment_runner/` に置きます。
+- topic 固有 helper のうち再利用価値が高いものは、対応する unit test を `tests/` 側へ追加します。
 - 一回限りの実行スクリプトは、README の smoke command と集計結果の形式保証を優先し、無理にライブラリ級の API にしません。
 - 実行スクリプトは、指定した条件を 1 回の invocation で完走する責務を持たせます。
 - 途中停止した場合は、同じ結果ファイルへ継ぎ足さず、新しい run_name と出力先で 0 から再実行します。

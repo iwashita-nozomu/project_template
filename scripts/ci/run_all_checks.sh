@@ -25,7 +25,7 @@ set -euo pipefail
 #   - 1: テスト失敗 または解析エラー
 #
 # 関連ドキュメント:
-#   - documents/WORKFLOW_INVENTORY.md: repo-wide workflow inventory
+#   - documents/tools/README.md: repo-wide tool entrypoints
 #   - documents/REVIEW_PROCESS.md: review と validation の正本
 #   - .github/workflows/ci.yml: GitHub Actions ワークフロー
 #
@@ -119,7 +119,7 @@ echo ""
 
 # 3. pytest 実行
 echo "3️⃣  pytest を実行中..."
-if "$PYTHON_BIN" -m pytest python/tests/ -q --tb=short 2>&1; then
+if "$PYTHON_BIN" -m pytest tests/ -q --tb=short 2>&1; then
   echo "✅ pytest 成功"
 else
   echo "❌ pytest 失敗"
@@ -139,7 +139,7 @@ echo ""
 
 # 5. pydocstyle 実行（Docstring 検証）
 echo "5️⃣  pydocstyle を実行中... (Docstring チェック)"
-if "$PYTHON_BIN" -m pydocstyle python/ 2>&1; then
+if "$PYTHON_BIN" -m pydocstyle python tests 2>&1; then
   echo "✅ pydocstyle 成功"
 else
   echo "❌ pydocstyle 失敗（詳細: documents/DOCSTRING_GUIDE.md を参照）"
@@ -156,7 +156,7 @@ if [ $QUICK_MODE -eq 0 ]; then
   echo "   - UP: Python 最新構文チェック"
   echo ""
   
-  if "$PYTHON_BIN" -m ruff check python/ --select D,E,F,I,UP 2>&1; then
+  if "$PYTHON_BIN" -m ruff check python tests --select D,E,F,I,UP 2>&1; then
     echo "✅ ruff 成功"
   else
     echo "❌ ruff 失敗"

@@ -253,10 +253,10 @@ ______________________________________________________________________
 
 ```bash
 # docstring チェック（pydocstyle）
-pydocstyle python/
+pydocstyle python tests
 
 # スタイル + import + docstring チェック（ruff）
-ruff check python/ --select D
+ruff check python tests --select D
 
 # 型チェック
 pyright

@@ -42,7 +42,7 @@ convention = "pep257"
 typeCheckingMode = "strict"
 
 # この template では `python/` 全体を baseline として扱います。
-include = ["./python"]
+include = ["./python", "./tests"]
 exclude = [
   "**/.*",
   "**/node_modules",
@@ -84,4 +84,4 @@ match_dir = ".*"
 ignore = ["D104", "D105", "D107", "D203"]
 
 [tool.pytest.ini_options]
-testpaths = ["python/tests"]
+testpaths = ["tests"]

@@ -37,8 +37,8 @@ git worktree list --porcelain
 ```bash
 make ci-quick
 python3 -m pyright
-python3 -m pytest python/tests/ -q --tb=short
-python3 -m ruff check python/ --select D,E,F,I,UP
+python3 -m pytest tests/ -q --tb=short
+python3 -m ruff check python tests --select D,E,F,I,UP
 ```
 
 確認:

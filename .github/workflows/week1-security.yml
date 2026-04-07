@@ -8,7 +8,7 @@ on:
     paths:
       - "scripts/audit/**"
       - "scripts/security/**"
-      - "python/tests/test_week1_security.py"
+      - "tests/test_week1_security.py"
       - "docker/requirements.txt"
       - ".github/workflows/week1-security.yml"
   pull_request:
@@ -232,7 +232,7 @@ jobs:
       - name: "Run Ruff on Security Modules"
         continue-on-error: true
         run: |
-          ruff check scripts/audit/ scripts/security/ python/tests/test_week1_security.py
+          ruff check scripts/audit/ scripts/security/ tests/test_week1_security.py
       
       - name: "Run Ruff format check"
         continue-on-error: true
@@ -263,7 +263,7 @@ jobs:
       
       - name: "Run tests with coverage"
         run: |
-          pytest python/tests/test_week1_security.py \
+          pytest tests/test_week1_security.py \
             --cov=scripts/audit \
             --cov=scripts/security \
             --cov-report=term-missing \
