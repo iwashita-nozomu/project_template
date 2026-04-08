@@ -31,6 +31,8 @@ ownership と surface 種別は [documents/SHARED_RUNTIME_SURFACES.md](/mnt/l/wo
   - main server host の path、mount、builder、Docker socket readiness を確認します。
 - [ci/check_experiment_registry.py](/mnt/l/workspace/project_template/scripts/ci/check_experiment_registry.py)
   - shared experiment registry contract に沿って `experiments/registry.toml` の topic entry と command surface を確認します。
+- [ci/check_merge_structure.py](/mnt/l/workspace/project_template/scripts/ci/check_merge_structure.py)
+  - branch 側の file 構成変更が integration commit で落ちていないかを確認します。
 - [run_comprehensive_review.sh](/mnt/l/workspace/project_template/scripts/run_comprehensive_review.sh)
   - repo 全体の確認用です。
 - [push_origin.sh](/mnt/l/workspace/project_template/scripts/push_origin.sh)
@@ -109,6 +111,7 @@ make docker-codex-host-docker
 bash scripts/run_comprehensive_review.sh
 bash scripts/init_from_template.sh --project-slug your-project --display-name "Your Project" --dry-run
 bash scripts/ci/check_fresh_clone.sh
+python3 scripts/ci/check_merge_structure.py --source work/my-topic-YYYYMMDD --target origin/main --compare-commit HEAD
 python3 -m pyright
 python3 -m pytest tests/ -q --tb=short
 bash scripts/run_pytest_with_logs.sh

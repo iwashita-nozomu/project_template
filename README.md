@@ -28,6 +28,7 @@
 
 - 既定の統合先は `main` です。恒常的な複数 branch 運用はしません。
 - 短期 branch は必要なときだけ切り、整理が済んだら `main` に戻します。
+- branch 側で file 構成を変えた場合は、`documents/main-integration-workflow.md` の integration worktree 手順で `main` へ戻します。
 - `documents/` には正本だけを置きます。履歴説明や日付付きの途中報告は置きません。
 - 実装変更では、必要なテストと文書更新を同じ変更でそろえます。
 - 実験は 1 回の run を fresh 実行として扱い、途中停止 run を正式結果として継ぎ足しません。

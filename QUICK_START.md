@@ -28,6 +28,7 @@ agent を使う場合は次を見ます。
 
 - 既定の統合先は `main` です。
 - 短期 branch は必要なときだけ切り、長期の分岐運用は避けます。
+- branch 側で file 構成を変えた場合は、`documents/main-integration-workflow.md` を見て integration worktree で戻します。
 - 変更の前に、対象ディレクトリと必要な更新を先に決めます。
 - Python と Markdown は常に対象に含まれる前提で確認します。
 
