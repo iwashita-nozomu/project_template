@@ -33,3 +33,6 @@ reports/agents/
 reports/*.json
 reports/*.txt
 reports/*.patch
+
+# Generated devcontainer runtime file
+.devcontainer/docker-compose.generated.yml

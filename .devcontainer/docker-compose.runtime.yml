@@ -1,7 +1,0 @@
-services:
-  workspace:
-    volumes:
-      - /mnt/git:/mnt/git
-    environment:
-      DEVCONTAINER_RUNTIME_MODE: "generated"
-      DEVCONTAINER_GPU_MODE: "disabled"

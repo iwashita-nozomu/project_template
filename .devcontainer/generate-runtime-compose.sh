@@ -2,7 +2,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-RUNTIME_FILE="${SCRIPT_DIR}/docker-compose.runtime.yml"
+RUNTIME_FILE="${SCRIPT_DIR}/docker-compose.generated.yml"
 
 has_gpu=0
 has_mnt_git=0
@@ -18,14 +18,25 @@ fi
 cat >"$RUNTIME_FILE" <<'EOF'
 services:
   workspace:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    working_dir: /workspace
+    volumes:
+      - ..:/workspace:cached
 EOF
 
 if [ "$has_mnt_git" -eq 1 ]; then
   cat >>"$RUNTIME_FILE" <<'EOF'
-    volumes:
       - /mnt/git:/mnt/git
 EOF
 fi
+
+cat >>"$RUNTIME_FILE" <<'EOF'
+    command: /bin/bash -lc "sleep infinity"
+    tty: true
+    init: true
+EOF
 
 if [ "$has_gpu" -eq 1 ]; then
   cat >>"$RUNTIME_FILE" <<'EOF'

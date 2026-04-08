@@ -107,7 +107,7 @@ python3 scripts/ci/run_codex_in_repo_container.py --profile host-docker
 
 ## VS Code Dev Container
 
-`.devcontainer/devcontainer.json` は Docker Compose ベースです。起動前に `.devcontainer/generate-runtime-compose.sh` を走らせ、host を見て次を自動切替します。
+`.devcontainer/devcontainer.json` は 1 枚の generated Docker Compose file を使います。起動前に `.devcontainer/generate-runtime-compose.sh` を走らせ、`.devcontainer/docker-compose.generated.yml` を生成し、host を見て次を自動切替します。
 
 - NVIDIA GPU が見えるとき:
   - `gpus: all` を追加
@@ -120,11 +120,12 @@ python3 scripts/ci/run_codex_in_repo_container.py --profile host-docker
 
 そのため、template を clone したディレクトリでも、GPU なし環境で dev container が落ちにくくなります。
 
-VS Code extension は最小限として次を同梱します。
+VS Code の前提拡張は `.vscode/extensions.json` を正本にします。
 
 - `ms-python.python`
 - `ms-toolsai.jupyter`
 - `ms-azuretools.vscode-docker`
+- `ms-vscode-remote.remote-containers`
 - `ms-vscode.cpptools`
 - `ms-vscode.cmake-tools`
 

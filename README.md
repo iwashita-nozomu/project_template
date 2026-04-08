@@ -108,7 +108,7 @@ repo-wide な tool 導入案は `agents/templates/environment_change_proposal.md
 
 `safe.directory` は `docker/Dockerfile` の build 時に `git config --global` で固定します。既定では `/workspace`、`/mnt/git/template.git`、`/mnt/git/agent-canon.git` を登録します。これは `/mnt/l/workspace/jax_solver_util` 側の Codex 起動権限設定に合わせたものです。
 
-VS Code の dev container は `.devcontainer/` から起動します。GPU が見える host では `gpus: all` を自動追加し、GPU が無い host では CPU-only で起動する構成です。`/mnt/git` mount も host に path がある場合だけ追加します。
+VS Code の dev container は `.devcontainer/` から起動します。起動時に generated compose を 1 枚作り、GPU が見える host では `gpus: all` を自動追加し、GPU が無い host では CPU-only で起動します。`/mnt/git` mount も host に path がある場合だけ追加します。前提拡張は `.vscode/extensions.json` にまとめています。
 
 container 内では `PYTHONPATH=/workspace/python` を前提にします。
 

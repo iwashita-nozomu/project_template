@@ -1,23 +1,9 @@
 {
   "name": "project-template",
   "initializeCommand": "bash .devcontainer/generate-runtime-compose.sh",
-  "dockerComposeFile": [
-    "docker-compose.yml",
-    "docker-compose.runtime.yml"
-  ],
+  "dockerComposeFile": "docker-compose.generated.yml",
   "service": "workspace",
   "workspaceFolder": "/workspace",
   "shutdownAction": "stopCompose",
-  "overrideCommand": false,
-  "customizations": {
-    "vscode": {
-      "extensions": [
-        "ms-python.python",
-        "ms-toolsai.jupyter",
-        "ms-azuretools.vscode-docker",
-        "ms-vscode.cpptools",
-        "ms-vscode.cmake-tools"
-      ]
-    }
-  }
+  "overrideCommand": false
 }
