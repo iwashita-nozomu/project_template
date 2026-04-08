@@ -1,4 +1,4 @@
-.PHONY: ci ci-quick docs-check dev-setup tools-help agent-checks agent-canon-check agent-canon-links agent-canon-snapshot agent-canon-status docker-check docker-build-check docker-build-check-host-docker server-check experiment-check docker-shell docker-codex docker-codex-host-docker fresh-clone-check template-check task-start task-close
+.PHONY: ci ci-quick docs-check dev-setup tools-help agent-checks agent-canon-check agent-canon-links agent-canon-snapshot agent-canon-status docker-check docker-build-check docker-build-check-host-docker server-check experiment-check docker-shell docker-codex docker-codex-host-docker fresh-clone-check template-check task-start doc-start task-close
 
 # ★推奨: 統合 CI（pytest + pyright + ruff）
 ci:
@@ -18,6 +18,10 @@ template-check: fresh-clone-check
 # machine-driven task start
 task-start:
 	python3 scripts/agent_tools/task_start.py $(ARGS)
+
+# machine-driven document start
+doc-start:
+	python3 scripts/agent_tools/doc_start.py $(ARGS)
 
 # machine-driven task close gate
 task-close:
