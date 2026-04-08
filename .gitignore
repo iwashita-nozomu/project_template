@@ -36,3 +36,7 @@ reports/*.patch
 
 # Generated devcontainer runtime file
 .devcontainer/docker-compose.generated.yml
+
+# Reusable local C++ / jax.export artifacts
+.state/cpp-install/
+.state/jax-export/

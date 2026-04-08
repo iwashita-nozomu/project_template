@@ -19,6 +19,8 @@ ownership と surface 種別は [documents/SHARED_RUNTIME_SURFACES.md](/mnt/l/wo
   - repo-wide の Markdown 体裁とリンクを確認します。
 - [ci/check_docker_build.sh](/mnt/l/workspace/project_template/scripts/ci/check_docker_build.sh)
   - `docker/Dockerfile` の build 可否、`docker` CLI、image 側の `safe.directory` 設定を確認します。
+- [ci/check_jax_export_stack.py](/mnt/l/workspace/project_template/scripts/ci/check_jax_export_stack.py)
+  - `jax.export` artifact の生成、calling convention、`jaxlib/include` と XLA FFI header の存在を確認します。
 - [ci/run_container_pack.py](/mnt/l/workspace/project_template/scripts/ci/run_container_pack.py)
   - repo 定義の runtime pack を build / smoke します。
 - [ci/run_in_repo_container.py](/mnt/l/workspace/project_template/scripts/ci/run_in_repo_container.py)
@@ -110,6 +112,9 @@ make docs-check
 make docker-build-check
 make docker-build-check-host-docker
 make server-check
+python3 scripts/ci/check_jax_export_stack.py
+cmake -S . -B build/cpp/dev -DPROJECT_TEMPLATE_ENABLE_CPP_SMOKE=ON
+cmake --build build/cpp/dev --target project_template_cpp_smoke
 make experiment-check
 make docker-shell
 make docker-codex

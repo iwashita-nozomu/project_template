@@ -48,6 +48,7 @@ experiment canon のうち、再利用する review guide、registry contract、
 - [coding-conventions-house-style.md](/mnt/l/workspace/project_template/documents/coding-conventions-house-style.md)
 - [coding-conventions-testing.md](/mnt/l/workspace/project_template/documents/coding-conventions-testing.md)
 - [coding-conventions-reviews.md](/mnt/l/workspace/project_template/documents/coding-conventions-reviews.md)
+- [cpp-build-layout.md](/mnt/l/workspace/project_template/documents/cpp-build-layout.md)
 - 言語補足が必要な場合だけ `coding-conventions-python.md` や `coding-conventions-cpp.md` を読みます。
 
 ## Template・Environment・Contract

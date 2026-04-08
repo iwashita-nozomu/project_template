@@ -46,6 +46,7 @@ shared agent canon は `vendor/agent-canon/` に committed snapshot として同
 - `documents/WORKFLOW_GUIDE.md`
 - `documents/conventions/README.md`
 - `documents/coding-conventions-python.md`
+- `documents/cpp-build-layout.md`
 - 開発環境を触る場合は `docker/`
 - host 前提を確認する場合は `documents/linux-wsl-host-requirements.md`
 - 実験を行う場合は `documents/experiment-workflow.md`
@@ -114,7 +115,7 @@ make tools-help
 
 ## Docker で Codex を使う
 
-`docker/Dockerfile` には Codex CLI と `docker` CLI を同梱します。container runtime の正本は [docker/README.md](/mnt/l/workspace/project_template/docker/README.md) で、build / smoke は `docker/packs/*.toml` と `scripts/ci/run_container_pack.py` から実行します。コンテナに入ったあと、認証は各自の OpenAI アカウントで行います。対話認証は `codex login`、API key を使う場合は `printenv OPENAI_API_KEY | codex login --with-api-key` を使えます。
+`docker/Dockerfile` には Codex CLI と `docker` CLI を同梱します。container runtime の正本は [docker/README.md](/mnt/l/workspace/project_template/docker/README.md) で、build / smoke は `docker/packs/*.toml` と `scripts/ci/run_container_pack.py` から実行します。コンテナに入ったあと、認証は各自の OpenAI アカウントで行います。対話認証は `codex login`、API key を使う場合は `printenv OPENAI_API_KEY | codex login --with-api-key` を使えます。`jax.export` を使う前提で `python3-dev`、`cmake`、`ninja-build` も canonical image に入れ、calling convention は installed JAX wheel の supported range に追従させます。
 
 `docker/Dockerfile` か `docker/requirements.txt` を更新した変更では、`make docker-build-check` を通して build 可否を確認します。ローカルに `docker` / `podman` がない場合は、GitHub Actions の `Docker Build` workflow を使います。
 
@@ -127,6 +128,7 @@ project-scoped Codex config の正本は `.codex/config.toml` です。template 
 VS Code の dev container は `.devcontainer/` から起動します。起動時に generated compose を 1 枚作り、GPU が見える host では `gpus: all` を自動追加し、GPU が無い host では CPU-only で起動します。`/mnt/git` も host に path がある場合だけ mount し、local bare remote への push/pull を container 内から継続できます。attach 直後には banner を出し、GPU、`/mnt/git`、Docker socket、Codex の `approval_policy` / `sandbox_mode` の状態を表示します。前提拡張は `.vscode/extensions.json` にまとめています。
 
 container 内では `PYTHONPATH=/workspace/python` を前提にします。
+C++ を使うときの canonical entrypoint は root [CMakeLists.txt](/mnt/l/workspace/project_template/CMakeLists.txt) です。helper module は [cmake/README.md](/mnt/l/workspace/project_template/cmake/README.md)、layout と artifact reuse policy は [cpp-build-layout.md](/mnt/l/workspace/project_template/documents/cpp-build-layout.md) を見ます。
 
 ```bash
 docker build -t project-template -f docker/Dockerfile .
@@ -147,6 +149,9 @@ build 確認だけを行う場合は次です。
 make docker-build-check
 make docker-build-check-host-docker
 make server-check
+python3 scripts/ci/check_jax_export_stack.py
+cmake -S . -B build/cpp/dev -DPROJECT_TEMPLATE_ENABLE_CPP_SMOKE=ON
+cmake --build build/cpp/dev --target project_template_cpp_smoke
 python3 scripts/ci/run_container_pack.py --pack docker/packs/default.toml --print-only
 python3 scripts/ci/run_codex_in_repo_container.py --print-only
 ```

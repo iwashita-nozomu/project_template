@@ -5,6 +5,7 @@ equinox
 optax
 scipy
 scipy-stubs
+flatbuffers
 
 # Testing
 pytest>=8

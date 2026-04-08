@@ -5,8 +5,8 @@ ARG NODE_VERSION=22.14.0
 # GCCやビルド系 + Python
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates curl git docker.io \
-    build-essential pkg-config cmake \
-    python3 python3-pip python3-venv \
+    build-essential pkg-config cmake ninja-build \
+    python3 python3-dev python3-pip python3-venv \
     openssh-client graphviz xz-utils \
  && rm -rf /var/lib/apt/lists/*
 
@@ -31,6 +31,10 @@ RUN pip install --no-cache-dir -r /tmp/requirements.txt
 WORKDIR /workspace
 ENV PYTHONPATH=/workspace/python
 ENV TEMPLATE_BARE_GIT_ROOT=/mnt/git
+ENV CMAKE_GENERATOR=Ninja
+ENV PROJECT_TEMPLATE_CPP_BUILD_ROOT=/workspace/build/cpp
+ENV PROJECT_TEMPLATE_CPP_INSTALL_ROOT=/workspace/.state/cpp-install
+ENV PROJECT_TEMPLATE_JAX_EXPORT_ROOT=/workspace/.state/jax-export
 
 # Canonical image 側で safe.directory を固定し、/mnt/git を mount した
 # local bare remote への push/pull を container 内からもそのまま通す。

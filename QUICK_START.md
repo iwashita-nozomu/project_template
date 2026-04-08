@@ -11,6 +11,7 @@
 - [documents/template-bootstrap.md](/mnt/l/workspace/project_template/documents/template-bootstrap.md)
 - [documents/conventions/README.md](/mnt/l/workspace/project_template/documents/conventions/README.md)
 - [documents/coding-conventions-python.md](/mnt/l/workspace/project_template/documents/coding-conventions-python.md)
+- [documents/cpp-build-layout.md](/mnt/l/workspace/project_template/documents/cpp-build-layout.md)
 
 実験を扱う場合は追加で次を見ます。
 
@@ -96,10 +97,12 @@ bash scripts/run_comprehensive_review.sh
 - `docker/Dockerfile` か `docker/requirements.txt` を更新したら `make docker-build-check` を流します。
 - repo-wide な tool 導入案や Docker 変更では `agents/templates/environment_change_proposal.md` に triggering code requirement と blocked command を先に記録します。
 - container 内では `PYTHONPATH=/workspace/python` を前提にします。
+- C++ を使う場合の canonical CMake entrypoint は root `CMakeLists.txt` です。
+- out-of-source build tree は `build/cpp/<profile>/`、再利用する local install tree は `.state/cpp-install/<profile>/`、再利用する local `jax.export` artifact は `.state/jax-export/<profile>/` に置きます。
 - Markdown の体裁ルールは `.markdownlint.json` と `documents/conventions/common/05_docs.md` を基準にします。
 - 依存棚卸しは `pipdeptree` と `deptry` を baseline にします。
 
-Codex CLI と `docker` CLI は `docker/Dockerfile` に同梱します。コンテナ内では `codex login`、API key を使う場合は `printenv OPENAI_API_KEY | codex login --with-api-key` を使います。`safe.directory` は image build 時に `git config --global` で固定し、既定で `/workspace` と local bare remote 用の `/mnt/git/template.git`、`/mnt/git/agent-canon.git` を登録します。project-scoped Codex config の `.codex/config.toml` では `approval_policy = "never"` と `sandbox_mode = "danger-full-access"` を既定にしているので、container 内で起動した Codex も最初から full access です。
+Codex CLI と `docker` CLI は `docker/Dockerfile` に同梱します。コンテナ内では `codex login`、API key を使う場合は `printenv OPENAI_API_KEY | codex login --with-api-key` を使います。`safe.directory` は image build 時に `git config --global` で固定し、既定で `/workspace` と local bare remote 用の `/mnt/git/template.git`、`/mnt/git/agent-canon.git` を登録します。project-scoped Codex config の `.codex/config.toml` では `approval_policy = "never"` と `sandbox_mode = "danger-full-access"` を既定にしているので、container 内で起動した Codex も最初から full access です。`jax.export` 用には `CMAKE_GENERATOR=Ninja` を image 側で固定し、calling convention は installed JAX wheel の supported range に追従させます。
 
 VS Code から開発コンテナへ入る場合は `.devcontainer/` を使います。起動時に generated compose を 1 枚作り、GPU がある host では自動で `gpus: all` を追加し、GPU が無い host では CPU-only で起動します。`/mnt/git` も host に存在するときだけ mount し、container 内から local bare remote へ push/pull できます。attach 直後には banner を出し、GPU、`/mnt/git`、Docker socket、Codex の `approval_policy` / `sandbox_mode` を表示します。前提拡張は `.vscode/extensions.json` を見ます。
 
@@ -120,6 +123,9 @@ build 可否だけを確認したい場合は次です。
 make docker-build-check
 make docker-build-check-host-docker
 make server-check
+python3 scripts/ci/check_jax_export_stack.py
+cmake -S . -B build/cpp/dev -DPROJECT_TEMPLATE_ENABLE_CPP_SMOKE=ON
+cmake --build build/cpp/dev --target project_template_cpp_smoke
 python3 scripts/ci/run_container_pack.py --pack docker/packs/default.toml --print-only
 python3 scripts/ci/run_codex_in_repo_container.py --print-only
 ```

@@ -16,6 +16,7 @@
 - `docker/` は共通開発環境の定義です。
 - `experiments/` は実験コードと生成物の置き場です。
 - `python/`, `src/`, `include/`, `lib/` は実装スロットです。全部を使う必要はありません。
+- C++ を使う場合の build layout は `documents/cpp-build-layout.md` を正本にします。
 
 ## 3. 文書運用
 
@@ -55,6 +56,9 @@
 - Docker 変更で新しい tool を同梱する場合は、その tool の用途、呼び出し入口、不要になったときの削除方針を文書へ残しなければなりません。
 - Docker runtime の再利用 surface は `docker/packs/*.toml`、`docker/codex-container-profiles.toml`、`docker/python-execution-rules.toml` を正本にし、script 側へ path 分岐を埋め込んではなりません。
 - main server host の path、mount、builder 前提は `documents/server-host-contract.md` と `documents/templates/server_runtime_layout.template.toml` を正本にし、口頭運用にしてはなりません。
+- C++ / JAX export を使う場合の canonical CMake entrypoint は root `CMakeLists.txt` です。`src/` や `include/` の下に別 root を増やすことを禁止します。
+- C++ build は必ず out-of-source にし、`build/cpp/<profile>/` を使わなければなりません。
+- 再利用する local install tree は `.state/cpp-install/<profile>/`、再利用する local `jax.export` artifact は `.state/jax-export/<profile>/` に置かなければなりません。
 
 ## 5. テストとレビュー
 
