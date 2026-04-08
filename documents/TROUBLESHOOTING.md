@@ -13,6 +13,14 @@
 - `make docker-build-check` を実行して、build と container 起動のどちらで落ちるかを切り分けます。
 - `docker` / `podman` がない環境では、GitHub Actions の `Docker Build` workflow を使います。
 - `docker/Dockerfile` と `docker/requirements.txt` の更新漏れがないか確認します。
+- Linux / WSL host の前提が怪しい場合は `documents/linux-wsl-host-requirements.md` を見ます。
+
+## WSL / host 前提が怪しい
+
+- repo が Linux filesystem 側にあるか確認します。
+- `/mnt/git` があるか確認します。
+- `docker version` と `id` を見て、今の shell から daemon に到達できるか確認します。
+- VS Code dev container が不安定なら `.devcontainer/` と `documents/linux-wsl-host-requirements.md` を見直します。
 
 ## import や依存が壊れる
 

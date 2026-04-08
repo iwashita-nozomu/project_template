@@ -7,6 +7,7 @@
 - [README.md](/mnt/l/workspace/project_template/README.md)
 - [documents/README.md](/mnt/l/workspace/project_template/documents/README.md)
 - [documents/WORKFLOW_GUIDE.md](/mnt/l/workspace/project_template/documents/WORKFLOW_GUIDE.md)
+- [documents/linux-wsl-host-requirements.md](/mnt/l/workspace/project_template/documents/linux-wsl-host-requirements.md)
 - [documents/conventions/README.md](/mnt/l/workspace/project_template/documents/conventions/README.md)
 - [documents/coding-conventions-python.md](/mnt/l/workspace/project_template/documents/coding-conventions-python.md)
 
@@ -80,6 +81,7 @@ bash scripts/run_comprehensive_review.sh
 ## 6. 環境の基本
 
 - 共通開発環境は `docker/` を基準にします。
+- host 前提は `documents/linux-wsl-host-requirements.md` を正本にします。
 - container runtime の再利用 surface は `docker/packs/*.toml` と `scripts/ci/run_container_pack.py` を基準にします。
 - Python 依存を追加する場合は `docker/Dockerfile` と `docker/requirements.txt` を同時に更新します。
 - `docker/Dockerfile` か `docker/requirements.txt` を更新したら `make docker-build-check` を流します。

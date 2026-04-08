@@ -9,6 +9,7 @@ experiment canon のうち、再利用する review guide、registry contract、
 
 - [conventions/README.md](/mnt/l/workspace/project_template/documents/conventions/README.md)
 - [coding-conventions-project.md](/mnt/l/workspace/project_template/documents/coding-conventions-project.md)
+- [linux-wsl-host-requirements.md](/mnt/l/workspace/project_template/documents/linux-wsl-host-requirements.md)
 - [WORKFLOW_GUIDE.md](/mnt/l/workspace/project_template/documents/WORKFLOW_GUIDE.md)
 - [implementation-waterfall-workflow.md](/mnt/l/workspace/project_template/documents/implementation-waterfall-workflow.md)
 - [FILE_CHECKLIST_OPERATIONS.md](/mnt/l/workspace/project_template/documents/FILE_CHECKLIST_OPERATIONS.md)
@@ -50,6 +51,7 @@ experiment canon のうち、再利用する review guide、registry contract、
 - [templates/README.md](/mnt/l/workspace/project_template/documents/templates/README.md)
 - [tools/README.md](/mnt/l/workspace/project_template/documents/tools/README.md)
 - [tools/TOOLS_DIRECTORY.md](/mnt/l/workspace/project_template/documents/tools/TOOLS_DIRECTORY.md)
+- [linux-wsl-host-requirements.md](/mnt/l/workspace/project_template/documents/linux-wsl-host-requirements.md)
 - [remote-execution-repo-contract.md](/mnt/l/workspace/project_template/documents/remote-execution-repo-contract.md)
 - [server-host-contract.md](/mnt/l/workspace/project_template/documents/server-host-contract.md)
 

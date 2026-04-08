@@ -40,10 +40,12 @@ shared agent canon は `vendor/agent-canon/` に committed snapshot として同
 
 - `QUICK_START.md`
 - `documents/README.md`
+- `documents/linux-wsl-host-requirements.md`
 - `documents/WORKFLOW_GUIDE.md`
 - `documents/conventions/README.md`
 - `documents/coding-conventions-python.md`
 - 開発環境を触る場合は `docker/`
+- host 前提を確認する場合は `documents/linux-wsl-host-requirements.md`
 - 実験を行う場合は `documents/experiment-workflow.md`
 - 実験 topic を作る場合は `experiments/README.md`
 - topic registry を触る場合は `documents/experiment-registry.md`

@@ -64,6 +64,7 @@ make docker-build-check-host-docker
 
 ## Related
 
+- `documents/linux-wsl-host-requirements.md`
 - `documents/remote-execution-repo-contract.md`
 - `documents/templates/server_host_inventory.template.md`
 - `documents/templates/server_runtime_layout.template.toml`
