@@ -110,7 +110,7 @@ repo-wide な tool 導入案は `agents/templates/environment_change_proposal.md
 
 `safe.directory` は `docker/Dockerfile` の build 時に `git config --global` で固定します。template の canonical image では `/workspace` と、local bare remote 置き場として使う `/mnt/git/template.git`、`/mnt/git/agent-canon.git` を登録します。`/mnt/git` を mount した container からそのまま push/pull できる状態を先に作るためです。
 
-VS Code の dev container は `.devcontainer/` から起動します。起動時に generated compose を 1 枚作り、GPU が見える host では `gpus: all` を自動追加し、GPU が無い host では CPU-only で起動します。`/mnt/git` も host に path がある場合だけ mount し、local bare remote への push/pull を container 内から継続できます。前提拡張は `.vscode/extensions.json` にまとめています。
+VS Code の dev container は `.devcontainer/` から起動します。起動時に generated compose を 1 枚作り、GPU が見える host では `gpus: all` を自動追加し、GPU が無い host では CPU-only で起動します。`/mnt/git` も host に path がある場合だけ mount し、local bare remote への push/pull を container 内から継続できます。attach 直後には banner を出し、GPU、`/mnt/git`、Docker socket の状態を表示します。前提拡張は `.vscode/extensions.json` にまとめています。
 
 container 内では `PYTHONPATH=/workspace/python` を前提にします。
 

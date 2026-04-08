@@ -124,6 +124,13 @@ python3 scripts/ci/run_codex_in_repo_container.py --profile host-docker
 
 そのため、template を clone したディレクトリでも、GPU なし環境で dev container が落ちにくくなります。
 
+VS Code で attach した直後には `.devcontainer/post-attach.sh` を実行し、少なくとも次を banner で表示します。
+
+- GPU の有無
+- `/mnt/git` mount の有無
+- Docker socket mount の有無
+- `PYTHONPATH`
+
 VS Code の前提拡張は `.vscode/extensions.json` を正本にします。
 
 - `ms-python.python`

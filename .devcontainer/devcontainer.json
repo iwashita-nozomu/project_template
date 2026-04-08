@@ -4,6 +4,7 @@
   "dockerComposeFile": "docker-compose.generated.yml",
   "service": "workspace",
   "workspaceFolder": "/workspace",
+  "postAttachCommand": "bash .devcontainer/post-attach.sh",
   "shutdownAction": "stopCompose",
   "overrideCommand": false
 }
