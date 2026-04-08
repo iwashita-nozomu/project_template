@@ -31,11 +31,14 @@ RUN pip install --no-cache-dir -r /tmp/requirements.txt
 WORKDIR /workspace
 ENV PYTHONPATH=/workspace/python
 
-# host uid:gid や HOME を container 起動時に差し替えても見えるよう、
-# git の safe.directory は user-local ではなく system config へ固定する。
-RUN git config --system --add safe.directory /workspace \
- && git config --system --add safe.directory /mnt/git/template.git \
- && git config --system --add safe.directory /mnt/git/agent-canon.git \
- && docker --version
+# /mnt/l/workspace/jax_solver_util と同じ起動時権限の扱いに合わせ、
+# Codex 起動時に見る git safe.directory は global config へ固定する。
+RUN git config --global --add safe.directory /workspace
+RUN git config --global --add safe.directory /mnt/git/template.git
+RUN git config --global --add safe.directory /mnt/git/agent-canon.git
+
+# docker CLI は同梱するが、build/run をコンテナ内から行うときは
+# host socket の mount か別 daemon が必要。
+RUN docker --version
 
 CMD ["/bin/bash"]
