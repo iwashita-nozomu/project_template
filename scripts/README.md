@@ -101,6 +101,8 @@ ownership と surface 種別は [documents/SHARED_RUNTIME_SURFACES.md](/mnt/l/wo
   - worktree kickoff の user-facing 入口です。
 - [agent_tools/work_log.py](/mnt/l/workspace/project_template/scripts/agent_tools/work_log.py)
   - worktree action log へ 1 行ずつ追記します。
+- [agent_tools/log_user_preference.py](/mnt/l/workspace/project_template/scripts/agent_tools/log_user_preference.py)
+  - 会話から抽出した durable preference を `notes/themes/USER_PREFERENCES.md` へ追記します。
 - [sync_agent_canon.sh](/mnt/l/workspace/project_template/scripts/sync_agent_canon.sh)
   - `vendor/agent-canon/` subtree の add / pull / push / status、shared surface の drift check、root shared surface の再同期をまとめます。
 
@@ -146,6 +148,7 @@ python3 scripts/agent_tools/task_start.py --task "scoped change" --task-id T1 --
 python3 scripts/agent_tools/doc_start.py --task "paper writing task" --kind paper --owner "codex" --dry-run
 python3 scripts/agent_tools/task_close.py --run-id 20260408-sample-run
 python3 scripts/agent_tools/work_log.py --kind review --message "ci-quick passed" --next "prepare commit"
+python3 scripts/agent_tools/log_user_preference.py --preference "workflow は機械化を優先する" --kind provisional --source chat
 bash scripts/sync_agent_canon.sh link-root
 bash scripts/sync_agent_canon.sh check
 bash scripts/sync_agent_canon.sh snapshot
