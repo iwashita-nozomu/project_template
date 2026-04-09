@@ -40,17 +40,17 @@ runtime pack には次を 1 つの spec としてまとめます。
 
 主な入口:
 
-- `python3 scripts/ci/run_container_pack.py`
+- `python3 tools/ci/run_container_pack.py`
   - pack 定義から build と smoke を実行します。
-- `python3 scripts/ci/run_in_repo_container.py`
+- `python3 tools/ci/run_in_repo_container.py`
   - pack 定義から repo workspace を mount した container command を実行します。
-- `python3 scripts/ci/run_repo_program.py`
+- `python3 tools/ci/run_repo_program.py`
   - Python file、shell script、workspace binary、plain command を 1 つの入口で container 実行し、先に environment check も流します。
-- `python3 scripts/ci/run_python_in_dockerfile.py`
+- `python3 tools/ci/run_python_in_dockerfile.py`
   - Python file path と rule に基づいて適切な pack で実行します。
-- `python3 scripts/ci/run_codex_in_repo_container.py`
+- `python3 tools/ci/run_codex_in_repo_container.py`
   - repo を mount した canonical container 内で nested Codex を起動します。
-- `python3 scripts/ci/render_devcontainer_compose.py`
+- `python3 tools/ci/render_devcontainer_compose.py`
   - devcontainer 用の compose を canonical pack から生成します。
 
 ## Nested Codex
@@ -72,12 +72,12 @@ project-scoped Codex config の正本は `.codex/config.toml` で、template 既
 よく使う例:
 
 ```bash
-python3 scripts/ci/run_codex_in_repo_container.py --list-profiles
-python3 scripts/ci/run_codex_in_repo_container.py --print-only
-python3 scripts/ci/run_codex_in_repo_container.py
-python3 scripts/ci/run_codex_in_repo_container.py --profile host-docker
-python3 scripts/ci/run_codex_in_repo_container.py --share-host-codex-home
-python3 scripts/ci/run_codex_in_repo_container.py --no-seed-host-codex --forward-env OPENAI_API_KEY
+python3 tools/ci/run_codex_in_repo_container.py --list-profiles
+python3 tools/ci/run_codex_in_repo_container.py --print-only
+python3 tools/ci/run_codex_in_repo_container.py
+python3 tools/ci/run_codex_in_repo_container.py --profile host-docker
+python3 tools/ci/run_codex_in_repo_container.py --share-host-codex-home
+python3 tools/ci/run_codex_in_repo_container.py --no-seed-host-codex --forward-env OPENAI_API_KEY
 ```
 
 ## Repo Program Runner
@@ -95,10 +95,10 @@ python3 scripts/ci/run_codex_in_repo_container.py --no-seed-host-codex --forward
 よく使う例:
 
 ```bash
-python3 scripts/ci/run_repo_program.py scripts/ci/check_jax_export_stack.py
-python3 scripts/ci/run_repo_program.py scripts/ci/check_docker_build.sh -- --pack docker/packs/default.toml
-python3 scripts/ci/run_repo_program.py python3 -- --version
-python3 scripts/ci/run_repo_program.py --skip-env-check --print-only cmake -- --version
+python3 tools/ci/run_repo_program.py tools/ci/check_jax_export_stack.py
+python3 tools/ci/run_repo_program.py tools/ci/check_docker_build.sh -- --pack docker/packs/default.toml
+python3 tools/ci/run_repo_program.py python3 -- --version
+python3 tools/ci/run_repo_program.py --skip-env-check --print-only cmake -- --version
 ```
 
 ## Python File Runner
@@ -117,8 +117,8 @@ python3 scripts/ci/run_repo_program.py --skip-env-check --print-only cmake -- --
 よく使う例:
 
 ```bash
-python3 scripts/ci/run_python_in_dockerfile.py docker/Dockerfile scripts/docker_dependency_validator.py
-python3 scripts/ci/run_python_in_dockerfile.py docker/Dockerfile scripts/tools/check_markdown_math.py -- README.md
+python3 tools/ci/run_python_in_dockerfile.py docker/Dockerfile tools/docker_dependency_validator.py
+python3 tools/ci/run_python_in_dockerfile.py docker/Dockerfile tools/docs/check_markdown_math.py -- README.md
 ```
 
 ## Docker In Docker
@@ -129,24 +129,24 @@ container 内から `docker build` / `docker run` を行う場合は、host の 
 host socket 前提の pack は `docker/packs/default-host-docker.toml` です。
 
 ```bash
-python3 scripts/ci/run_container_pack.py --pack docker/packs/default-host-docker.toml
-python3 scripts/ci/run_codex_in_repo_container.py --profile host-docker
+python3 tools/ci/run_container_pack.py --pack docker/packs/default-host-docker.toml
+python3 tools/ci/run_codex_in_repo_container.py --profile host-docker
 ```
 
 `safe.directory` は `docker/Dockerfile` の build 時に `git config --global` で固定します。template の canonical image では `/workspace` と、local bare remote 用の `/mnt/git/template.git`、`/mnt/git/agent-canon.git` を登録します。`/mnt/git` を mount した dev container や nested Codex から、そのまま local bare remote へ push/pull できるようにするためです。
 
 repo-defined container runner でも、host `~/.codex` が存在するときは `/root/.codex` へ自動 mount します。対象は少なくとも次です。
 
-- `python3 scripts/ci/run_in_repo_container.py`
-- `python3 scripts/ci/run_repo_program.py`
-- `python3 scripts/ci/run_container_pack.py`
-- `python3 scripts/ci/run_python_in_dockerfile.py`
+- `python3 tools/ci/run_in_repo_container.py`
+- `python3 tools/ci/run_repo_program.py`
+- `python3 tools/ci/run_container_pack.py`
+- `python3 tools/ci/run_python_in_dockerfile.py`
 
-つまり、dev container に入らず `make docker-run ARGS='...'` や `python3 scripts/ci/run_repo_program.py ...` を使う場合でも、container 内の `~/.codex` は host state をそのまま使います。
+つまり、dev container に入らず `make docker-run ARGS='...'` や `python3 tools/ci/run_repo_program.py ...` を使う場合でも、container 内の `~/.codex` は host state をそのまま使います。
 
 ## VS Code Dev Container
 
-`.devcontainer/devcontainer.json` は 1 枚の generated Docker Compose file を使います。起動前に `.devcontainer/generate-runtime-compose.sh` を走らせますが、実体の生成は `python3 scripts/ci/render_devcontainer_compose.py --pack docker/packs/default.toml --output .devcontainer/docker-compose.generated.yml` です。つまり devcontainer も repo-defined container runner も `docker/packs/default.toml` と `scripts/ci/container_runtime.py` を同じ source にします。host を見て次を自動切替します。
+`.devcontainer/devcontainer.json` は 1 枚の generated Docker Compose file を使います。起動前に `.devcontainer/generate-runtime-compose.sh` を走らせますが、実体の生成は `python3 tools/ci/render_devcontainer_compose.py --pack docker/packs/default.toml --output .devcontainer/docker-compose.generated.yml` です。つまり devcontainer も repo-defined container runner も `docker/packs/default.toml` と `tools/ci/container_runtime.py` を同じ source にします。host を見て次を自動切替します。
 
 - NVIDIA GPU が見えるとき:
   - `gpus: all` を追加
@@ -202,7 +202,7 @@ JAX と C++ の接続を `jax.export` 前提で使う場合は、canonical image
 - `ninja-build`
 - `build-essential`
 
-template 既定では `CMAKE_GENERATOR=Ninja` を image 側で固定します。`jax.export` の calling convention は installed JAX wheel の supported range に追従させ、`python3 scripts/ci/check_jax_export_stack.py` で実際の version range を確認します。この smoke は次を一度に見ます。
+template 既定では `CMAKE_GENERATOR=Ninja` を image 側で固定します。`jax.export` の calling convention は installed JAX wheel の supported range に追従させ、`python3 tools/ci/check_jax_export_stack.py` で実際の version range を確認します。この smoke は次を一度に見ます。
 
 - `jax.export` による StableHLO export
 - `iree-base-compiler` による StableHLO -> VM flatbuffer compile
@@ -238,13 +238,13 @@ make server-check
 make docker-shell
 make docker-codex
 make docker-codex-host-docker
-python3 scripts/ci/check_jax_export_stack.py
+python3 tools/ci/check_jax_export_stack.py
 cmake -S . -B build/cpp/dev -DPROJECT_TEMPLATE_ENABLE_CPP_SMOKE=ON
 cmake --build build/cpp/dev --target project_template_cpp_smoke
 ctest --test-dir build/cpp/dev --output-on-failure
-python3 scripts/ci/run_container_pack.py --pack docker/packs/default.toml --print-only
-python3 scripts/ci/run_repo_program.py --print-only scripts/ci/check_jax_export_stack.py
-python3 scripts/ci/run_in_repo_container.py --pack docker/packs/default.toml --shell-session --tty
+python3 tools/ci/run_container_pack.py --pack docker/packs/default.toml --print-only
+python3 tools/ci/run_repo_program.py --print-only tools/ci/check_jax_export_stack.py
+python3 tools/ci/run_in_repo_container.py --pack docker/packs/default.toml --shell-session --tty
 ```
 
 ## Update Rule

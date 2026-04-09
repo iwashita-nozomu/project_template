@@ -13,8 +13,8 @@
 手順:
 
 ```bash
-bash scripts/worktree_start.sh work/<topic>-YYYYMMDD
-python3 scripts/agent_tools/worktree_scope_lint.py --current
+bash tools/worktree_start.sh work/<topic>-YYYYMMDD
+python3 tools/agent_tools/worktree_scope_lint.py --current
 git status --short --branch
 git worktree list --porcelain
 ```
@@ -53,8 +53,8 @@ python3 -m ruff check python tests --select D,E,F,I,UP
 
 ```bash
 make docs-check
-python3 scripts/tools/check_markdown_lint.py --check <changed-file>.md
-python3 scripts/tools/check_markdown_math.py <changed-file>.md
+python3 tools/docs/check_markdown_lint.py --check <changed-file>.md
+python3 tools/docs/check_markdown_math.py <changed-file>.md
 ```
 
 確認:
@@ -68,16 +68,16 @@ python3 scripts/tools/check_markdown_math.py <changed-file>.md
 手順:
 
 ```bash
-python3 scripts/docker_dependency_validator.py
+python3 tools/docker_dependency_validator.py
 make docker-build-check
-python3 scripts/ci/run_container_pack.py --pack docker/packs/default.toml --print-only
+python3 tools/ci/run_container_pack.py --pack docker/packs/default.toml --print-only
 ```
 
 必要なら:
 
 ```bash
 make docker-build-check-host-docker
-python3 scripts/ci/run_codex_in_repo_container.py --profile host-docker --print-only
+python3 tools/ci/run_codex_in_repo_container.py --profile host-docker --print-only
 ```
 
 確認:
@@ -95,7 +95,7 @@ git status --short
 make ci-quick
 git add <files>
 git commit -m "<type>: <summary>"
-bash scripts/push_origin.sh
+bash tools/push_origin.sh
 ```
 
 確認:

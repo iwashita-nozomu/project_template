@@ -8,8 +8,8 @@ import sys
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-BOOTSTRAP_SCRIPT = PROJECT_ROOT / "scripts" / "agent_tools" / "bootstrap_worktree_notes.py"
-WORK_LOG_SCRIPT = PROJECT_ROOT / "scripts" / "agent_tools" / "work_log.py"
+BOOTSTRAP_SCRIPT = PROJECT_ROOT / "tools" / "agent_tools" / "bootstrap_worktree_notes.py"
+WORK_LOG_SCRIPT = PROJECT_ROOT / "tools" / "agent_tools" / "work_log.py"
 
 
 def test_bootstrap_worktree_notes_and_append_log(tmp_path: Path) -> None:

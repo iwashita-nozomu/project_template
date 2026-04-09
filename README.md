@@ -13,8 +13,12 @@
   - 実験や調査をまたいで残したい知見、補助メモ、テーマ整理を置きます。
 - `agents/`
   - エージェントチーム定義、運用ルール、workflow の正本です。
+- `tools/`
+  - shared automation、agent helper、CI/check、container runner の入口です。
+  - agent helper、CI / review / validation、container runner、experiment helper、Markdown helper の実装はここに置きます。
 - `scripts/`
-  - チェック、整形、補助運用の入口です。
+  - repo-local bootstrap の入口です。
+  - template 固有の slug 置換、display name 置換、bare remote 初期化だけをここに置きます。
 - `docker/`
   - 共通開発環境、runtime pack、nested Codex profile の定義です。
 - `experiments/`
@@ -95,7 +99,7 @@ experiments/
 
 実験方法論そのものは `documents/experiment-workflow.md` と `documents/research-workflow.md` を正本にします。
 agent に実験つき改造 loop を回させる場合は `agents/skills/adaptive-improvement-loop.md` を outer loop、`agents/skills/experiment-lifecycle.md` を run 単位の分岐に使います。
-server で回す実験コードの実体テンプレは `experiments/_template/`、topic 正本は `experiments/registry.toml`、topic scaffold は `scripts/experiments/create_experiment_topic.py`、run metadata を残す入口は `scripts/experiments/run_managed_experiment.py` です。
+server で回す実験コードの実体テンプレは `experiments/_template/`、topic 正本は `experiments/registry.toml`、topic scaffold は `tools/experiments/create_experiment_topic.py`、run metadata を残す入口は `tools/experiments/run_managed_experiment.py` です。
 
 ## よく使うコマンド
 
@@ -115,7 +119,7 @@ make tools-help
 
 ## Docker で Codex を使う
 
-`docker/Dockerfile` には Codex CLI と `docker` CLI を同梱します。container runtime の正本は [docker/README.md](/mnt/l/workspace/project_template/docker/README.md) で、build / smoke は `docker/packs/*.toml` と `scripts/ci/run_container_pack.py` から実行します。コンテナに入ったあと、認証は各自の OpenAI アカウントで行います。対話認証は `codex login`、API key を使う場合は `printenv OPENAI_API_KEY | codex login --with-api-key` を使えます。`jax.export` を使う前提で `python3-dev`、`cmake`、`ninja-build` も canonical image に入れ、calling convention は installed JAX wheel の supported range に追従させます。
+`docker/Dockerfile` には Codex CLI と `docker` CLI を同梱します。container runtime の正本は [docker/README.md](/mnt/l/workspace/project_template/docker/README.md) で、build / smoke は `docker/packs/*.toml` と `tools/ci/run_container_pack.py` から実行します。コンテナに入ったあと、認証は各自の OpenAI アカウントで行います。対話認証は `codex login`、API key を使う場合は `printenv OPENAI_API_KEY | codex login --with-api-key` を使えます。`jax.export` を使う前提で `python3-dev`、`cmake`、`ninja-build` も canonical image に入れ、calling convention は installed JAX wheel の supported range に追従させます。
 
 `docker/Dockerfile` か `docker/requirements.txt` を更新した変更では、`make docker-build-check` を通して build 可否を確認します。ローカルに `docker` / `podman` がない場合は、GitHub Actions の `Docker Build` workflow を使います。
 
@@ -125,7 +129,7 @@ repo-wide な tool 導入案や Docker 変更では `agents/templates/environmen
 
 project-scoped Codex config の正本は `.codex/config.toml` です。template 既定では `approval_policy = "never"` と `sandbox_mode = "danger-full-access"` を入れているので、container 内で起動した Codex も最初から full access 前提です。
 
-VS Code の dev container は `.devcontainer/` から起動します。起動時の compose 生成は `python3 scripts/ci/render_devcontainer_compose.py --pack docker/packs/default.toml` を正本にし、GPU が見える host では `gpus: all` を自動追加し、GPU が無い host では CPU-only で起動します。`/mnt/git` も host に path がある場合だけ mount し、local bare remote への push/pull を container 内から継続できます。host `~/.codex` があれば `/root/.codex` として自動 mount し、dev container 内の Codex auth / config は host と同じ state を使います。attach 直後には banner を出し、GPU、`/mnt/git`、host `~/.codex`、Docker socket、Codex の `approval_policy` / `sandbox_mode` の状態を表示します。前提拡張は `.vscode/extensions.json` にまとめています。
+VS Code の dev container は `.devcontainer/` から起動します。起動時の compose 生成は `python3 tools/ci/render_devcontainer_compose.py --pack docker/packs/default.toml` を正本にし、GPU が見える host では `gpus: all` を自動追加し、GPU が無い host では CPU-only で起動します。`/mnt/git` も host に path がある場合だけ mount し、local bare remote への push/pull を container 内から継続できます。host `~/.codex` があれば `/root/.codex` として自動 mount し、dev container 内の Codex auth / config は host と同じ state を使います。attach 直後には banner を出し、GPU、`/mnt/git`、host `~/.codex`、Docker socket、Codex の `approval_policy` / `sandbox_mode` の状態を表示します。前提拡張は `.vscode/extensions.json` にまとめています。
 
 container 内では `PYTHONPATH=/workspace/python` を前提にします。
 C++ を使うときの canonical entrypoint は root [CMakeLists.txt](/mnt/l/workspace/project_template/CMakeLists.txt) です。helper module は [cmake/README.md](/mnt/l/workspace/project_template/cmake/README.md)、layout と artifact reuse policy は [cpp-build-layout.md](/mnt/l/workspace/project_template/documents/cpp-build-layout.md) を見ます。
@@ -149,12 +153,12 @@ build 確認だけを行う場合は次です。
 make docker-build-check
 make docker-build-check-host-docker
 make server-check
-python3 scripts/ci/check_jax_export_stack.py
+python3 tools/ci/check_jax_export_stack.py
 cmake -S . -B build/cpp/dev -DPROJECT_TEMPLATE_ENABLE_CPP_SMOKE=ON
 cmake --build build/cpp/dev --target project_template_cpp_smoke
 ctest --test-dir build/cpp/dev --output-on-failure
-python3 scripts/ci/run_container_pack.py --pack docker/packs/default.toml --print-only
-python3 scripts/ci/run_codex_in_repo_container.py --print-only
+python3 tools/ci/run_container_pack.py --pack docker/packs/default.toml --print-only
+python3 tools/ci/run_codex_in_repo_container.py --print-only
 ```
 
 ## 詳細入口
@@ -162,4 +166,5 @@ python3 scripts/ci/run_codex_in_repo_container.py --print-only
 - 規約と運用: `documents/README.md`
 - 補助メモ: `notes/README.md`
 - エージェント運用: `agents/README.md`
-- スクリプト一覧: `scripts/README.md`
+- shared automation: `tools/README.md`
+- repo-local bootstrap: `scripts/README.md`

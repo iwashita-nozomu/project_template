@@ -1,1 +1,0 @@
-../vendor/agent-canon/scripts/requirement_sync_validator.py

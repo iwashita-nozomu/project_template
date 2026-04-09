@@ -12,11 +12,13 @@
 - `documents/` は正本です。
 - `notes/` は知見、比較メモ、補助整理です。
 - `agents/` はエージェント運用の正本です。
-- `scripts/` はチェックや補助操作の入口です。
+- `tools/` は shared automation の正本です。agent helper、CI / review / validation、container runner、experiment helper、Markdown helper はここに置かなければなりません。
+- `scripts/` は repo-local bootstrap の入口です。template 固有の初期化、slug 置換、bare remote 初期化だけをここに置かなければなりません。
 - `docker/` は共通開発環境の定義です。
 - `experiments/` は実験コードと生成物の置き場です。
 - `python/`, `src/`, `include/`, `lib/` は実装スロットです。全部を使う必要はありません。
 - C++ を使う場合の build layout は `documents/cpp-build-layout.md` を正本にします。
+- Bash 実装は用途で置き場所を固定します。shared automation の Bash は `tools/`、repo-local bootstrap の Bash は `scripts/` に置かなければなりません。
 
 ## 3. 文書運用
 

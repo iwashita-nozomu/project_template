@@ -1,1 +1,0 @@
-../../vendor/agent-canon/scripts/ci/run_docs_checks.sh

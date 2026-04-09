@@ -1,1 +1,0 @@
-../vendor/agent-canon/scripts/check_doc_test_triplet.py

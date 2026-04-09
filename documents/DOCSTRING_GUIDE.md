@@ -235,7 +235,7 @@ pyright
 make ci
 
 # または手動実行
-bash scripts/ci/run_all_checks.sh
+bash tools/ci/run_all_checks.sh
 ```
 
 ______________________________________________________________________

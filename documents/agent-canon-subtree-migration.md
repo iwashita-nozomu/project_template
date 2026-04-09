@@ -21,9 +21,9 @@
 ## 同期コマンド
 
 ```bash
-bash scripts/sync_agent_canon.sh status
-bash scripts/sync_agent_canon.sh pull
-bash scripts/sync_agent_canon.sh push
+bash tools/sync_agent_canon.sh status
+bash tools/sync_agent_canon.sh pull
+bash tools/sync_agent_canon.sh push
 ```
 
 ## 使い分け

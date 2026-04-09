@@ -9,7 +9,7 @@ import unittest
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-SCRIPT_PATH = PROJECT_ROOT / "scripts" / "tools" / "audit_and_fix_links.py"
+SCRIPT_PATH = PROJECT_ROOT / "tools" / "docs" / "audit_and_fix_links.py"
 
 
 class AuditAndFixLinksTest(unittest.TestCase):

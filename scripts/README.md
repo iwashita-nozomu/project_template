@@ -1,179 +1,31 @@
 # scripts
 
-`scripts/` は、開発、review、文書整備、実験運用を補助する実行入口です。
-テンプレートとして残すべき共通スクリプトだけをここから辿れるようにします。
+`scripts/` は repo-local bootstrap の置き場です。
+shared automation は `tools/` を使います。
 
-shared agent canon 由来の runtime surface は `vendor/agent-canon/` を source of truth にします。
-experiment helper、registry checker、review / validation runner、docs-check helper、container runtime helper も shared canon 側へ寄せ、template root と派生 repo root では同じ path の入口だけを残します。
-ownership と surface 種別は [documents/SHARED_RUNTIME_SURFACES.md](/mnt/l/workspace/project_template/documents/SHARED_RUNTIME_SURFACES.md) を参照します。
+## ここに置くもの
 
-## よく使うもの
+- clone 直後の初期化
+- project slug や display name の置換
+- bare remote 名の初期化
 
-### 共通
+## 置かないもの
 
-- [ci/run_all_checks.sh](/mnt/l/workspace/project_template/scripts/ci/run_all_checks.sh)
-  - 主要なチェックをまとめて実行します。
-- [ci/pre_review.sh](/mnt/l/workspace/project_template/scripts/ci/pre_review.sh)
-  - review 前の基礎 gate をまとめて実行します。
-- [ci/check_agent_canon_pr.sh](/mnt/l/workspace/project_template/scripts/ci/check_agent_canon_pr.sh)
-  - shared canon 変更の PR 前に、surface drift、agent check、docs check、quick CI をまとめて実行します。
-- [ci/run_docs_checks.sh](/mnt/l/workspace/project_template/scripts/ci/run_docs_checks.sh)
-  - repo-wide の Markdown 体裁とリンクを確認します。
-- [ci/check_docker_build.sh](/mnt/l/workspace/project_template/scripts/ci/check_docker_build.sh)
-  - `docker/Dockerfile` の build 可否、`docker` CLI、image 側の `safe.directory` 設定を確認します。
-- [ci/check_jax_export_stack.py](/mnt/l/workspace/project_template/scripts/ci/check_jax_export_stack.py)
-  - `jax.export` artifact の生成、calling convention、`jaxlib/include` と XLA FFI header の存在を確認します。
-- [ci/run_container_pack.py](/mnt/l/workspace/project_template/scripts/ci/run_container_pack.py)
-  - repo 定義の runtime pack を build / smoke します。
-- [ci/run_in_repo_container.py](/mnt/l/workspace/project_template/scripts/ci/run_in_repo_container.py)
-  - repo workspace を mount した container command を実行します。
-- [ci/run_repo_program.py](/mnt/l/workspace/project_template/scripts/ci/run_repo_program.py)
-  - Python file、shell script、workspace binary、plain command を 1 つの入口で container 実行し、先に軽量 environment check も流します。
-- [ci/render_devcontainer_compose.py](/mnt/l/workspace/project_template/scripts/ci/render_devcontainer_compose.py)
-  - devcontainer 用の compose を canonical runtime pack から生成します。
-- [ci/run_python_in_dockerfile.py](/mnt/l/workspace/project_template/scripts/ci/run_python_in_dockerfile.py)
-  - Python file を rule ベースで container 実行します。
-- [ci/run_codex_in_repo_container.py](/mnt/l/workspace/project_template/scripts/ci/run_codex_in_repo_container.py)
-  - nested Codex を canonical container 内で起動します。
-- [ci/check_server_readiness.py](/mnt/l/workspace/project_template/scripts/ci/check_server_readiness.py)
-  - main server host の path、mount、builder、Docker socket readiness を確認します。
-- [ci/check_experiment_registry.py](/mnt/l/workspace/project_template/scripts/ci/check_experiment_registry.py)
-  - shared experiment registry contract に沿って `experiments/registry.toml` の topic entry と command surface を確認します。
-- [ci/check_merge_structure.py](/mnt/l/workspace/project_template/scripts/ci/check_merge_structure.py)
-  - branch 側の file 構成変更が integration commit で落ちていないかを確認します。
-- [run_comprehensive_review.sh](/mnt/l/workspace/project_template/scripts/run_comprehensive_review.sh)
-  - repo 全体の確認用です。
-- [push_origin.sh](/mnt/l/workspace/project_template/scripts/push_origin.sh)
-  - commit 後の canonical push 入口です。
+- agent helper
+- CI / review / validation
+- Docker / container runner
+- experiment helper
+- Markdown 整備
+
+それらは `tools/` に置きます。
+
+## 現在の入口
+
 - [init_from_template.sh](/mnt/l/workspace/project_template/scripts/init_from_template.sh)
   - clone 直後に project slug、display name、bare remote 名などを初期化します。
 
-### Python
-
-- [run_pytest_with_logs.sh](/mnt/l/workspace/project_template/scripts/run_pytest_with_logs.sh)
-  - `tests/logs/` に raw log と JSONL を残しながら pytest を実行します。
-
-### 実験運用
-
-- [experiments/create_experiment_topic.py](/mnt/l/workspace/project_template/scripts/experiments/create_experiment_topic.py)
-  - shared `_template/` から topic と registry entry を作ります。
-- [experiments/sync_experiment_registry_context.py](/mnt/l/workspace/project_template/scripts/experiments/sync_experiment_registry_context.py)
-  - branch / worktree / scope file を registry metadata に同期します。
-- [experiments/run_managed_experiment.py](/mnt/l/workspace/project_template/scripts/experiments/run_managed_experiment.py)
-  - server 上の実験 run で `result/<run_name>/`、`run_manifest.json`、`run.log`、report stub を初期化します。
-
-ベースライン依存:
-- `psutil`
-  - process / memory / CPU の観測に使います。
-- `pipdeptree`
-  - install 済み依存の tree と衝突確認に使います。
-- `deptry`
-  - import と依存定義のズレ確認に使います。
-- `snakeviz`
-  - `cProfile` の可視化に使います。
-
-### ドキュメント整備
-
-- [tools/check_markdown_lint.py](/mnt/l/workspace/project_template/scripts/tools/check_markdown_lint.py)
-- [tools/check_markdown_math.py](/mnt/l/workspace/project_template/scripts/tools/check_markdown_math.py)
-- [tools/audit_and_fix_links.py](/mnt/l/workspace/project_template/scripts/tools/audit_and_fix_links.py)
-- [tools/fix_markdown_code_blocks.py](/mnt/l/workspace/project_template/scripts/tools/fix_markdown_code_blocks.py)
-- [tools/fix_markdown_headers.py](/mnt/l/workspace/project_template/scripts/tools/fix_markdown_headers.py)
-- [tools/format_markdown.py](/mnt/l/workspace/project_template/scripts/tools/format_markdown.py)
-- [tools/fix_markdown_docs.py](/mnt/l/workspace/project_template/scripts/tools/fix_markdown_docs.py)
-- [tools/find_similar_documents.py](/mnt/l/workspace/project_template/scripts/tools/find_similar_documents.py)
-- [tools/mirror_skill_shims.py](/mnt/l/workspace/project_template/scripts/tools/mirror_skill_shims.py)
-  - `.agents/skills/` から runtime 用 mirror を同期します。
-
-### agent 補助
-
-- [documents/SHARED_RUNTIME_SURFACES.md](/mnt/l/workspace/project_template/documents/SHARED_RUNTIME_SURFACES.md)
-  - shared agent/worktree surface の ownership と validation の正本です。
-- [agent_tools/bootstrap_agent_run.py](/mnt/l/workspace/project_template/scripts/agent_tools/bootstrap_agent_run.py)
-  - agent 実行の bootstrap 入口です。
-- [agent_tools/task_start.py](/mnt/l/workspace/project_template/scripts/agent_tools/task_start.py)
-  - run bundle の作成に加えて、`workflow=...`, `skills=...`, `review=...` の開始宣言を機械生成します。
-- [agent_tools/doc_start.py](/mnt/l/workspace/project_template/scripts/agent_tools/doc_start.py)
-  - 長文、学術文書、論文 draft の run bundle と review 宣言を機械生成します。
-- [agent_tools/task_close.py](/mnt/l/workspace/project_template/scripts/agent_tools/task_close.py)
-  - `verification.txt` と `closeout_gate.md` を見て、user-facing completion report を返してよいか機械判定します。
-- [agent_tools/validate_role_write_scope.py](/mnt/l/workspace/project_template/scripts/agent_tools/validate_role_write_scope.py)
-  - role ごとの write scope を検証します。
-- [agent_tools/smoke_test_research_perspective_pack.py](/mnt/l/workspace/project_template/scripts/agent_tools/smoke_test_research_perspective_pack.py)
-  - research perspective review pack の runtime と bundle を smoke test します。
-- [worktree_start.sh](/mnt/l/workspace/project_template/scripts/worktree_start.sh)
-  - worktree kickoff の user-facing 入口です。
-- [agent_tools/work_log.py](/mnt/l/workspace/project_template/scripts/agent_tools/work_log.py)
-  - worktree action log へ 1 行ずつ追記します。
-- [agent_tools/log_user_preference.py](/mnt/l/workspace/project_template/scripts/agent_tools/log_user_preference.py)
-  - 会話から抽出した durable preference を `notes/themes/USER_PREFERENCES.md` へ追記します。
-- [sync_agent_canon.sh](/mnt/l/workspace/project_template/scripts/sync_agent_canon.sh)
-  - `vendor/agent-canon/` subtree の add / pull / push / status、shared surface の drift check、root shared surface の再同期をまとめます。
-
-## よく使うコマンド
-
-```bash
-make agent-checks
-make ci-quick
-make ci
-make docs-check
-make docker-build-check
-make docker-build-check-host-docker
-make server-check
-python3 scripts/ci/check_jax_export_stack.py
-cmake -S . -B build/cpp/dev -DPROJECT_TEMPLATE_ENABLE_CPP_SMOKE=ON
-cmake --build build/cpp/dev --target project_template_cpp_smoke
-make experiment-check
-make docker-shell
-make docker-codex
-make docker-codex-host-docker
-bash scripts/run_comprehensive_review.sh
-bash scripts/init_from_template.sh --project-slug your-project --display-name "Your Project" --dry-run
-bash scripts/ci/check_fresh_clone.sh
-python3 scripts/ci/check_merge_structure.py --source work/my-topic-YYYYMMDD --target origin/main --compare-commit HEAD
-python3 -m pyright
-python3 -m pytest tests/ -q --tb=short
-bash scripts/run_pytest_with_logs.sh
-python3 -m ruff check python tests --select D,E,F,I,UP
-pipdeptree --warn fail
-deptry python
-python3 scripts/ci/run_container_pack.py --pack docker/packs/default.toml --print-only
-python3 scripts/ci/run_repo_program.py --print-only scripts/ci/check_jax_export_stack.py
-python3 scripts/ci/run_repo_program.py --print-only scripts/ci/check_docker_build.sh -- --pack docker/packs/default.toml
-python3 scripts/ci/render_devcontainer_compose.py --pack docker/packs/default.toml --output .devcontainer/docker-compose.generated.yml
-python3 scripts/ci/run_repo_program.py --print-only python3 -- --version
-python3 scripts/ci/run_codex_in_repo_container.py --print-only
-python3 scripts/ci/check_server_readiness.py
-python3 scripts/tools/mirror_skill_shims.py --target .claude/skills --prune
-python3 scripts/tools/fix_markdown_code_blocks.py --dry-run documents
-python3 scripts/tools/fix_markdown_headers.py --dry-run documents
-python3 scripts/tools/format_markdown.py documents notes
-python3 scripts/agent_tools/smoke_test_research_perspective_pack.py
-python3 scripts/agent_tools/task_start.py --task "scoped change" --task-id T1 --owner "codex" --dry-run
-python3 scripts/agent_tools/doc_start.py --task "paper writing task" --kind paper --owner "codex" --dry-run
-python3 scripts/agent_tools/task_close.py --run-id 20260408-sample-run
-python3 scripts/agent_tools/work_log.py --kind review --message "ci-quick passed" --next "prepare commit"
-python3 scripts/agent_tools/log_user_preference.py --preference "workflow は機械化を優先する" --kind provisional --source chat
-bash scripts/sync_agent_canon.sh link-root
-bash scripts/sync_agent_canon.sh check
-bash scripts/sync_agent_canon.sh snapshot
-bash scripts/sync_agent_canon.sh status
-make agent-canon-pr-check
-python3 scripts/ci/check_experiment_registry.py
-python3 scripts/experiments/create_experiment_topic.py my_topic
-python3 scripts/experiments/sync_experiment_registry_context.py --topic my_topic --branch work/my-topic-YYYYMMDD
-python3 scripts/experiments/run_managed_experiment.py --topic _template --use-registered-command smoke --dry-run
-```
-
-## 実行環境
-
-- shell スクリプトは repo root を自動解決する前提です。
-- Python 依存を使う場合は `docker/` 側の定義を更新します。
-- この template は Python 実装と Markdown 文書を前提にしています。
-
 ## 参照先
 
-- [README.md](/mnt/l/workspace/project_template/README.md)
-- [QUICK_START.md](/mnt/l/workspace/project_template/QUICK_START.md)
+- [tools/README.md](/mnt/l/workspace/project_template/tools/README.md)
 - [documents/tools/README.md](/mnt/l/workspace/project_template/documents/tools/README.md)
-- [agents/README.md](/mnt/l/workspace/project_template/agents/README.md)
+- [documents/SHARED_RUNTIME_SURFACES.md](/mnt/l/workspace/project_template/documents/SHARED_RUNTIME_SURFACES.md)

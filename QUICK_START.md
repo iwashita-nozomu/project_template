@@ -74,17 +74,17 @@ make ci
 make docs-check
 make experiment-check
 make docker-build-check
-bash scripts/run_comprehensive_review.sh
+bash tools/run_comprehensive_review.sh
 ```
 
 ## 5. 実験の基本
 
 - 実験コードは `experiments/<topic>/` に置きます。
 - topic の正本 entrypoint と formal command は `experiments/registry.toml` に置きます。
-- 新しい topic は `python3 scripts/experiments/create_experiment_topic.py <topic>` で作ります。
+- 新しい topic は `python3 tools/experiments/create_experiment_topic.py <topic>` で作ります。
 - 実行ごとの生成物は `experiments/<topic>/result/<run_name>/` に置きます。
 - 1 回の実験 report は `experiments/report/<run_name>.md` に置きます。
-- server で formal run を回すときは `scripts/experiments/run_managed_experiment.py --topic <topic> --use-registered-command formal` で `run_manifest.json` と `run.log` を残します。
+- server で formal run を回すときは `tools/experiments/run_managed_experiment.py --topic <topic> --use-registered-command formal` で `run_manifest.json` と `run.log` を残します。
 - partial run を正式結果として扱いません。
 - agent に実験つき改造 loop を回させる場合は `agents/skills/experiment-change-loop.md` と `agents/templates/experiment_change_loop.md` を使います。
 
@@ -92,7 +92,7 @@ bash scripts/run_comprehensive_review.sh
 
 - 共通開発環境は `docker/` を基準にします。
 - host 前提は `documents/linux-wsl-host-requirements.md` を正本にします。
-- container runtime の再利用 surface は `docker/packs/*.toml` と `scripts/ci/run_container_pack.py` を基準にします。
+- container runtime の再利用 surface は `docker/packs/*.toml` と `tools/ci/run_container_pack.py` を基準にします。
 - Python 依存を追加する場合は `docker/Dockerfile` と `docker/requirements.txt` を同時に更新します。
 - `docker/Dockerfile` か `docker/requirements.txt` を更新したら `make docker-build-check` を流します。
 - repo-wide な tool 導入案や Docker 変更では `agents/templates/environment_change_proposal.md` に triggering code requirement と blocked command を先に記録します。
@@ -104,7 +104,7 @@ bash scripts/run_comprehensive_review.sh
 
 Codex CLI と `docker` CLI は `docker/Dockerfile` に同梱します。コンテナ内では `codex login`、API key を使う場合は `printenv OPENAI_API_KEY | codex login --with-api-key` を使います。`safe.directory` は image build 時に `git config --global` で固定し、既定で `/workspace` と local bare remote 用の `/mnt/git/template.git`、`/mnt/git/agent-canon.git` を登録します。project-scoped Codex config の `.codex/config.toml` では `approval_policy = "never"` と `sandbox_mode = "danger-full-access"` を既定にしているので、container 内で起動した Codex も最初から full access です。`jax.export` 用には `CMAKE_GENERATOR=Ninja` を image 側で固定し、calling convention は installed JAX wheel の supported range に追従させます。
 
-VS Code から開発コンテナへ入る場合は `.devcontainer/` を使います。compose 生成の正本は `python3 scripts/ci/render_devcontainer_compose.py --pack docker/packs/default.toml` で、GPU がある host では自動で `gpus: all` を追加し、GPU が無い host では CPU-only で起動します。`/mnt/git` も host に存在するときだけ mount し、container 内から local bare remote へ push/pull できます。host `~/.codex` があれば `/root/.codex` として自動 mount し、container 内の Codex auth / config は host と同じ state を使います。attach 直後には banner を出し、GPU、`/mnt/git`、host `~/.codex`、Docker socket、Codex の `approval_policy` / `sandbox_mode` を表示します。前提拡張は `.vscode/extensions.json` を見ます。
+VS Code から開発コンテナへ入る場合は `.devcontainer/` を使います。compose 生成の正本は `python3 tools/ci/render_devcontainer_compose.py --pack docker/packs/default.toml` で、GPU がある host では自動で `gpus: all` を追加し、GPU が無い host では CPU-only で起動します。`/mnt/git` も host に存在するときだけ mount し、container 内から local bare remote へ push/pull できます。host `~/.codex` があれば `/root/.codex` として自動 mount し、container 内の Codex auth / config は host と同じ state を使います。attach 直後には banner を出し、GPU、`/mnt/git`、host `~/.codex`、Docker socket、Codex の `approval_policy` / `sandbox_mode` を表示します。前提拡張は `.vscode/extensions.json` を見ます。
 
 ```bash
 docker build -t project-template -f docker/Dockerfile .
@@ -123,12 +123,12 @@ build 可否だけを確認したい場合は次です。
 make docker-build-check
 make docker-build-check-host-docker
 make server-check
-python3 scripts/ci/check_jax_export_stack.py
+python3 tools/ci/check_jax_export_stack.py
 cmake -S . -B build/cpp/dev -DPROJECT_TEMPLATE_ENABLE_CPP_SMOKE=ON
 cmake --build build/cpp/dev --target project_template_cpp_smoke
 ctest --test-dir build/cpp/dev --output-on-failure
-python3 scripts/ci/run_container_pack.py --pack docker/packs/default.toml --print-only
-python3 scripts/ci/run_codex_in_repo_container.py --print-only
+python3 tools/ci/run_container_pack.py --pack docker/packs/default.toml --print-only
+python3 tools/ci/run_codex_in_repo_container.py --print-only
 ```
 
 ## 7. 終了時の整理
@@ -136,7 +136,7 @@ python3 scripts/ci/run_codex_in_repo_container.py --print-only
 ```bash
 git status --short
 git branch --show-current
-bash scripts/push_origin.sh
+bash tools/push_origin.sh
 ```
 
 - 長期に残す知見は `notes/` に寄せます。

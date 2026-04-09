@@ -1,1 +1,0 @@
-../../vendor/agent-canon/scripts/validation/triplet_validator.py

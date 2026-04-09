@@ -1,1 +1,0 @@
-../../vendor/agent-canon/scripts/tools/find_similar_documents.py

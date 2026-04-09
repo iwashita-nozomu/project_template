@@ -17,7 +17,7 @@
 
 ### Canonical Only
 
-- `documents/` と `scripts/` の Markdown には正本だけを残します。
+- `documents/`、`tools/`、`scripts/` の Markdown には正本だけを残します。
 - `.bak`、proposal、report、summary のような履歴用ファイルを常設しません。
 - 履歴を残したい場合は Git 履歴を使い、必要な内容だけを既存の正本へ統合します。
 
@@ -28,7 +28,7 @@
 mdformat path/to/file.md
 
 # 複数ファイル一括修正
-mdformat path/to/docs/ scripts/
+mdformat path/to/docs/ tools/ scripts/
 
 # 修正前に確認（ドライラン）
 mdformat --check path/to/file.md
@@ -37,6 +37,7 @@ mdformat --check path/to/file.md
 ## 対象ファイル
 
 - `documents/` 配下の全 `.md` ファイル
+- `tools/` 配下の全 `.md` ファイル
 - `scripts/` 配下の全 `.md` ファイル
 - `.github/` 配下の全 `.md` ファイル
 - `README.md` や各種運用ドキュメント
@@ -52,7 +53,13 @@ mdformat --check path/to/file.md
 ### CI 統合
 
 Markdown 整形とリンク監査は `mdformat` に加えて `make docs-check` で確認します。
-`make ci`、`make ci-quick`、`scripts/ci/run_all_checks.sh` は同じ文書チェックを呼び出します。
+`make ci`、`make ci-quick`、`tools/ci/run_all_checks.sh` は同じ文書チェックを呼び出します。
+
+## Bash 実装の置き場所
+
+- shared automation の Bash 実装は `tools/` に置かなければなりません。
+- repo-local bootstrap の Bash 実装は `scripts/` に置かなければなりません。
+- agent helper、CI、review、validation、container runner、experiment helper の Bash を `scripts/` に置くことを禁止します。
 
 ## Python 実装向けの追加規約
 

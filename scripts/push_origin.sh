@@ -1,1 +1,0 @@
-../vendor/agent-canon/scripts/push_origin.sh

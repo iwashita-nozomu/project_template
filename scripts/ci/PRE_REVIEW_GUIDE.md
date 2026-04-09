@@ -1,1 +1,0 @@
-../../vendor/agent-canon/scripts/ci/PRE_REVIEW_GUIDE.md

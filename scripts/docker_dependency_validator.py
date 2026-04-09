@@ -1,1 +1,0 @@
-../vendor/agent-canon/scripts/docker_dependency_validator.py

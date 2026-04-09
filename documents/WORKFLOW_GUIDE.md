@@ -57,8 +57,8 @@ make docker-build-check
 - 変更後は次を使います。
 
 ```bash
-bash scripts/sync_agent_canon.sh link-root
-bash scripts/sync_agent_canon.sh check
+bash tools/sync_agent_canon.sh link-root
+bash tools/sync_agent_canon.sh check
 make agent-canon-pr-check
 ```
 

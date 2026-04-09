@@ -21,8 +21,7 @@ source of truth は `vendor/agent-canon/` にありますが、root 側では「
   - `documents/implementation-waterfall-workflow.md`
   - `documents/REVIEW_PROCESS.md`
   - `documents/AGENTS_COORDINATION.md`
-  - `scripts/agent_tools/`
-  - `scripts/ci/` の shared helper
+  - `tools/`
 - shared notes template
   - `notes/branches/`
   - `notes/failures/`
@@ -52,8 +51,8 @@ source of truth は `vendor/agent-canon/` にありますが、root 側では「
 - root の shared surface が drift したら次を使います。
 
 ```bash
-bash scripts/sync_agent_canon.sh link-root
-bash scripts/sync_agent_canon.sh check
+bash tools/sync_agent_canon.sh link-root
+bash tools/sync_agent_canon.sh check
 ```
 
 ## PR 導線

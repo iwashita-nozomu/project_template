@@ -1,1 +1,0 @@
-../../vendor/agent-canon/scripts/tools/fix_markdown_docs.py

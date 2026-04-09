@@ -1,1 +1,0 @@
-../../vendor/agent-canon/scripts/ci/check_experiment_registry.py

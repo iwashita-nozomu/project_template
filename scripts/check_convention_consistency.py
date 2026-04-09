@@ -1,1 +1,0 @@
-../vendor/agent-canon/scripts/check_convention_consistency.py

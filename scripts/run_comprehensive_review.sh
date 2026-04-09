@@ -1,1 +1,0 @@
-../vendor/agent-canon/scripts/run_comprehensive_review.sh

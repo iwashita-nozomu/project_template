@@ -1,1 +1,0 @@
-../../vendor/agent-canon/scripts/ci/run_python_in_dockerfile.py

@@ -1,1 +1,0 @@
-../../vendor/agent-canon/scripts/ci/pre_review.sh

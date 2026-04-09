@@ -53,7 +53,7 @@
 - `df -h`:
 - `mount`:
 - `docker version`:
-- `python3 scripts/ci/check_server_readiness.py`:
+- `python3 tools/ci/check_server_readiness.py`:
 
 ## Gaps
 

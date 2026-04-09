@@ -1,1 +1,0 @@
-../vendor/agent-canon/scripts/sync_agent_canon.sh

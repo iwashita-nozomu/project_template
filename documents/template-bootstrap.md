@@ -55,12 +55,12 @@ make ci-quick
 - workflow canon:
   - `documents/WORKFLOW_GUIDE.md`
 - worktree kickoff:
-  - `bash scripts/worktree_start.sh <branch-name> [worktree-path]`
+  - `bash tools/worktree_start.sh <branch-name> [worktree-path]`
 
 worktree を使う場合は kickoff 後に継続ログを残します。
 
 ```bash
-python3 scripts/agent_tools/work_log.py \
+python3 tools/agent_tools/work_log.py \
   --kind kickoff \
   --message "references and scope confirmed" \
   --next "start implementation"

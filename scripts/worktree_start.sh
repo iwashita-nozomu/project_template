@@ -1,1 +1,0 @@
-../vendor/agent-canon/scripts/worktree_start.sh

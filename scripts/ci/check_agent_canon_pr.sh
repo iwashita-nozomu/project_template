@@ -1,1 +1,0 @@
-../../vendor/agent-canon/scripts/ci/check_agent_canon_pr.sh

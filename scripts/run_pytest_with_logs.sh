@@ -1,1 +1,0 @@
-../vendor/agent-canon/scripts/run_pytest_with_logs.sh

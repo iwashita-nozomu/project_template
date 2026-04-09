@@ -1,1 +1,0 @@
-../../vendor/agent-canon/scripts/ci/run_codex_in_repo_container.py

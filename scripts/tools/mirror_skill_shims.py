@@ -1,1 +1,0 @@
-../../vendor/agent-canon/scripts/tools/mirror_skill_shims.py

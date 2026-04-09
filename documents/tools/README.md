@@ -6,53 +6,60 @@
 agent/worktree helper、review / validation runner、docs-check helper、container runtime helper、experiment scaffold / registry helper のうち shared canon に属するものは `vendor/agent-canon/` が正本です。
 ownership と validation は [SHARED_RUNTIME_SURFACES.md](/mnt/l/workspace/project_template/documents/SHARED_RUNTIME_SURFACES.md) を参照し、この文書では root 側の実行入口だけを案内します。
 
+## 置き場所の固定ルール
+
+- shared automation の実装は `tools/` に置きます。
+- repo-local bootstrap の実装は `scripts/` に置きます。
+- agent helper、CI、review、validation、container runner、experiment helper、Markdown helper は `tools/` に置きます。
+- template 固有の slug 置換や bare remote 初期化だけを `scripts/` に置きます。
+
 ## よく使うもの
 
-- `scripts/ci/run_all_checks.sh`
+- `tools/ci/run_all_checks.sh`
   - 主要なチェックをまとめて実行します。
-- `scripts/ci/pre_review.sh`
+- `tools/ci/pre_review.sh`
   - review 前の基礎 gate をまとめて実行します。
-- `scripts/ci/run_docs_checks.sh`
+- `tools/ci/run_docs_checks.sh`
   - repo-wide の Markdown 体裁とリンク監査をまとめて実行します。
-- `scripts/ci/run_container_pack.py`
+- `tools/ci/run_container_pack.py`
   - repo 定義の runtime pack を build / smoke します。
-- `scripts/ci/run_in_repo_container.py`
+- `tools/ci/run_in_repo_container.py`
   - repo workspace を mount した container command を実行します。
-- `scripts/ci/run_codex_in_repo_container.py`
+- `tools/ci/run_codex_in_repo_container.py`
   - nested Codex を canonical container 内で起動します。
-- `scripts/ci/check_server_readiness.py`
+- `tools/ci/check_server_readiness.py`
   - main server host の readiness を確認します。
-- `scripts/ci/check_experiment_registry.py`
+- `tools/ci/check_experiment_registry.py`
   - shared experiment registry contract の entrypoint と command を確認します。
-- `scripts/experiments/create_experiment_topic.py`
+- `tools/experiments/create_experiment_topic.py`
   - shared topic scaffold から experiment topic を作ります。
-- `scripts/experiments/sync_experiment_registry_context.py`
+- `tools/experiments/sync_experiment_registry_context.py`
   - registry の branch / worktree metadata を同期します。
-- `scripts/experiments/run_managed_experiment.py`
+- `tools/experiments/run_managed_experiment.py`
   - shared managed-runner として server 上の実験 run artifact を初期化します。
-- `scripts/run_comprehensive_review.sh`
+- `tools/run_comprehensive_review.sh`
   - repo 全体の確認をまとめて実行します。
-- `scripts/run_pytest_with_logs.sh`
+- `tools/run_pytest_with_logs.sh`
   - Python テストをログ付きで実行します。
-- `scripts/tools/check_markdown_lint.py`
+- `tools/docs/check_markdown_lint.py`
   - Markdown の体裁確認です。
-- `scripts/tools/audit_and_fix_links.py`
+- `tools/docs/audit_and_fix_links.py`
   - Markdown のリンク監査です。
-- `scripts/tools/fix_markdown_code_blocks.py`
+- `tools/docs/fix_markdown_code_blocks.py`
   - 言語未指定の fenced code block を補正します。
-- `scripts/tools/fix_markdown_headers.py`
+- `tools/docs/fix_markdown_headers.py`
   - Markdown header level の飛びを補正します。
-- `scripts/tools/format_markdown.py`
+- `tools/docs/format_markdown.py`
   - 軽い整形だけをまとめて当てます。
-- `scripts/tools/fix_markdown_docs.py`
+- `tools/docs/fix_markdown_docs.py`
   - conservatively な Markdown 整形を当てます。
-- `scripts/tools/find_similar_documents.py`
+- `tools/docs/find_similar_documents.py`
   - 重複・統合候補の文書を探します。
-- `scripts/worktree_start.sh`
+- `tools/worktree_start.sh`
   - worktree kickoff の user-facing 入口です。
-- `scripts/sync_agent_canon.sh`
+- `tools/sync_agent_canon.sh`
   - shared agent canon surface の drift check と再同期です。
-- `scripts/push_origin.sh`
+- `tools/push_origin.sh`
   - commit 後の canonical push 入口です。
 
 ## 補足

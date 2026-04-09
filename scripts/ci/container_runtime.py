@@ -1,1 +1,0 @@
-../../vendor/agent-canon/scripts/ci/container_runtime.py

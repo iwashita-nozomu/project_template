@@ -49,7 +49,7 @@ JAX 側は Python で `jax.export` artifact を生成し、IREE を artifact con
 最低限の smoke として、template 既定では次を通します。
 
 ```bash
-python3 scripts/ci/check_jax_export_stack.py
+python3 tools/ci/check_jax_export_stack.py
 cmake -S . -B build/cpp/dev -DPROJECT_TEMPLATE_ENABLE_CPP_SMOKE=ON
 cmake --build build/cpp/dev --target project_template_cpp_smoke
 ctest --test-dir build/cpp/dev --output-on-failure

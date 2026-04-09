@@ -1,7 +1,7 @@
 schema_version = 1
 
 [defaults]
-managed_runner = "scripts/experiments/run_managed_experiment.py"
+managed_runner = "tools/experiments/run_managed_experiment.py"
 report_root = "experiments/report"
 integration_branch = "main"
 topic_template_dir = "experiments/_template"

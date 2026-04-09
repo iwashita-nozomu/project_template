@@ -1,1 +1,0 @@
-../../vendor/agent-canon/scripts/tools/audit_and_fix_links.py

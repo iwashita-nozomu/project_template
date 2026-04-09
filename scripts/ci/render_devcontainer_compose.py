@@ -1,1 +1,0 @@
-../../vendor/agent-canon/scripts/ci/render_devcontainer_compose.py

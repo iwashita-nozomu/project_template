@@ -42,7 +42,7 @@ layout と build tree の正本は [cpp-build-layout.md](/mnt/l/workspace/projec
 
 - 小さく決定的な入力で検証します。
 - 期待結果が分かるケース（対角行列、既知解など）を優先します。
-- `jax.export` と C++ をつなぐ変更では、少なくとも `python3 scripts/ci/check_jax_export_stack.py` と `cmake --build build/cpp/<profile> --target project_template_cpp_smoke` を通します。
+- `jax.export` と C++ をつなぐ変更では、少なくとも `python3 tools/ci/check_jax_export_stack.py` と `cmake --build build/cpp/<profile> --target project_template_cpp_smoke` を通します。
 
 ## 6. 再利用
 
