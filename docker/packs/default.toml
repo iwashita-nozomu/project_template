@@ -15,7 +15,7 @@ commands = [
   "npm --version",
   "codex --version",
   "docker --version",
-  "python3 tools/docker_dependency_validator.py",
+  "bash tools/docker_dependency_validator.sh",
   "python3 -c \"import jax; print(jax.__version__)\"",
   "python3 -c \"from iree import compiler as ireec; from iree import runtime as ireert; print(ireec.__name__); print(ireert.__name__)\"",
   "python3 tools/ci/check_jax_export_stack.py",

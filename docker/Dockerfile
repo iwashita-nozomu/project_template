@@ -6,7 +6,7 @@ ARG NODE_VERSION=22.14.0
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates curl git docker.io \
     build-essential pkg-config cmake ninja-build \
-    python3 python3-dev python3-pip python3-venv \
+    python3 python3-dev python3-pip \
     openssh-client graphviz xz-utils \
  && rm -rf /var/lib/apt/lists/*
 

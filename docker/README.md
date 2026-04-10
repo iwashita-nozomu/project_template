@@ -117,8 +117,25 @@ python3 tools/ci/run_repo_program.py --skip-env-check --print-only cmake -- --ve
 よく使う例:
 
 ```bash
-python3 tools/ci/run_python_in_dockerfile.py docker/Dockerfile tools/docker_dependency_validator.py
+bash tools/docker_dependency_validator.sh
 python3 tools/ci/run_python_in_dockerfile.py docker/Dockerfile tools/docs/check_markdown_math.py -- README.md
+```
+
+## Python Environment Rule
+
+この template は repo-local virtual environment を作りません。
+canonical environment は Docker image と `docker/requirements.txt` です。
+
+禁止事項:
+
+- `python3-venv` を canonical Docker image に入れる
+- `python -m venv`、`virtualenv`、`conda create`、`uv venv`、`pipenv`、`poetry env` で repo-local env を作る
+- `.venv/`、`venv/`、`env/`、`.conda/`、`conda-env/` を workspace に作る
+
+環境 drift check は Python に依存しない次の入口を使います。
+
+```bash
+bash tools/docker_dependency_validator.sh
 ```
 
 ## Docker In Docker

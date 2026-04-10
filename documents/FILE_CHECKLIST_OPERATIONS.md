@@ -68,7 +68,7 @@ python3 tools/docs/check_markdown_math.py <changed-file>.md
 手順:
 
 ```bash
-python3 tools/docker_dependency_validator.py
+bash tools/docker_dependency_validator.sh
 make docker-build-check
 python3 tools/ci/run_container_pack.py --pack docker/packs/default.toml --print-only
 ```

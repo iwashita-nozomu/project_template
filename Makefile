@@ -64,7 +64,7 @@ agent-canon-pr-check:
 
 # Dockerfile と requirements の整合
 docker-check:
-	python3 tools/docker_dependency_validator.py
+	bash tools/docker_dependency_validator.sh
 
 # Docker イメージ build 可否の確認
 docker-build-check:
