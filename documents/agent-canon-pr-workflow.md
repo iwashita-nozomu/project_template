@@ -41,6 +41,8 @@ git pull --ff-only origin main
 bash tools/sync_agent_canon.sh push
 ```
 
+push が自然な次手なら、ここで許可を取りに戻らずそのまま実行します。止めるのは user stop か external block だけです。
+
 ## PR 本文
 
 - changed surfaces
