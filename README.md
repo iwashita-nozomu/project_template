@@ -135,6 +135,8 @@ git commit -m "chore: initialize project from template"
 bash scripts/start_repository.sh --validate-only
 ```
 
+初期化時には project-local `agent-canon` bare repo と、その repo 専用の proposal branch `canon-proposal/<project-slug>` も用意されます。shared canon の差分はこの proposal branch に push し、maintainer 側で整理して merge します。
+
 最短 runbook は `documents/template-bootstrap.md`、notes を育てる方針は `documents/notes-lifecycle.md` を見ます。
 
 ## 実験を含むプロジェクトでの使い方
@@ -168,6 +170,8 @@ server で回す実験コードの実体テンプレは `experiments/_template/`
 make ci-quick
 make ci
 make docs-check
+make agent-canon-proposal-branch
+make agent-canon-push-proposal
 make experiment-check
 make docker-build-check
 python3 -m pyright

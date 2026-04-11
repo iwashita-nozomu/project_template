@@ -30,6 +30,7 @@ bash scripts/start_repository.sh \
 ```
 
 既定では `/mnt/git/your-project-agent-canon.git` も初期化し、clone に含まれる `vendor/agent-canon/` snapshot を seed します。
+このとき proposal branch `canon-proposal/your-project` も bare repo に用意し、clone の git config に既定 branch として記録します。
 既存の shared `agent-canon` remote を使い続ける場合だけ、`--skip-agent-canon-bare-repo` を付けます。
 
 派生 repo から `agent-canon` だけ更新したいときは次を使います。
@@ -37,6 +38,8 @@ bash scripts/start_repository.sh \
 ```bash
 bash tools/update_agent_canon.sh plan
 bash tools/update_agent_canon.sh apply
+bash tools/update_agent_canon.sh proposal-branch
+bash tools/update_agent_canon.sh push-proposal
 ```
 
 project-local bare repo を後から登録するときは次です。
@@ -45,6 +48,8 @@ project-local bare repo を後から登録するときは次です。
 bash tools/update_agent_canon.sh register-local-bare \
   --bare-repo /mnt/git/your-project-agent-canon.git
 ```
+
+shared canon の変更を maintainer に渡すときは、`push-proposal` で project-local bare repo の proposal branch へ投げます。maintainer はその branch を fetch して整理用 branch に merge します。
 
 ## 3. 受け入れ確認
 

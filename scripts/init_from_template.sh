@@ -201,6 +201,7 @@ PY
 
 seed_agent_canon_bare_repo() {
   local bare_repo_path="${BARE_GIT_ROOT}/${AGENT_CANON_BARE_REPO}"
+  local proposal_branch="canon-proposal/${PROJECT_SLUG}"
 
   if [[ "${SKIP_AGENT_CANON_BARE_REPO}" == "1" ]]; then
     echo "agent_canon_bare_repo=skipped"
@@ -209,6 +210,7 @@ seed_agent_canon_bare_repo() {
 
   if [[ "${DRY_RUN}" == "1" ]]; then
     echo "would seed agent_canon_bare_repo=${bare_repo_path}"
+    echo "would prepare agent_canon_proposal_branch=${proposal_branch}"
     return
   fi
 
@@ -219,7 +221,8 @@ seed_agent_canon_bare_repo() {
 
   bash tools/update_agent_canon.sh register-local-bare \
     --bare-repo "${bare_repo_path}" \
-    --branch main
+    --branch main \
+    --proposal-branch "${proposal_branch}"
 }
 
 seed_agent_canon_bare_repo

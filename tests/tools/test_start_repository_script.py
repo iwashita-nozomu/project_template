@@ -60,6 +60,7 @@ def test_start_repository_wrapper_seeds_agent_canon_without_subtree(tmp_path: Pa
     )
 
     assert "would seed agent_canon_bare_repo=" in dry_run.stdout
+    assert "would prepare agent_canon_proposal_branch=canon-proposal/seeded-project" in dry_run.stdout
     assert "start_repository_mode=dry_run_only" in dry_run.stdout
     assert not agent_canon_bare.exists()
 
@@ -79,6 +80,7 @@ def test_start_repository_wrapper_seeds_agent_canon_without_subtree(tmp_path: Pa
     )
 
     assert "agent_canon_seed_method=commit_tree_snapshot" in result.stdout
+    assert "agent_canon_proposal_branch=canon-proposal/seeded-project" in result.stdout
     assert "agent_canon_latest=already_current_tree" in result.stdout
     assert "start_repository_init=pass" in result.stdout
 
@@ -92,5 +94,17 @@ def test_start_repository_wrapper_seeds_agent_canon_without_subtree(tmp_path: Pa
         ],
         cwd=clone_dir,
     )
+    run(
+        [
+            "git",
+            f"--git-dir={agent_canon_bare}",
+            "rev-parse",
+            "--verify",
+            "refs/heads/canon-proposal/seeded-project",
+        ],
+        cwd=clone_dir,
+    )
     remote_url = run(["git", "remote", "get-url", "agent-canon"], cwd=clone_dir)
     assert remote_url.stdout.strip() == str(agent_canon_bare)
+    proposal_branch = run(["git", "config", "--get", "agent-canon.proposalBranch"], cwd=clone_dir)
+    assert proposal_branch.stdout.strip() == "canon-proposal/seeded-project"

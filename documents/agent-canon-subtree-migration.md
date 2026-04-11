@@ -23,6 +23,8 @@
 ```bash
 bash tools/update_agent_canon.sh plan
 bash tools/update_agent_canon.sh apply
+bash tools/update_agent_canon.sh proposal-branch
+bash tools/update_agent_canon.sh push-proposal
 bash tools/sync_agent_canon.sh status
 bash tools/sync_agent_canon.sh ensure-latest
 bash tools/sync_agent_canon.sh pull
@@ -32,6 +34,7 @@ bash tools/sync_agent_canon.sh push
 派生 repo で `agent-canon` だけ更新するときの既定入口は `update_agent_canon.sh` です。
 `plan` は subtree 登録済みなら `subtree_pull`、metadata が無い clone なら snapshot import 系 route を出します。
 project-local bare repo を後から登録するときは `bash tools/update_agent_canon.sh register-local-bare --bare-repo /mnt/git/<project>-agent-canon.git` を使います。
+shared canon の差分を戻すときは `bash tools/update_agent_canon.sh push-proposal` を使い、repo ごとの proposal branch へ積みます。`bash tools/sync_agent_canon.sh push` は maintainer が整理後に upstream `agent-canon` の `main` を更新するときに使います。
 
 task 開始時は `ensure-latest` を使います。
 clean worktree なら upstream `agent-canon` の最新を必要時だけ取り込み、dirty worktree で stale が見つかれば停止します。

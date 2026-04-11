@@ -28,7 +28,7 @@ shared automation は `tools/` を使います。
   - `$start-repository` skill から呼ぶ token-efficient wrapper です。
   - 既定では dry-run、初期化、`make agent-canon-ensure-latest` までを 1 command にまとめます。
   - init 変更を commit したあとは `--validate-only` で `make fresh-clone-check` と `make ci-quick` まで流します。
-  - project-local `agent-canon` bare repo の seed と remote 設定は `tools/update_agent_canon.sh register-local-bare` へ委譲します。
+  - project-local `agent-canon` bare repo の seed、proposal branch 準備、remote 設定は `tools/update_agent_canon.sh register-local-bare` へ委譲します。
 
 ## 参照先
 

@@ -1,4 +1,4 @@
-.PHONY: ci ci-quick docs-check dev-setup tools-help agent-checks agent-canon-check agent-canon-links agent-canon-snapshot agent-canon-status agent-canon-ensure-latest agent-canon-update-plan agent-canon-update agent-canon-register-local-bare agent-canon-pr-check docker-check docker-build-check docker-build-check-host-docker docker-run devcontainer-render server-check experiment-check docker-shell docker-codex docker-codex-host-docker fresh-clone-check template-check start-repository task-start doc-start task-close waterfall-gate-check user-preference-log
+.PHONY: ci ci-quick docs-check dev-setup tools-help agent-checks agent-canon-check agent-canon-links agent-canon-snapshot agent-canon-status agent-canon-ensure-latest agent-canon-update-plan agent-canon-update agent-canon-proposal-branch agent-canon-push-proposal agent-canon-register-local-bare agent-canon-pr-check docker-check docker-build-check docker-build-check-host-docker docker-run devcontainer-render server-check experiment-check docker-shell docker-codex docker-codex-host-docker fresh-clone-check template-check start-repository task-start doc-start task-close waterfall-gate-check user-preference-log
 
 # ★推奨: 統合 CI（pytest + pyright + ruff）
 ci:
@@ -75,6 +75,12 @@ agent-canon-update-plan:
 
 agent-canon-update:
 	bash tools/update_agent_canon.sh apply $(ARGS)
+
+agent-canon-proposal-branch:
+	bash tools/update_agent_canon.sh proposal-branch $(ARGS)
+
+agent-canon-push-proposal:
+	bash tools/update_agent_canon.sh push-proposal $(ARGS)
 
 agent-canon-register-local-bare:
 	bash tools/update_agent_canon.sh register-local-bare $(ARGS)
