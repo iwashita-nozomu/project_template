@@ -102,16 +102,16 @@ bash tools/run_comprehensive_review.sh
 - Markdown の体裁ルールは `.markdownlint.json` と `documents/conventions/common/05_docs.md` を基準にします。
 - 依存棚卸しは `pipdeptree` と `deptry` を baseline にします。
 
-Codex CLI と `docker` CLI は `docker/Dockerfile` に同梱します。コンテナ内では `codex login`、API key を使う場合は `printenv OPENAI_API_KEY | codex login --with-api-key` を使います。`safe.directory` は image build 時に `git config --global` で固定し、既定で `/workspace` と local bare remote 用の `/mnt/git/template.git`、`/mnt/git/agent-canon.git` を登録します。project-scoped Codex config の `.codex/config.toml` では `approval_policy = "never"` と `sandbox_mode = "danger-full-access"` を既定にしているので、container 内で起動した Codex も最初から full access です。`jax.export` 用には `CMAKE_GENERATOR=Ninja` を image 側で固定し、calling convention は installed JAX wheel の supported range に追従させます。
+Codex CLI と `docker` CLI は `docker/Dockerfile` に同梱します。コンテナ内では `codex login`、API key を使う場合は `printenv OPENAI_API_KEY | codex login --with-api-key` を使います。`safe.directory` は image build 時に `git config --global` で固定し、既定で `/workspace` と local bare remote 用の `/mnt/git/docomo_bt_management.git`、`/mnt/git/docomo_bt_management-agent-canon.git` を登録します。project-scoped Codex config の `.codex/config.toml` では `approval_policy = "never"` と `sandbox_mode = "danger-full-access"` を既定にしているので、container 内で起動した Codex も最初から full access です。`jax.export` 用には `CMAKE_GENERATOR=Ninja` を image 側で固定し、calling convention は installed JAX wheel の supported range に追従させます。
 
 VS Code から開発コンテナへ入る場合は `.devcontainer/` を使います。compose 生成の正本は `python3 tools/ci/render_devcontainer_compose.py --pack docker/packs/default.toml` で、GPU がある host では自動で `gpus: all` を追加し、GPU が無い host では CPU-only で起動します。`/mnt/git` も host に存在するときだけ mount し、container 内から local bare remote へ push/pull できます。host `~/.codex` があれば `/root/.codex` として自動 mount し、container 内の Codex auth / config は host と同じ state を使います。attach 直後には banner を出し、GPU、`/mnt/git`、host `~/.codex`、Docker socket、Codex の `approval_policy` / `sandbox_mode` を表示します。前提拡張は `.vscode/extensions.json` を見ます。
 
 ```bash
-docker build -t project-template -f docker/Dockerfile .
+docker build -t docomo_bt_management -f docker/Dockerfile .
 docker run --rm -it \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v $(pwd):/workspace -w /workspace \
-  project-template bash
+  docomo_bt_management bash
 codex --version
 docker --version
 codex login

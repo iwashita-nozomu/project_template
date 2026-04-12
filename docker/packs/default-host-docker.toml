@@ -2,7 +2,7 @@
 name = "default-host-docker"
 dockerfile = "docker/Dockerfile"
 context = "."
-image_tag = "project-template:default-runtime-pack-host-docker"
+image_tag = "docomo_bt_management:default-runtime-pack-host-docker"
 
 [smoke]
 shell = "/bin/bash"

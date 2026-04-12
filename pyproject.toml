@@ -3,7 +3,7 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "project-template"
+name = "docomo_bt_management"
 version = "0.1.0"
 description = "Template repository for implementation, experiments, and agent workflows"
 readme = "README.md"

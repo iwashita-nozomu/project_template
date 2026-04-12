@@ -38,7 +38,7 @@ fi
 
 echo
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "project-template devcontainer"
+echo "docomo_bt_management devcontainer"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "workspace: ${repo_root}"
 echo "gpu: ${gpu_status}"

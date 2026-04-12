@@ -1,5 +1,5 @@
 {
-  "name": "project-template",
+  "name": "docomo_bt_management",
   "initializeCommand": "bash .devcontainer/generate-runtime-compose.sh",
   "dockerComposeFile": "docker-compose.generated.yml",
   "service": "workspace",

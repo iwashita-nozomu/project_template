@@ -1,4 +1,4 @@
-# Project Template
+# docomo_bt_management
 
 実装、実験、文書、エージェント運用を 1 つの repo で扱うためのテンプレートです。
 このテンプレートは、Python 実装と Markdown 文書を必ず使う研究開発 repo を前提にしています。
@@ -190,7 +190,7 @@ make tools-help
 
 repo-wide な tool 導入案や Docker 変更では `agents/templates/environment_change_proposal.md` に triggering code requirement、blocked command、Docker 影響、validation、rollback を残します。
 
-`safe.directory` は `docker/Dockerfile` の build 時に `git config --global` で固定します。template の canonical image では `/workspace` と、local bare remote 置き場として使う `/mnt/git/template.git`、`/mnt/git/agent-canon.git` を登録します。`/mnt/git` を mount した container からそのまま push/pull できる状態を先に作るためです。
+`safe.directory` は `docker/Dockerfile` の build 時に `git config --global` で固定します。template の canonical image では `/workspace` と、local bare remote 置き場として使う `/mnt/git/docomo_bt_management.git`、`/mnt/git/docomo_bt_management-agent-canon.git` を登録します。`/mnt/git` を mount した container からそのまま push/pull できる状態を先に作るためです。
 
 project-scoped Codex config の正本は `.codex/config.toml` です。template 既定では `approval_policy = "never"` と `sandbox_mode = "danger-full-access"` を入れているので、container 内で起動した Codex も最初から full access 前提です。
 
@@ -200,11 +200,11 @@ container 内では `PYTHONPATH=/workspace/python` を前提にします。
 C++ を使うときの canonical entrypoint は root [CMakeLists.txt](/mnt/l/workspace/project_template/CMakeLists.txt) です。helper module は [cmake/README.md](/mnt/l/workspace/project_template/cmake/README.md)、layout と artifact reuse policy は [cpp-build-layout.md](/mnt/l/workspace/project_template/documents/cpp-build-layout.md) を見ます。
 
 ```bash
-docker build -t project-template -f docker/Dockerfile .
+docker build -t docomo_bt_management -f docker/Dockerfile .
 docker run --rm -it \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v $(pwd):/workspace -w /workspace \
-  project-template bash
+  docomo_bt_management bash
 codex --version
 docker --version
 codex login

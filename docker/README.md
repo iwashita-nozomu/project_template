@@ -150,7 +150,7 @@ python3 tools/ci/run_container_pack.py --pack docker/packs/default-host-docker.t
 python3 tools/ci/run_codex_in_repo_container.py --profile host-docker
 ```
 
-`safe.directory` は `docker/Dockerfile` の build 時に `git config --global` で固定します。template の canonical image では `/workspace` と、local bare remote 用の `/mnt/git/template.git`、`/mnt/git/agent-canon.git` を登録します。`/mnt/git` を mount した dev container や nested Codex から、そのまま local bare remote へ push/pull できるようにするためです。
+`safe.directory` は `docker/Dockerfile` の build 時に `git config --global` で固定します。template の canonical image では `/workspace` と、local bare remote 用の `/mnt/git/docomo_bt_management.git`、`/mnt/git/docomo_bt_management-agent-canon.git` を登録します。`/mnt/git` を mount した dev container や nested Codex から、そのまま local bare remote へ push/pull できるようにするためです。
 
 repo-defined container runner でも、host `~/.codex` が存在するときは `/root/.codex` へ自動 mount します。対象は少なくとも次です。
 

@@ -94,7 +94,7 @@ GPU が無いこと自体を failure 条件にしません。
 
 - `codex` は host に入っていることを推奨します
 - container 内の Codex CLI は `docker/Dockerfile` に同梱します
-- local bare remote を使う前提なので、host から `/mnt/git/template.git` と `/mnt/git/agent-canon.git` へ到達できることを確認します
+- local bare remote を使う前提なので、host から `/mnt/git/docomo_bt_management.git` と `/mnt/git/docomo_bt_management-agent-canon.git` へ到達できることを確認します
 
 ## 9. 最低限の初期確認
 

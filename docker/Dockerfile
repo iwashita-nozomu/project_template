@@ -41,8 +41,8 @@ ENV PROJECT_TEMPLATE_JAX_EXPORT_ROOT=/workspace/.state/jax-export
 RUN set -eux; \
     for safe_dir in \
         /workspace \
-        "${TEMPLATE_BARE_GIT_ROOT}/template.git" \
-        "${TEMPLATE_BARE_GIT_ROOT}/agent-canon.git"; do \
+        "${TEMPLATE_BARE_GIT_ROOT}/docomo_bt_management.git" \
+        "${TEMPLATE_BARE_GIT_ROOT}/docomo_bt_management-agent-canon.git"; do \
         git config --global --add safe.directory "${safe_dir}"; \
     done
 

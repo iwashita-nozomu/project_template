@@ -1,7 +1,7 @@
 [repository]
-id = "project-template"
-label = "project-template"
-clone_url = "git@github.com:example/project-template.git"
+id = "docomo_bt_management"
+label = "docomo_bt_management"
+clone_url = "git@github.com:example/docomo_bt_management.git"
 default_branch = "main"
 default_runtime_profile = "default"
 artifact_root = "reports/remote-execution"

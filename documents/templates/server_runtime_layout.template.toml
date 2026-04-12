@@ -9,9 +9,9 @@ python_bin = "python3"
 [paths]
 bare_repo_root = "/mnt/git"
 workspace_root = "/mnt/l/workspace"
-local_state_root = "/var/lib/project-template"
+local_state_root = "/var/lib/docomo_bt_management"
 docker_state_root = "/var/lib/docker"
-artifact_root = "/mnt/l/workspace/project_template/reports"
+artifact_root = "/mnt/l/workspace/docomo_bt_management/reports"
 
 [mounts.bare_repo_root]
 type = "cifs"
