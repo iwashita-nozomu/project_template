@@ -3,6 +3,9 @@
 > [!IMPORTANT]
 > MCP server は起動成功率が低めです。MCP 前提の作業では、起動している前提で進めず、最初に接続状態と利用可否を確認してください。
 
+> [!IMPORTANT]
+> subagent と skill の起動を甘くしないでください。task が subagent / skill を要求する場合は、parent の手作業や暗黙 fallback で代替せず、必要 surface を明示して機械的に起動してください。未起動なら、その事実を最初に確認してから進めます。
+
 実装、実験、文書、エージェント運用を 1 つの repo で扱うためのテンプレートです。
 このテンプレートは、Python 実装と Markdown 文書を必ず使う研究開発 repo を前提にしています。
 
