@@ -7,5 +7,5 @@ user_completion_report=unlocked
 closeout_gate_status=resolved
 validation.pytest_check_bootstrap_docs=pass
 validation.make_docs_check=pass
-project_template_commit=pending
+project_template_commit=2d8e8a2
 project_template_push=origin/main

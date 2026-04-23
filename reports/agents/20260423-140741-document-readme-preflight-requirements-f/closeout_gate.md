@@ -67,6 +67,7 @@
 ## Evidence
 
 - Branch: `main`
+- Commit: `2d8e8a2`
 - Push target: `origin/main`
 - Validation:
   - `python3 -m pytest tests/tools/test_check_bootstrap_docs.py -q --tb=short`
