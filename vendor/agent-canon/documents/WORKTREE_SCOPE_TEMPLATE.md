@@ -1,4 +1,9 @@
 # WORKTREE_SCOPE Template
+<!--
+@dependency-start
+@dependency-end
+-->
+
 
 このファイルは、他環境へ渡す worktree や、変更範囲を限定して使う worktree のためのテンプレートです。
 実際に使うときは、このファイルを worktree root に `WORKTREE_SCOPE.md` として置きます。
@@ -46,11 +51,11 @@
 
 ## Required References Before Editing
 
-- [documents/worktree-lifecycle.md](/mnt/l/workspace/project_template/documents/worktree-lifecycle.md)
-- [documents/notes-lifecycle.md](/mnt/l/workspace/project_template/documents/notes-lifecycle.md)
-- [documents/coding-conventions-project.md](/mnt/l/workspace/project_template/documents/coding-conventions-project.md)
-- [notes/guardrails/README.md](/mnt/l/workspace/project_template/notes/guardrails/README.md)
-- [notes/failures/README.md](/mnt/l/workspace/project_template/notes/failures/README.md)
+- [documents/worktree-lifecycle.md](worktree-lifecycle.md)
+- [documents/notes-lifecycle.md](notes-lifecycle.md)
+- [documents/coding-conventions-project.md](coding-conventions-project.md)
+- [notes/guardrails/README.md](../notes/guardrails/README.md)
+- [notes/failures/README.md](../notes/failures/README.md)
 - `documents/<relevant_rule>.md`
 - `agents/skills/<relevant_skill>.md`
 - `notes/<existing_context>.md`

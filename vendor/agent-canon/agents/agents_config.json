@@ -1,5 +1,11 @@
 {
-  "version": 16,
+  "_dependency_manifest": [
+    "@dependency-start",
+    "upstream implementation ../tools/agent_tools/agent_team.py loads this runtime team configuration",
+    "downstream implementation ../tests/agent_tools/test_task_start_and_close.py validates generated run artifacts",
+    "@dependency-end"
+  ],
+  "version": 17,
   "team": {
     "id": "repo_permanent_team",
     "report_root": "reports/agents",
@@ -268,19 +274,25 @@
       "owns": [
         "evidence_capture",
         "closeout",
+        "workflow_monitoring",
+        "self_improvement_decisions",
         "retrospective"
       ],
       "required_outputs": [
         "closeout_gate.md",
+        "agent_evaluation.md",
+        "workflow_monitoring.md",
         "retrospective.md"
       ],
       "write_policy": {
         "mode": "artifacts_only",
         "allowed_artifacts": [
           "closeout_gate",
+          "agent_evaluation",
+          "workflow_monitoring",
           "retrospective"
         ],
-        "notes": "Audit closeout is recorded in the closeout gate and retrospective artifacts. The auditor may unlock completion only after spec_product_coverage_complete=yes and review_findings_integrated=yes are evidenced."
+        "notes": "Audit closeout is recorded in the closeout gate, workflow monitoring, agent evaluation, and retrospective artifacts. The auditor may unlock completion only after spec_product_coverage_complete=yes, review_findings_integrated=yes, post_fix_full_review_complete=yes, mechanical_completion_loop_complete=yes with structured loop evidence, diff_check_agent_complete=yes with a run-local independent read-only diff-check artifact, workflow monitoring decisions are resolved, and agent evaluation feedback is resolved."
       }
     }
   ],
@@ -1644,6 +1656,8 @@
     "final_review": "final_review.md",
     "verification": "verification.txt",
     "closeout_gate": "closeout_gate.md",
+    "agent_evaluation": "agent_evaluation.md",
+    "workflow_monitoring": "workflow_monitoring.md",
     "retrospective": "retrospective.md",
     "research_notes": "research_notes.md",
     "research_review": "research_review.md",

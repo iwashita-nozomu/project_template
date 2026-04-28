@@ -1,4 +1,10 @@
 # Workflow References
+<!--
+@dependency-start
+upstream design README.md workflow catalog
+@dependency-end
+-->
+
 
 この文書は、workflow、review、agent system、report policy を設計するときに参照した外部資料の索引です。
 外部根拠で repo-wide な手順を更新した場合は、この文書へ出典を追記します。
@@ -15,14 +21,18 @@
   - shared canon を subtree として template / 派生 repo へ取り込む運用整理の参考です。
 - [Models | OpenAI API](https://developers.openai.com/api/docs/models)
   - current model lineup と mainline chooser の根拠です。
+- [Introducing GPT-5.5 | OpenAI](https://openai.com/index/introducing-gpt-5-5/)
+  - `gpt-5.5` を Codex の frontier planning、review、broad implementation、agentic tool-use role に置く根拠です。
+- [GPT-5.5 System Card | OpenAI](https://openai.com/index/gpt-5-5-system-card/)
+  - complex real-world work、coding、research、tool use を担う model としての safety / capability 境界確認に使います。
 - [GPT-5.4 Model | OpenAI API](https://developers.openai.com/api/docs/models/gpt-5.4)
-  - `gpt-5.4` を planning、design、review の default 判断役に置く根拠です。
+  - `gpt-5.4` を previous frontier baseline として比較するときの根拠です。
 - [GPT-5.3-Codex Model | OpenAI API](https://developers.openai.com/api/docs/models/gpt-5.3-codex)
   - `gpt-5.3-codex` を coding-specialist の default に置く根拠です。
 - [All models | OpenAI API](https://developers.openai.com/api/docs/models/all)
-  - GPT-5.4 系を frontier default、Codex 系を coding-specialist family として分ける根拠です。
+  - GPT-5.5 / GPT-5.4 系を frontier family、Codex 系を coding-specialist family として分ける根拠です。
 - [Introducing GPT-5.4 | OpenAI](https://openai.com/index/introducing-gpt-5-4/)
-  - `gpt-5.4` を broad professional / judgment role に置く補助根拠です。
+  - `gpt-5.4` を previous broad professional / judgment baseline として扱う補助根拠です。
 - [Introducing GPT-5.4 mini and nano | OpenAI](https://openai.com/index/introducing-gpt-5-4-mini-and-nano/)
   - GPT-5.4 mini の得意領域が fast coding/subagents であること、対してこの repo では coding を Codex 系へ寄せるときの比較根拠です。
 - [Introducing GPT-5.3-Codex-Spark | OpenAI](https://openai.com/index/introducing-gpt-5-3-codex-spark/)
@@ -143,15 +153,15 @@
 
 ## Related Local Canon
 
-- [references/README.md](/mnt/l/workspace/project_template/references/README.md)
+- [references/README.md](../../../../references/README.md)
   - reference 置き場の入口です。
-- [agents/workflows/research-workflow.md](/mnt/l/workspace/project_template/agents/workflows/research-workflow.md)
+- [agents/workflows/research-workflow.md](../../../../agents/workflows/research-workflow.md)
   - 研究・実験改造の正本です。
-- [agents/workflows/implementation-waterfall-workflow.md](/mnt/l/workspace/project_template/agents/workflows/implementation-waterfall-workflow.md)
+- [agents/workflows/implementation-waterfall-workflow.md](../../../../agents/workflows/implementation-waterfall-workflow.md)
   - 実装パスのウォーターフォール正本です。
-- [documents/experiment-critical-review.md](/mnt/l/workspace/project_template/documents/experiment-critical-review.md)
+- [documents/experiment-critical-review.md](../../../../documents/experiment-critical-review.md)
   - 批判的レビュー観点の正本です。
-- [references/workflow/implementation-waterfall.md](/mnt/l/workspace/project_template/references/workflow/implementation-waterfall.md)
+- [references/workflow/implementation-waterfall.md](../../../../references/workflow/implementation-waterfall.md)
   - 実装ウォーターフォール化の文献メモです。
-- [agents/README.md](/mnt/l/workspace/project_template/agents/README.md)
+- [agents/README.md](../../../../agents/README.md)
   - agent canon の入口です。

@@ -1,4 +1,10 @@
 # Agent Philosophy
+<!--
+@dependency-start
+upstream design README.md memory surface index
+@dependency-end
+-->
+
 
 この file は、agent の作業哲学、対話から得た学習、repo-wide な判断原則を逐次追記する append-first note です。
 `AGENTS.md` や workflow 正本へ入れる前の観測をここへ集め、十分に安定した項目だけを periodic sweep で昇格させます。
@@ -97,6 +103,18 @@
   - scope: repo-wide
   - confidence: tentative
   - evidence: 2026-04-11 user feedback on document intake and subagent startup
+
+- 2026-04-27 | interaction-observation | When updating vendored agent-canon from a derived repository, apply fixes to the shared canon head and validate the resulting vendor snapshot before committing; do not rely on subtree history merges when split metadata diverges.
+  - source: chat
+  - scope: repo-wide
+  - confidence: tentative
+  - evidence: During 20260427-041425, subtree-sync fixes had to be reapplied after agent-canon remote advanced and ci-quick caught the regression.
+
+- 2026-04-27 | interaction-observation | Implementation closeout must use a mechanical completion loop plus independent read-only diff-check agent approval to prevent shortcutting user-request scope.
+  - source: chat
+  - scope: repo-wide
+  - confidence: tentative
+  - evidence: User requested: 実装をはしょりすぎる癖があります。機械的なループを強制的に入れ，差分チェックエージェントに確認させましょう
 
 ## Task Retrospectives
 

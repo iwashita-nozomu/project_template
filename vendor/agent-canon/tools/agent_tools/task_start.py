@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# @dependency-start
+# upstream design ../README.md shared automation index
+# @dependency-end
+
 """Start one agent-task run with machine-generated workflow and review hints."""
 
 from __future__ import annotations
@@ -7,8 +11,10 @@ import argparse
 from datetime import datetime, timezone
 from pathlib import Path
 
+from agent_canon_preflight import project_root_from_script, run_agent_canon_preflight
 from agent_team import (
     auto_language_specialists,
+    codex_runtime_max_threads,
     create_run_bundle,
     default_specialists_for_task,
     load_team_config,
@@ -18,6 +24,7 @@ from agent_team import (
     resolve_cross_cutting_document_packet,
     resolve_task_spec,
     resolve_workflow_family,
+    workflow_spawn_budget,
     select_roles,
     specialist_role_ids,
     task_ids,
@@ -115,12 +122,17 @@ def build_parser(
         action="store_true",
         help="Preview the run id and paths without writing files.",
     )
+    parser.add_argument(
+        "--skip-agent-canon-preflight",
+        action="store_true",
+        help="Skip the automatic make agent-canon-ensure-latest preflight.",
+    )
     return parser
 
 
 def suggested_skills(task_id: str | None, workflow_family_id: str | None) -> tuple[str, ...]:
     """Return a minimal suggested public skill set."""
-    selected = ["$codex-task-workflow", "$agent-orchestration", "$subagent-bootstrap"]
+    selected = ["$agent-orchestration", "$codex-task-workflow", "$subagent-bootstrap"]
     if workflow_family_id == "research_driven_change":
         selected.append("$research-workflow")
     elif workflow_family_id == "platform_and_environment":
@@ -141,6 +153,12 @@ def main() -> int:
     config = load_team_config()
     catalog = load_task_catalog(config)
     args = build_parser(specialist_role_ids(config), task_ids(catalog)).parse_args()
+    project_root = project_root_from_script(Path(__file__))
+    try:
+        preflight = run_agent_canon_preflight(project_root, skip=args.skip_agent_canon_preflight)
+    except RuntimeError as exc:
+        print(str(exc), flush=True)
+        return 1
     created_at = datetime.now(timezone.utc).replace(microsecond=0)
     created_at_iso = created_at.isoformat().replace("+00:00", "Z")
     workspace_root = Path(args.workspace_root).resolve()
@@ -151,11 +169,17 @@ def main() -> int:
     task_default_specialists: tuple[str, ...] = ()
     workflow_family_id: str | None = None
     workflow_family_name: str | None = None
+    workflow_active_spawn_budget: int | None = None
+    workflow_max_write_subagents: int | None = None
     if args.task_id is not None:
         task_spec = resolve_task_spec(catalog, args.task_id)
         workflow_family_id = str(task_spec["family"])
         workflow_family = resolve_workflow_family(catalog, workflow_family_id)
         workflow_family_name = str(workflow_family["name"])
+        workflow_active_spawn_budget, workflow_max_write_subagents = workflow_spawn_budget(
+            catalog,
+            workflow_family_id,
+        )
         task_default_specialists = default_specialists_for_task(
             config=config,
             catalog=catalog,
@@ -190,6 +214,7 @@ def main() -> int:
             created_at_iso=created_at_iso,
             roles=roles,
             workspace_root=workspace_root,
+            workflow_family_id=workflow_family_id,
         )
 
     review_roles = tuple(
@@ -206,15 +231,23 @@ def main() -> int:
     )
     request_contract_path = report_dir / "user_request_contract.md"
 
+    print("AGENT_CANON_PREFLIGHT_COMMAND=make agent-canon-ensure-latest")
+    print(f"AGENT_CANON_PREFLIGHT_STATUS={preflight.status}")
+    print(f"AGENT_CANON_PREFLIGHT_REASON={preflight.reason}")
+    print(f"AGENT_CANON_PREFLIGHT_NEXT={preflight.next_step}")
     print(f"RUN_ID={run_id}")
     print(f"REPORT_DIR={report_dir}")
     print(f"WORKSPACE_ROOT={workspace_root}")
     print(f"REQUEST_CONTRACT={request_contract_path}")
     print("REQUEST_CONTRACT_REQUIRED=yes")
+    print(f"RUNTIME_MAX_THREADS={codex_runtime_max_threads()}")
     if args.task_id is not None:
         print(f"TASK_ID={args.task_id}")
         print(f"WORKFLOW_FAMILY={workflow_family_id}")
         print(f"WORKFLOW_FAMILY_NAME={workflow_family_name}")
+        print("WORKFLOW_SUBAGENT_PROMPT_PACKET=team_manifest.yaml#run.subagent_prompt_packet")
+        print(f"WORKFLOW_ACTIVE_SPAWN_BUDGET={workflow_active_spawn_budget}")
+        print(f"WORKFLOW_MAX_WRITE_SUBAGENTS={workflow_max_write_subagents}")
         print(f"TASK_DEFAULT_SPECIALISTS={','.join(task_default_specialists)}")
     if not args.no_auto_language_reviewers:
         print(f"AUTO_SPECIALISTS={','.join(auto_specialists)}")

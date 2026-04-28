@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# @dependency-start
+# upstream design ../README.md shared automation index
+# @dependency-end
 """Shared runtime helpers for the permanent agent team."""
 
 from __future__ import annotations
@@ -11,6 +14,10 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import yaml
+try:
+    import tomllib
+except ModuleNotFoundError:  # pragma: no cover - exercised on Python < 3.11
+    import tomli as tomllib  # type: ignore[no-redef]
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -122,6 +129,20 @@ COMMON_CROSS_CUTTING_DOCUMENT_PATHS: tuple[str, ...] = (
     "memory/USER_PREFERENCES.md",
     "memory/AGENT_PHILOSOPHY.md",
 )
+
+
+def resolve_report_root(
+    report_root: str | None,
+    workspace_root: Path | None = None,
+) -> Path:
+    """Resolve the report root relative to the active workspace by default."""
+    base_root = workspace_root.resolve() if workspace_root is not None else Path.cwd().resolve()
+    if report_root is None:
+        return (base_root / DEFAULT_REPORT_ROOT).resolve()
+    candidate = Path(report_root)
+    if candidate.is_absolute():
+        return candidate.resolve()
+    return (base_root / candidate).resolve()
 
 
 def resolve_report_root(
@@ -358,6 +379,34 @@ def resolve_workflow_family(catalog: TaskCatalog, family_id: str) -> dict[str, o
     raise KeyError(f"unknown workflow family: {family_id}")
 
 
+def workflow_spawn_budget(catalog: TaskCatalog, family_id: str) -> tuple[int, int]:
+    """Return the active and write-capable spawn budget for one workflow family."""
+    family = resolve_workflow_family(catalog, family_id)
+    raw_budget = family.get("spawn_budget")
+    if not isinstance(raw_budget, dict):
+        raise RuntimeError(f"workflow family spawn_budget must be a mapping for {family_id}")
+    active = raw_budget.get("active_subagents")
+    max_write = raw_budget.get("max_write_subagents")
+    if not isinstance(active, int) or active < 1:
+        raise RuntimeError(f"workflow family active_subagents must be >= 1 for {family_id}")
+    if not isinstance(max_write, int) or max_write < 1:
+        raise RuntimeError(f"workflow family max_write_subagents must be >= 1 for {family_id}")
+    return active, max_write
+
+
+def codex_runtime_max_threads() -> int:
+    """Return the configured runtime max_threads from .codex/config.toml."""
+    config_path = ROOT / ".codex" / "config.toml"
+    data = tomllib.loads(config_path.read_text(encoding="utf-8"))
+    agents = data.get("agents")
+    if not isinstance(agents, dict):
+        raise RuntimeError("missing [agents] section in .codex/config.toml")
+    max_threads = agents.get("max_threads")
+    if not isinstance(max_threads, int) or max_threads < 1:
+        raise RuntimeError("agents.max_threads must be an integer >= 1")
+    return max_threads
+
+
 def default_specialists_for_task(
     config: TeamConfig,
     catalog: TaskCatalog,
@@ -540,6 +589,7 @@ def create_run_bundle(
     created_at_iso: str,
     roles: tuple[Role, ...],
     workspace_root: Path,
+    workflow_family_id: str | None = None,
 ) -> tuple[str, ...]:
     """Create the standard files for a run."""
     replacements = {
@@ -566,6 +616,7 @@ def create_run_bundle(
             report_dir=report_dir,
             roles=roles,
             workspace_root=workspace_root,
+            workflow_family_id=workflow_family_id,
         ),
         encoding="utf-8",
     )
@@ -600,8 +651,12 @@ def build_manifest(
     report_dir: Path,
     roles: tuple[Role, ...],
     workspace_root: Path,
+    workflow_family_id: str | None = None,
 ) -> str:
     """Build the team manifest yaml."""
+    workflow_family = None
+    if workflow_family_id is not None:
+        workflow_family = resolve_workflow_family(load_task_catalog(config), workflow_family_id)
     lines = [
         "run:",
         f"  id: {run_id}",
@@ -617,6 +672,11 @@ def build_manifest(
     communication_protocol = config.team.get("communication_protocol")
     if communication_protocol is not None:
         lines.append(f"  communication_protocol: {str(ROOT / str(communication_protocol))!r}")
+    if workflow_family is not None:
+        lines.append("  workflow_family:")
+        lines.append(f"    id: {workflow_family_id}")
+        lines.append(f"    name: {str(workflow_family['name'])!r}")
+        lines.extend(render_subagent_prompt_packet(workflow_family, indent="  "))
     lines.append("  cross_cutting_document_packet:")
     cross_cutting_packet = resolve_cross_cutting_document_packet(workspace_root)
     for entry in cross_cutting_packet:
@@ -631,6 +691,14 @@ def build_manifest(
             lines.append("    codex_agents:")
             for codex_agent in role.codex_agents:
                 lines.append(f"      - {codex_agent}")
+        lines.append("    prompt_contract:")
+        lines.append(
+            "      assignment_prompt: "
+            f"{role_prompt_contract(role, workflow_family).replace(chr(10), ' ')!r}"
+        )
+        lines.append("      prompt_must_include:")
+        for item in role_prompt_must_include(role):
+            lines.append(f"        - {item!r}")
         lines.append("    owns:")
         for responsibility in role.owns:
             lines.append(f"      - {responsibility}")
@@ -688,6 +756,77 @@ def build_manifest(
     for artifact in iter_artifacts(config, roles):
         lines.append(f"  - {artifact}")
     return "\n".join(lines) + "\n"
+
+
+def render_subagent_prompt_packet(
+    workflow_family: dict[str, object],
+    indent: str,
+) -> list[str]:
+    """Render workflow-specific subagent prompt instructions for the manifest."""
+    prompt = workflow_family.get("subagent_prompt")
+    if not isinstance(prompt, dict):
+        return []
+    lines = [f"{indent}subagent_prompt_packet:"]
+    purpose = str(prompt.get("purpose", ""))
+    if purpose:
+        lines.append(f"{indent}  purpose: {purpose!r}")
+    for key in ("prompt_preamble", "workflow_focus", "reviewer_prompt"):
+        values = prompt.get(key, [])
+        if not isinstance(values, list):
+            values = []
+        lines.append(f"{indent}  {key}:")
+        for value in values:
+            lines.append(f"{indent}    - {str(value)!r}")
+    return lines
+
+
+def role_prompt_contract(role: Role, workflow_family: dict[str, object] | None) -> str:
+    """Return the reusable prompt contract for one manifest role entry."""
+    family_name = (
+        str(workflow_family["name"])
+        if workflow_family is not None
+        else "the selected workflow"
+    )
+    write_scope = (
+        "write only in the manifest write_policy scope"
+        if role.write_policy.mode != "read_only"
+        else "do not edit repository files"
+    )
+    return (
+        f"You are the {role.id} role for {family_name}. Read the run-level "
+        "subagent_prompt_packet, cross_cutting_document_packet, and your document_packet before "
+        f"work. {write_scope}. Return findings or outputs tied to request_clause_ids, artifact "
+        "paths, dependency-file headers for every edited or created text file, remaining planned "
+        "work, and the next required gate."
+    )
+
+
+def role_prompt_must_include(role: Role) -> tuple[str, ...]:
+    """Return handoff fields every invocation prompt should include for one role."""
+    common = [
+        "request_clause_ids",
+        "run_report_dir",
+        "team_manifest_path",
+        "cross_cutting_document_packet",
+        "role_document_packet",
+        "expected_output_artifacts",
+        "dependency_files_header_plan",
+        "next_review_gate",
+    ]
+    if role.write_policy.mode != "read_only":
+        common.extend(("write_policy", "allowed_files_or_directories"))
+    if role.id == "implementer":
+        common.extend(
+            (
+                "implementation_source_packet",
+                "design_to_implementation_trace",
+                "test_plan_item",
+                "remaining_planned_work_units",
+            )
+        )
+    if role.id.endswith("_reviewer") or role.id in {"change_reviewer", "final_reviewer"}:
+        common.extend(("findings_first_output", "approve_revise_or_escalate_decision"))
+    return tuple(common)
 
 
 def resolve_role_write_scope(

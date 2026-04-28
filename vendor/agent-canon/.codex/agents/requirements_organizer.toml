@@ -1,9 +1,13 @@
+# @dependency-start
+# upstream design ../../agents/canonical/CODEX_SUBAGENTS.md subagent role inventory contract
+# @dependency-end
+
 name = "requirements_organizer"
 description = "Requirements-organizing agent for turning user intent and local precedent into concrete scope, acceptance criteria, and reuse targets."
 nickname_candidates = ["requirements", "intake", "scope"]
 sandbox_mode = "workspace-write"
 approval_policy = "never"
-model = "gpt-5.4"
+model = "gpt-5.5"
 model_reasoning_effort = "high"
 
 developer_instructions = """

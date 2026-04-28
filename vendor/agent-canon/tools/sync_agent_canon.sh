@@ -1,4 +1,12 @@
 #!/usr/bin/env bash
+# @dependency-start
+# upstream implementation ./agent_tools/check_dependency_headers.py validates dependency manifests
+# upstream implementation ../tests/agent_tools/test_check_dependency_headers.py tests dependency manifest checker
+# downstream implementation ../documents/codex-configuration-reference.md root symlink view for Codex config docs
+# downstream implementation ../documents/codex-configuration-slides.md root symlink view for Codex config slides
+# downstream implementation ../tests/agent_tools/test_dependency_manifest_tools.py root symlink view for manifest tests
+# downstream implementation ../tests/agent_tools/test_evaluate_agent_run.py root symlink view for eval tests
+# @dependency-end
 set -euo pipefail
 
 ROOT_DIR="$(git -C "$(dirname "${BASH_SOURCE[0]}")" rev-parse --show-toplevel)"
@@ -6,6 +14,7 @@ PREFIX="${AGENT_CANON_PREFIX:-vendor/agent-canon}"
 REMOTE_NAME="${AGENT_CANON_REMOTE_NAME:-agent-canon}"
 DEFAULT_BRANCH="${AGENT_CANON_BRANCH:-main}"
 FORCE_RELINK="${AGENT_CANON_FORCE_RELINK:-0}"
+PLAN_REMOTE_OVERRIDE_URL="${AGENT_CANON_PLAN_REMOTE_URL:-}"
 
 usage() {
   cat <<EOF
@@ -95,29 +104,71 @@ CLAUDE.md:${PREFIX}/CLAUDE.md
 .codex/config.toml:../${PREFIX}/.codex/config.toml
 .codex/README.md:../${PREFIX}/.codex/README.md
 .codex/agents:../${PREFIX}/.codex/agents
+.codex/hooks.json:../${PREFIX}/.codex/hooks.json
+.codex/hooks:../${PREFIX}/.codex/hooks
 .github/AGENTS.md:../${PREFIX}/.github/AGENTS.md
 .github/copilot-instructions.md:../${PREFIX}/.github/copilot-instructions.md
 documents/BRANCH_SCOPE.md:../${PREFIX}/documents/BRANCH_SCOPE.md
 documents/AGENTS_COORDINATION.md:../${PREFIX}/documents/AGENTS_COORDINATION.md
+documents/DOCSTRING_GUIDE.md:../${PREFIX}/documents/DOCSTRING_GUIDE.md
+documents/FILE_CHECKLIST_OPERATIONS.md:../${PREFIX}/documents/FILE_CHECKLIST_OPERATIONS.md
+documents/README.md:../${PREFIX}/documents/README.md
+documents/codex-configuration-reference.md:../${PREFIX}/documents/codex-configuration-reference.md
+documents/codex-configuration-slides.md:../${PREFIX}/documents/codex-configuration-slides.md
+documents/dependency-manifest-design.md:../${PREFIX}/documents/dependency-manifest-design.md
 documents/notes-lifecycle.md:../${PREFIX}/documents/notes-lifecycle.md
 documents/REVIEW_PROCESS.md:../${PREFIX}/documents/REVIEW_PROCESS.md
+documents/SHARED_RUNTIME_SURFACES.md:../${PREFIX}/documents/SHARED_RUNTIME_SURFACES.md
 documents/SKILL_IMPLEMENTATION_GUIDE.md:../${PREFIX}/documents/SKILL_IMPLEMENTATION_GUIDE.md
+documents/TROUBLESHOOTING.md:../${PREFIX}/documents/TROUBLESHOOTING.md
 documents/WORKTREE_SCOPE_TEMPLATE.md:../${PREFIX}/documents/WORKTREE_SCOPE_TEMPLATE.md
+documents/agent-canon-subtree-migration.md:../${PREFIX}/documents/agent-canon-subtree-migration.md
+documents/coding-conventions-cpp.md:../${PREFIX}/documents/coding-conventions-cpp.md
 documents/coding-conventions-experiments.md:../${PREFIX}/documents/coding-conventions-experiments.md
+documents/coding-conventions-house-style.md:../${PREFIX}/documents/coding-conventions-house-style.md
+documents/coding-conventions-logging.md:../${PREFIX}/documents/coding-conventions-logging.md
+documents/coding-conventions-project.md:../${PREFIX}/documents/coding-conventions-project.md
+documents/coding-conventions-python.md:../${PREFIX}/documents/coding-conventions-python.md
+documents/coding-conventions-reviews.md:../${PREFIX}/documents/coding-conventions-reviews.md
+documents/coding-conventions-testing.md:../${PREFIX}/documents/coding-conventions-testing.md
 documents/experiment-critical-review.md:../${PREFIX}/documents/experiment-critical-review.md
 documents/experiment-registry.md:../${PREFIX}/documents/experiment-registry.md
 documents/experiment-report-style.md:../${PREFIX}/documents/experiment-report-style.md
 documents/experiment_runner.md:../${PREFIX}/documents/experiment_runner.md
+documents/cpp-build-layout.md:../${PREFIX}/documents/cpp-build-layout.md
+documents/linux-wsl-host-requirements.md:../${PREFIX}/documents/linux-wsl-host-requirements.md
+documents/remote-execution-repo-contract.md:../${PREFIX}/documents/remote-execution-repo-contract.md
+documents/server-host-contract.md:../${PREFIX}/documents/server-host-contract.md
+documents/template-bootstrap.md:../${PREFIX}/documents/template-bootstrap.md
 documents/worktree-lifecycle.md:../${PREFIX}/documents/worktree-lifecycle.md
+documents/conventions/README.md:../../${PREFIX}/documents/conventions/README.md
+documents/conventions/common/01_principles.md:../../../${PREFIX}/documents/conventions/common/01_principles.md
+documents/conventions/common/02_naming.md:../../../${PREFIX}/documents/conventions/common/02_naming.md
+documents/conventions/common/03_comments.md:../../../${PREFIX}/documents/conventions/common/03_comments.md
+documents/conventions/common/04_operators.md:../../../${PREFIX}/documents/conventions/common/04_operators.md
+documents/conventions/common/05_docs.md:../../../${PREFIX}/documents/conventions/common/05_docs.md
+documents/conventions/python/01_scope.md:../../../${PREFIX}/documents/conventions/python/01_scope.md
+documents/conventions/python/04_type_annotations.md:../../../${PREFIX}/documents/conventions/python/04_type_annotations.md
+documents/conventions/python/06_comments.md:../../../${PREFIX}/documents/conventions/python/06_comments.md
+documents/conventions/python/07_type_checker.md:../../../${PREFIX}/documents/conventions/python/07_type_checker.md
+documents/conventions/python/09_file_roles.md:../../../${PREFIX}/documents/conventions/python/09_file_roles.md
+documents/conventions/python/11_naming.md:../../../${PREFIX}/documents/conventions/python/11_naming.md
+documents/conventions/python/15_jax_rules.md:../../../${PREFIX}/documents/conventions/python/15_jax_rules.md
 documents/conventions/python/20_benchmark_policy.md:../../../${PREFIX}/documents/conventions/python/20_benchmark_policy.md
 documents/conventions/python/30_experiment_directory_structure.md:../../../${PREFIX}/documents/conventions/python/30_experiment_directory_structure.md
+documents/design/README.md:../../${PREFIX}/documents/design/README.md
+documents/design/protocols.md:../../${PREFIX}/documents/design/protocols.md
+documents/templates/README.md:../../${PREFIX}/documents/templates/README.md
+documents/templates/remote_execution_repo.template.toml:../../${PREFIX}/documents/templates/remote_execution_repo.template.toml
+documents/templates/remote_execution_target.template.toml:../../${PREFIX}/documents/templates/remote_execution_target.template.toml
+documents/templates/server_host_inventory.template.md:../../${PREFIX}/documents/templates/server_host_inventory.template.md
+documents/templates/server_runtime_layout.template.toml:../../${PREFIX}/documents/templates/server_runtime_layout.template.toml
+documents/tools/README.md:../../${PREFIX}/documents/tools/README.md
+documents/tools/TOOLS_DIRECTORY.md:../../${PREFIX}/documents/tools/TOOLS_DIRECTORY.md
 memory/README.md:../${PREFIX}/memory/README.md
 memory/USER_PREFERENCES.md:../${PREFIX}/memory/USER_PREFERENCES.md
 memory/AGENT_PHILOSOPHY.md:../${PREFIX}/memory/AGENT_PHILOSOPHY.md
-memory/global:../${PREFIX}/memory/global
-memory/methods:../${PREFIX}/memory/methods
-memory/candidates:../${PREFIX}/memory/candidates
-memory/subagent_loadouts.yaml:../${PREFIX}/memory/subagent_loadouts.yaml
+mcp:${PREFIX}/mcp
 notes/experiments/README.md:../../${PREFIX}/notes/experiments/README.md
 notes/experiments/REPORT_TEMPLATE.md:../../${PREFIX}/notes/experiments/REPORT_TEMPLATE.md
 notes/experiments/results/README.md:../../../${PREFIX}/notes/experiments/results/README.md
@@ -150,11 +201,18 @@ tests/agent_tools/test_check_agent_runtime_alignment.py:../../${PREFIX}/tests/ag
 tests/agent_tools/test_doc_start.py:../../${PREFIX}/tests/agent_tools/test_doc_start.py
 tests/agent_tools/test_log_user_preference.py:../../${PREFIX}/tests/agent_tools/test_log_user_preference.py
 tests/agent_tools/test_log_agent_learning.py:../../${PREFIX}/tests/agent_tools/test_log_agent_learning.py
+tests/agent_tools/test_check_mcp_inventory.py:../../${PREFIX}/tests/agent_tools/test_check_mcp_inventory.py
+tests/agent_tools/test_codex_hooks.py:../../${PREFIX}/tests/agent_tools/test_codex_hooks.py
+tests/agent_tools/test_check_dependency_headers.py:../../${PREFIX}/tests/agent_tools/test_check_dependency_headers.py
+tests/agent_tools/test_dependency_manifest_tools.py:../../${PREFIX}/tests/agent_tools/test_dependency_manifest_tools.py
+tests/agent_tools/test_evaluate_agent_run.py:../../${PREFIX}/tests/agent_tools/test_evaluate_agent_run.py
 tests/agent_tools/test_smoke_test_research_perspective_pack.py:../../${PREFIX}/tests/agent_tools/test_smoke_test_research_perspective_pack.py
 tests/agent_tools/test_task_start_and_close.py:../../${PREFIX}/tests/agent_tools/test_task_start_and_close.py
 tests/agent_tools/test_waterfall_gate_check.py:../../${PREFIX}/tests/agent_tools/test_waterfall_gate_check.py
+tests/agent_tools/test_work_log.py:../../${PREFIX}/tests/agent_tools/test_work_log.py
 tests/agent_tools/test_worktree_scope_lint.py:../../${PREFIX}/tests/agent_tools/test_worktree_scope_lint.py
 tests/tools/test_check_merge_structure.py:../../${PREFIX}/tests/tools/test_check_merge_structure.py
+tests/tools/test_check_markdown_math.py:../../${PREFIX}/tests/tools/test_check_markdown_math.py
 tests/tools/test_mirror_skill_shims.py:../../${PREFIX}/tests/tools/test_mirror_skill_shims.py
 tests/tools/test_run_managed_experiment.py:../../${PREFIX}/tests/tools/test_run_managed_experiment.py
 tests/tools/test_run_repo_program.py:../../${PREFIX}/tests/tools/test_run_repo_program.py
@@ -179,6 +237,10 @@ documents/research-workflow.md
 documents/workflow-references.md
 notes/themes/AGENT_PHILOSOPHY.md
 notes/themes/USER_PREFERENCES.md
+memory/global
+memory/methods
+memory/candidates
+memory/subagent_loadouts.yaml
 EOF
 }
 
@@ -279,10 +341,12 @@ cmd_check() {
     local path="${spec%%:*}"
     local target="${spec#*:}"
     local abs_path="$ROOT_DIR/$path"
-    if [ -L "$abs_path" ] && [ "$(readlink "$abs_path")" = "$target" ]; then
+    if [ -L "$abs_path" ] && [ "$(readlink "$abs_path")" = "$target" ] && [ -e "$abs_path" ]; then
       continue
     fi
-    if [ -e "$abs_path" ]; then
+    if [ -L "$abs_path" ] && ! [ -e "$abs_path" ]; then
+      echo "link[$path]=broken" >&2
+    elif [ -e "$abs_path" ]; then
       echo "link[$path]=drift" >&2
     else
       echo "link[$path]=missing" >&2
@@ -416,6 +480,29 @@ import_fast_forward_snapshot() {
   commit_sync_paths_if_needed "$remote_sha" "$method"
 }
 
+import_snapshot_preferring_tree_match() {
+  local local_split="$1"
+  local local_tree="$2"
+  local remote_sha="$3"
+  local method="$4"
+  local matched_commit=""
+
+  if git -C "$ROOT_DIR" merge-base --is-ancestor "$local_split" "$remote_sha"; then
+    import_fast_forward_snapshot "$local_split" "$remote_sha" "$method"
+    return
+  fi
+
+  matched_commit="$(find_commit_by_tree "$local_tree" "$remote_sha" || true)"
+  if [ -n "$matched_commit" ]; then
+    echo "agent_canon_snapshot_import=tree_match_in_remote_history"
+    import_fast_forward_snapshot "$matched_commit" "$remote_sha" "$method"
+    return
+  fi
+
+  echo "agent_canon_snapshot_import=diverged_history"
+  die "snapshot import is unsafe because local shared-canon history diverged from '$REMOTE_NAME/$DEFAULT_BRANCH' and the current prefix tree is not present in remote history; update the proposal branch or merge the shared canon changes before running ensure-latest"
+}
+
 import_snapshot_from_prefix_tree() {
   local local_tree="$1"
   local remote_sha="$2"
@@ -433,7 +520,9 @@ import_snapshot_from_prefix_tree() {
 }
 
 split_prefix_or_empty() {
-  git -C "$ROOT_DIR" subtree split --prefix="$PREFIX" HEAD 2>/dev/null || true
+  git -C "$ROOT_DIR" subtree split --prefix="$PREFIX" HEAD 2>/dev/null \
+    || git -C "$ROOT_DIR" subtree split --ignore-joins --prefix="$PREFIX" HEAD 2>/dev/null \
+    || true
 }
 
 has_subtree_metadata() {
@@ -503,7 +592,10 @@ cmd_plan() {
     dirty="yes"
   fi
 
-  if git -C "$ROOT_DIR" remote get-url "$REMOTE_NAME" >/dev/null 2>&1; then
+  if [ -n "$PLAN_REMOTE_OVERRIDE_URL" ]; then
+    remote_url="$PLAN_REMOTE_OVERRIDE_URL"
+    remote_source="plan_override"
+  elif git -C "$ROOT_DIR" remote get-url "$REMOTE_NAME" >/dev/null 2>&1; then
     remote_url="$(git -C "$ROOT_DIR" remote get-url "$REMOTE_NAME")"
     remote_source="configured"
   else
@@ -530,14 +622,18 @@ cmd_plan() {
     route="already_current_split"
   elif [ -n "$local_split" ] && git -C "$ROOT_DIR" merge-base --is-ancestor "$remote_sha" "$local_split"; then
     route="local_contains_remote"
-  elif [ -n "$local_split" ] && ! git -C "$ROOT_DIR" merge-base --is-ancestor "$local_split" "$remote_sha"; then
-    route="diverged_local_history"
+  elif [ -n "$local_split" ] && git -C "$ROOT_DIR" merge-base --is-ancestor "$local_split" "$remote_sha"; then
+    if [ "$subtree_metadata" = "yes" ]; then
+      route="subtree_pull"
+    else
+      route="snapshot_import_no_subtree_metadata"
+    fi
     requires_clean="yes"
-  elif [ -n "$local_split" ] && [ "$subtree_metadata" = "yes" ]; then
-    route="subtree_pull"
+  elif [ -n "$local_split" ] && find_commit_by_tree "$local_tree" "$remote_sha" >/dev/null 2>&1; then
+    route="snapshot_import_tree_match"
     requires_clean="yes"
   elif [ -n "$local_split" ]; then
-    route="snapshot_import_no_subtree_metadata"
+    route="diverged_local_history"
     requires_clean="yes"
   elif find_commit_by_tree "$local_tree" "$remote_sha" >/dev/null 2>&1; then
     route="snapshot_import_no_subtree"
@@ -556,11 +652,12 @@ pull_or_import_snapshot() {
   local branch="$1"
   local local_split="$2"
   local remote_sha="$3"
+  local local_tree="$4"
   local pull_log=""
 
   if ! has_subtree_metadata; then
     echo "agent_canon_subtree_pull=skipped_no_subtree_metadata"
-    import_fast_forward_snapshot "$local_split" "$remote_sha"
+    import_snapshot_preferring_tree_match "$local_split" "$local_tree" "$remote_sha" "snapshot_import_no_subtree_metadata"
     return
   fi
 
@@ -577,7 +674,7 @@ pull_or_import_snapshot() {
   cat "$pull_log" >&2
   rm -f "$pull_log"
   echo "agent_canon_subtree_pull=failed"
-  import_fast_forward_snapshot "$local_split" "$remote_sha"
+  import_snapshot_preferring_tree_match "$local_split" "$local_tree" "$remote_sha" "snapshot_import_after_subtree_pull_failure"
 }
 
 cmd_add() {
@@ -593,15 +690,17 @@ cmd_add() {
 cmd_pull() {
   local branch="${1:-$DEFAULT_BRANCH}"
   local local_split=""
+  local local_tree=""
   local remote_sha=""
 
   require_clean_worktree
   ensure_existing_remote_or_default
   git -C "$ROOT_DIR" fetch "$REMOTE_NAME" "$branch"
   remote_sha="$(git -C "$ROOT_DIR" rev-parse FETCH_HEAD)"
+  local_tree="$(git -C "$ROOT_DIR" rev-parse "HEAD:$PREFIX")"
   local_split="$(split_prefix_or_empty)"
   if [ -n "$local_split" ]; then
-    pull_or_import_snapshot "$branch" "$local_split" "$remote_sha"
+    pull_or_import_snapshot "$branch" "$local_split" "$remote_sha" "$local_tree"
     return
   fi
 
@@ -661,15 +760,10 @@ cmd_ensure_latest() {
     return
   fi
 
-  if [ -n "$local_split" ] && ! git -C "$ROOT_DIR" merge-base --is-ancestor "$local_split" "$remote_sha"; then
-    echo "agent_canon_snapshot_import=diverged_history"
-    die "local shared-canon history diverged from '$REMOTE_NAME/$branch'; merge shared canon changes into upstream or push the proposal branch before ensure-latest"
-  fi
-
   require_clean_worktree
   echo "agent_canon_latest=pulling_remote"
   if [ -n "$local_split" ]; then
-    pull_or_import_snapshot "$branch" "$local_split" "$remote_sha"
+    pull_or_import_snapshot "$branch" "$local_split" "$remote_sha" "$local_tree"
   else
     import_snapshot_from_prefix_tree "$local_tree" "$remote_sha" "snapshot_import_no_subtree"
   fi
@@ -677,10 +771,13 @@ cmd_ensure_latest() {
 
 cmd_push() {
   local branch="${1:-$DEFAULT_BRANCH}"
+  local local_split=""
   require_clean_worktree
   require_existing_remote
   [ -d "$ROOT_DIR/$PREFIX" ] || die "prefix '$PREFIX' does not exist"
-  git -C "$ROOT_DIR" subtree push --prefix="$PREFIX" "$REMOTE_NAME" "$branch"
+  local_split="$(split_prefix_or_empty)"
+  [ -n "$local_split" ] || die "could not split prefix '$PREFIX'"
+  git -C "$ROOT_DIR" push "$REMOTE_NAME" "${local_split}:refs/heads/${branch}"
 }
 
 cmd_status() {

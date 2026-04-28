@@ -1,4 +1,10 @@
 # Management Review
+<!--
+@dependency-start
+upstream design ../canonical/ARTIFACT_PLACEMENT.md artifact placement contract
+@dependency-end
+-->
+
 
 - Run ID: {\{RUN_ID}}
 - Task: {\{TASK}}
@@ -30,11 +36,11 @@
 
 ## Context And Library Sweep Review
 
-<!-- Check whether the required document sweep and reuse sweep were actually performed before planning. -->
+<!-- Check whether the required document sweep, dependency/library sweep, and existing-implementation sweep were actually performed before planning, and whether the artifacts record what was inspected. -->
 
 ## Reuse-First Review
 
-<!-- Check whether the intake package identifies existing code and docs that implementation must follow. -->
+<!-- Check whether the intake package identifies existing code, docs, and installed libraries that implementation must follow, and whether it records why reuse or extension is insufficient before any new path is proposed. -->
 
 ## Decision
 

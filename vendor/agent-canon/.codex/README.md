@@ -1,5 +1,16 @@
 # Codex Project Setup
 
+<!--
+@dependency-start
+upstream implementation ./config.toml project-scoped Codex settings
+upstream design ../agents/task_catalog.yaml workflow family runtime budgets
+upstream design ../agents/canonical/CODEX_SUBAGENTS.md subagent routing
+downstream implementation ./hooks.json project-local hook declarations
+downstream implementation ./hooks/mcp_session_context.sh injects MCP preflight context
+downstream implementation ../tools/agent_tools/check_mcp_inventory.py MCP inventory preflight
+@dependency-end
+-->
+
 このディレクトリは、Codex を primary runtime として使うための project-scoped 設定置き場です。
 
 ## Layout
@@ -8,19 +19,55 @@
   - Codex の project 設定
 - `agents/*.toml`
   - Codex 用 subagent 定義
+- `hooks.json`
+  - Codex lifecycle hook 定義
+- `hooks/*.sh`
+  - repo-local hook script
 
 ## Shared Canon
 
 - 共通入口は `AGENTS.md`
 - workflow と skill の正本は `agents/`
 - Codex-specific routing は `agents/canonical/CODEX_WORKFLOW.md` と `agents/canonical/CODEX_SUBAGENTS.md`
+- runtime cap は `.codex/config.toml` の `[agents].max_threads = 24` を使い、spawn は depth ではなく bounded concurrency で制御します
 - plan mode や permissions のような mode は session 単位です。official Codex CLI では `/plan`、`/model`、`/permissions` を使います
 - runtime が `/agent` を提供する場合は inventory 確認に使い、使えない場合は `.codex/agents/*.toml` を直接見ます
 - 最初の作業 update では `workflow=<family>`, `skills=<...>`, `review=<...>` を宣言します
 
+## Runtime Spawn Limits
+
+- `max_threads = 24`
+  - runtime hard ceiling として使います
+- `job_max_runtime_seconds = 3600`
+  - 長めの review / repo scan / validation を含む subagent job を 1 時間まで許容します
+- depth は repo config で固定しません
+- 同時 spawn の既定 budget は workflow family 側で決めます
+  - `Scoped Change`: 8
+  - `Large Delivery` / `Platform And Environment`: 10
+  - `Research-Driven Change` / `Comprehensive Development` / `Adaptive Improvement Loop`: 12
+- 同時 write-capable subagent は常に 1 体までです
+
+## MCP Inventory
+
+- `repo_mcp_server` は [config.toml](config.toml) の `[mcp_servers.repo_mcp_server]` を正本にします。
+- launcher は host-global `repo_mcp_server` command ではなく、repo-local `bash mcp/repo_mcp_server.sh` を使います。
+- root `mcp/` は `vendor/agent-canon/mcp/` への runtime view で、`tools/sync_agent_canon.sh link-root` が復元します。
+- MCP server startup timeout は 20 秒、tool call timeout は 300 秒にします。repo-local graph / status 系 tool が少し重くても、即 timeout で落とさないためです。
+- MCP 前提の task では、local process を手で起動する前に `python3 tools/agent_tools/check_mcp_inventory.py --require repo_mcp_server` を実行します。
+- `repo_mcp_server` が configured inventory に無い場合は fail closed とし、bridge-local process の暗黙起動で代替しません。
+- `check_mcp_inventory.py` は inventory だけでなく launcher command と repo-local script の存在も検査します。
+
+## MCP Hook Context
+
+- `config.toml` の `[features].codex_hooks = true` で project-local hook を有効にします。
+- `hooks.json` は `SessionStart` と `UserPromptSubmit` で `hooks/mcp_session_context.sh` を起動し、MCP preflight の追加 context を Codex に渡します。
+- hook の役割は「MCP を忘れにくくする context 注入」です。完了 gate は引き続き `python3 tools/agent_tools/check_mcp_inventory.py --require repo_mcp_server` と run bundle evidence で判定します。
+- hook context は `repo_mcp_server` の canonical launcher を `.codex/config.toml` -> `bash mcp/repo_mcp_server.sh` に固定し、ad hoc local process への silent fallback を禁止します。
+- `tools/sync_agent_canon.sh link-root` は root `.codex/hooks.json` と `.codex/hooks/` を shared canon へリンクします。
+
 ## Model Policy
 
-- `gpt-5.4` + `high`
+- `gpt-5.5` + `high`
   - `requirements_organizer`
   - `manager_reviewer`
   - `execution_planner`
@@ -30,6 +77,7 @@
   - `logic_gap_reviewer`
   - `literature_researcher`
   - `docs_workflow_steward`
+  - `worker`
   - `reviewer`
   - `plan_reviewer`
   - `detailed_design_reviewer`
@@ -39,14 +87,14 @@
   - perspective reviewer 全般
 - `gpt-5.3-codex` + `high`
   - `explorer`
-  - `worker`
+  - `test_designer`
   - `python_reviewer`
   - `cpp_reviewer`
 - design-traced narrow implementation default
   - `gpt-5.3-codex-spark`
     - `spark_worker`
 - broad or ambiguous implementation fallback
-  - `gpt-5.3-codex`
+  - `gpt-5.5`
     - `worker`
     - 設計解釈、conflict resolution、architecture-sensitive edit
 - repo default は `high`

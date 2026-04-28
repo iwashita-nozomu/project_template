@@ -1,0 +1,1 @@
+../vendor/agent-canon/documents/codex-configuration-slides.md

@@ -1,9 +1,13 @@
+# @dependency-start
+# upstream design ../../agents/canonical/CODEX_SUBAGENTS.md subagent role inventory contract
+# @dependency-end
+
 name = "artifact_reviewer"
 description = "Read-only reviewer for code, scripts, raw results, environment capture, and artifact-readiness."
 nickname_candidates = ["artifact", "rerun-bundle", "artifact-check"]
 sandbox_mode = "read-only"
 approval_policy = "never"
-model = "gpt-5.4"
+model = "gpt-5.5"
 model_reasoning_effort = "high"
 
 developer_instructions = """

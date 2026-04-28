@@ -1,20 +1,27 @@
+<!--
+@dependency-start
+upstream design README.md agent canon overview
+@dependency-end
+-->
+
 # エージェント利用ガイド
+
 
 ## どこから読むか
 
-1. [agents/README.md](/mnt/l/workspace/project_template/agents/README.md)
-1. [agents/canonical/README.md](/mnt/l/workspace/project_template/agents/canonical/README.md)
-1. [agents/TASK_WORKFLOWS.md](/mnt/l/workspace/project_template/agents/TASK_WORKFLOWS.md)
-1. [agents/skills/README.md](/mnt/l/workspace/project_template/agents/skills/README.md)
+1. [agents/README.md](../../../agents/README.md)
+1. [agents/canonical/README.md](../../../agents/canonical/README.md)
+1. [agents/TASK_WORKFLOWS.md](../../../agents/TASK_WORKFLOWS.md)
+1. [agents/skills/README.md](../../../agents/skills/README.md)
 
 ## 入口の使い分け
 
 - Codex / Copilot agent mode:
-  - [AGENTS.md](/mnt/l/workspace/project_template/AGENTS.md)
+  - [AGENTS.md](../../../AGENTS.md)
 - Claude Code:
-  - [CLAUDE.md](/mnt/l/workspace/project_template/CLAUDE.md)
+  - [CLAUDE.md](../../../CLAUDE.md)
 - GitHub Copilot custom instructions:
-  - [.github/copilot-instructions.md](/mnt/l/workspace/project_template/.github/copilot-instructions.md)
+  - [.github/copilot-instructions.md](../../../.github/copilot-instructions.md)
 
 ## skill の使い方
 
@@ -59,7 +66,7 @@
 - 長文では、`document_flow_reviewer` に加えて別 reviewer で docs completeness review を通します。
 - 学術文章では、さらに `notation_definition_reviewer` と `logic_gap_reviewer` を別 instance で通します。
 - 論文 draft では、さらに `citation_evidence_reviewer` を別 instance で通します。
-- 最後の user-facing 完了報告は、`verification.txt` が `status=pass` で、`closeout_gate.md` が `auditor_status=resolved` かつ `user_completion_report=unlocked` になるまで出しません。
+- 最後の user-facing 完了報告は、`verification.txt` が `status=pass` で、`closeout_gate.md` が `auditor_status=resolved`、`mechanical_completion_loop_complete=yes`、`diff_check_agent_complete=yes`、`user_completion_report=unlocked` になり、run-local diff-check artifact が現在 tracked diff ref の read-only independent approval を示すまで出しません。
 
 標準 bundle:
 

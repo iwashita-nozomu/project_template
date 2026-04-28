@@ -1,4 +1,11 @@
+<!--
+@dependency-start
+upstream design ../README.md shared canon overview
+@dependency-end
+-->
+
 # Agent Hub
+
 
 このディレクトリは、repo におけるエージェント運用の人間向け正本ハブです。
 個別エージェント向けの runtime entrypoint は薄く保ち、詳細はここへ集約します。
@@ -7,56 +14,56 @@ skill を user-facing に明示するときは `$skill-name` を使います。
 
 ## 正本
 
-- [canonical/README.md](/mnt/l/workspace/project_template/agents/canonical/README.md)
+- [canonical/README.md](../../../agents/canonical/README.md)
   - 共通レイアウトと正本の置き場
-- [agents_config.json](/mnt/l/workspace/project_template/agents/agents_config.json)
+- [agents_config.json](../../../agents/agents_config.json)
   - チーム定義と write policy
-- [TASK_WORKFLOWS.md](/mnt/l/workspace/project_template/agents/TASK_WORKFLOWS.md)
+- [TASK_WORKFLOWS.md](../../../agents/TASK_WORKFLOWS.md)
   - workflow family と task 選択
-- [workflows/README.md](/mnt/l/workspace/project_template/agents/workflows/README.md)
-  - workflow canon の入口
-- [COMMUNICATION_PROTOCOL.md](/mnt/l/workspace/project_template/agents/COMMUNICATION_PROTOCOL.md)
+- [workflows/README.md](../../../agents/workflows/README.md)
+  - workflow catalog と routing guide の入口
+- [COMMUNICATION_PROTOCOL.md](../../../agents/COMMUNICATION_PROTOCOL.md)
   - handoff / review / escalation の正本
-- [task_catalog.yaml](/mnt/l/workspace/project_template/agents/task_catalog.yaml)
+- [task_catalog.yaml](../../../agents/task_catalog.yaml)
   - machine-readable catalog
-- [canonical/ARTIFACT_PLACEMENT.md](/mnt/l/workspace/project_template/agents/canonical/ARTIFACT_PLACEMENT.md)
+- [canonical/ARTIFACT_PLACEMENT.md](../../../agents/canonical/ARTIFACT_PLACEMENT.md)
   - task 文書と run artifact の置き分け
-- [canonical/CLI_ENTRYPOINTS.md](/mnt/l/workspace/project_template/agents/canonical/CLI_ENTRYPOINTS.md)
+- [canonical/CLI_ENTRYPOINTS.md](../../../agents/canonical/CLI_ENTRYPOINTS.md)
   - agent ごとの入口差分と bootstrap 入口
-- [canonical/CODEX_WORKFLOW.md](/mnt/l/workspace/project_template/agents/canonical/CODEX_WORKFLOW.md)
+- [canonical/CODEX_WORKFLOW.md](../../../agents/canonical/CODEX_WORKFLOW.md)
   - Codex の標準 task 実行フロー
-- [canonical/CODEX_SUBAGENTS.md](/mnt/l/workspace/project_template/agents/canonical/CODEX_SUBAGENTS.md)
+- [canonical/CODEX_SUBAGENTS.md](../../../agents/canonical/CODEX_SUBAGENTS.md)
   - Codex の subagent routing
-- [skills/README.md](/mnt/l/workspace/project_template/agents/skills/README.md)
+- [skills/README.md](../../../agents/skills/README.md)
   - 人間向け skill 正本
-- [skills/catalog.yaml](/mnt/l/workspace/project_template/agents/skills/catalog.yaml)
+- [skills/catalog.yaml](../../../agents/skills/catalog.yaml)
   - skill family の機械可読カタログ
-- [skills/literature-survey.md](/mnt/l/workspace/project_template/agents/skills/literature-survey.md)
+- [skills/literature-survey.md](../../../agents/skills/literature-survey.md)
   - 文献調査と先行研究整理の入口
-- [skills/research-workflow.md](/mnt/l/workspace/project_template/agents/skills/research-workflow.md)
+- [skills/research-workflow.md](../../../agents/skills/research-workflow.md)
   - 研究系変更の outer loop
-- [skills/adaptive-improvement-loop.md](/mnt/l/workspace/project_template/agents/skills/adaptive-improvement-loop.md)
+- [skills/adaptive-improvement-loop.md](../../../agents/skills/adaptive-improvement-loop.md)
   - 実験、調査、チューニング、比較改良の outer loop
-- [skills/worktree-start.md](/mnt/l/workspace/project_template/agents/skills/worktree-start.md)
+- [skills/worktree-start.md](../../../agents/skills/worktree-start.md)
   - worktree kickoff、scope 初期化、action log 起点の固定
-- [skills/long-form-writing.md](/mnt/l/workspace/project_template/agents/skills/long-form-writing.md)
+- [skills/long-form-writing.md](../../../agents/skills/long-form-writing.md)
   - README、workflow、guide などの長文作成フロー
-- [skills/academic-writing.md](/mnt/l/workspace/project_template/agents/skills/academic-writing.md)
+- [skills/academic-writing.md](../../../agents/skills/academic-writing.md)
   - 論文、thesis chapter、scholarly note の作成フロー
-- [skills/comprehensive-development.md](/mnt/l/workspace/project_template/agents/skills/comprehensive-development.md)
+- [skills/comprehensive-development.md](../../../agents/skills/comprehensive-development.md)
   - 包括的 repo-wide delivery の umbrella workflow
-- [skills/environment-maintenance.md](/mnt/l/workspace/project_template/agents/skills/environment-maintenance.md)
+- [skills/environment-maintenance.md](../../../agents/skills/environment-maintenance.md)
   - Docker、CI、tool 導入方針の正本
 
 ## Runtime Entry Points
 
-- [AGENTS.md](/mnt/l/workspace/project_template/AGENTS.md)
+- [AGENTS.md](../../../AGENTS.md)
   - Codex / Copilot agent mode の入口
-- [CLAUDE.md](/mnt/l/workspace/project_template/CLAUDE.md)
+- [CLAUDE.md](../../../CLAUDE.md)
   - Claude Code の入口
-- [.github/copilot-instructions.md](/mnt/l/workspace/project_template/.github/copilot-instructions.md)
+- [.github/copilot-instructions.md](../../../.github/copilot-instructions.md)
   - GitHub Copilot repository instructions
-- [.github/AGENTS.md](/mnt/l/workspace/project_template/.github/AGENTS.md)
+- [.github/AGENTS.md](../../../.github/AGENTS.md)
   - GitHub 側の薄い入口
 
 ## Skills And Subagents
@@ -160,9 +167,10 @@ python3 tools/agent_tools/bootstrap_agent_run.py \
 - 共通方針は `agents/` 配下に集約し、entrypoint へ重複記述しません。
 - 新しい workflow や skill を追加するときは、まず `agents/canonical/` の文書を更新します。
 - 実行環境固有の都合がある場合だけ、`AGENTS.md`、`CLAUDE.md`、`.github/copilot-instructions.md` に最小限の差分を持たせます。
-- 会話だけを根拠に実装へ進めず、`documents/`、`notes/`、`references/` と local library を先に探索します。
+- 会話だけを根拠に実装へ進めず、`documents/`、`notes/`、`references/`、dependency surface、local implementation を先に探索します。
 - reuse sweep をせずに新しい file や module を増やしません。
+- 既存実装を使えるか、導入済みライブラリを拡張できるか、既存では足りない理由が何かを artifact に残さずに新規実装へ進めません。
 - stage reviewer の feedback を反映せずに次段へ handoff しません。
 - tracked repo change がある task では、required review、validation、commit、`origin` への push を経ずに完了扱いにしません。
 - tracked repo change で push が自然な完了条件なら、push の許可を取りに戻らず実行します。止めるのは user が明示的に止めた場合か external block がある場合だけです。
-- user-facing completion は、`verification.txt` が `status=pass` で、`closeout_gate.md` が `auditor_status=resolved` かつ `user_completion_report=unlocked` になるまで返しません。
+- user-facing completion は、`verification.txt` が `status=pass` で、`closeout_gate.md` が `auditor_status=resolved`、`mechanical_completion_loop_complete=yes`、`diff_check_agent_complete=yes`、`user_completion_report=unlocked` になり、run-local diff-check artifact が現在 tracked diff ref（clean なら `HEAD`、dirty なら `HEAD-dirty-<sha256>`）の read-only independent approval を示すまで返しません。

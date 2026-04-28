@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# @dependency-start
+# upstream design ../README.md shared automation index
+# @dependency-end
+
 set -euo pipefail
 
 WORKSPACE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -22,6 +26,7 @@ MARKDOWN_TARGETS=(
   AGENTS.md
   CLAUDE.md
   agents
+  docker
   documents
   scripts
   .github
@@ -37,6 +42,7 @@ echo ""
 "$PYTHON_BIN" tools/docs/check_markdown_lint.py "${MARKDOWN_TARGETS[@]}"
 "$PYTHON_BIN" tools/docs/check_markdown_math.py "${MARKDOWN_TARGETS[@]}"
 "$PYTHON_BIN" tools/docs/audit_and_fix_links.py --check "${MARKDOWN_TARGETS[@]}"
+"$PYTHON_BIN" tools/docs/check_bootstrap_docs.py
 
 echo ""
 echo "Documentation checks completed successfully"

@@ -1,4 +1,11 @@
 # Final Review
+<!--
+@dependency-start
+upstream design ../canonical/ARTIFACT_PLACEMENT.md artifact placement contract
+upstream design ../../documents/dependency-manifest-design.md dependency review policy
+@dependency-end
+-->
+
 
 - Run ID: {\{RUN_ID}}
 - Task: {\{TASK}}
@@ -28,6 +35,18 @@
 ## Review Finding Incorporation Review
 
 <!-- Confirm that change review, language-specific review, docs review, final review, and required specialist findings were reflected in implementation or explicitly escalated. Return revise if fix-now findings were ignored or only recorded in review artifacts. -->
+
+## Post-Fix Full Review Rerun Review
+
+<!-- Confirm that if any review-driven fix landed after an earlier review artifact, the full required review set was rerun against the latest diff. Record the refreshed review artifacts, or explicitly state that no post-review fixes occurred after the last full review pass. Return revise if any tiny fix skipped the rerun. -->
+
+## Repo-Wide Dependency Review
+
+<!-- Confirm `bash tools/agent_tools/run_repo_dependency_review.sh` was run against the full repository after the latest fix. Return revise if only --changed checks were run or if any dependency manifest issue remains. -->
+
+## Canonical Tree-Head Acceptance
+
+<!-- Confirm that the only durable product state left in the tracked tree is the current tree head on canonical paths. Return revise if any non-canonical design document, copied implementation, dated snapshot, backup path, or mirrored tree remains. -->
 
 ## Residual Risks
 

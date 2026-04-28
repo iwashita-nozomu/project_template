@@ -1,9 +1,27 @@
 # Project-scoped Codex settings.
-# Keep review fan-out explicit, but do not fix agent depth in repo config.
+# Keep review fan-out explicit, keep one writer per worktree, do not fix agent depth in repo config,
+# and use spawned agents in bounded waves instead of starting every available role at once.
+# @dependency-start
+# upstream design ../agents/task_catalog.yaml workflow family runtime budgets
+# upstream design ../agents/canonical/CODEX_SUBAGENTS.md Codex subagent routing
+# downstream implementation ./hooks.json injects MCP startup and prompt context
+# downstream implementation ../tools/agent_tools/check_mcp_inventory.py verifies MCP inventory
+# @dependency-end
 
 approval_policy = "never"
 sandbox_mode = "danger-full-access"
 
+[features]
+codex_hooks = true
+
 [agents]
-max_threads = 8
-job_max_runtime_seconds = 1800
+max_threads = 24
+job_max_runtime_seconds = 3600
+
+[mcp_servers.repo_mcp_server]
+command = "bash"
+args = ["mcp/repo_mcp_server.sh"]
+enabled = true
+required = false
+startup_timeout_sec = 20
+tool_timeout_sec = 300

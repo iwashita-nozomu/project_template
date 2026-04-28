@@ -1,4 +1,10 @@
 # Detailed Design Review
+<!--
+@dependency-start
+upstream design ../canonical/ARTIFACT_PLACEMENT.md artifact placement contract
+@dependency-end
+-->
+
 
 - Run ID: {\{RUN_ID}}
 - Task: {\{TASK}}
@@ -28,6 +34,10 @@
 ## Implementation Source Packet Review
 
 <!-- Check whether the design names every required read-before-edit artifact: request contract, schedule, design, design review, document flow review, test plan, repo docs, code paths, tests, and external references. Return revise if the worker would need chat context or unstated assumptions. -->
+
+## Canonical Tree-Head Review
+
+<!-- Check whether the design fixes the canonical design-document paths and implementation paths that may remain in the tracked tree, and whether it explicitly deletes or forbids non-canonical drafts, snapshots, mirrored directories, backup files, or copied implementations. Return revise if the task would preserve multiple truths beyond the current tree head. -->
 
 ## Identifier And Naming Review
 

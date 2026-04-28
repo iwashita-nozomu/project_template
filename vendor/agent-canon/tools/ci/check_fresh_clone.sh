@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# @dependency-start
+# upstream design ../README.md shared automation index
+# upstream environment ../../../../docker/Dockerfile installs rsync for canonical container runs
+# @dependency-end
+
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -9,8 +14,27 @@ trap 'rm -rf "${TMP_DIR}"' EXIT
 echo "fresh-clone source: ${ROOT_DIR}"
 echo "fresh-clone target: ${CLONE_DIR}"
 
+overlay_current_tree() {
+  if command -v rsync >/dev/null 2>&1; then
+    rsync -a --delete --exclude .git "${ROOT_DIR}/" "${CLONE_DIR}/" >/dev/null
+    return
+  fi
+
+  echo "fresh_clone_overlay=tar_fallback_no_rsync"
+  echo "fresh_clone_overlay_note=install rsync via docker/Dockerfile for canonical container runs"
+  find "${CLONE_DIR}" -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+  (
+    cd "${ROOT_DIR}"
+    tar --exclude='./.git' -cf - .
+  ) | (
+    cd "${CLONE_DIR}"
+    tar -xf -
+  )
+}
+
 git clone --no-local "${ROOT_DIR}" "${CLONE_DIR}" >/dev/null
-rsync -a --delete --exclude .git "${ROOT_DIR}/" "${CLONE_DIR}/" >/dev/null
+git config --global --add safe.directory "${CLONE_DIR}"
+overlay_current_tree
 cd "${CLONE_DIR}"
 if [[ -n "$(git status --short)" ]]; then
   git config user.name "Fresh Clone Check"
@@ -19,7 +43,7 @@ if [[ -n "$(git status --short)" ]]; then
   git commit -m "test: overlay current working tree for fresh clone check" >/dev/null
 fi
 
-for path in AGENTS.md agents .agents .claude .codex/config.toml agents/workflows/README.md agents/workflows/paper-writing-workflow.md; do
+for path in AGENTS.md agents .agents .claude .codex/config.toml .codex/hooks.json .codex/hooks/mcp_session_context.sh mcp/repo_mcp_server.sh agents/workflows/README.md agents/workflows/paper-writing-workflow.md; do
   if [ ! -e "${path}" ]; then
     echo "missing runtime surface: ${path}" >&2
     exit 1
@@ -43,11 +67,13 @@ PY
 bash tools/sync_agent_canon.sh check
 AGENT_CANON_TEST_REMOTE="${TMP_DIR}/agent-canon-upstream.git"
 AGENT_CANON_TEST_WORK="${TMP_DIR}/agent-canon-work"
-AGENT_CANON_SPLIT_SHA="$(git subtree split --prefix=vendor/agent-canon HEAD)"
+AGENT_CANON_SPLIT_SHA="$(git subtree split --prefix=vendor/agent-canon HEAD 2>/dev/null \
+  || git subtree split --ignore-joins --prefix=vendor/agent-canon HEAD)"
 git init --bare "${AGENT_CANON_TEST_REMOTE}" >/dev/null
 git push "${AGENT_CANON_TEST_REMOTE}" "${AGENT_CANON_SPLIT_SHA}:refs/heads/main" >/dev/null
 git --git-dir="${AGENT_CANON_TEST_REMOTE}" symbolic-ref HEAD refs/heads/main
 git clone "${AGENT_CANON_TEST_REMOTE}" "${AGENT_CANON_TEST_WORK}" >/dev/null
+git config --global --add safe.directory "${AGENT_CANON_TEST_WORK}"
 (
   cd "${AGENT_CANON_TEST_WORK}"
   printf "fresh clone fallback marker\n" > .fresh-clone-agent-canon-marker
@@ -71,7 +97,7 @@ test -f vendor/agent-canon/.fresh-clone-agent-canon-marker
 )
 mkdir -p "${TMP_DIR}/missing-git-exec"
 GIT_EXEC_PATH="${TMP_DIR}/missing-git-exec" bash tools/update_agent_canon.sh plan | tee "${TMP_DIR}/agent-canon-no-subtree-plan.txt"
-grep -q "agent_canon_plan_route=snapshot_import_no_subtree" "${TMP_DIR}/agent-canon-no-subtree-plan.txt"
+grep -Eq "agent_canon_plan_route=(snapshot_import_tree_match|snapshot_import_no_subtree)" "${TMP_DIR}/agent-canon-no-subtree-plan.txt"
 GIT_EXEC_PATH="${TMP_DIR}/missing-git-exec" bash tools/update_agent_canon.sh apply
 test -f vendor/agent-canon/.fresh-clone-agent-canon-no-subtree-marker
 make agent-checks

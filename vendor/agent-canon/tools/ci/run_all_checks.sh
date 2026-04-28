@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+# @dependency-start
+# upstream implementation ../agent_tools/check_dependency_headers.py validates changed-file dependency manifests
+# upstream implementation ../agent_tools/scan_dependency_headers.sh scans changed-file manifest coverage
+# upstream implementation ../agent_tools/check_dependency_header_format.sh validates changed-file manifest syntax
+# upstream implementation ../docs/mirror_skill_shims.py validates skill shim mirrors
+# upstream implementation ../agent_tools/smoke_test_research_perspective_pack.py validates research role packet
+# @dependency-end
 set -euo pipefail
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -104,6 +111,24 @@ if "$PYTHON_BIN" tools/agent_tools/smoke_test_research_perspective_pack.py 2>&1;
   echo "✅ research perspective pack smoke test 成功"
 else
   echo "❌ research perspective pack smoke test 失敗"
+  EXIT_CODE=1
+fi
+if "$PYTHON_BIN" tools/agent_tools/check_dependency_headers.py --changed 2>&1; then
+  echo "✅ dependency header checks 成功"
+else
+  echo "❌ dependency header checks 失敗"
+  EXIT_CODE=1
+fi
+if bash tools/agent_tools/scan_dependency_headers.sh --changed 2>&1; then
+  echo "✅ dependency manifest scan 成功"
+else
+  echo "❌ dependency manifest scan 失敗"
+  EXIT_CODE=1
+fi
+if bash tools/agent_tools/check_dependency_header_format.sh --changed 2>&1; then
+  echo "✅ dependency manifest format checks 成功"
+else
+  echo "❌ dependency manifest format checks 失敗"
   EXIT_CODE=1
 fi
 echo ""

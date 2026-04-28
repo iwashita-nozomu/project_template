@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# @dependency-start
+# upstream design ../README.md shared automation index
+# @dependency-end
+
 """Shared helpers for experiment registry tooling."""
 
 from __future__ import annotations
@@ -17,6 +21,8 @@ DEFAULTS_KEY_ORDER = (
     "report_root",
     "integration_branch",
     "topic_template_dir",
+    "required_eval_artifacts",
+    "optional_eval_artifacts",
 )
 TOPIC_KEY_ORDER = (
     "name",
@@ -29,6 +35,8 @@ TOPIC_KEY_ORDER = (
     "default_variant",
     "smoke_inner_command",
     "formal_inner_command",
+    "required_eval_artifacts",
+    "optional_eval_artifacts",
     "primary_note",
     "active_branch",
     "active_worktree",
@@ -78,6 +86,13 @@ def _serialize_scalar(value: object) -> str:
     raise TypeError(f"unsupported TOML scalar value: {value!r}")
 
 
+def _serialize_value(value: object) -> str:
+    """Serialize one TOML value for the limited registry schema."""
+    if isinstance(value, list):
+        return "[" + ", ".join(_serialize_scalar(item) for item in value) + "]"
+    return _serialize_scalar(value)
+
+
 def _ordered_items(data: dict[str, object], preferred_order: tuple[str, ...]) -> list[tuple[str, object]]:
     """Return dictionary items in deterministic order."""
     ordered: list[tuple[str, object]] = []
@@ -109,7 +124,7 @@ def write_registry(path: Path, registry: dict[str, object]) -> None:
     for key, value in _ordered_items(defaults, DEFAULTS_KEY_ORDER):
         if value is None:
             continue
-        lines.append(f"{key} = {_serialize_scalar(value)}")
+        lines.append(f"{key} = {_serialize_value(value)}")
 
     for topic in topics:
         lines.append("")
@@ -117,6 +132,6 @@ def write_registry(path: Path, registry: dict[str, object]) -> None:
         for key, value in _ordered_items(topic, TOPIC_KEY_ORDER):
             if value is None:
                 continue
-            lines.append(f"{key} = {_serialize_scalar(value)}")
+            lines.append(f"{key} = {_serialize_value(value)}")
 
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
