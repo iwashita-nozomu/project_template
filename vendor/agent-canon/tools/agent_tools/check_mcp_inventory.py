@@ -14,10 +14,11 @@ import argparse
 import json
 import shutil
 import subprocess
-import sys
+import tomllib
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any, cast
 
 
 @dataclass(frozen=True)
@@ -66,34 +67,41 @@ def load_inventory(codex_bin: str) -> list[McpServer]:
         details = result.stderr.strip() or result.stdout.strip() or "no output"
         raise RuntimeError(f"`{codex_bin} mcp list --json` failed: {details}")
     try:
-        raw_servers = json.loads(result.stdout)
+        inventory_data = cast(object, json.loads(result.stdout))
     except json.JSONDecodeError as exc:
         raise RuntimeError(f"`{codex_bin} mcp list --json` returned invalid JSON") from exc
-    if not isinstance(raw_servers, list):
+    if not isinstance(inventory_data, list):
         raise RuntimeError("Codex MCP inventory JSON must be a list")
+    raw_servers = cast(list[object], inventory_data)
 
     servers: list[McpServer] = []
     for raw_server in raw_servers:
         if not isinstance(raw_server, dict):
             continue
-        name = raw_server.get("name")
+        server_data = cast(dict[str, Any], raw_server)
+        name = server_data.get("name")
         if not isinstance(name, str) or not name:
             continue
-        enabled = raw_server.get("enabled")
-        status = raw_server.get("status")
+        enabled = server_data.get("enabled")
+        status = server_data.get("status")
         if not isinstance(status, str):
             status = "enabled" if enabled is True else "disabled" if enabled is False else ""
-        command = raw_server.get("command")
-        raw_args = raw_server.get("args")
-        transport = raw_server.get("transport")
+        command = server_data.get("command")
+        raw_args = server_data.get("args")
+        transport = server_data.get("transport")
         if isinstance(transport, dict):
+            transport_data = cast(dict[str, Any], transport)
             if not isinstance(command, str):
-                transport_command = transport.get("command")
+                transport_command = transport_data.get("command")
                 if isinstance(transport_command, str):
                     command = transport_command
             if not isinstance(raw_args, list):
-                raw_args = transport.get("args")
-        parsed_args = tuple(item for item in raw_args if isinstance(item, str)) if isinstance(raw_args, list) else ()
+                raw_args = transport_data.get("args")
+        parsed_args = (
+            tuple(item for item in cast(list[object], raw_args) if isinstance(item, str))
+            if isinstance(raw_args, list)
+            else ()
+        )
         servers.append(
             McpServer(
                 name=name,
@@ -103,6 +111,22 @@ def load_inventory(codex_bin: str) -> list[McpServer]:
             )
         )
     return servers
+
+
+def load_project_config_server_names(root: Path) -> set[str]:
+    """Return MCP server names declared by the repo-local Codex config."""
+    config_path = root / ".codex" / "config.toml"
+    if not config_path.is_file():
+        return set()
+    try:
+        config = tomllib.loads(config_path.read_text(encoding="utf-8"))
+    except (OSError, tomllib.TOMLDecodeError):
+        return set()
+    servers = cast(object, config.get("mcp_servers"))
+    if not isinstance(servers, dict):
+        return set()
+    server_data = cast(dict[str, object], servers)
+    return {name for name in server_data if name}
 
 
 def launcher_errors(server: McpServer, root: Path) -> list[str]:
@@ -151,8 +175,16 @@ def main() -> int:
     configured_names = {server.name for server in servers}
     missing = sorted(set(args.require) - configured_names)
     if missing:
+        project_config_names = load_project_config_server_names(Path.cwd())
+        ignored_required = sorted(set(missing) & project_config_names)
         print("MCP_INVENTORY=fail")
         print(f"MISSING_MCP_SERVERS={','.join(missing)}")
+        if ignored_required:
+            print("PROJECT_CODEX_CONFIG_DECLARES_MISSING_MCP=yes")
+            print(f"PROJECT_CONFIG_MCP_SERVERS={','.join(sorted(project_config_names))}")
+            print("LIKELY_CAUSE=project_config_not_loaded_or_project_not_trusted")
+            print("NEXT_ACTION=trust_project_or_fix_codex_config_loading_before_work")
+            return 1
         print("NEXT_ACTION=configure_required_mcp_servers_before_work")
         return 1
     required_servers = [server for server in servers if server.name in set(args.require)]
