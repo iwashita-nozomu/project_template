@@ -1,1 +1,0 @@
-../../vendor/agent-canon/documents/tools/TOOLS_DIRECTORY.md
