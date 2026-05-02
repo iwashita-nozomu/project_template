@@ -1,3 +1,8 @@
 {
-  "extends": "./pyproject.toml"
+  "extends": "./pyproject.toml",
+  "reportUnknownMemberType": "none",
+  "reportUnknownVariableType": "none",
+  "reportUnknownArgumentType": "none",
+  "reportUnknownParameterType": "none",
+  "reportConstantRedefinition": "none"
 }

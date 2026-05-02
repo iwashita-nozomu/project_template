@@ -63,7 +63,7 @@ exclude = [
 ]
 
 # ローカルパッケージ解決のため、python を追加します。
-extraPaths = ["./python"]
+extraPaths = ["./python","/usr/local/lib/python3.10/dist-packages"]
 stubPath = "./python/typings"
 
 
