@@ -1,11 +1,13 @@
 """Tests for dependency manifest shell tools."""
 
 # @dependency-start
-# upstream design ../../documents/dependency-manifest-design.md dependency manifest DSL design
-# upstream implementation ../../tools/agent_tools/scan_dependency_headers.sh scans manifest markers
+# responsibility Tests dependency manifest shell tool behavior.
+# upstream design ../../documents/dependency-manifest-design.md manifest design
+# upstream implementation ../../tools/agent_tools/scan_dependency_headers.sh scans
 # upstream implementation ../../tools/agent_tools/check_dependency_header_format.sh format checks
 # upstream implementation ../../tools/agent_tools/check_dependency_graph.sh graph checks
-# upstream implementation ../../tools/agent_tools/run_repo_dependency_review.sh wraps review
+# upstream implementation ../../tools/agent_tools/run_repo_dependency_review.sh wraps
+# upstream implementation ../../tools/agent_tools/scan_code_dependencies.sh scans code
 # @dependency-end
 
 from __future__ import annotations
@@ -20,6 +22,9 @@ SCAN = PROJECT_ROOT / "tools" / "agent_tools" / "scan_dependency_headers.sh"
 FORMAT = PROJECT_ROOT / "tools" / "agent_tools" / "check_dependency_header_format.sh"
 GRAPH = PROJECT_ROOT / "tools" / "agent_tools" / "check_dependency_graph.sh"
 REPO_REVIEW = PROJECT_ROOT / "tools" / "agent_tools" / "run_repo_dependency_review.sh"
+CODE_SCAN = PROJECT_ROOT / "tools" / "agent_tools" / "scan_code_dependencies.sh"
+WORKFLOW_MONITOR = PROJECT_ROOT / "tools" / "agent_tools" / "workflow_monitor.py"
+AGENT_TEAM = PROJECT_ROOT / "tools" / "agent_tools" / "agent_team.py"
 
 
 def run_tool(*args: str, root: Path) -> subprocess.CompletedProcess[str]:
@@ -56,6 +61,57 @@ class DependencyManifestToolTest(unittest.TestCase):
             self.assertIn("MISSING_DEPENDENCY_MANIFEST=doc.md", result.stdout)
             self.assertIn("DEPENDENCY_HEADER_SCAN=fail", result.stdout)
 
+    def test_code_scan_extracts_python_import_edges(self) -> None:
+        """The code dependency scanner resolves local Python imports."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            package = root / "pkg"
+            package.mkdir()
+            (package / "__init__.py").write_text("", encoding="utf-8")
+            (package / "module.py").write_text("VALUE = 1\n", encoding="utf-8")
+            source = package / "consumer.py"
+            source.write_text("from . import module\n", encoding="utf-8")
+
+            result = run_tool(
+                str(CODE_SCAN),
+                "--root",
+                str(root),
+                str(source),
+                root=root,
+            )
+
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn(
+                "CODE_DEPENDENCY\tpython\tfrom-import-symbol\tpkg/consumer.py\tpkg/module.py\t.module",
+                result.stdout,
+            )
+            self.assertIn("CODE_DEPENDENCY_SCAN=pass files=1", result.stdout)
+
+    def test_code_scan_extracts_c_family_local_includes(self) -> None:
+        """The code dependency scanner resolves local C/C++ includes."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            include = root / "include"
+            include.mkdir()
+            header = include / "api.hpp"
+            source = root / "main.cpp"
+            header.write_text("#pragma once\n", encoding="utf-8")
+            source.write_text('#include "include/api.hpp"\n', encoding="utf-8")
+
+            result = run_tool(
+                str(CODE_SCAN),
+                "--root",
+                str(root),
+                str(source),
+                root=root,
+            )
+
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn(
+                "CODE_DEPENDENCY\tc-family\tinclude\tmain.cpp\tinclude/api.hpp\tinclude/api.hpp",
+                result.stdout,
+            )
+
     def test_format_accepts_line_comment_manifest(self) -> None:
         """Line-comment manifests are valid for Python-like files."""
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -67,6 +123,7 @@ class DependencyManifestToolTest(unittest.TestCase):
                 "\n".join(
                     [
                         "# @dependency-start",
+                        "# responsibility Exercises a valid line-comment manifest.",
                         "# upstream implementation target.py target contract",
                         "# @dependency-end",
                         "",
@@ -93,6 +150,7 @@ class DependencyManifestToolTest(unittest.TestCase):
                         "{",
                         '  "_dependency_manifest": [',
                         '    "@dependency-start",',
+                        '    "responsibility Exercises a JSON string manifest.",',
                         '    "upstream implementation target.py target contract",',
                         '    "@dependency-end"',
                         "  ],",
@@ -149,6 +207,26 @@ class DependencyManifestToolTest(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertIn("DEPENDENCY_HEADER_FORMAT=pass", result.stdout)
 
+    def test_format_require_header_skips_agent_run_artifacts(self) -> None:
+        """Run-bundle artifacts are workflow evidence, not product manifest surface."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            report = root / "reports" / "agents" / "run-1" / "verification.txt"
+            report.parent.mkdir(parents=True)
+            report.write_text("status=pass\n", encoding="utf-8")
+
+            result = run_tool(
+                str(FORMAT),
+                "--root",
+                str(root),
+                "--require-header",
+                str(report),
+                root=root,
+            )
+
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("DEPENDENCY_HEADER_FORMAT=pass", result.stdout)
+
     def test_format_rejects_invalid_direction(self) -> None:
         """The format checker rejects unknown directions."""
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -160,6 +238,7 @@ class DependencyManifestToolTest(unittest.TestCase):
                 "\n".join(
                     [
                         "# @dependency-start",
+                        "# responsibility Exercises invalid direction validation.",
                         "# sideways implementation target.py invalid direction",
                         "# @dependency-end",
                         "",
@@ -184,6 +263,7 @@ class DependencyManifestToolTest(unittest.TestCase):
                 "\n".join(
                     [
                         "# @dependency-start",
+                        "# responsibility Defines source a for graph validation.",
                         "# downstream implementation b.py b consumes a",
                         "# @dependency-end",
                         "",
@@ -195,6 +275,7 @@ class DependencyManifestToolTest(unittest.TestCase):
                 "\n".join(
                     [
                         "# @dependency-start",
+                        "# responsibility Defines source b for graph validation.",
                         "# upstream implementation a.py a is consumed by b",
                         "# @dependency-end",
                         "",
@@ -203,7 +284,14 @@ class DependencyManifestToolTest(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            result = run_tool(str(GRAPH), "--root", str(root), str(a), str(b), root=root)
+            result = run_tool(
+                str(GRAPH),
+                "--root",
+                str(root),
+                str(a),
+                str(b),
+                root=root,
+            )
 
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertIn("DEPENDENCY_GRAPH=pass", result.stdout)
@@ -217,6 +305,7 @@ class DependencyManifestToolTest(unittest.TestCase):
                 "\n".join(
                     [
                         "# @dependency-start",
+                        "# responsibility Exercises isolated manifest validation.",
                         "# @dependency-end",
                         "",
                     ]
@@ -240,6 +329,7 @@ class DependencyManifestToolTest(unittest.TestCase):
                 "\n".join(
                     [
                         "# @dependency-start",
+                        "# responsibility Defines source a for reverse validation.",
                         "# downstream implementation b.py b consumes a",
                         "# @dependency-end",
                         "",
@@ -294,17 +384,30 @@ class DependencyManifestToolTest(unittest.TestCase):
                 encoding="utf-8",
             )
 
-            result = run_tool(str(GRAPH), "--root", str(root), str(a), str(b), root=root)
+            result = run_tool(
+                str(GRAPH),
+                "--root",
+                str(root),
+                str(a),
+                str(b),
+                root=root,
+            )
 
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("cycle includes", result.stdout)
             self.assertIn("DEPENDENCY_GRAPH=fail", result.stdout)
 
     def test_repo_review_runs_all_dependency_tools(self) -> None:
-        """The review wrapper applies dependency tools to all tracked checkable files."""
+        """The wrapper applies dependency tools to tracked checkable files."""
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
-            subprocess.run(["git", "init"], cwd=root, check=True, capture_output=True, text=True)
+            subprocess.run(
+                ["git", "init"],
+                cwd=root,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
             tool_dir = root / "tools" / "agent_tools"
             tool_dir.mkdir(parents=True)
             (tool_dir / "scan_dependency_headers.sh").symlink_to(SCAN)
@@ -318,6 +421,7 @@ class DependencyManifestToolTest(unittest.TestCase):
                         "# Target",
                         "<!--",
                         "@dependency-start",
+                        "responsibility Defines target test fixture context.",
                         "downstream design source.md source reads target",
                         "@dependency-end",
                         "-->",
@@ -332,6 +436,7 @@ class DependencyManifestToolTest(unittest.TestCase):
                         "# Source",
                         "<!--",
                         "@dependency-start",
+                        "responsibility Defines source test fixture context.",
                         "upstream design target.md target context",
                         "@dependency-end",
                         "-->",
@@ -354,11 +459,93 @@ class DependencyManifestToolTest(unittest.TestCase):
             self.assertIn("REPO_DEPENDENCY_REVIEW_PATHS=2", result.stdout)
             self.assertIn("REPO_DEPENDENCY_REVIEW=pass", result.stdout)
 
-    def test_repo_review_reports_missing_manifests_without_failing_by_default(self) -> None:
+    def test_repo_review_records_monitoring_when_report_dir_is_given(self) -> None:
+        """The review wrapper records monitoring evidence when directed to a run."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            subprocess.run(
+                ["git", "init"],
+                cwd=root,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            tool_dir = root / "tools" / "agent_tools"
+            tool_dir.mkdir(parents=True)
+            (tool_dir / "scan_dependency_headers.sh").symlink_to(SCAN)
+            (tool_dir / "check_dependency_header_format.sh").symlink_to(FORMAT)
+            (tool_dir / "check_dependency_graph.sh").symlink_to(GRAPH)
+            (tool_dir / "workflow_monitor.py").symlink_to(WORKFLOW_MONITOR)
+            (tool_dir / "agent_team.py").symlink_to(AGENT_TEAM)
+            target = root / "target.md"
+            source = root / "source.md"
+            target.write_text(
+                "\n".join(
+                    [
+                        "# Target",
+                        "<!--",
+                        "@dependency-start",
+                        "responsibility Defines target test fixture context.",
+                        "downstream design source.md source reads target",
+                        "@dependency-end",
+                        "-->",
+                        "",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            source.write_text(
+                "\n".join(
+                    [
+                        "# Source",
+                        "<!--",
+                        "@dependency-start",
+                        "responsibility Defines source test fixture context.",
+                        "upstream design target.md target context",
+                        "@dependency-end",
+                        "-->",
+                        "",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+            subprocess.run(
+                ["git", "add", "target.md", "source.md"],
+                cwd=root,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            report_dir = root / "reports" / "agents" / "run-3"
+
+            result = run_tool(
+                str(REPO_REVIEW),
+                "--root",
+                str(root),
+                "--report-dir",
+                str(report_dir),
+                root=root,
+            )
+
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            text = (report_dir / "workflow_monitoring.md").read_text(encoding="utf-8")
+            self.assertIn("repo_dependency_review=pass", text)
+            self.assertIn(
+                "run_repo_dependency_review.sh recorded dependency review pass",
+                text,
+            )
+
+    def test_repo_review_reports_missing_manifests_by_default(self) -> None:
         """The repo-wide wrapper keeps missing headers report-only during migration."""
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
-            subprocess.run(["git", "init"], cwd=root, check=True, capture_output=True, text=True)
+            subprocess.run(
+                ["git", "init"],
+                cwd=root,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
             tool_dir = root / "tools" / "agent_tools"
             tool_dir.mkdir(parents=True)
             (tool_dir / "scan_dependency_headers.sh").symlink_to(SCAN)
@@ -385,7 +572,13 @@ class DependencyManifestToolTest(unittest.TestCase):
         """Strict mode fails when tracked checkable files lack manifests."""
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
-            subprocess.run(["git", "init"], cwd=root, check=True, capture_output=True, text=True)
+            subprocess.run(
+                ["git", "init"],
+                cwd=root,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
             tool_dir = root / "tools" / "agent_tools"
             tool_dir.mkdir(parents=True)
             (tool_dir / "scan_dependency_headers.sh").symlink_to(SCAN)
@@ -401,7 +594,13 @@ class DependencyManifestToolTest(unittest.TestCase):
                 text=True,
             )
 
-            result = run_tool(str(REPO_REVIEW), "--root", str(root), "--fail-missing", root=root)
+            result = run_tool(
+                str(REPO_REVIEW),
+                "--root",
+                str(root),
+                "--fail-missing",
+                root=root,
+            )
 
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("MISSING_DEPENDENCY_MANIFEST=source.md", result.stdout)

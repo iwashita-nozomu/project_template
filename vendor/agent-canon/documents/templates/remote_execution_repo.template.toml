@@ -1,11 +1,12 @@
 # @dependency-start
+# responsibility Provides the remote execution repo.template configuration template.
 # upstream design ../SHARED_RUNTIME_SURFACES.md root documents mirror is canon-owned
 # @dependency-end
 
 [repository]
-id = "project-template"
-label = "project-template"
-clone_url = "git@github.com:example/project-template.git"
+id = "seeded-project"
+label = "Seeded Project"
+clone_url = "git@github.com:example/seeded-project.git"
 default_branch = "main"
 default_runtime_profile = "default"
 artifact_root = "reports/remote-execution"

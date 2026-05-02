@@ -1,5 +1,6 @@
 <!--
 @dependency-start
+responsibility Documents Agent Task Workflows for this repository.
 upstream design README.md agent canon overview
 upstream implementation task_catalog.yaml workflow family defaults
 upstream design canonical/CODEX_SUBAGENTS.md subagent role contract
@@ -61,6 +62,7 @@ stage ごとの具体的な禁止事項は prose ではなく `.codex/agents/*.t
 - README、workflow、guide、migration 文書のような長文では `long-form-writing` を追加し、別 reviewer で docs completeness review も通します
 - 学術文章では `academic-writing` を追加し、`notation_definition_reviewer`、`logic_gap_reviewer`、docs completeness review を別 reviewer で通します
 - 論文や thesis chapter では `paper-writing` を追加し、`citation_evidence_reviewer` も別 reviewer で通します
+- 原因考察、修正箇所選定、複数候補比較が必要な task では `agents/workflows/hypothesis-validation-workflow.md` を overlay とし、code dependency scan と header dependency graph を別々に取得してから仮説、反証条件、fix surface 妥当性を固定します
 - `詳細設計` の目標は、実装前提が十分に伝わる文書を起こすことです
 - 詳細設計には `Implementation Source Packet` と `Design-To-Implementation Trace` を必ず含め、worker が読む artifact、repo docs、dependency/library survey、code path、test plan、request clause ID を固定します
 - 実装では会話文脈や記憶より承認済み design packet を優先し、各 implementation slice で design artifact path、section、test plan item、request clause ID を引用します
@@ -69,6 +71,9 @@ stage ごとの具体的な禁止事項は prose ではなく `.codex/agents/*.t
 - 既存実装や導入済みライブラリで足りない理由、extend ではなく新規追加が必要な理由を詳細設計に書かずに実装へ進みません
 - rate-limit pressure が強い場合は、design trace、naming、test plan、write scope が固定済みの狭い実装sliceだけ `spark_worker` へ移します
 - `spark_worker` は設計判断、scope判断、review判断には使いません
+- user が `/goal <objective>` または goal-driven task を指定した場合は `agents/workflows/codex-goals-workflow.md` を overlay とし、`/goal` 設定後に `/plan <goal-driven task summary>` へ入ります。Plan-mode output が `Goal Contract`、`Exit Criteria Mapping`、`Source Packet`、`Reuse Survey`、`Execution Slices`、`Budget Policy` を固定するまで実装へ進みません
+- token 消費を抑える必要がある場合は `agents/workflows/token-efficient-codex-workflow.md` を overlay とし、parent profile (`token-lite` / `token-standard` / `token-deep`) と agent mode (`parent-direct` / `scout-only` / `spark-slice` / `full-stage` / `deep-review`) を先に決めます
+- token 節約は context loading と fan-out の制御であり、required review、dependency analysis、validation、closeout gate を省略する理由にはなりません
 - 要件整理では、今回 request、過去ログ由来の durable preference、repo/code precedent、domain/external constraint、unknown/open question を source bucket として分けます
 - 要件整理では、ユーザーへ戻す前に notes、guardrails、documents、prior logs、local code / tests で解決できる unknown を解決し、根拠を `Resolved From Accumulated Context` に残します
 - 要件レビューでは、active clause に `unknown_or_open_question` が残っていないことと、解決可能な unknown を放置していないことを `manager_reviewer` が確認します
@@ -83,6 +88,7 @@ stage ごとの具体的な禁止事項は prose ではなく `.codex/agents/*.t
 - branch 側で file 構成変更をした pass は、closeout 前に `agents/workflows/main-integration-workflow.md` の integration step まで設計します
 - 構成変更を含む統合では、専用 integration worktree と `tools/ci/check_merge_structure.py` を省略しません
 - tuning や探索の outer loop は waterfall に押し込まず、`Adaptive Improvement Loop` で backlog-driven に回します
+- 考察系 overlay では、仮説なし、反証条件なし、fix surface 妥当性なしで実装へ進みません
 - `/mnt/git` 配下の log 由来 guardrail は `notes/guardrails/engineering_avoidances.md` を正本にします
 - specialized path の tuning だけで generic path の usable smoke を満たした扱いにしません
 - spot run、debug run、smoke run、partial run は正式な comparison evidence や method 採否の根拠にしません
@@ -198,6 +204,9 @@ spawn budget ルール:
 - `Research-Driven Change` / `Comprehensive Development` / `Adaptive Improvement Loop` は同時 12 体までを既定にします
 - budget 超過は例外扱いにし、`schedule.md` の stage plan と `work_log.md` に理由を書きます
 - budget を増やしても write-capable subagent は同時 1 体までです
+- 新規 user request では前 task の subagent を使い回さず、新しい run bundle と fresh subagent を起こします
+- 前 task の subagent へ `send_input` して新規 task を継続させません。必要な文脈は `team_manifest.yaml`、packet path、review artifact に残して渡します
+- closeout 前に run-local subagent を閉じ、`closeout_gate.md` の `subagents_closed=yes` と `Subagent Lifecycle Evidence` を揃えます
 
 concurrent spawn budget:
 - global runtime cap は `.codex/config.toml` の `max_threads = 24`
@@ -277,6 +286,7 @@ concurrent spawn budget:
 - refactor pass では feature 追加を同じ pass に混ぜません
 - refactor pass では `refactor_safety_case.md` を起こし、挙動保存契約、削除対象、path mapping、merge structure check を先に固定します
 - refactor pass では `project_reviewer` と `docs_workflow_steward` を default specialist にし、cross-module drift と stale route を落とします
+- 大規模 repo の包括 refactor では `agents/workflows/comprehensive-refactoring-workflow.md` を overlay とし、設計見直し、OOP 的な最小実装方針、必要な静的解析 score gate を先に固定します
 
 ### 4. Platform And Environment
 
@@ -328,6 +338,7 @@ concurrent spawn budget:
 - 背骨は共通実装フローと `agents/workflows/implementation-waterfall-workflow.md` の gate をそのまま使う
 - task を docs / tools / runtime / implementation に分解しても、requirements、plan、design は 1 つの umbrella pass で閉じる
 - `project_reviewer` を intake と closeout の両方で使い、repo-wide completeness と integration risk を確認する
+- 包括 refactor を含む場合は `agents/workflows/comprehensive-refactoring-workflow.md` を overlay とし、解析 baseline、target score、OOP boundary、Path Mapping、Deletion Plan を design artifact に入れる
 - `docs_workflow_steward` は canon docs、workflow docs、entrypoint wrapper の整理に限定して使う
 - `python_reviewer` と `cpp_reviewer` は言語差分に応じて implementation chunk review と final integration review に追加する
 - `test_designer` は実装前に static path、failure mode、nasty edge case を洗い、worker が既存 test style で落とし込む

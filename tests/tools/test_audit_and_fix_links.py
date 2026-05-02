@@ -1,3 +1,8 @@
+# @dependency-start
+# responsibility Tests test audit and fix links behavior.
+# upstream implementation ../../tools/docs/audit_and_fix_links.py link audit helper under test
+# upstream design ../../documents/TROUBLESHOOTING.md documentation maintenance guidance
+# @dependency-end
 """Tests for the markdown link audit helper."""
 
 from __future__ import annotations
@@ -66,8 +71,8 @@ class AuditAndFixLinksTest(unittest.TestCase):
             self.assertEqual(check_result.returncode, 0, check_result.stdout)
             self.assertIn("unresolved: 0", check_result.stdout)
 
-    def test_check_accepts_workspace_absolute_links(self) -> None:
-        """Check mode should accept workspace-specific absolute links."""
+    def test_workspace_absolute_links_become_pending_relative_fixes(self) -> None:
+        """Workspace absolute links should be rewritten to portable relative links."""
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir)
             absolute_readme = f"/tmp/workspace/{root.name}/README.md"
@@ -77,10 +82,15 @@ class AuditAndFixLinksTest(unittest.TestCase):
                 f"# Guide\n\n[root]({absolute_readme})\n",
             )
 
-            result = self.run_cli(root, "--check", "agents")
+            check_result = self.run_cli(root, "--check", "agents")
+            self.assertEqual(check_result.returncode, 1, check_result.stdout)
+            self.assertIn("pending_fixes: 1", check_result.stdout)
 
-            self.assertEqual(result.returncode, 0, result.stdout)
-            self.assertIn("unresolved: 0", result.stdout)
+            apply_result = self.run_cli(root, "--apply", "agents")
+            self.assertEqual(apply_result.returncode, 0, apply_result.stderr)
+
+            rewritten = (root / "agents" / "guide.md").read_text(encoding="utf-8")
+            self.assertIn("[root](../README.md)", rewritten)
 
 
 if __name__ == "__main__":

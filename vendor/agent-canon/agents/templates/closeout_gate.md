@@ -2,6 +2,7 @@
 
 <!--
 @dependency-start
+responsibility Documents Closeout Gate for this repository.
 upstream design ../canonical/CODEX_WORKFLOW.md closeout workflow contract
 downstream implementation ../../tools/agent_tools/task_close.py enforces closeout keys
 downstream design workflow_monitoring.md records in-workflow monitoring and self-improvement decisions
@@ -30,6 +31,7 @@ downstream design ../../documents/dependency-manifest-design.md defines dependen
 - review_findings_integrated: no
 - post_fix_full_review_complete: no
 - mechanical_completion_loop_complete: no
+- subagents_closed: no
 - diff_check_agent_complete: no
 - canonical_tree_head_complete: no
 - agent_evaluation_complete: no
@@ -56,6 +58,7 @@ downstream design ../../documents/dependency-manifest-design.md defines dependen
 - review_findings_integrated: yes
 - post_fix_full_review_complete: yes
 - mechanical_completion_loop_complete: yes
+- subagents_closed: yes
 - diff_check_agent_complete: yes
 - canonical_tree_head_complete: yes
 - agent_evaluation_complete: yes
@@ -106,6 +109,17 @@ downstream design ../../documents/dependency-manifest-design.md defines dependen
 - mechanical_loop_canon_sync_status:
 - mechanical_loop_follow_up_status:
 
+## Subagent Lifecycle Evidence
+
+<!-- Record run-local subagent lifecycle evidence before user-facing completion. New user requests must use fresh subagents, not send_input to agents created for prior tasks. Stage-wave agents that are no longer needed must be closed before closeout. `reuse_for_new_task` records policy and must be `forbidden`; `previous_task_subagent_reuse` records observed compliance and must be `none`. This section is intentionally about run-local subagents; if a task is trivial and used no subagents, record close_agent_evidence as parent_direct_no_subagents plus the run-bundle reason. -->
+
+- fresh_subagents_required:
+- reuse_for_new_task:
+- previous_task_subagent_reuse:
+- subagent_closeout_status:
+- open_subagent_instances:
+- close_agent_evidence:
+
 ## Diff-Check Agent Evidence
 
 <!-- Record the read-only diff-check agent instance, input packet paths, latest diff range or commit, decision, findings disposition, and rerun evidence after any fix. Parent self-review is not sufficient for this field. -->
@@ -123,7 +137,7 @@ downstream design ../../documents/dependency-manifest-design.md defines dependen
 
 ## Agent Evaluation Evidence
 
-<!-- Run tools/agent_tools/evaluate_agent_run.py --report-dir <this-run> --write and record the resulting agent_evaluation.md status, score, feedback actions, and learning capture decision. Do not unlock completion while evaluation_status is not pass or feedback_actions_resolved is not yes. The evaluation must include workflow_monitoring.md evidence for active signals, interventions, and skill/config/workflow/memory improvement decisions. -->
+<!-- Run tools/agent_tools/evaluate_agent_run.py --report-dir <this-run> --behavior-manifest agents/evals/agent_behavior_eval.toml --write and record the resulting agent_evaluation.md status, score, feedback actions, and learning capture decision. Do not unlock completion while evaluation_status is not pass or feedback_actions_resolved is not yes. The evaluation must include workflow_monitoring.md evidence for active signals, Behavior Events, interventions, and skill/config/workflow/memory improvement decisions. -->
 
 ## Evidence
 

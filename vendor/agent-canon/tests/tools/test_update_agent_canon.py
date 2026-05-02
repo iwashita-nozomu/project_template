@@ -1,4 +1,5 @@
 # @dependency-start
+# responsibility Tests test update agent canon behavior.
 # upstream design ../../tools/README.md validated automation surface
 # @dependency-end
 
@@ -16,10 +17,15 @@ from pathlib import Path
 
 def resolve_repo_root() -> Path:
     """Return the repository root for both vendored and mirrored test paths."""
+    git_root = None
     for candidate in Path(__file__).resolve().parents:
-        if (candidate / ".git").exists() and (candidate / "vendor" / "agent-canon").exists():
-            return candidate
-    raise RuntimeError("repository root not found")
+        if (candidate / ".git").exists():
+            git_root = candidate
+            if (candidate / "vendor" / "agent-canon").exists():
+                return candidate
+    if git_root is not None:
+        raise unittest.SkipTest("derived-repo agent-canon wrapper tests require vendor/agent-canon")
+    raise RuntimeError("git repository root not found")
 
 
 REPO_ROOT = resolve_repo_root()
@@ -137,6 +143,37 @@ class UpdateAgentCanonTest(unittest.TestCase):
                 shutil.copytree(child, destination, symlinks=True)
             else:
                 shutil.copy2(child, destination, follow_symlinks=False)
+
+    def test_link_root_converts_shared_goal_symlink_to_repo_local_file(self) -> None:
+        """goal.md is repo-local state and must not be a shared canon symlink."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            clone_dir = root / "clone"
+            self.clone_repo(clone_dir)
+            goal_path = clone_dir / "goal.md"
+            if goal_path.exists() or goal_path.is_symlink():
+                goal_path.unlink()
+            os.symlink("vendor/agent-canon/goal.md", goal_path)
+
+            result = subprocess.run(
+                ["bash", "tools/sync_agent_canon.sh", "link-root"],
+                cwd=clone_dir,
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            check = subprocess.run(
+                ["bash", "tools/sync_agent_canon.sh", "check"],
+                cwd=clone_dir,
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertFalse(goal_path.is_symlink())
+            self.assertIn("repo-local goal", goal_path.read_text(encoding="utf-8"))
+            self.assertEqual(check.returncode, 0, check.stderr)
 
     def test_register_local_bare_seeds_remote_and_plan_uses_configured_remote(self) -> None:
         """Register-local-bare should seed the bare repo and wire the remote."""

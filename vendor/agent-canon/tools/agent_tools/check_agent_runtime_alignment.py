@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # @dependency-start
+# responsibility Checks agent runtime alignment agent workflow state.
 # upstream design ../README.md shared automation index
 # @dependency-end
 
@@ -27,12 +28,11 @@ from agent_team import (
     load_team_config,
     required_output_templates_missing,
     resolve_cross_cutting_document_packet,
-    resolve_role_document_packet,
     resolve_role,
+    resolve_role_document_packet,
     task_ids,
     workflow_spawn_budget,
 )
-
 
 CODEX_AGENT_ROOT = ROOT / ".codex" / "agents"
 SKILL_SHIM_ROOT = ROOT / ".agents" / "skills"
@@ -51,6 +51,7 @@ WRITING_AND_REVIEW_ROLE_IDS = {
     "citation_evidence_reviewer",
     "notation_definition_reviewer",
     "logic_gap_reviewer",
+    "oop_readability_reviewer",
     "reviewer",
     "project_reviewer",
     "report_reviewer",
@@ -389,6 +390,15 @@ def validate_bundle_outputs() -> None:
             ensure(
                 "subagent_prompt_packet:" in manifest_text,
                 f"task {task_id} manifest missing subagent_prompt_packet",
+            )
+            ensure(
+                "subagent_lifecycle_policy:" in manifest_text,
+                f"task {task_id} manifest missing subagent_lifecycle_policy",
+            )
+            ensure(
+                "fresh_subagents_required: true" in manifest_text
+                and "reuse_for_new_task: forbidden" in manifest_text,
+                f"task {task_id} manifest missing fresh subagent lifecycle policy",
             )
             ensure(
                 "prompt_contract:" in manifest_text,

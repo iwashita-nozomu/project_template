@@ -2,6 +2,7 @@
 
 <!--
 @dependency-start
+responsibility Defines the repository-wide dependency manifest DSL and validation model.
 upstream design ../agents/canonical/CODEX_WORKFLOW.md dependency header workflow requirement
 upstream design ../agents/templates/closeout_gate.md closeout dependency evidence requirement
 downstream implementation ../tools/agent_tools/check_dependency_headers.py validates changed-file manifests
@@ -9,6 +10,7 @@ downstream implementation ../tools/agent_tools/scan_dependency_headers.sh scans 
 downstream implementation ../tools/agent_tools/check_dependency_header_format.sh validates manifest syntax
 downstream implementation ../tools/agent_tools/check_dependency_graph.sh validates manifest graph semantics
 downstream implementation ../tools/agent_tools/run_repo_dependency_review.sh wraps repo-wide dependency review
+downstream implementation ../tools/agent_tools/scan_code_dependencies.sh extracts code dependency evidence separately
 downstream implementation ../tests/agent_tools/test_check_dependency_headers.py verifies manifest checker
 downstream implementation ../tests/agent_tools/test_dependency_manifest_tools.py verifies manifest shell tools
 @dependency-end
@@ -44,11 +46,24 @@ downstream implementation ../tests/agent_tools/test_dependency_manifest_tools.py
 
 ```text
 @dependency-start
+responsibility Documents this file's role so agents can identify why it exists.
 upstream design ../agents/canonical/CODEX_WORKFLOW.md workflow contract
 upstream implementation ../tools/agent_tools/bootstrap_agent_run.py consumes workflow metadata
 downstream implementation ../tests/agent_tools/test_task_start_and_close.py verifies emitted output
 @dependency-end
 ```
+
+manifest block には file の責務を 1 line で書きます。
+文法は次です。
+
+```text
+responsibility <role statement...>
+```
+
+- `responsibility` は file が repo 内で担う役割を 1 文で表します
+- dependency edge ではないため graph edge にはなりません
+- すべての manifest block にちょうど 1 行だけ置きます
+- agent は file を読む前に、この行で「なぜこの file が存在するか」を把握します
 
 1 dependency は 1 line で表します。
 文法は次です。
@@ -94,6 +109,7 @@ Markdown:
 <!--
 @dependency-start
 upstream design ../agents/canonical/CODEX_WORKFLOW.md workflow contract
+responsibility Provides a Python helper entrypoint for agent run bootstrap.
 downstream implementation ../tools/agent_tools/bootstrap_agent_run.py consumes workflow contract
 @dependency-end
 -->
@@ -103,6 +119,7 @@ Python / shell / TOML:
 
 ```python
 # @dependency-start
+# responsibility Implements one repository tool or runtime helper.
 # upstream implementation ../tools/agent_tools/agent_team.py imports helper contract
 # downstream implementation ../tests/agent_tools/test_task_start_and_close.py verifies CLI behavior
 # @dependency-end
@@ -113,6 +130,7 @@ C-like languages:
 ```c
 /*
 @dependency-start
+responsibility Defines a C or C++ source/header surface and its edit context.
 upstream design ../include/public_api.h public API contract
 downstream implementation ../tests/test_public_api.cpp validates API behavior
 @dependency-end
@@ -192,6 +210,21 @@ Example: A `upstream` B plus B `upstream` A is an upstream cycle and should fail
 Tools are Bash-first.
 Python is not required for the first implementation because the DSL is line-oriented.
 
+Code dependency extraction is deliberately separate from dependency manifest validation.
+`scan_code_dependencies.sh` reads language syntax such as Python imports, local C/C++ includes, and shell source statements.
+The manifest tools read only `@dependency-start` / `@dependency-end` blocks.
+Do not combine these outputs into one graph: code dependency evidence answers "what does this code reference", while header dependency evidence answers "which design, implementation, environment, and test context must be read".
+
+### `scan_code_dependencies.sh`
+
+Responsibilities:
+
+- extract best-effort code edges from import / include / source statements
+- keep output independent from manifest upstream/downstream edges
+- support explicit path lists and `--changed`
+- provide pre-edit evidence for `agents/workflows/hypothesis-validation-workflow.md`
+- remain Bash-first and lightweight; deeper language-specific precision can be added later without changing the header manifest DSL
+
 ### `scan_dependency_headers.sh`
 
 Responsibilities:
@@ -209,6 +242,7 @@ Responsibilities:
 - validate marker count and marker order
 - validate placement near the top of the file
 - strip common comment prefixes
+- validate each manifest has exactly one non-empty `responsibility` line
 - validate each dependency line has direction, kind, relative path, and reason
 - validate direction and kind enum values
 - validate path is relative

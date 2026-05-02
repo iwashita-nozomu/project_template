@@ -1,6 +1,7 @@
 # User Preferences
 <!--
 @dependency-start
+responsibility Documents User Preferences for this repository.
 upstream design README.md memory surface index
 @dependency-end
 -->
@@ -117,6 +118,18 @@ upstream design README.md memory surface index
   - source: chat
 
 - 2026-04-24 | Do not return a user-facing completion report while any task, planned work unit, required validation, commit/push, canon sync, or closeout gate remains unfinished; return only after everything in scope is complete.
+  - source: chat
+
+- 2026-04-28 | 数式文書では『導入しない』『残さない』などの自明な否定説明を避け、式の導出と必要な定義だけで書く。
+  - source: chat
+
+- 2026-04-29 | ファイルや path の欠落を見つけたときは、再作成や欠落判定の前に template root と shared agent-canon を確認してほしい。
+  - source: chat
+
+- 2026-05-01 | ファイル横断実装では自前実装を最後の手段にし、既存 helper/tool/workflow/fixture の再利用・拡張を優先する。新規追加時は Reuse Survey と既存では足りない理由を残す。
+  - source: chat
+
+- 2026-04-18 | 外部から受領した Excel などの source artifact は tracked datafiles ではなく rootdata に置き、final 成果物は code で再生成する前提にする。
   - source: chat
 
 ## Promotion Candidates

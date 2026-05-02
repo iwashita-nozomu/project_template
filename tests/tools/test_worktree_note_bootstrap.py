@@ -91,7 +91,10 @@ def test_bootstrap_worktree_notes_and_append_log(tmp_path: Path) -> None:
         text=True,
     )
     assert bootstrap.returncode == 0, bootstrap.stderr
-    match = re.search(r"ACTION_LOG=(notes/worktrees/worktree_work-demo_\d{4}-\d{2}-\d{2}\.md)", bootstrap.stdout)
+    match = re.search(
+        r"ACTION_LOG=(notes/worktrees/worktree_work-demo_\d{4}-\d{2}-\d{2}\.md)",
+        bootstrap.stdout,
+    )
     assert match is not None, bootstrap.stdout
 
     action_log_rel = match.group(1)

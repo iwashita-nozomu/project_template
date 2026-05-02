@@ -2,14 +2,20 @@
 
 <!--
 @dependency-start
+responsibility Documents Shared Runtime Surfaces for this repository.
 upstream design ../tools/sync_agent_canon.sh shared surface link specification
 upstream design ./agent-canon-subtree-migration.md subtree ownership model
 downstream implementation ../tools/sync_agent_canon.sh enforces this surface list
+downstream design ./algorithm-implementation-boundary.md listed shared algorithm boundary policy surface
+downstream design ./object-oriented-design.md listed shared coding policy surface
 @dependency-end
 -->
 
 この文書は、`vendor/agent-canon/` を source of truth とする runtime surface をまとめます。
 template root と派生 repo root では同じ path を使い続けますが、shared canon の正本は vendor 側にあります。
+`goal.md` は repo 固有の実行状態なので shared runtime surface ではありません。
+root `goal.md` を `vendor/agent-canon/goal.md` へ symlink してはいけません。
+`tools/sync_agent_canon.sh link-root` は既存の shared `goal.md` symlink を repo-local placeholder に変換します。
 
 ## Surface Types
 
@@ -33,6 +39,8 @@ root では次を symlink view として扱います。
 - `documents/DOCSTRING_GUIDE.md`
 - `documents/FILE_CHECKLIST_OPERATIONS.md`
 - `documents/README.md`
+- `documents/algorithm-implementation-boundary.md`
+- `documents/object-oriented-design.md`
 - `documents/dependency-manifest-design.md`
 - `documents/notes-lifecycle.md`
 - `documents/REVIEW_PROCESS.md`
@@ -114,6 +122,7 @@ root では次を symlink view として扱います。
 - `notes/worktrees/WORKTREE_LOG_TEMPLATE.md`
 - `tests/agent_tools/__init__.py`
 - `tests/agent_tools/test_check_agent_runtime_alignment.py`
+- `tests/agent_tools/test_analyze_refactor_surface.py`
 - `tests/agent_tools/test_check_mcp_inventory.py`
 - `tests/agent_tools/test_work_log.py`
 - `tests/agent_tools/test_smoke_test_research_perspective_pack.py`
@@ -136,6 +145,9 @@ root では次を symlink view として扱います。
 - root 側の symlink view や copy surface を直接編集しません
 - root copy が drift したら `bash tools/sync_agent_canon.sh link-root` で復元します
 - drift を確認したいときは `bash tools/sync_agent_canon.sh check` を使います
+- root 側で shared surface の file / directory 欠落を見つけたときは、再作成前に template root、`vendor/agent-canon/`、standalone `agent-canon`、この surface list、`tools/sync_agent_canon.sh` の順で確認します
+- 欠落が broken symlink、root copy drift、surface list 漏れ、canon 側 rename、意図的削除のどれかを分類してから、`link-root`、vendor update、surface list update、または削除 follow-up に進みます
+- template と canon の両方で欠落している path だけを repo-local 新規 file 候補にします
 
 ## Validation
 

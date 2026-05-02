@@ -1,6 +1,8 @@
 <!--
 @dependency-start
+responsibility Documents Protocol 設計 for this repository.
 upstream design ../SHARED_RUNTIME_SURFACES.md root documents mirror is canon-owned
+downstream design ../object-oriented-design.md consumes Protocol boundary rules
 @dependency-end
 -->
 

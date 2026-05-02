@@ -1,6 +1,7 @@
 # Workflow Guide
 <!--
 @dependency-start
+responsibility Documents Workflow Guide for this repository.
 upstream design ../TASK_WORKFLOWS.md workflow routing contract
 @dependency-end
 -->
@@ -13,7 +14,12 @@ repo 利用者も `agent-canon` maintainer も、まずここで「今回どの 
 - まず 1 つの primary workflow を選びます。
 - 長文、学術文書、paper のように文書種別が強い task では overlay workflow を追加します。
 - shared canon maintenance や `main` 統合のような特殊操作だけ、maintenance workflow を追加します。
+- 大規模 refactor では `comprehensive-refactoring-workflow.md` を overlay として追加し、設計見直し、OOP 境界、解析 score gate を固定します。
+- 考察、原因仮説、修正箇所の妥当性検証が必要な task では `hypothesis-validation-workflow.md` を overlay として追加し、code dependency と header dependency を別々に抜いてから実装へ進みます。
 - workflow family の選択は `agents/TASK_WORKFLOWS.md`、Codex の標準実行順は `agents/canonical/CODEX_WORKFLOW.md` を正本にします。
+- Codex `goals` feature を使う task では `codex-goals-workflow.md` を overlay とし、`goal.md` を durable source of truth、Codex goals を session view、MCP `goal.loop_status` を機械 gate として扱います。
+- user が `/goal <objective>` を指定した task では、同 overlay の Goal-Specified Plan-Mode Entry に従い、`/goal` 設定後に `/plan` で Goal Contract、Exit Criteria Mapping、Source Packet、Reuse Survey、Execution Slices、Budget Policy を固定してから実装します。
+- token 消費を抑えたい task では `token-efficient-codex-workflow.md` を overlay とし、parent profile、subagent mode、context budget、escalation trigger を先に決めます。
 
 ## Quick Routing
 
@@ -27,9 +33,17 @@ repo 利用者も `agent-canon` maintainer も、まずここで「今回どの 
   - `agents/workflows/experiment-workflow.md`
 - tuning、比較改善、探索的改造を backlog 付きで反復する
   - `agents/workflows/adaptive-improvement-workflow.md`
+- 大規模 repo の包括 refactor、OOP boundary 再設計、解析 score gate
+  - `agents/workflows/comprehensive-refactoring-workflow.md`
 
 ### Overlay Workflow
 
+- 原因考察、仮説、修正箇所の妥当性検証を実装前に固定する
+  - `agents/workflows/hypothesis-validation-workflow.md`
+- Codex `goals` feature と repo-owned `goal.md` を同期して使う
+  - `agents/workflows/codex-goals-workflow.md`
+- token 消費を抑えつつ必要な gate を維持する
+  - `agents/workflows/token-efficient-codex-workflow.md`
 - README、guide、workflow、migration 文書のような長文
   - `agents/workflows/long-form-writing-workflow.md`
 - 論文、thesis chapter、scholarly note、claim-heavy document
@@ -65,6 +79,14 @@ repo 利用者も `agent-canon` maintainer も、まずここで「今回どの 
   - repo に持ち帰る change 全般の共通実装パス
 - `main-integration-workflow.md`
   - file 構成変更を含む branch を `main` に戻す手順
+- `comprehensive-refactoring-workflow.md`
+  - 大規模 refactor の設計見直し、OOP 的な最小実装方針、静的解析 score gate
+- `hypothesis-validation-workflow.md`
+  - code dependency と header dependency を別々に抽出し、仮説と修正箇所妥当性を検証してから実装する overlay
+- `codex-goals-workflow.md`
+  - Codex goals feature、top-level `goal.md`、Plan-mode entry、MCP `goal.loop_status` の責務境界と同期手順
+- `token-efficient-codex-workflow.md`
+  - Codex parent profile、agent mode、context budget、token-saving escalation trigger
 
 ### Research And Experiment
 

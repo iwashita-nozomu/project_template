@@ -1,6 +1,7 @@
 """Tests for Codex project-local hook wiring."""
 
 # @dependency-start
+# responsibility Tests test codex hooks behavior.
 # upstream implementation ../../.codex/config.toml enables codex_hooks
 # upstream implementation ../../.codex/hooks.json declares MCP context hooks
 # upstream implementation ../../.codex/hooks/mcp_session_context.sh emits hook JSON
@@ -58,3 +59,9 @@ class CodexHooksTest(unittest.TestCase):
         self.assertEqual(hook_output["hookEventName"], "SessionStart")
         self.assertIn("repo_mcp_server", hook_output["additionalContext"])
         self.assertIn("check_mcp_inventory.py", hook_output["additionalContext"])
+        self.assertIn("even when the user did not mention MCP", hook_output["additionalContext"])
+        self.assertIn("prefer repo MCP tools", hook_output["additionalContext"])
+        self.assertIn("goal.loop_status", hook_output["additionalContext"])
+        self.assertIn("NEXT_ACTION=run_next_iteration", hook_output["additionalContext"])
+        self.assertIn("context/loop-status only", hook_output["additionalContext"])
+        self.assertIn("do not repeat that limitation", hook_output["additionalContext"])

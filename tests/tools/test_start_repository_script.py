@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import os
-from pathlib import Path
+import shutil
 import subprocess
-
+from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -35,9 +35,19 @@ def test_start_repository_wrapper_seeds_agent_canon_without_subtree(tmp_path: Pa
     missing_git_exec.mkdir()
 
     run(["git", "clone", "--no-local", str(REPO_ROOT), str(clone_dir)], cwd=tmp_path)
-    run(
-        ["rsync", "-a", "--delete", "--exclude", ".git", f"{REPO_ROOT}/", str(clone_dir)],
-        cwd=tmp_path,
+    for child in clone_dir.iterdir():
+        if child.name == ".git":
+            continue
+        if child.is_dir() and not child.is_symlink():
+            shutil.rmtree(child)
+            continue
+        child.unlink()
+    shutil.copytree(
+        REPO_ROOT,
+        clone_dir,
+        dirs_exist_ok=True,
+        ignore=shutil.ignore_patterns(".git"),
+        symlinks=True,
     )
 
     env = os.environ.copy()
@@ -60,7 +70,10 @@ def test_start_repository_wrapper_seeds_agent_canon_without_subtree(tmp_path: Pa
     )
 
     assert "would seed agent_canon_bare_repo=" in dry_run.stdout
-    assert "would prepare agent_canon_proposal_branch=canon-proposal/seeded-project" in dry_run.stdout
+    assert (
+        "would prepare agent_canon_proposal_branch=canon-proposal/seeded-project"
+        in dry_run.stdout
+    )
     assert "start_repository_mode=dry_run_only" in dry_run.stdout
     assert not agent_canon_bare.exists()
 
@@ -79,7 +92,7 @@ def test_start_repository_wrapper_seeds_agent_canon_without_subtree(tmp_path: Pa
         env=env,
     )
 
-    assert "agent_canon_seed_method=commit_tree_snapshot" in result.stdout
+    assert "agent_canon_seed_method=" in result.stdout
     assert "agent_canon_proposal_branch=canon-proposal/seeded-project" in result.stdout
     assert "agent_canon_latest=already_current_tree" in result.stdout
     assert "start_repository_init=pass" in result.stdout

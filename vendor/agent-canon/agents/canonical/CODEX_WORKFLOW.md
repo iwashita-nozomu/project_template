@@ -1,8 +1,10 @@
 <!--
 @dependency-start
+responsibility Documents Codex Workflow for this repository.
 upstream design ../../ROOT_AGENTS.md root runtime entrypoint
 upstream design ./CODEX_SUBAGENTS.md subagent routing contract
 upstream design ../workflows/derived-agent-canon-diff-workflow.md shared canon diff workflow
+downstream design ../workflows/token-efficient-codex-workflow.md token-aware runtime mode overlay
 downstream design ../templates/closeout_gate.md closeout gate contract
 upstream design ../../documents/dependency-manifest-design.md dependency manifest design
 downstream implementation ../../tools/agent_tools/task_close.py enforces closeout keys
@@ -80,9 +82,22 @@ task 開始時は、local snapshot の `vendor/agent-canon/` を upstream `agent
 user の durable preference を見落とさないため、`memory/USER_PREFERENCES.md` は毎回読む固定 note にします。
 agent の作業哲学と対話から得た学習を見落とさないため、`memory/AGENT_PHILOSOPHY.md` も毎回読む固定 note にします。
 
+### Missing File Or Path Triage
+
+file や path の欠落を見つけたときは、再作成、削除済み判定、repo-local 例外扱いの前に template と shared canon を確認します。
+
+1. current repo で、欠落している path が root symlink view、synced root copy、shared workflow / skill / tool / memory surface、または template 由来の scaffold かを確認する
+1. template root または登録された template remote / snapshot で同じ path の有無と現在の正本形を確認する
+1. `vendor/agent-canon/` と standalone `agent-canon` で同じ path の有無、rename、移動、sync 対象からの除外理由を確認する
+1. canon-owned surface なら `documents/SHARED_RUNTIME_SURFACES.md` と `tools/sync_agent_canon.sh` の surface list に従い、`link-root`、vendor update、standalone canon update、または意図的削除のどれかに分類する
+1. template と canon のどちらにも無く、task 固有に必要な file だけを新規作成候補にし、既存実装・文書で足りない理由を run bundle に残す
+
+欠落を見つけた agent は、handoff や review artifact に `missing_file_triage` として確認した template path、canon path、分類、次 action を記録します。
+「無いから作る」「無いから無視する」は、template / canon 確認前の有効な判断ではありません。
+
 ### MCP Surface Preflight
 
-MCP tool や `repo_mcp_server` が必要な task では、configured MCP inventory を先に確認します。
+repository task では、ユーザーが MCP を明示していなくても、repo-local `repo_mcp_server` が configured inventory にあるものとして扱い、task intake の標準 preflight で確認します。
 
 ```bash
 python3 tools/agent_tools/check_mcp_inventory.py --require repo_mcp_server
@@ -90,10 +105,77 @@ python3 tools/agent_tools/check_mcp_inventory.py --require repo_mcp_server
 
 - `repo_mcp_server` の正本 launcher は `.codex/config.toml` の `[mcp_servers.repo_mcp_server]` です。
 - template / derived repo では host-global command ではなく root `mcp/` から `vendor/agent-canon/mcp/` の repo-local launcher を起動します。
-- `.codex/hooks.json` の `SessionStart` / `UserPromptSubmit` hook は MCP preflight context を session に注入します。これは注意喚起と routing 補助であり、checker 実行と run bundle evidence の代替ではありません。
+- MCP inventory が pass した場合は、repo state、repo root、dependency surface、workflow artifact の確認で repo MCP tools を優先候補にします。shell だけで済ませる場合も、MCP を使わない理由を run bundle または work update に残します。
+- current `repo_mcp_server` は repo root / status / MCP-covered context check 用です。file editing capability は持ちません。
+- MCP が pass したあと、毎回「MCP は編集できないので patch で編集する」と user update に書いてはいけません。MCP startup / inventory / tool mismatch が作業判断に影響する場合、または user が編集手段を質問した場合だけ説明します。
+- `.codex/hooks.json` の `SessionStart` / `UserPromptSubmit` hook は MCP preflight context を session に注入します。これは「MCP をユーザーが明示しなくても思い出す」ための routing 補助であり、checker 実行と run bundle evidence の代替ではありません。
 - configured inventory に無い server を、parent や worker が bridge-local process として暗黙に起動して代替してはいけません。
+- `.codex/config.toml` が `repo_mcp_server` を宣言しているのに inventory が空の場合は、project trust または Codex project-config loading の問題として扱い、repo task を続ける前に修復します。
 - inventory にあるが startup に失敗する場合は、`mcp/` symlink view、launcher path、または host の base command availability の問題として run bundle に記録し、MCP 前提作業を続けません。
 - contract 確定前の preflight 記録は `work_log.py --allow-missing-request-clause-id --missing-request-clause-reason "<reason>"` で run bundle に残します。
+
+### Codex Goals Feature Preflight
+
+Codex `goals` feature が有効な runtime では、`agents/workflows/codex-goals-workflow.md` を overlay として読みます。
+
+```bash
+codex features list | grep '^goals'
+python3 tools/agent_tools/goal_loop.py status --goal-file goal.md
+python3 tools/agent_tools/goal_loop.py plan --goal-file goal.md \
+  --report-out reports/agents/<run-id>/goal_work_breakdown.md
+```
+
+- shared config は `.codex/config.toml` の `[features].goals = true` を既定にします。
+- `goal.md` は durable source of truth、Codex goals は session view、MCP `goal.loop_status` は機械 gate です。
+- `goal.md` は repo-local state であり、`vendor/agent-canon/goal.md` への symlink にしてはいけません。
+- user が `/goal <objective>` または goal-driven task を指定した場合は、`/goal` を session view に設定した直後に `/plan <goal-driven task summary>` へ入り、Plan-mode output が `Goal Contract`、`Exit Criteria Mapping`、`Goal Work Breakdown`、`Source Packet`、`Reuse Survey`、`Execution Slices`、`Budget Policy` を含むまで実装へ進みません。
+- `Goal Work Breakdown` は `goal_loop.py plan` の `GW*` rows を run bundle `schedule.md` へ移したものです。bare objective だけで実装へ進んではいけません。
+- goal-driven task では、Codex goals だけを更新して closeout してはいけません。対応する `goal.md` Objective / Exit Criteria / Backlog / Loop Log を先に更新します。
+- `goal_loop.py status` または MCP `goal.loop_status` が `NEXT_ACTION=run_next_iteration` を返す限り、Codex goals 上で完了に見えても user-facing completion を返しません。
+- Codex goals と `goal.md` が食い違う場合は、repo-owned `goal.md` を正本にして session goal view を修正してから実装へ戻ります。
+
+### Token And Agent Mode Preflight
+
+When the user asks to reduce token usage, or when the session is already long,
+read `agents/workflows/token-efficient-codex-workflow.md` before spawning
+subagents or loading broad context.
+
+Use these parent-session profiles as operator modes:
+
+```bash
+codex -p token-lite
+codex -p token-standard
+codex -p token-deep
+```
+
+- `token-lite` is for narrow diagnosis and low-risk changes. It does not relax
+  required gates.
+- `token-standard` is the default staged repo-work mode.
+- `token-deep` is for broad architecture, research synthesis, high-risk review,
+  and repeated validation failures.
+
+Choose one subagent mode before delegation:
+
+- `parent-direct`: no subagent, only for trivial or mechanical work.
+- `scout-only`: read-only `explorer` / reviewer answers bounded questions.
+- `spark-slice`: `spark_worker` handles approved, design-traced low-risk slices.
+- `full-stage`: normal staged requirements, planning, design, review, and
+  implementation agents.
+- `deep-review`: additional independent read-only reviewers for high-risk work.
+
+Token-saving changes context loading, not correctness. Full dependency review,
+static analysis, diff-check review, closeout gates, and push requirements still
+apply when the task requires them.
+
+### Edit Execution Surface
+
+Repo file edits use the narrowest reliable execution surface:
+
+1. 通常の小〜中規模編集は patch-based edit を使います。
+1. 機械生成・一括変換・format は repo 内の script / formatter / generator を使います。
+1. MCP 経由編集は、repo MCP server が explicit edit tool を提供してから使います。status-only MCP を edit tool として扱ってはいけません。
+
+この選択は作業 log / run bundle に必要な粒度で残しますが、user update では冗長に説明しません。説明が必要なのは、既定から外れる編集手段を使う場合、tool availability が作業判断に影響する場合、または user が編集手段を質問した場合です。
 
 ### Library And Reuse Sweep
 
@@ -463,10 +545,11 @@ cost を無視して review coverage を優先する run では、research-drive
 - `closeout_gate.md` の `repo_wide_static_analysis_complete=yes` が揃うまで、全 repo 対象の `make ci`、または `python3 -m pyright` と `python3 -m ruff check python tests --select D,E,F,I,UP` の static analysis evidence が無い completion report を出さない
 - `closeout_gate.md` の `spec_product_coverage_complete=yes` と `review_findings_integrated=yes` が揃うまで、仕様の一部だけの実装や未反映 review findings が残る completion report を出さない
 - `closeout_gate.md` の `mechanical_completion_loop_complete=yes` が揃い、planned work、review findings、validation、dependency review、static analysis、commit / push、shared canon sync、follow-up 判断が構造化 loop evidence として残るまで completion report を出さない
+- `closeout_gate.md` の `subagents_closed=yes` が揃い、run-local subagent が閉じられ、新規 user request で前 task の subagent を使い回していないことが `Subagent Lifecycle Evidence` に残るまで completion report を出さない
 - `closeout_gate.md` の `diff_check_agent_complete=yes` が揃い、run-local diff-check artifact が read-only independent agent、latest diff ref、`approve` decision、findings disposition を示すまで completion report を出さない
 - `closeout_gate.md` の `canonical_tree_head_complete=yes` が揃うまで、正本でない設計文書、implementation copy、snapshot tree、backup path が残る completion report を出さない
 - `workflow_monitoring.md` の signals / interventions / improvement decisions が埋まり、skill / config / workflow / memory の改善判断が `applied`、`recorded`、`not_applicable` のいずれかになるまで、workflow 監視が未完了の completion report を出さない
-- `tools/agent_tools/evaluate_agent_run.py --report-dir reports/agents/<run-id> --write` が pass し、`closeout_gate.md` の `agent_evaluation_complete=yes` と `agent_evaluation.md` の `feedback_actions_resolved: yes` が揃うまで、agent behavior evaluation と feedback resolution が未完了の completion report を出さない
+- `tools/agent_tools/evaluate_agent_run.py --report-dir reports/agents/<run-id> --behavior-manifest agents/evals/agent_behavior_eval.toml --write` が pass し、`closeout_gate.md` の `agent_evaluation_complete=yes` と `agent_evaluation.md` の `feedback_actions_resolved: yes` が揃うまで、agent behavior evaluation と feedback resolution が未完了の completion report を出さない
 - `schedule.md` が TODO 正本として埋まっておらず、または `work_log.md` に意味のある execution trail が無い場合は completion evidence 不足として closeout を止める
 - `notes/guardrails/engineering_avoidances.md` の log-derived avoid に当たる変更が残る場合、final report を出さず、修正または reviewer escalation に戻す
 - user request が generic path の usable smoke を求める場合、specialized path の tuning、narrow smoke、header-only compile だけでは completion evidence にしない

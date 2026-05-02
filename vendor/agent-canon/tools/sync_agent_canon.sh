@@ -1,11 +1,17 @@
 #!/usr/bin/env bash
 # @dependency-start
+# responsibility Provides sync agent canon repository automation.
 # upstream implementation ./agent_tools/check_dependency_headers.py validates dependency manifests
 # upstream implementation ../tests/agent_tools/test_check_dependency_headers.py tests dependency manifest checker
 # downstream implementation ../documents/codex-configuration-reference.md root symlink view for Codex config docs
 # downstream implementation ../documents/codex-configuration-slides.md root symlink view for Codex config slides
+# downstream implementation ../documents/algorithm-implementation-boundary.md root symlink view for algorithm boundary policy
+# downstream implementation ../documents/object-oriented-design.md root symlink view for OOP policy
 # downstream implementation ../tests/agent_tools/test_dependency_manifest_tools.py root symlink view for manifest tests
 # downstream implementation ../tests/agent_tools/test_evaluate_agent_run.py root symlink view for eval tests
+# downstream implementation ../tests/agent_tools/test_evaluate_skill_workflow_prompts.py root symlink view for prompt eval tests
+# downstream implementation ../tests/agent_tools/test_goal_loop.py root symlink view for goal loop tests
+# downstream implementation ../tests/agent_tools/test_repo_mcp_server.py root symlink view for MCP tests
 # @dependency-end
 set -euo pipefail
 
@@ -115,6 +121,8 @@ documents/FILE_CHECKLIST_OPERATIONS.md:../${PREFIX}/documents/FILE_CHECKLIST_OPE
 documents/README.md:../${PREFIX}/documents/README.md
 documents/codex-configuration-reference.md:../${PREFIX}/documents/codex-configuration-reference.md
 documents/codex-configuration-slides.md:../${PREFIX}/documents/codex-configuration-slides.md
+documents/algorithm-implementation-boundary.md:../${PREFIX}/documents/algorithm-implementation-boundary.md
+documents/object-oriented-design.md:../${PREFIX}/documents/object-oriented-design.md
 documents/dependency-manifest-design.md:../${PREFIX}/documents/dependency-manifest-design.md
 documents/notes-lifecycle.md:../${PREFIX}/documents/notes-lifecycle.md
 documents/REVIEW_PROCESS.md:../${PREFIX}/documents/REVIEW_PROCESS.md
@@ -198,17 +206,23 @@ notes/worktrees/README.md:../../${PREFIX}/notes/worktrees/README.md
 notes/worktrees/WORKTREE_LOG_TEMPLATE.md:../../${PREFIX}/notes/worktrees/WORKTREE_LOG_TEMPLATE.md
 tests/agent_tools/__init__.py:../../${PREFIX}/tests/agent_tools/__init__.py
 tests/agent_tools/test_check_agent_runtime_alignment.py:../../${PREFIX}/tests/agent_tools/test_check_agent_runtime_alignment.py
+tests/agent_tools/test_analyze_refactor_surface.py:../../${PREFIX}/tests/agent_tools/test_analyze_refactor_surface.py
+tests/agent_tools/test_analyze_oop_readability.py:../../${PREFIX}/tests/agent_tools/test_analyze_oop_readability.py
 tests/agent_tools/test_doc_start.py:../../${PREFIX}/tests/agent_tools/test_doc_start.py
 tests/agent_tools/test_log_user_preference.py:../../${PREFIX}/tests/agent_tools/test_log_user_preference.py
 tests/agent_tools/test_log_agent_learning.py:../../${PREFIX}/tests/agent_tools/test_log_agent_learning.py
 tests/agent_tools/test_check_mcp_inventory.py:../../${PREFIX}/tests/agent_tools/test_check_mcp_inventory.py
 tests/agent_tools/test_codex_hooks.py:../../${PREFIX}/tests/agent_tools/test_codex_hooks.py
+tests/agent_tools/test_repo_mcp_server.py:../../${PREFIX}/tests/agent_tools/test_repo_mcp_server.py
 tests/agent_tools/test_check_dependency_headers.py:../../${PREFIX}/tests/agent_tools/test_check_dependency_headers.py
 tests/agent_tools/test_dependency_manifest_tools.py:../../${PREFIX}/tests/agent_tools/test_dependency_manifest_tools.py
 tests/agent_tools/test_evaluate_agent_run.py:../../${PREFIX}/tests/agent_tools/test_evaluate_agent_run.py
+tests/agent_tools/test_evaluate_skill_workflow_prompts.py:../../${PREFIX}/tests/agent_tools/test_evaluate_skill_workflow_prompts.py
+tests/agent_tools/test_goal_loop.py:../../${PREFIX}/tests/agent_tools/test_goal_loop.py
 tests/agent_tools/test_smoke_test_research_perspective_pack.py:../../${PREFIX}/tests/agent_tools/test_smoke_test_research_perspective_pack.py
 tests/agent_tools/test_task_start_and_close.py:../../${PREFIX}/tests/agent_tools/test_task_start_and_close.py
 tests/agent_tools/test_waterfall_gate_check.py:../../${PREFIX}/tests/agent_tools/test_waterfall_gate_check.py
+tests/agent_tools/test_workflow_monitor.py:../../${PREFIX}/tests/agent_tools/test_workflow_monitor.py
 tests/agent_tools/test_work_log.py:../../${PREFIX}/tests/agent_tools/test_work_log.py
 tests/agent_tools/test_worktree_scope_lint.py:../../${PREFIX}/tests/agent_tools/test_worktree_scope_lint.py
 tests/tools/test_check_merge_structure.py:../../${PREFIX}/tests/tools/test_check_merge_structure.py
@@ -219,6 +233,72 @@ tests/tools/test_run_repo_program.py:../../${PREFIX}/tests/tools/test_run_repo_p
 tests/tools/test_update_agent_canon.py:../../${PREFIX}/tests/tools/test_update_agent_canon.py
 tools:${PREFIX}/tools
 EOF
+}
+
+repo_local_goal_template() {
+  cat <<'EOF'
+# Goal
+<!--
+@dependency-start
+responsibility Defines this repository's local goal loop contract.
+upstream design README.md repository entrypoint
+upstream implementation tools/agent_tools/goal_loop.py consumes this contract
+@dependency-end
+-->
+
+## Loop Contract
+
+- goal_status: achieved
+- run_safety_cap: 0
+- current_iteration: 0
+- active_run_id:
+- stop_reason: no active repo-local goal
+
+## Objective
+
+No active repo-local goal is set.
+
+## Exit Criteria
+
+- [x] G0: No active repo-local goal is pending.
+
+## Backlog
+
+## Loop Log
+
+- initialized repo-local placeholder goal.
+EOF
+}
+
+ensure_repo_local_goal() {
+  local path="$ROOT_DIR/goal.md"
+  local target=""
+  if [ -L "$path" ]; then
+    target="$(readlink "$path")"
+    case "$target" in
+      "$PREFIX"/*|./"$PREFIX"/*|../"$PREFIX"/*|*"$PREFIX"/goal.md)
+        rm -f "$path"
+        repo_local_goal_template >"$path"
+        echo "goal_md=converted_from_shared_symlink"
+        ;;
+    esac
+  elif [ ! -e "$path" ]; then
+    repo_local_goal_template >"$path"
+    echo "goal_md=created_repo_local_placeholder"
+  fi
+}
+
+goal_is_shared_symlink() {
+  local path="$ROOT_DIR/goal.md"
+  local target=""
+  [ -L "$path" ] || return 1
+  target="$(readlink "$path")"
+  case "$target" in
+    "$PREFIX"/*|./"$PREFIX"/*|../"$PREFIX"/*|*"$PREFIX"/goal.md)
+      return 0
+      ;;
+  esac
+  return 1
 }
 
 build_removed_legacy_paths() {
@@ -325,6 +405,8 @@ cmd_link_root() {
     [ -n "$path" ] || continue
     rm -rf "$ROOT_DIR/$path"
   done < <(build_removed_legacy_paths)
+
+  ensure_repo_local_goal
 }
 
 cmd_snapshot() {
@@ -378,6 +460,11 @@ cmd_check() {
       failed=1
     fi
   done < <(build_removed_legacy_paths)
+
+  if goal_is_shared_symlink; then
+    echo "goal.md=shared-symlink" >&2
+    failed=1
+  fi
 
   if [ "$failed" -ne 0 ]; then
     die "shared surface drift detected; run 'bash tools/sync_agent_canon.sh link-root'"

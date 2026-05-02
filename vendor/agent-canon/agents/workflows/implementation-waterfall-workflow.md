@@ -1,5 +1,6 @@
 <!--
 @dependency-start
+responsibility Documents 実装ウォーターフォールワークフロー for this repository.
 upstream design ../canonical/CODEX_WORKFLOW.md defines canonical Codex task gates
 upstream design ../../documents/dependency-manifest-design.md defines dependency manifest gates
 downstream design ../templates/closeout_gate.md records closeout evidence required by this workflow
@@ -14,6 +15,7 @@ downstream design ../templates/closeout_gate.md records closeout evidence requir
 この repo では workflow family の選択は `agents/TASK_WORKFLOWS.md` を使いますが、実装そのものの進め方はこの文書を共通ルールにします。
 README、workflow、guide、migration 文書のような長文では、加えて `agents/workflows/long-form-writing-workflow.md` を overlay として使います。
 論文、thesis chapter、scholarly note のような学術文章では、`agents/workflows/academic-writing-workflow.md` を優先 overlay として使います。
+原因考察、修正箇所選定、複数候補比較が必要な変更では、`agents/workflows/hypothesis-validation-workflow.md` を overlay として使います。
 
 ## 1. 目的
 
@@ -30,6 +32,7 @@ README、workflow、guide、migration 文書のような長文では、加えて
 - 変更要求 1 件につき 1 回の実装パスを閉じる
 - 差し戻しが必要な場合は、どの段へ戻すかを明示する
 - 新規実装より前に、既存コードと既存の書き方を徹底的に再利用する
+- 考察系 task では、code dependency と header dependency を別 tool で抜き、仮説と修正箇所妥当性を固定してから実装する
 
 ## 2. 文献ベースの判断
 
@@ -356,6 +359,7 @@ exit 条件:
 - `Identifier And Naming Plan:`
 - `Validation And Rollback Plan:`
 - refactor pass では追加で `Behavior Contract:`, `Allowed Structural Delta:`, `Forbidden Semantic Delta:`, `Files To Remove Or Move:`, `Path Mapping:` を残します
+- 大規模 repo の包括 refactor では追加で `Current Responsibility Map:`, `Target Responsibility Map:`, `OOP Boundary Plan:`, `Refactor Surface Baseline:`, `Target Score:`, `Static Analyzer Limits:` を残します
 
 ルール:
 - 詳細設計の目標は、実装前に読むべき文書を完成させることです
@@ -377,6 +381,7 @@ exit 条件:
 - worker が chat 要約ではなく packet path を実際に読めるよう、document packet は absolute path で明示します
 - refactor pass では semantic delta を feature 追加として混ぜません
 - refactor pass では path mapping と remove list を実装前に固定します
+- 包括 refactor では、必要に応じて `tools/agent_tools/analyze_refactor_surface.py` または task 固有解析 tool の score を design gate に入れます。score pass は behavior evidence の代替ではなく、責務境界の補助 evidence として扱います
 - Gate 6 または Gate 7 が `revise` / `escalate` を返したら Gate 5 へ戻ります
 
 exit 条件:
@@ -388,6 +393,7 @@ exit 条件:
 - 新規 abstraction より reuse-first の方針が説明できる
 - 新規または rename する identifier と path の naming plan が文書だけで追える
 - refactor pass では move / rename / split と挙動保存境界が文書だけで追える
+- 包括 refactor では設計見直し、OOP 的な最小実装方針、解析 baseline / target score が文書だけで追える
 
 ### Gate 6. 詳細設計レビュー
 

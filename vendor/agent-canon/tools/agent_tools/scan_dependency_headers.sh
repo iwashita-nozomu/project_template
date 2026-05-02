@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # @dependency-start
+# responsibility Provides scan dependency headers agent workflow automation.
 # upstream design ../../documents/dependency-manifest-design.md dependency manifest DSL design
 # downstream implementation ./check_dependency_header_format.sh validates manifest syntax
 # downstream implementation ./check_dependency_graph.sh consumes manifest edges
@@ -107,6 +108,9 @@ skipped=0
 while IFS= read -r raw_path; do
   [[ -n "$raw_path" ]] || continue
   path="${raw_path#./}"
+  if [[ "$path" = /* ]]; then
+    path="$(realpath -m --relative-to="$ROOT_DIR" "$path")"
+  fi
   [[ -f "$path" && ! -L "$path" ]] || { skipped=$((skipped + 1)); continue; }
   is_skip_path "$path" && { skipped=$((skipped + 1)); continue; }
   is_checkable_suffix "$path" || { skipped=$((skipped + 1)); continue; }
