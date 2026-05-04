@@ -15,6 +15,9 @@ from pathlib import Path
 from cases import ExperimentCase
 from cases import build_cases
 
+DEFAULT_CASE_LIMIT = 8
+MILLISECONDS_PER_SECOND = 1000.0
+
 
 def parse_args() -> argparse.Namespace:
     """Parse CLI arguments."""
@@ -27,9 +30,14 @@ def parse_args() -> argparse.Namespace:
         help="Directory where summary.json, cases.jsonl, and logs for this run go.",
     )
     parser.add_argument(
+        "--config",
+        required=True,
+        help="JSON object written by run_managed_experiment.py for reproducibility.",
+    )
+    parser.add_argument(
         "--limit",
         type=int,
-        default=8,
+        default=DEFAULT_CASE_LIMIT,
         help="Number of synthetic cases to execute.",
     )
     parser.add_argument(
@@ -44,7 +52,7 @@ def parse_args() -> argparse.Namespace:
 def evaluate_case(case: ExperimentCase, sleep_ms: float) -> dict[str, object]:
     """Run one synthetic case."""
     if sleep_ms > 0:
-        time.sleep(sleep_ms / 1000.0)
+        time.sleep(sleep_ms / MILLISECONDS_PER_SECOND)
 
     score = float(case.value * case.value)
     return {
@@ -60,6 +68,10 @@ def main() -> int:
     args = parse_args()
     run_dir = Path(args.run_dir)
     run_dir.mkdir(parents=True, exist_ok=True)
+    run_config = json.loads(Path(args.config).read_text(encoding="utf-8"))
+    config_values = run_config.get("config", {})
+    if not isinstance(config_values, dict):
+        raise TypeError("experiment config must contain a dictionary at key 'config'")
 
     results = [evaluate_case(case, args.sleep_ms) for case in build_cases(args.limit)]
     cases_path = run_dir / "cases.jsonl"
@@ -74,6 +86,8 @@ def main() -> int:
         "success_count": len(ok_scores),
         "failure_count": len(results) - len(ok_scores),
         "mean_score": sum(ok_scores) / len(ok_scores) if ok_scores else None,
+        "config_path": str(Path(args.config)),
+        "config_keys": sorted(str(key) for key in config_values),
         "status": "completed",
     }
     (run_dir / "summary.json").write_text(
