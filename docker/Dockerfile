@@ -15,8 +15,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     openssh-client graphviz rsync xz-utils \
  && rm -rf /var/lib/apt/lists/*
 
-# GitHub CLI は AgentCanon / template の PR・release 運用で使うため、
-# GitHub CLI 公式 apt repository から canonical image に入れる。
+# GitHub CLI は repo の PR・release 運用で使うため、GitHub CLI 公式
+# apt repository から canonical image に入れる。
 RUN mkdir -p -m 755 /etc/apt/keyrings \
  && curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
     -o /etc/apt/keyrings/githubcli-archive-keyring.gpg \
@@ -48,7 +48,6 @@ RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
 WORKDIR /workspace
 ENV PYTHONPATH=/workspace/python
-ENV TEMPLATE_BARE_GIT_ROOT=/mnt/git
 ENV CMAKE_GENERATOR=Ninja
 ENV PROJECT_TEMPLATE_CPP_BUILD_ROOT=/workspace/build/cpp
 ENV PROJECT_TEMPLATE_CPP_INSTALL_ROOT=/workspace/.state/cpp-install
@@ -56,15 +55,10 @@ ENV PROJECT_TEMPLATE_JAX_EXPORT_ROOT=/workspace/.state/jax-export
 
 EXPOSE 8888
 
-# Canonical image 側で safe.directory を固定し、/mnt/git を mount した
-# local bare remote への push/pull を container 内からもそのまま通す。
+# Canonical image 側では workspace だけを safe.directory に固定する。
+# Template / AgentCanon 固有の mirror path は documents の remote policy に置く。
 RUN set -eux; \
-    for safe_dir in \
-        /workspace \
-        "${TEMPLATE_BARE_GIT_ROOT}/template.git" \
-        "${TEMPLATE_BARE_GIT_ROOT}/agent-canon.git"; do \
-        git config --global --add safe.directory "${safe_dir}"; \
-    done
+    git config --global --add safe.directory /workspace
 
 # docker CLI は同梱するが、build/run をコンテナ内から行うときは
 # host socket の mount か別 daemon が必要。

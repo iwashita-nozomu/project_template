@@ -33,7 +33,7 @@ commands = [
   "cmake --build build/cpp/docker-smoke --target project_template_cpp_smoke",
   "ctest --test-dir build/cpp/docker-smoke --output-on-failure",
   "safe_dirs=\"$(git config --get-all safe.directory || true)\"",
-  "for safe_dir in /workspace /mnt/git/template.git /mnt/git/agent-canon.git; do printf '%s\\n' \"$safe_dirs\" | grep -Fx \"$safe_dir\" >/dev/null; done",
+  "printf '%s\\n' \"$safe_dirs\" | grep -Fx /workspace >/dev/null",
 ]
 
 [runtime]

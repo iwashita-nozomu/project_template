@@ -16,7 +16,7 @@ host 側の前提は [linux-wsl-host-requirements.md](../documents/linux-wsl-hos
 ## Primary Files
 
 - `Dockerfile`
-  - canonical container image 定義です。GitHub-backed AgentCanon 運用のため `gh` も標準同梱します。
+  - canonical container image 定義です。GitHub PR / release 運用のため `gh` も標準同梱します。
 - `requirements.txt`
   - repo-wide の Python 依存です。Jupyter、JSONL、Graphviz 周辺の結果可視化依存もここで管理します。
 - `packs/default.toml`
@@ -221,7 +221,7 @@ python3 tools/ci/run_container_pack.py --pack docker/packs/default-host-docker.t
 python3 tools/ci/run_codex_in_repo_container.py --profile host-docker
 ```
 
-`safe.directory` は `docker/Dockerfile` の build 時に `git config --global` で固定します。template の canonical image では `/workspace` と、local bare remote 用の `/mnt/git/template.git`、`/mnt/git/agent-canon.git` を登録します。`/mnt/git` を mount した dev container や nested Codex から、そのまま local bare remote へ push/pull できるようにするためです。
+`safe.directory` は `docker/Dockerfile` の build 時に `git config --global` で固定します。canonical image で登録するのは `/workspace` だけです。Template / AgentCanon 固有の GitHub remote や local mirror 名は Dockerfile に焼かず、[Template GitHub Remote](../documents/template-github-remote.md) と [AgentCanon GitHub Remote](../documents/agent-canon-github-remote.md) を正本にします。
 
 repo-defined container runner でも、host `~/.codex` が存在するときは `/root/.codex` へ自動 mount します。対象は少なくとも次です。
 
