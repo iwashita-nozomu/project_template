@@ -20,6 +20,8 @@ commands = [
   "npm --version",
   "codex --version",
   "gh --version",
+  "jupyter --version",
+  "jupyter lab --version",
   "ssh -V",
   "docker --version",
   "dot -V",
