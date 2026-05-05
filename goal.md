@@ -3,40 +3,46 @@
 @dependency-start
 responsibility Defines the top-level goal loop contract for this repository.
 upstream design README.md repository entrypoint
+upstream design checklist.md repository audit checklist objective
 downstream implementation tools/agent_tools/goal_loop.py consumes this contract
 @dependency-end
 -->
 
 ## Loop Contract
 
-- goal_status: achieved
-- run_safety_cap: 3
-- current_iteration: 0
-- active_run_id:
+- goal_status: active
+- run_safety_cap: 1
+- current_iteration: 1
+- active_run_id: 20260505-134238-execute-checklist-md-repository-audit
 - stop_reason:
 
 ## Objective
 
-Organize documentation and the AgentCanon update path, remove redundant files, and eliminate convention violations.
+Execute `checklist.md` as the current repository goal. Audit the current
+`project_template` repository against every checklist section, classify the
+pre-existing dirty file, fix any fix-now failures found during the audit, and
+record objective-specific evidence in the run bundle.
 
 ## Exit Criteria
 
-- [x] G1: Repository dependency review passes with `bash tools/agent_tools/run_repo_dependency_review.sh --fail-missing`.
-- [x] G2: Code dependency extraction is reviewed with `bash tools/agent_tools/scan_code_dependencies.sh` for the affected surface.
-- [x] G3: OOP/readability analysis is run with `python3 tools/agent_tools/analyze_oop_readability.py` and findings are fixed or documented.
-- [x] G4: Repo-wide static analysis or CI passes with `make ci`, or the documented fallback `python3 -m pyright` plus `python3 -m ruff check python tests --select D,E,F,I,UP`.
-- [x] G5: Objective-specific completion evidence is recorded.
+- [ ] G1: `checklist.md` is treated as the active repo goal and this file names the run bundle.
+- [ ] G2: A prompt-to-artifact checklist maps every checklist section to concrete evidence.
+- [ ] G3: Git, remote, AgentCanon latest, MCP, runtime surfaces, dependency graph, workflow, tooling, Docker/devcontainer, reuse/OOP, artifact, and derived-repo checks are executed or explicitly classified with evidence.
+- [ ] G4: Pre-existing dirty files are classified and either preserved as user scope or intentionally committed with evidence.
+- [ ] G5: Full-repo dependency review and static analysis pass after any fixes.
+- [ ] G6: GitHub Actions workflows and PR checklists are reorganized for submodule-aware checkout, least-privilege CI, and explicit review evidence.
+- [ ] G7: The run closes with no unchecked checklist item, validation failure, commit/push item, or AgentCanon sync item remaining in scope.
 
 ## Backlog
 
-- [x] B1: Build the prompt-to-artifact checklist that maps objective clauses to files, commands, gates, and completion evidence.
-- [x] B2: Survey existing docs, tools, tests, and reusable surfaces before adding or deleting anything; list reuse, consolidation, and deletion candidates.
-- [x] B3: Execute one cohesive implementation slice that advances the selected related surfaces together instead of stopping after one micro-fix.
-- [x] B4: Run dependency review, code dependency scan, OOP/readability, and task-relevant prompt/doc/convention checks; fix any failure in the same iteration.
-- [x] B5: Refresh the goal work breakdown, close completed backlog items with evidence, and continue immediately if NEXT_ACTION still reports run_next_iteration.
+- [ ] B1: Freeze request clauses and schedule from `checklist.md`.
+- [ ] B2: Run the checklist commands and collect evidence in the run bundle.
+- [ ] B3: Reorganize `.github/workflows/` and PR checklist templates without duplicating canon responsibilities.
+- [ ] B4: Fix any audit failure that is in scope for this repo and preserve unrelated user changes.
+- [ ] B5: Re-run dependency review, agent checks, docs checks, and CI after fixes.
+- [ ] B6: Update closeout artifacts, commit/push tracked changes, and mark the goal achieved only after the completion audit passes.
 
 ## Loop Log
 
-- iteration evidence: expanded AgentCanon goal loop default backlog in commit `50a27a8`; consolidated AgentCanon update docs and removed obsolete tool index in commit `a1ae42d`.
-- validation evidence: `run_repo_dependency_review.sh --fail-missing` pass; `scan_code_dependencies.sh` pass; OOP/readability pass with score 74 and zero warn/error density; `make agent-checks`, `make docs-check`, and `make ci` pass.
-- closeout evidence: `reports/agents/20260502-093419-organize-agentcanon-update-documentation/` records clause mapping, schedule GW1-GW10 complete, workflow monitoring, evaluation `140/140`, and no remaining follow-up.
+- 2026-05-05 iteration 1 started: active thread goal is `checklist.md をゴールに設定して実行して`; run bundle `reports/agents/20260505-134238-execute-checklist-md-repository-audit/` created; initial MCP inventory pass; initial git status shows pre-existing `.devcontainer/devcontainer.json` dirty change.
+- 2026-05-05 scope update: user added GitHub workflow reorganization and PR checklist review to the active goal.

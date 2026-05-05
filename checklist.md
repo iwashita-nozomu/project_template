@@ -267,7 +267,33 @@ for repo in /mnt/git/*; do
 done
 ```
 
-## 13. Push と完了判定
+## 13. GitHub Actions と PR Checklist
+
+- [ ] `.github/workflows/ci.yml` が submodule-aware checkout を使う
+- [ ] `.github/workflows/ci.yml` が最小権限 `permissions` と stale run 用 `concurrency` を持つ
+- [ ] `.github/workflows/docker-build.yml` が submodule-aware checkout、最小権限、concurrency を持つ
+- [ ] `.github/workflows/agent-coordination.yml` は AgentCanon 正本から root copy へ同期されている
+- [ ] Agent coordination workflow の各 job が AgentCanon submodule を checkout する
+- [ ] Template default PR checklist が repo-local 変更、AgentCanon pin、Docker、GitHub workflow、validation evidence を分けている
+- [ ] Template 側 AgentCanon PR checklist が shared canon source、root surface sync、GitHub mirror evidence を要求している
+- [ ] Standalone AgentCanon repo 用の独立 PR checklist が `vendor/agent-canon/.github/PULL_REQUEST_TEMPLATE.md` にある
+- [ ] GitHub Copilot workflow が `.github/copilot-instructions.md` から辿れる
+- [ ] PR checklist が未実行 command を pass と書かない運用になっている
+
+確認コマンド:
+
+```bash
+python3 - <<'PY'
+from pathlib import Path
+import yaml
+for path in sorted(Path('.github/workflows').glob('*.yml')):
+    yaml.safe_load(path.read_text())
+    print(f'{path}: yaml=pass')
+PY
+rg -n "submodules: true|permissions:|concurrency:|PULL_REQUEST_TEMPLATE|github-copilot-workflow" .github vendor/agent-canon/.github agents documents checklist.md
+```
+
+## 14. Push と完了判定
 
 - [ ] 変更を commit 済み
 - [ ] GitHub canonical remote へ push 済み

@@ -25,11 +25,23 @@ on:
       - "Makefile"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: docker-build-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   docker-build:
+    name: Docker Pack Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository with AgentCanon
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          persist-credentials: false
 
       - name: Run default Docker pack check
         run: bash tools/ci/check_docker_build.sh --pack docker/packs/default.toml --pull --tag project-template:ci-default

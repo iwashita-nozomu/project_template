@@ -11,19 +11,33 @@ on:
   pull_request:
     branches: [ main, master ]
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  test:
+  repository-ci:
+    name: Repository CI
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: ["3.10"]
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository with AgentCanon
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          persist-credentials: false
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: docker/requirements.txt
 
       - name: Install system packages
         run: sudo apt-get update && sudo apt-get install -y graphviz
@@ -37,17 +51,24 @@ jobs:
         run: make ci
 
   agent-canon-pr:
+    name: AgentCanon PR Gate
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: ["3.10"]
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository with AgentCanon
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          persist-credentials: false
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: docker/requirements.txt
 
       - name: Install system packages
         run: sudo apt-get update && sudo apt-get install -y graphviz
@@ -61,17 +82,24 @@ jobs:
         run: make agent-canon-pr-check
 
   fresh-clone-acceptance:
+    name: Fresh Clone Acceptance
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: ["3.10"]
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository with AgentCanon
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          persist-credentials: false
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: docker/requirements.txt
 
       - name: Install system packages
         run: sudo apt-get update && sudo apt-get install -y graphviz

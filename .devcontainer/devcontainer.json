@@ -15,5 +15,11 @@
   "postCreateCommand": "bash docker/register_safe_directories.sh /workspace",
   "postAttachCommand": "bash .devcontainer/post-attach.sh",
   "shutdownAction": "stopCompose",
-  "overrideCommand": false
+  "overrideCommand": false,
+  "mounts": [
+    "source=${localEnv:SSH_AUTH_SOCK},target=/ssh-agent,type=bind"
+  ],
+  "containerEnv": {
+    "SSH_AUTH_SOCK": "/ssh-agent"
+  }
 }
