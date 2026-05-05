@@ -20,6 +20,7 @@ commands = [
   "npm --version",
   "codex --version",
   "gh --version",
+  "ssh -V",
   "docker --version",
   "bash tools/docker_dependency_validator.sh",
   "python3 -c \"import jax; print(jax.__version__)\"",

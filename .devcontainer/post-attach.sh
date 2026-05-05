@@ -26,6 +26,26 @@ if [ -d /root/.codex ] || [ -d "${HOME:-/root}/.codex" ]; then
   codex_home_status="mounted"
 fi
 
+gh_config_status="not-mounted"
+if [ -d /root/.config/gh ] || [ -d "${HOME:-/root}/.config/gh" ]; then
+  gh_config_status="mounted"
+fi
+
+ssh_dir_status="not-mounted"
+if [ -d /root/.ssh ] || [ -d "${HOME:-/root}/.ssh" ]; then
+  ssh_dir_status="mounted"
+fi
+
+ssh_agent_status="not-forwarded"
+if [ -n "${SSH_AUTH_SOCK:-}" ] && [ -S "${SSH_AUTH_SOCK}" ]; then
+  ssh_agent_status="forwarded"
+fi
+
+gh_auth_status="unauthenticated"
+if command -v gh >/dev/null 2>&1 && gh auth status >/dev/null 2>&1; then
+  gh_auth_status="authenticated"
+fi
+
 repo_root="/workspace"
 if [ ! -f "${repo_root}/.codex/config.toml" ]; then
   script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -50,6 +70,10 @@ echo "gpu: ${gpu_status}"
 echo "/mnt/git: ${mnt_git_status}"
 echo "docker-socket: ${docker_socket_status}"
 echo "host-codex-home: ${codex_home_status}"
+echo "host-gh-config: ${gh_config_status}"
+echo "host-ssh-dir: ${ssh_dir_status}"
+echo "ssh-agent: ${ssh_agent_status}"
+echo "gh-auth: ${gh_auth_status}"
 echo "codex-approval: ${codex_approval_policy}"
 echo "codex-sandbox: ${codex_sandbox_mode}"
 echo "pythonpath: ${PYTHONPATH:-<unset>}"

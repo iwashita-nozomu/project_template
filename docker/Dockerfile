@@ -68,6 +68,7 @@ RUN set -eux; \
 
 # docker CLI は同梱するが、build/run をコンテナ内から行うときは
 # host socket の mount か別 daemon が必要。
+RUN ssh -V
 RUN docker --version
 
 CMD ["/bin/bash"]
