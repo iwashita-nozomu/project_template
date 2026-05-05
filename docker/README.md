@@ -18,7 +18,7 @@ host 側の前提は [linux-wsl-host-requirements.md](../documents/linux-wsl-hos
 - `Dockerfile`
   - canonical container image 定義です。GitHub-backed AgentCanon 運用のため `gh` も標準同梱します。
 - `requirements.txt`
-  - repo-wide の Python 依存です。
+  - repo-wide の Python 依存です。Jupyter、JSONL、Graphviz 周辺の結果可視化依存もここで管理します。
 - `packs/default.toml`
   - 既定 build / smoke pack です。
 - `packs/default-host-docker.toml`
@@ -188,6 +188,26 @@ jupyter lab --ip=0.0.0.0 --no-browser
 ```
 
 VS Code で notebook を開く場合は、container 内の `.venv/bin/python` を kernel として選べば十分です。host 側に `.venv` を作る運用は canonical にしません。
+
+## Result Logs And Visualization
+
+結果ログの保持、summary、可視化 artifact の正本ルールは
+[result-log-retention-and-visualization.md](../documents/result-log-retention-and-visualization.md)
+です。canonical image では次を標準で使えるようにします。
+
+- `graphviz` / `dot` for dependency and structural graph rendering
+- JupyterLab / notebook / ipykernel for interactive result inspection
+- `pydeps` and `snakeviz` for dependency and profiling visualization
+- `tools/data/jsonl_to_md.py` for JSONL-to-Markdown summaries
+- `tools/hlo/summarize_hlo_jsonl.py` for HLO summary JSON
+
+既定 pack の smoke は `dot -V` と result helper の `--help` を確認します。
+Dockerfile または requirements を変えたら次を通します。
+
+```bash
+bash tools/docker_dependency_validator.sh
+python3 tools/ci/run_container_pack.py --pack docker/packs/default.toml
+```
 
 ## Docker In Docker
 
