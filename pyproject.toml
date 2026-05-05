@@ -32,13 +32,14 @@ package-dir = {"" = "python"}
 where = ["python"]
 
 [tool.ruff]
-line-length = 100
 target-version = "py310"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "D", "UP"]
+ignore = ["E501"]
 # D: docstring チェック
 # UP: Python 最新構文への自動升格
+# E501: 行長は固定文字数で fail させず、可読性と project-local formatter に委ねる
 
 [tool.ruff.lint.pydocstyle]
 convention = "pep257"
