@@ -2,7 +2,7 @@
 # responsibility Defines ci YAML configuration.
 # upstream implementation ../../tools/ci/run_all_checks.sh repository CI entrypoint
 # upstream implementation ../../Makefile ci target contract
-# upstream implementation ../../tools/ci/checkout_agent_canon_submodule.sh private AgentCanon checkout gate
+# upstream implementation ../scripts/checkout_agent_canon_submodule.sh private AgentCanon checkout gate
 # @dependency-end
 name: CI
 
@@ -35,7 +35,7 @@ jobs:
       - name: Checkout AgentCanon submodule
         env:
           AGENT_CANON_REPO_TOKEN: ${{ secrets.AGENT_CANON_REPO_TOKEN }}
-        run: bash tools/ci/checkout_agent_canon_submodule.sh
+        run: bash .github/scripts/checkout_agent_canon_submodule.sh
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -70,7 +70,7 @@ jobs:
       - name: Checkout AgentCanon submodule
         env:
           AGENT_CANON_REPO_TOKEN: ${{ secrets.AGENT_CANON_REPO_TOKEN }}
-        run: bash tools/ci/checkout_agent_canon_submodule.sh
+        run: bash .github/scripts/checkout_agent_canon_submodule.sh
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -105,7 +105,7 @@ jobs:
       - name: Checkout AgentCanon submodule
         env:
           AGENT_CANON_REPO_TOKEN: ${{ secrets.AGENT_CANON_REPO_TOKEN }}
-        run: bash tools/ci/checkout_agent_canon_submodule.sh
+        run: bash .github/scripts/checkout_agent_canon_submodule.sh
 
       - name: Set up Python
         uses: actions/setup-python@v5
