@@ -15,7 +15,7 @@ downstream implementation tools/sync_agent_canon.sh applies AgentCanon submodule
 
 - goal_status: active
 - run_safety_cap: 20
-- current_iteration: 4
+- current_iteration: 5
 - active_run_id: 20260506-051028-full-repository-review-backlog-for-submo
 - stop_reason:
 
@@ -43,6 +43,7 @@ Turn the repository into a clean submodule-era template by resolving the file-by
 - 2026-05-06 iteration 2: Cleaned template product tree by removing tracked historical `reports/agents/...` run bundles and generated report Markdown files, expanded `.gitignore` so root `reports/*.md` stays generated state, and updated submodule-first README / AgentCanon migration / PR checklist evidence for I021-I040.
 - 2026-05-06 iteration 3: Rewrote `vendor/README.md`, AgentCanon `AGENTS.md`, AgentCanon `README.md`, and `documents/SHARED_RUNTIME_SURFACES.md` to make submodule pin the normal path, isolate legacy subtree wording, list `.gitmodules` as template-local runtime contract, and document root synced-copy / GitHub symlink / standalone-only surfaces for I041-I060.
 - 2026-05-06 iteration 4: Locked dependency-manifest top-of-file policy by documenting frontmatter / H1 allowance, full-repo strict review stability, and regression tests for SKILL.md frontmatter, Markdown H1, shell/TOML comments, symlink root views, and the I067-I080 agent runtime surfaces.
+- 2026-05-06 iteration 5: Extended dependency manifest tests to I081-I094 runtime/docs/memory/notes surfaces, added root symlink versus vendor source graph coverage, added missing-header owner summaries and `--explain-missing`, accepted `--allow-frontmatter`, and added `make dependency-review-surfaces` for root plus AgentCanon strict review.
 
 ## Exit Criteria
 
@@ -140,26 +141,26 @@ Turn the repository into a clean submodule-era template by resolving the file-by
 - [x] I078: Add regression coverage for `agents/workflows/agent-canon-pr-workflow.md` dependency scan classification.
 - [x] I079: Add regression coverage for `agents/workflows/agent-learning-workflow.md` dependency scan classification.
 - [x] I080: Add regression coverage for `agents/workflows/experiment-workflow.md` dependency scan classification.
-- [ ] I081: Add regression coverage for `agents/workflows/implementation-waterfall-workflow.md` dependency scan classification.
-- [ ] I082: Add regression coverage for `documents/BRANCH_SCOPE.md` dependency scan classification.
-- [ ] I083: Add regression coverage for `documents/algorithm-implementation-boundary.md` dependency scan classification.
-- [ ] I084: Add regression coverage for `documents/codex-configuration-reference.md` dependency scan classification.
-- [ ] I085: Add regression coverage for `documents/coding-conventions-project.md` dependency scan classification.
-- [ ] I086: Add regression coverage for `documents/coding-conventions-reviews.md` dependency scan classification.
-- [ ] I087: Add regression coverage for `documents/conventions/python/20_benchmark_policy.md` dependency scan classification.
-- [ ] I088: Add regression coverage for `documents/experiment-critical-review.md` dependency scan classification.
-- [ ] I089: Add regression coverage for `documents/tools/README.md` dependency scan classification.
-- [ ] I090: Add regression coverage for `documents/worktree-lifecycle.md` dependency scan classification.
-- [ ] I091: Add regression coverage for `memory/AGENT_PHILOSOPHY.md` dependency scan classification.
-- [ ] I092: Add regression coverage for `memory/USER_PREFERENCES.md` dependency scan classification.
-- [ ] I093: Add regression coverage for `notes/README.md` dependency scan classification.
-- [ ] I094: Add regression coverage for `notes/guardrails/engineering_avoidances.md` dependency scan classification.
-- [ ] I095: Add dependency graph tests that distinguish root symlink path from vendor source path.
-- [ ] I096: Add dependency graph output that groups missing headers by realpath owner.
-- [ ] I097: Add dependency review output that says whether the failure is product file, root view, symlink, or submodule source.
-- [ ] I098: Add a `--allow-frontmatter` flag only if the repo accepts that policy in docs.
-- [ ] I099: Add a `--explain-missing` mode that prints first 20 lines and detected header reason.
-- [ ] I100: Add a CI target that runs dependency review against both root view and `vendor/agent-canon` directly.
+- [x] I081: Add regression coverage for `agents/workflows/implementation-waterfall-workflow.md` dependency scan classification.
+- [x] I082: Add regression coverage for `documents/BRANCH_SCOPE.md` dependency scan classification.
+- [x] I083: Add regression coverage for `documents/algorithm-implementation-boundary.md` dependency scan classification.
+- [x] I084: Add regression coverage for `documents/codex-configuration-reference.md` dependency scan classification.
+- [x] I085: Add regression coverage for `documents/coding-conventions-project.md` dependency scan classification.
+- [x] I086: Add regression coverage for `documents/coding-conventions-reviews.md` dependency scan classification.
+- [x] I087: Add regression coverage for `documents/conventions/python/20_benchmark_policy.md` dependency scan classification.
+- [x] I088: Add regression coverage for `documents/experiment-critical-review.md` dependency scan classification.
+- [x] I089: Add regression coverage for `documents/tools/README.md` dependency scan classification.
+- [x] I090: Add regression coverage for `documents/worktree-lifecycle.md` dependency scan classification.
+- [x] I091: Add regression coverage for `memory/AGENT_PHILOSOPHY.md` dependency scan classification.
+- [x] I092: Add regression coverage for `memory/USER_PREFERENCES.md` dependency scan classification.
+- [x] I093: Add regression coverage for `notes/README.md` dependency scan classification.
+- [x] I094: Add regression coverage for `notes/guardrails/engineering_avoidances.md` dependency scan classification.
+- [x] I095: Add dependency graph tests that distinguish root symlink path from vendor source path.
+- [x] I096: Add dependency scan/review output that groups missing headers by realpath owner.
+- [x] I097: Add dependency review output that says whether the failure is product file, root view, symlink, or submodule source.
+- [x] I098: Add a `--allow-frontmatter` flag only if the repo accepts that policy in docs.
+- [x] I099: Add a `--explain-missing` mode that prints first 20 lines and detected header reason.
+- [x] I100: Add a CI target that runs dependency review against both root view and `vendor/agent-canon` directly.
 
 - [x] I101: Review `tools/sync_agent_canon.sh` route names and ensure submodule routes are presented before subtree routes.
 - [ ] I102: Review `tools/sync_agent_canon.sh status` output for stale `subtree / snapshot` wording.
