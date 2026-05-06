@@ -2,7 +2,7 @@
 # @dependency-start
 # responsibility Registers the workspace and direct vendor children as Git safe directories.
 # upstream environment Dockerfile installs this helper into the canonical image.
-# upstream environment ../.devcontainer/devcontainer.json runs this helper after workspace mount.
+# downstream environment ../.devcontainer/devcontainer.json runs this helper after workspace mount.
 # downstream environment packs/default.toml smoke-checks the registered safe directories.
 # @dependency-end
 

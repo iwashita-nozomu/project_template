@@ -49,6 +49,5 @@ goal.md
 # Generated devcontainer runtime file
 .devcontainer/docker-compose.generated.yml
 
-# Reusable local C++ / jax.export artifacts
+# Reusable local C++ artifacts
 .state/cpp-install/
-.state/jax-export/

@@ -4,15 +4,13 @@
 # upstream environment Dockerfile installs Python dependencies
 # @dependency-end
 # Core numerical computing
+jax
 jaxtyping
 typeguard
 equinox
 optax
 scipy
 scipy-stubs
-flatbuffers
-iree-base-compiler
-iree-base-runtime
 
 # Testing
 pytest>=8

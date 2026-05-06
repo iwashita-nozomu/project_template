@@ -2,13 +2,12 @@
 <!--
 @dependency-start
 responsibility Documents src for this repository.
-upstream implementation ../include/project_template/jax_export_smoke.hpp header-only implementation surface
 upstream design ../cmake/README.md CMake layout guidance
 @dependency-end
 -->
 
-template 既定の C++ 実装は header-only です。
-通常は `include/project_template/*.hpp` に実装し、`src/` は使いません。
+template 既定では C++ 実装を持ちません。
+派生 repo で C++ を使う場合は、まず `include/<project>/*.hpp` に public header を置き、必要なときだけ `src/` に translation unit を追加します。
 
 `src/` を使うのは次のような特例だけです。
 

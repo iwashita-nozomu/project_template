@@ -1,4 +1,5 @@
 # @dependency-start
+# responsibility Defines the canonical development container image.
 # upstream environment README.md docker runtime guidance
 # downstream implementation ../tools/ci/check_fresh_clone.sh uses rsync for workspace overlay
 # downstream implementation ../tools/docker_dependency_validator.sh validates canonical image tools
@@ -39,9 +40,6 @@ RUN curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-l
 
 RUN python3 -m pip install --upgrade pip
 
-# JAXは「コンテナ内同梱CUDA/cuDNN」を使う版（localじゃない）
-RUN pip install --no-cache-dir "jax[cuda12]"
-
 # その他依存パッケージ（requirements.txt で一元管理）
 COPY docker/requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
@@ -54,7 +52,6 @@ ENV PYTHONPATH=/workspace/python
 ENV CMAKE_GENERATOR=Ninja
 ENV PROJECT_TEMPLATE_CPP_BUILD_ROOT=/workspace/build/cpp
 ENV PROJECT_TEMPLATE_CPP_INSTALL_ROOT=/workspace/.state/cpp-install
-ENV PROJECT_TEMPLATE_JAX_EXPORT_ROOT=/workspace/.state/jax-export
 
 EXPOSE 8888
 
