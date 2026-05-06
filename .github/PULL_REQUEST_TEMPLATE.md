@@ -38,7 +38,10 @@ upstream design ../documents/template-github-remote.md defines template GitHub r
 - [ ] `make docs-check`
 - [ ] `make ci`
 - [ ] Docker/devcontainer changes: `bash tools/docker_dependency_validator.sh`
-- [ ] GitHub workflow changes: workflow YAML inspected for submodule checkout and least-privilege permissions
+- [ ] GitHub workflow changes: every `actions/checkout` job that reads AgentCanon uses `submodules: true`.
+- [ ] GitHub workflow changes: `persist-credentials: false` is set unless the job has documented write intent.
+- [ ] GitHub workflow changes: `permissions:` is set at workflow or job level.
+- [ ] GitHub workflow changes: `concurrency:` is present or explicitly not needed.
 
 Validation output:
 
@@ -49,9 +52,15 @@ paste the key pass lines here
 ## AgentCanon Evidence
 
 - [ ] `vendor/agent-canon` pin matches AgentCanon GitHub `main`, or the intentional delta is explained.
+- [ ] `vendor/agent-canon` pin is unchanged and the reason is documented below.
+- [ ] `.gitmodules` was reviewed when AgentCanon URL, branch, or checkout behavior is in scope.
 - [ ] AgentCanon changes were committed and pushed to `iwashita-nozomu/agent-canon`.
 - [ ] Template submodule pin was committed after AgentCanon push.
 - [ ] Memory changes were persisted with `python3 tools/agent_tools/persist_agent_memory.py --commit --push`.
+
+- AgentCanon GitHub SHA:
+- template submodule SHA:
+- submodule pin unchanged justification:
 
 ## Review Focus
 

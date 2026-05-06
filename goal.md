@@ -15,7 +15,7 @@ downstream implementation tools/sync_agent_canon.sh applies AgentCanon submodule
 
 - goal_status: active
 - run_safety_cap: 20
-- current_iteration: 1
+- current_iteration: 2
 - active_run_id: 20260506-051028-full-repository-review-backlog-for-submo
 - stop_reason:
 
@@ -40,6 +40,7 @@ Turn the repository into a clean submodule-era template by resolving the file-by
 ## Iteration Log
 
 - 2026-05-06 iteration 1: Updated `vendor/agent-canon/ROOT_AGENTS.md` through the root `AGENTS.md` shared view to define the submodule-first AgentCanon update flow, root shared-surface edit rules, closeout product/artifact gate split, independent diff-check exception model, eval artifact handling, workflow-monitor token requirements, and `goal_loop_status` completion gating. Added `review-submodule` / `align-main` tooling for AgentCanon submodule diff classification and safe main alignment. Added the static-analysis language-directory feedback to I171 without increasing the 200-item backlog size.
+- 2026-05-06 iteration 2: Cleaned template product tree by removing tracked historical `reports/agents/...` run bundles and generated report Markdown files, expanded `.gitignore` so root `reports/*.md` stays generated state, and updated submodule-first README / AgentCanon migration / PR checklist evidence for I021-I040.
 
 ## Exit Criteria
 
@@ -75,26 +76,26 @@ Turn the repository into a clean submodule-era template by resolving the file-by
 - [x] I019: Add an `AGENTS.md` rule that `NEXT_ACTION=close_goal_loop` allows final closeout only after validations and push evidence are present.
 - [x] I020: Add an `AGENTS.md` rule that root `AGENTS.md` itself is always an allowed target during workflow-wide reviews.
 
-- [ ] I021: Rename `documents/agent-canon-subtree-migration.md` or add a successor document with a submodule-first title.
-- [ ] I022: Keep `documents/agent-canon-subtree-migration.md` only as a migration/legacy reference if a rename would break too many links.
-- [ ] I023: Rewrite the first half of `documents/agent-canon-subtree-migration.md` so submodule is the default model and subtree is legacy compatibility.
-- [ ] I024: Move historical `subtree add / pull / push` guidance into a clearly labeled legacy appendix.
-- [ ] I025: Replace `committed snapshot` language in README files with `submodule pin` language where clone behavior now depends on submodule checkout.
-- [ ] I026: Add a short `git clone --recurse-submodules` quickstart to root README.
-- [ ] I027: Add a `git submodule update --init --recursive` recovery command to root README.
-- [ ] I028: Add a derived-repo AgentCanon update sequence to root README using `make agent-canon-update-plan` and `make agent-canon-update`.
-- [ ] I029: Document when to run `git submodule sync vendor/agent-canon`.
-- [ ] I030: Document how to repair a detached or stale `vendor/agent-canon` worktree.
-- [ ] I031: Document the difference between AgentCanon GitHub `origin/main`, template `origin/main`, and local bare mirrors.
-- [ ] I032: Document that `.gitmodules` is part of the runtime contract and must be reviewed in AgentCanon update PRs.
-- [ ] I033: Add an explicit `submodule pin changed` section to the AgentCanon PR template.
-- [ ] I034: Add an explicit `submodule pin unchanged` justification field to the default PR template.
-- [ ] I035: Add a template PR checklist item requiring `actions/checkout` jobs that need canon to use `submodules: true`.
-- [ ] I036: Add a template PR checklist item requiring `persist-credentials: false` unless a workflow explicitly needs write credentials.
-- [ ] I037: Add a template PR checklist item requiring `permissions:` to be set at workflow or job level.
-- [ ] I038: Add a template PR checklist item requiring `concurrency:` review for long-running CI.
-- [ ] I039: Add a PR checklist field for `AgentCanon GitHub SHA`.
-- [ ] I040: Add a PR checklist field for `template submodule SHA`.
+- [x] I021: Keep `documents/agent-canon-subtree-migration.md` path for compatibility while giving the document a submodule-first title.
+- [x] I022: Keep `documents/agent-canon-subtree-migration.md` only as a migration/legacy reference if a rename would break too many links.
+- [x] I023: Rewrite the first half of `documents/agent-canon-subtree-migration.md` so submodule is the default model and subtree is legacy compatibility.
+- [x] I024: Move historical `subtree add / pull / push` guidance into a clearly labeled legacy appendix.
+- [x] I025: Replace `committed snapshot` language in README files with `submodule pin` language where clone behavior now depends on submodule checkout.
+- [x] I026: Add a short `git clone --recurse-submodules` quickstart to root README.
+- [x] I027: Add a `git submodule update --init --recursive` recovery command to root README.
+- [x] I028: Add a derived-repo AgentCanon update sequence to root README using `make agent-canon-update-plan` and `make agent-canon-update`.
+- [x] I029: Document when to run `git submodule sync vendor/agent-canon`.
+- [x] I030: Document how to repair a detached or stale `vendor/agent-canon` worktree.
+- [x] I031: Document the difference between AgentCanon GitHub `origin/main`, template `origin/main`, and local bare mirrors.
+- [x] I032: Document that `.gitmodules` is part of the runtime contract and must be reviewed in AgentCanon update PRs.
+- [x] I033: Add an explicit `submodule pin changed` section to the AgentCanon PR template.
+- [x] I034: Add an explicit `submodule pin unchanged` justification field to the default PR template.
+- [x] I035: Add a template PR checklist item requiring `actions/checkout` jobs that need canon to use `submodules: true`.
+- [x] I036: Add a template PR checklist item requiring `persist-credentials: false` unless a workflow explicitly needs write credentials.
+- [x] I037: Add a template PR checklist item requiring `permissions:` to be set at workflow or job level.
+- [x] I038: Add a template PR checklist item requiring `concurrency:` review for long-running CI.
+- [x] I039: Add a PR checklist field for `AgentCanon GitHub SHA`.
+- [x] I040: Add a PR checklist field for `template submodule SHA`.
 
 - [ ] I041: Update `vendor/README.md` to stop calling `vendor/agent-canon` a subtree snapshot in the normal path.
 - [ ] I042: Update `vendor/README.md` commands so `submodule-add`, `ensure-latest`, `status`, and `link-root` are explained before legacy subtree commands.

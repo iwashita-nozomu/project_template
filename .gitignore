@@ -1,3 +1,11 @@
+# @dependency-start
+# responsibility Defines ignored generated, local, and cache artifacts for the template repository.
+# upstream design AGENTS.md repository closeout and artifact policy
+# upstream design documents/result-log-retention-and-visualization.md generated report retention policy
+# downstream implementation tools/agent_tools/bootstrap_agent_run.py writes ignored run bundles
+# downstream implementation tools/docs/audit_and_fix_links.py writes ignored link reports
+# @dependency-end
+
 # Python cache
 __pycache__/
 *.py[cod]
@@ -31,6 +39,7 @@ experiments/**/result/*
 # Analysis reports and agent run artifacts
 reports/agents/
 reports/*.json
+reports/*.md
 reports/*.txt
 reports/*.patch
 
