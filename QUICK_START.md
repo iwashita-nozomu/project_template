@@ -80,6 +80,7 @@ make ci
 make ci-quick
 make ci
 make docs-check
+make clean-generated
 make experiment-check
 make docker-build-check
 bash tools/run_comprehensive_review.sh
@@ -113,7 +114,7 @@ bash tools/run_comprehensive_review.sh
 - Markdown の体裁ルールは `.markdownlint.json` と `documents/conventions/common/05_docs.md` を基準にします。
 - 依存棚卸しは `pipdeptree` と `deptry` を baseline にします。
 
-Codex CLI と `docker` CLI は `docker/Dockerfile` に同梱します。コンテナ内では `codex login`、API key を使う場合は `printenv OPENAI_API_KEY | codex login --with-api-key` を使います。`safe.directory` は image build 時に `git config --global` で固定し、既定で `/workspace` と local bare remote 用の `/mnt/git/template.git`、`/mnt/git/agent-canon.git` を登録します。project-scoped Codex config の `.codex/config.toml` では `approval_policy = "never"` と `sandbox_mode = "danger-full-access"` を既定にしているので、container 内で起動した Codex も最初から full access です。`jax.export` 用には `CMAKE_GENERATOR=Ninja` を image 側で固定し、calling convention は installed JAX wheel の supported range に追従させます。
+Codex CLI と `docker` CLI は `docker/Dockerfile` に同梱します。Codex 認証は host-local state を正本にし、host 側で `codex login` を済ませてから `~/.codex` を container / devcontainer に mount して再利用します。API key を使う場合は host env の `OPENAI_API_KEY` を nested Codex profile で forward します。`safe.directory` は `/workspace` と、mount 済み workspace の `vendor/*` から動的に見つけた `/workspace/vendor/<name>` を登録します。Template / AgentCanon 固有の local mirror path は Dockerfile に焼きません。project-scoped Codex config の `.codex/config.toml` では `approval_policy = "never"` と `sandbox_mode = "danger-full-access"` を既定にしているので、container 内で起動した Codex も最初から full access です。`jax.export` 用には `CMAKE_GENERATOR=Ninja` を image 側で固定し、calling convention は installed JAX wheel の supported range に追従させます。
 
 VS Code から開発コンテナへ入る場合は `.devcontainer/` を使います。compose 生成の正本は `python3 tools/ci/render_devcontainer_compose.py --pack docker/packs/default.toml` で、GPU がある host では自動で `gpus: all` を追加し、GPU が無い host では CPU-only で起動します。`/mnt/git` も host に存在するときだけ mount し、container 内から local bare remote へ push / pull できます。host `~/.codex`、`~/.config/gh`、`~/.ssh` があれば container へ mount し、`SSH_AUTH_SOCK` が有効なら `/ssh-agent` として forward します。初回 `gh auth login` と SSH host key 登録は host 側で行い、container はその state を再利用します。attach 直後には banner を出し、GPU、`/mnt/git`、host auth mount、SSH agent、Docker socket、Codex の `approval_policy` / `sandbox_mode` を表示します。前提拡張は `.vscode/extensions.json` を見ます。
 
@@ -125,7 +126,6 @@ docker run --rm -it \
   project-template bash
 codex --version
 docker --version
-codex login
 make python-env-status
 make python-env-prepare
 ```

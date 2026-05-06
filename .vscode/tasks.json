@@ -16,6 +16,12 @@
       "group": "build",
       "isBackground": true,
       "problemMatcher": []
+    },
+    {
+      "label": "Template: Clean Generated Artifacts",
+      "type": "shell",
+      "command": "make clean-generated",
+      "problemMatcher": []
     }
   ]
 }

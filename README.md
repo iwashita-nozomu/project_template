@@ -210,6 +210,7 @@ server で回す実験コードの実体テンプレは `experiments/_template/`
 make ci-quick
 make ci
 make docs-check
+make clean-generated
 make agent-canon-proposal-branch
 make agent-canon-push-proposal
 make experiment-check
@@ -221,6 +222,8 @@ pipdeptree --warn fail
 deptry python
 make tools-help
 ```
+
+`make clean-generated` は ignored な `build/`、`logs/`、`reports/`、pytest / ruff cache、`__pycache__`、devcontainer generated compose だけを消します。template として残す tracked product file は消しません。
 
 ## Docker で Codex を使う
 
@@ -249,7 +252,6 @@ docker run --rm -it \
   project-template bash
 codex --version
 docker --version
-codex login
 ```
 
 container 内から `docker build` / `docker run` を行う場合は、上のように host の Docker socket を渡すか、別 daemon を用意します。

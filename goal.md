@@ -15,7 +15,7 @@ downstream implementation tools/sync_agent_canon.sh applies AgentCanon submodule
 
 - goal_status: active
 - run_safety_cap: 20
-- current_iteration: 5
+- current_iteration: 6
 - active_run_id: 20260506-051028-full-repository-review-backlog-for-submo
 - stop_reason:
 
@@ -44,6 +44,7 @@ Turn the repository into a clean submodule-era template by resolving the file-by
 - 2026-05-06 iteration 3: Rewrote `vendor/README.md`, AgentCanon `AGENTS.md`, AgentCanon `README.md`, and `documents/SHARED_RUNTIME_SURFACES.md` to make submodule pin the normal path, isolate legacy subtree wording, list `.gitmodules` as template-local runtime contract, and document root synced-copy / GitHub symlink / standalone-only surfaces for I041-I060.
 - 2026-05-06 iteration 4: Locked dependency-manifest top-of-file policy by documenting frontmatter / H1 allowance, full-repo strict review stability, and regression tests for SKILL.md frontmatter, Markdown H1, shell/TOML comments, symlink root views, and the I067-I080 agent runtime surfaces.
 - 2026-05-06 iteration 5: Extended dependency manifest tests to I081-I094 runtime/docs/memory/notes surfaces, added root symlink versus vendor source graph coverage, added missing-header owner summaries and `--explain-missing`, accepted `--allow-frontmatter`, and added `make dependency-review-surfaces` for root plus AgentCanon strict review.
+- 2026-05-06 iteration 6: Hardened submodule-era AgentCanon update commands by making status expose submodule mode, deprecating the snapshot alias, redirecting pull to ensure-latest in submodule mode, refusing direct main push by default, validating `.gitmodules` / submodule pin evidence in the PR gate, and adding smoke tests for current, remote-ahead, local-commit, `.gitmodules` URL, and link-root root-surface behavior. Also removed ignored generated template workspace artifacts and added `make clean-generated` plus VS Code generated-artifact hiding so the template view does not accumulate run/cache/build noise.
 
 ## Exit Criteria
 
@@ -163,25 +164,25 @@ Turn the repository into a clean submodule-era template by resolving the file-by
 - [x] I100: Add a CI target that runs dependency review against both root view and `vendor/agent-canon` directly.
 
 - [x] I101: Review `tools/sync_agent_canon.sh` route names and ensure submodule routes are presented before subtree routes.
-- [ ] I102: Review `tools/sync_agent_canon.sh status` output for stale `subtree / snapshot` wording.
-- [ ] I103: Review `tools/sync_agent_canon.sh snapshot` alias and decide whether to deprecate it in user-facing help.
-- [ ] I104: Review `tools/sync_agent_canon.sh pull` semantics in submodule mode and decide whether it should refuse or redirect to `ensure-latest`.
-- [ ] I105: Review `tools/sync_agent_canon.sh push` semantics in submodule mode and decide whether it should require a proposal branch.
-- [ ] I106: Review `make agent-canon-update-plan` output for derived repos with stale submodule pins.
-- [ ] I107: Review `make agent-canon-update` safety when the parent repo is dirty but the submodule is clean.
-- [ ] I108: Review `make agent-canon-proposal-branch` behavior for submodule changes created in derived repos.
-- [ ] I109: Review `make agent-canon-push-proposal` behavior for GitHub remote versus local bare mirror.
-- [ ] I110: Review `make agent-canon-pr-check` so it validates `.gitmodules`, submodule URL, and submodule SHA evidence.
-- [ ] I111: Add a smoke test for `make agent-canon-ensure-latest` when already current submodule.
-- [ ] I112: Add a smoke test for `make agent-canon-ensure-latest` when submodule remote is ahead.
-- [ ] I113: Add a smoke test for `make agent-canon-ensure-latest` when submodule has local commits.
-- [ ] I114: Add a smoke test for `make agent-canon-ensure-latest` when `.gitmodules` URL differs from submodule origin URL.
-- [ ] I115: Add a smoke test for `bash tools/sync_agent_canon.sh link-root` after submodule update.
-- [ ] I116: Add a smoke test that `goal.md` remains repo-local after `link-root`.
-- [ ] I117: Add a smoke test that root `.github/agent-coordination.yml` matches vendor source after `link-root`.
-- [ ] I118: Add a smoke test that root `.github/copilot-instructions.md` matches vendor source after `link-root`.
-- [ ] I119: Add a smoke test that root `.github/PULL_REQUEST_TEMPLATE/agent_canon.md` matches vendor source after `link-root`.
-- [ ] I120: Add a smoke test that standalone AgentCanon `.github/PULL_REQUEST_TEMPLATE.md` is not copied to root default PR template by accident.
+- [x] I102: Review `tools/sync_agent_canon.sh status` output for stale `subtree / snapshot` wording.
+- [x] I103: Review `tools/sync_agent_canon.sh snapshot` alias and decide whether to deprecate it in user-facing help.
+- [x] I104: Review `tools/sync_agent_canon.sh pull` semantics in submodule mode and decide whether it should refuse or redirect to `ensure-latest`.
+- [x] I105: Review `tools/sync_agent_canon.sh push` semantics in submodule mode and decide whether it should require a proposal branch.
+- [x] I106: Review `make agent-canon-update-plan` output for derived repos with stale submodule pins.
+- [x] I107: Review `make agent-canon-update` safety when the parent repo is dirty but the submodule is clean.
+- [x] I108: Review `make agent-canon-proposal-branch` behavior for submodule changes created in derived repos.
+- [x] I109: Review `make agent-canon-push-proposal` behavior for GitHub remote versus local bare mirror.
+- [x] I110: Review `make agent-canon-pr-check` so it validates `.gitmodules`, submodule URL, and submodule SHA evidence.
+- [x] I111: Add a smoke test for `make agent-canon-ensure-latest` when already current submodule.
+- [x] I112: Add a smoke test for `make agent-canon-ensure-latest` when submodule remote is ahead.
+- [x] I113: Add a smoke test for `make agent-canon-ensure-latest` when submodule has local commits.
+- [x] I114: Add a smoke test for `make agent-canon-ensure-latest` when `.gitmodules` URL differs from submodule origin URL.
+- [x] I115: Add a smoke test for `bash tools/sync_agent_canon.sh link-root` after submodule update.
+- [x] I116: Add a smoke test that `goal.md` remains repo-local after `link-root`.
+- [x] I117: Add a smoke test that root `.github/agent-coordination.yml` matches vendor source after `link-root`.
+- [x] I118: Add a smoke test that root `.github/copilot-instructions.md` matches vendor source after `link-root`.
+- [x] I119: Add a smoke test that root `.github/PULL_REQUEST_TEMPLATE/agent_canon.md` matches vendor source after `link-root`.
+- [x] I120: Add a smoke test that standalone AgentCanon `.github/PULL_REQUEST_TEMPLATE.md` is not copied to root default PR template by accident.
 
 - [ ] I121: Review `.github/workflows/ci.yml` for submodule checkout in every job that uses AgentCanon-backed tools.
 - [ ] I122: Review `.github/workflows/docker-build.yml` for submodule checkout before Docker build context validation.
