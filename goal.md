@@ -15,7 +15,7 @@ downstream implementation tools/sync_agent_canon.sh applies AgentCanon submodule
 
 - goal_status: active
 - run_safety_cap: 20
-- current_iteration: 0
+- current_iteration: 1
 - active_run_id: 20260506-051028-full-repository-review-backlog-for-submo
 - stop_reason:
 
@@ -37,6 +37,10 @@ Turn the repository into a clean submodule-era template by resolving the file-by
 - `bash tools/agent_tools/run_repo_dependency_review.sh --fail-missing`
 - Intake note: an initial full dependency review emitted 28 potential missing-manifest classifications in root shared views / AgentCanon-linked surfaces, but the immediate rerun passed. This goal keeps dependency-tool hardening and regression coverage items so that YAML-frontmatter, H1-first Markdown, symlink, and submodule classifications do not flap.
 
+## Iteration Log
+
+- 2026-05-06 iteration 1: Updated `vendor/agent-canon/ROOT_AGENTS.md` through the root `AGENTS.md` shared view to define the submodule-first AgentCanon update flow, root shared-surface edit rules, closeout product/artifact gate split, independent diff-check exception model, eval artifact handling, workflow-monitor token requirements, and `goal_loop_status` completion gating. Added `review-submodule` / `align-main` tooling for AgentCanon submodule diff classification and safe main alignment. Added the static-analysis language-directory feedback to I171 without increasing the 200-item backlog size.
+
 ## Exit Criteria
 
 - [ ] G1: Every item I001-I200 is resolved, explicitly deferred with owner/date, or split into a new tracked goal.
@@ -50,26 +54,26 @@ Turn the repository into a clean submodule-era template by resolving the file-by
 
 ## Backlog
 
-- [ ] I001: Add an `AGENTS.md` section named `AgentCanon Submodule Update Flow` that states the canonical order: update AgentCanon repo, push AgentCanon main or PR, update template submodule pin, run `link-root`, validate, then push template.
-- [ ] I002: Replace `vendor/agent-canon/ snapshot` wording in root `AGENTS.md` with `vendor/agent-canon submodule pin` wording where the normal path is submodule-based.
-- [ ] I003: Keep `legacy subtree` wording in `AGENTS.md` only in a compatibility paragraph that explicitly says it is not the default path.
-- [ ] I004: Add an `AGENTS.md` rule that missing shared-surface files must be checked in template root, `vendor/agent-canon`, standalone AgentCanon, `.gitmodules`, and `documents/SHARED_RUNTIME_SURFACES.md` before recreating files.
-- [ ] I005: Add an `AGENTS.md` rule that AgentCanon changes in a template PR must not be accepted unless the standalone AgentCanon PR/checklist path is considered first.
-- [ ] I006: Add an `AGENTS.md` rule that root shared-surface edits must be made in `vendor/agent-canon` unless the surface is intentionally template-local.
-- [ ] I007: Add an `AGENTS.md` rule that `goal.md` is always repo-local and must not be restored as a shared symlink.
-- [ ] I008: Add an `AGENTS.md` closeout gate requiring `git submodule status vendor/agent-canon` evidence.
-- [ ] I009: Add an `AGENTS.md` closeout gate requiring AgentCanon GitHub main SHA and template submodule pin SHA to be recorded when the task touches shared canon.
-- [ ] I010: Add an `AGENTS.md` closeout gate requiring local bare mirror status only when the task scope mentions `/mnt/git` or local mirror propagation.
-- [ ] I011: Split `AGENTS.md` closeout prohibitions into product gates and artifact gates so agents do not conflate product diff validation with run-bundle bookkeeping.
-- [ ] I012: Add an `AGENTS.md` exception model for independent diff-check when the runtime forbids spontaneous subagent spawn and the user has not requested multi-agent work.
-- [ ] I013: Add an `AGENTS.md` positive rule that if the user explicitly asks for multi-agent work, a read-only diff-check agent must be spawned before closeout.
-- [ ] I014: Add an `AGENTS.md` rule that `task_close.py` output is the mechanical closeout authority for run bundles.
-- [ ] I015: Add an `AGENTS.md` rule that eval feedback actions must be fixed in artifacts before final response, not merely acknowledged in chat.
-- [ ] I016: Add an `AGENTS.md` rule that `workflow_monitoring.md` must contain machine-readable tokens accepted by `evaluate_agent_run.py`.
-- [ ] I017: Add an `AGENTS.md` rule that `goal_loop_status` controls whether an active goal can be returned as complete.
-- [ ] I018: Add an `AGENTS.md` rule that `NEXT_ACTION=run_next_iteration` blocks completion for adaptive-improvement-loop work.
-- [ ] I019: Add an `AGENTS.md` rule that `NEXT_ACTION=close_goal_loop` allows final closeout only after validations and push evidence are present.
-- [ ] I020: Add an `AGENTS.md` rule that root `AGENTS.md` itself is always an allowed target during workflow-wide reviews.
+- [x] I001: Add an `AGENTS.md` section named `AgentCanon Submodule Update Flow` that states the canonical order: update AgentCanon repo, push AgentCanon main or PR, update template submodule pin, run `link-root`, validate, then push template.
+- [x] I002: Replace `vendor/agent-canon/ snapshot` wording in root `AGENTS.md` with `vendor/agent-canon submodule pin` wording where the normal path is submodule-based.
+- [x] I003: Keep `legacy subtree` wording in `AGENTS.md` only in a compatibility paragraph that explicitly says it is not the default path.
+- [x] I004: Add an `AGENTS.md` rule that missing shared-surface files must be checked in template root, `vendor/agent-canon`, standalone AgentCanon, `.gitmodules`, and `documents/SHARED_RUNTIME_SURFACES.md` before recreating files.
+- [x] I005: Add an `AGENTS.md` rule that AgentCanon changes in a template PR must not be accepted unless the standalone AgentCanon PR/checklist path is considered first.
+- [x] I006: Add an `AGENTS.md` rule that root shared-surface edits must be made in `vendor/agent-canon` unless the surface is intentionally template-local.
+- [x] I007: Add an `AGENTS.md` rule that `goal.md` is always repo-local and must not be restored as a shared symlink.
+- [x] I008: Add an `AGENTS.md` closeout gate requiring `git submodule status vendor/agent-canon` evidence.
+- [x] I009: Add an `AGENTS.md` closeout gate requiring AgentCanon GitHub main SHA and template submodule pin SHA to be recorded when the task touches shared canon.
+- [x] I010: Add an `AGENTS.md` closeout gate requiring local bare mirror status only when the task scope mentions `/mnt/git` or local mirror propagation.
+- [x] I011: Split `AGENTS.md` closeout prohibitions into product gates and artifact gates so agents do not conflate product diff validation with run-bundle bookkeeping.
+- [x] I012: Add an `AGENTS.md` exception model for independent diff-check when the runtime forbids spontaneous subagent spawn and the user has not requested multi-agent work.
+- [x] I013: Add an `AGENTS.md` positive rule that if the user explicitly asks for multi-agent work, a read-only diff-check agent must be spawned before closeout.
+- [x] I014: Add an `AGENTS.md` rule that `task_close.py` output is the mechanical closeout authority for run bundles.
+- [x] I015: Add an `AGENTS.md` rule that eval feedback actions must be fixed in artifacts before final response, not merely acknowledged in chat.
+- [x] I016: Add an `AGENTS.md` rule that `workflow_monitoring.md` must contain machine-readable tokens accepted by `evaluate_agent_run.py`.
+- [x] I017: Add an `AGENTS.md` rule that `goal_loop_status` controls whether an active goal can be returned as complete.
+- [x] I018: Add an `AGENTS.md` rule that `NEXT_ACTION=run_next_iteration` blocks completion for adaptive-improvement-loop work.
+- [x] I019: Add an `AGENTS.md` rule that `NEXT_ACTION=close_goal_loop` allows final closeout only after validations and push evidence are present.
+- [x] I020: Add an `AGENTS.md` rule that root `AGENTS.md` itself is always an allowed target during workflow-wide reviews.
 
 - [ ] I021: Rename `documents/agent-canon-subtree-migration.md` or add a successor document with a submodule-first title.
 - [ ] I022: Keep `documents/agent-canon-subtree-migration.md` only as a migration/legacy reference if a rename would break too many links.
@@ -154,7 +158,7 @@ Turn the repository into a clean submodule-era template by resolving the file-by
 - [ ] I099: Add a `--explain-missing` mode that prints first 20 lines and detected header reason.
 - [ ] I100: Add a CI target that runs dependency review against both root view and `vendor/agent-canon` directly.
 
-- [ ] I101: Review `tools/sync_agent_canon.sh` route names and ensure submodule routes are presented before subtree routes.
+- [x] I101: Review `tools/sync_agent_canon.sh` route names and ensure submodule routes are presented before subtree routes.
 - [ ] I102: Review `tools/sync_agent_canon.sh status` output for stale `subtree / snapshot` wording.
 - [ ] I103: Review `tools/sync_agent_canon.sh snapshot` alias and decide whether to deprecate it in user-facing help.
 - [ ] I104: Review `tools/sync_agent_canon.sh pull` semantics in submodule mode and decide whether it should refuse or redirect to `ensure-latest`.
@@ -227,7 +231,7 @@ Turn the repository into a clean submodule-era template by resolving the file-by
 - [ ] I168: Review `tools/agent_tools/check_static_any.py` coverage for root and AgentCanon Python files.
 - [ ] I169: Review `tools/agent_tools/check_hardcoded_numbers.py` thresholds and false positives in config-heavy files.
 - [ ] I170: Review `tools/agent_tools/check_log_helper_names.py` for Python and shell helper naming coverage.
-- [ ] I171: Add an integrated `make review-backlog-scan` target that runs file inventory, stale wording search, dependency review, workflow lint, and OOP baseline.
+- [ ] I171: Organize static-analysis tools by language-specific directories such as `tools/static_analysis/python/`, `tools/static_analysis/cpp/`, and `tools/static_analysis/common/`, then expose an integrated `make review-backlog-scan` target that runs file inventory, stale wording search, dependency review, workflow lint, and OOP baseline.
 - [ ] I172: Add a generated Markdown report for file-by-file review findings under ignored `reports/agents/<run-id>/`.
 - [ ] I173: Add a machine-readable JSON report for file inventory and surface classification.
 - [ ] I174: Add a `--submodule-aware` option to review tools where parent repo and submodule repo both need scanning.
