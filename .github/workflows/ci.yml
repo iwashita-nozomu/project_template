@@ -15,6 +15,9 @@ on:
 permissions:
   contents: read
 
+env:
+  AGENT_CANON_REPO_SSH_KEY: ${{ secrets.AGENT_CANON_REPO_SSH_KEY }}
+
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true

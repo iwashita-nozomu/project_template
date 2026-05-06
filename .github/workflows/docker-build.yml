@@ -29,6 +29,9 @@ on:
 permissions:
   contents: read
 
+env:
+  AGENT_CANON_REPO_SSH_KEY: ${{ secrets.AGENT_CANON_REPO_SSH_KEY }}
+
 concurrency:
   group: docker-build-${{ github.ref }}
   cancel-in-progress: true
