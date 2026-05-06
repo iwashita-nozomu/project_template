@@ -1,17 +1,17 @@
 <!--
 @dependency-start
 responsibility Provides a Japanese repository audit checklist for this template.
-upstream design AGENTS.md defines runtime and closeout gates.
-upstream design documents/REVIEW_PROCESS.md defines review evidence and merge gates.
-upstream design documents/agent-canon-github-remote.md defines AgentCanon remote policy.
-upstream design documents/template-github-remote.md defines Template remote policy.
-upstream design documents/FILE_CHECKLIST_OPERATIONS.md defines routine operation checks.
+upstream design ../AGENTS.md defines runtime and closeout gates.
+upstream design REVIEW_PROCESS.md defines review evidence and merge gates.
+upstream design agent-canon-github-remote.md defines AgentCanon remote policy.
+upstream design template-github-remote.md defines Template remote policy.
+upstream design FILE_CHECKLIST_OPERATIONS.md defines routine operation checks.
 @dependency-end
 -->
 
 # リポジトリ監査チェックリスト
 
-このチェックリストは、`project_template` と派生 repo の状態を監査するときの確認項目です。
+このチェックリストは、template repo と派生 repo の状態を監査するときの確認項目です。
 差分だけでなく、repo 全体の runtime surface、AgentCanon pin、検証コマンド、文書導線を確認します。
 
 ## 監査メタ情報
@@ -137,8 +137,8 @@ bash tools/agent_tools/check_dependency_graph.sh --print-edges
 
 ```bash
 make docs-check
-python3 tools/docs/check_markdown_lint.py --check checklist.md
-python3 tools/docs/check_markdown_math.py checklist.md
+python3 tools/docs/check_markdown_lint.py --check documents/repository-audit-checklist.md
+python3 tools/docs/check_markdown_math.py documents/repository-audit-checklist.md
 rg -n "TODO|FIXME|old|legacy|subtree|/mnt/git/template.git|/mnt/git/agent-canon.git" README.md documents agents tools
 ```
 
@@ -290,7 +290,7 @@ for path in sorted(Path('.github/workflows').glob('*.yml')):
     yaml.safe_load(path.read_text())
     print(f'{path}: yaml=pass')
 PY
-rg -n "submodules: true|permissions:|concurrency:|PULL_REQUEST_TEMPLATE|github-copilot-workflow" .github vendor/agent-canon/.github agents documents checklist.md
+rg -n "submodules: true|permissions:|concurrency:|PULL_REQUEST_TEMPLATE|github-copilot-workflow" .github vendor/agent-canon/.github agents documents
 ```
 
 ## 14. Push と完了判定

@@ -3,7 +3,7 @@
 @dependency-start
 responsibility Documents the default pull request checklist for template repository changes.
 upstream design ../AGENTS.md defines repository closeout requirements
-upstream design ../checklist.md defines repository audit checklist
+upstream design ../documents/repository-audit-checklist.md defines repository audit checklist
 upstream design ../documents/REVIEW_PROCESS.md defines review evidence requirements
 upstream design ../documents/template-github-remote.md defines template GitHub remote policy
 @dependency-end
