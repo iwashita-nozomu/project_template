@@ -43,6 +43,9 @@ reports/*.md
 reports/*.txt
 reports/*.patch
 
+# Repo-local active goal state
+goal.md
+
 # Generated devcontainer runtime file
 .devcontainer/docker-compose.generated.yml
 
