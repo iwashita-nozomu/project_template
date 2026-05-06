@@ -39,7 +39,8 @@ upstream design ../documents/template-github-remote.md defines template GitHub r
 - [ ] `make ci`
 - [ ] GitHub workflow / PR template changes: `python3 tools/ci/check_github_workflows.py`
 - [ ] Docker/devcontainer changes: `bash tools/docker_dependency_validator.sh`
-- [ ] GitHub workflow changes: every `actions/checkout` job that reads AgentCanon uses `submodules: true`.
+- [ ] GitHub workflow changes: every `actions/checkout` job uses `submodules: false`, then runs `bash tools/ci/checkout_agent_canon_submodule.sh` when AgentCanon is needed.
+- [ ] Private AgentCanon submodule access is covered by repository secret `AGENT_CANON_REPO_TOKEN`, or the PR explains why the workflow does not need it.
 - [ ] GitHub workflow changes: `persist-credentials: false` is set unless the job has documented write intent.
 - [ ] GitHub workflow changes: `permissions:` is set at workflow or job level.
 - [ ] GitHub workflow changes: `concurrency:` is present or explicitly not needed.
@@ -55,6 +56,7 @@ paste the key pass lines here
 - [ ] `vendor/agent-canon` pin matches AgentCanon GitHub `main`, or the intentional delta is explained.
 - [ ] `vendor/agent-canon` pin is unchanged and the reason is documented below.
 - [ ] `.gitmodules` was reviewed when AgentCanon URL, branch, or checkout behavior is in scope.
+- [ ] GitHub Actions private submodule checkout behavior was reviewed when CI, Docker, Copilot, or PR automation is in scope.
 - [ ] AgentCanon changes were committed and pushed to `iwashita-nozomu/agent-canon`.
 - [ ] Template submodule pin was committed after AgentCanon push.
 - [ ] Memory changes were persisted with `python3 tools/agent_tools/persist_agent_memory.py --commit --push`.

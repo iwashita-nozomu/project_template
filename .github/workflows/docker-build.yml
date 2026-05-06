@@ -2,6 +2,7 @@
 # responsibility Defines docker build YAML configuration.
 # upstream environment ../../docker/README.md docker runtime contract
 # upstream implementation ../../tools/ci/check_docker_build.sh docker build validation
+# upstream implementation ../../tools/ci/checkout_agent_canon_submodule.sh private AgentCanon checkout gate
 # @dependency-end
 name: Docker Build
 
@@ -37,11 +38,15 @@ jobs:
     name: Docker Pack Build
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository with AgentCanon
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          submodules: true
+          submodules: false
           persist-credentials: false
+      - name: Checkout AgentCanon submodule
+        env:
+          AGENT_CANON_REPO_TOKEN: ${{ secrets.AGENT_CANON_REPO_TOKEN }}
+        run: bash tools/ci/checkout_agent_canon_submodule.sh
 
       - name: Run default Docker pack check
         run: bash tools/ci/check_docker_build.sh --pack docker/packs/default.toml --pull --tag project-template:ci-default
