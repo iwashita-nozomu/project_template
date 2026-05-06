@@ -15,7 +15,7 @@ downstream implementation tools/sync_agent_canon.sh applies AgentCanon submodule
 
 - goal_status: active
 - run_safety_cap: 20
-- current_iteration: 2
+- current_iteration: 3
 - active_run_id: 20260506-051028-full-repository-review-backlog-for-submo
 - stop_reason:
 
@@ -41,6 +41,7 @@ Turn the repository into a clean submodule-era template by resolving the file-by
 
 - 2026-05-06 iteration 1: Updated `vendor/agent-canon/ROOT_AGENTS.md` through the root `AGENTS.md` shared view to define the submodule-first AgentCanon update flow, root shared-surface edit rules, closeout product/artifact gate split, independent diff-check exception model, eval artifact handling, workflow-monitor token requirements, and `goal_loop_status` completion gating. Added `review-submodule` / `align-main` tooling for AgentCanon submodule diff classification and safe main alignment. Added the static-analysis language-directory feedback to I171 without increasing the 200-item backlog size.
 - 2026-05-06 iteration 2: Cleaned template product tree by removing tracked historical `reports/agents/...` run bundles and generated report Markdown files, expanded `.gitignore` so root `reports/*.md` stays generated state, and updated submodule-first README / AgentCanon migration / PR checklist evidence for I021-I040.
+- 2026-05-06 iteration 3: Rewrote `vendor/README.md`, AgentCanon `AGENTS.md`, AgentCanon `README.md`, and `documents/SHARED_RUNTIME_SURFACES.md` to make submodule pin the normal path, isolate legacy subtree wording, list `.gitmodules` as template-local runtime contract, and document root synced-copy / GitHub symlink / standalone-only surfaces for I041-I060.
 
 ## Exit Criteria
 
@@ -97,26 +98,26 @@ Turn the repository into a clean submodule-era template by resolving the file-by
 - [x] I039: Add a PR checklist field for `AgentCanon GitHub SHA`.
 - [x] I040: Add a PR checklist field for `template submodule SHA`.
 
-- [ ] I041: Update `vendor/README.md` to stop calling `vendor/agent-canon` a subtree snapshot in the normal path.
-- [ ] I042: Update `vendor/README.md` commands so `submodule-add`, `ensure-latest`, `status`, and `link-root` are explained before legacy subtree commands.
-- [ ] I043: Update `vendor/README.md` to remove `pull` and `push` from the recommended derived-repo path unless they route through submodule semantics.
-- [ ] I044: Add a `Legacy subtree operations` warning block to `vendor/README.md`.
-- [ ] I045: Update `vendor/agent-canon/AGENTS.md` to say standalone AgentCanon repo is source, while template uses submodule pin, not subtree snapshot.
-- [ ] I046: Update `vendor/agent-canon/AGENTS.md` to replace `subtree 内の変更` with `AgentCanon tree changes`.
-- [ ] I047: Update `vendor/agent-canon/README.md` duplicate `.github/PULL_REQUEST_TEMPLATE/agent_canon.md` bullets.
-- [ ] I048: Update `vendor/agent-canon/README.md` to clarify which `.github` files are standalone-only, root-synced copies, and template-only copies.
-- [ ] I049: Update `documents/SHARED_RUNTIME_SURFACES.md` to separate submodule-default behavior from legacy subtree behavior.
-- [ ] I050: Update `documents/SHARED_RUNTIME_SURFACES.md` to list `.gitmodules` as a template-local surface with AgentCanon dependency.
-- [ ] I051: Update `documents/SHARED_RUNTIME_SURFACES.md` to list root `AGENTS.md` as a synced copy or symlink target according to actual file mode.
-- [ ] I052: Add a generated shared-surface audit command to `documents/SHARED_RUNTIME_SURFACES.md`.
-- [ ] I053: Add a root-copy surface table for `.github/workflows/agent-coordination.yml`.
-- [ ] I054: Add a root-copy surface table for `.github/copilot-instructions.md`.
-- [ ] I055: Add a root-copy surface table for `.github/AGENTS.md`.
-- [ ] I056: Add a root-copy surface table for `.github/PULL_REQUEST_TEMPLATE/agent_canon.md`.
-- [ ] I057: Add a standalone-only surface table for `vendor/agent-canon/.github/PULL_REQUEST_TEMPLATE.md`.
-- [ ] I058: Add a rule that root copy surfaces must name their AgentCanon source in the file header.
-- [ ] I059: Add a rule that root copy surfaces must be compared against vendor source by `sync_agent_canon.sh check`.
-- [ ] I060: Add a rule that root copy surface changes require a source-side diff or a documented intentional override.
+- [x] I041: Update `vendor/README.md` to stop calling `vendor/agent-canon` a subtree snapshot in the normal path.
+- [x] I042: Update `vendor/README.md` commands so submodule plan, review, apply, proposal, status, and link-root are explained before legacy subtree commands.
+- [x] I043: Update `vendor/README.md` to remove `pull` and `push` from the recommended derived-repo path unless they route through submodule semantics.
+- [x] I044: Add a `Legacy subtree operations` warning block to `vendor/README.md`.
+- [x] I045: Update `vendor/agent-canon/AGENTS.md` to say standalone AgentCanon repo is source, while template uses submodule pin, not subtree snapshot.
+- [x] I046: Update `vendor/agent-canon/AGENTS.md` to replace `subtree 内の変更` with `AgentCanon tree changes`.
+- [x] I047: Update `vendor/agent-canon/README.md` duplicate `.github/PULL_REQUEST_TEMPLATE/agent_canon.md` bullets.
+- [x] I048: Update `vendor/agent-canon/README.md` to clarify which `.github` files are standalone-only, root-synced copies, and template-side symlink views.
+- [x] I049: Update `documents/SHARED_RUNTIME_SURFACES.md` to separate submodule-default behavior from legacy subtree behavior.
+- [x] I050: Update `documents/SHARED_RUNTIME_SURFACES.md` to list `.gitmodules` as a template-local surface with AgentCanon dependency.
+- [x] I051: Update `documents/SHARED_RUNTIME_SURFACES.md` to list root `AGENTS.md` as a symlink target according to actual file mode.
+- [x] I052: Add a generated shared-surface audit command to `documents/SHARED_RUNTIME_SURFACES.md`.
+- [x] I053: Add a root-copy surface table for `.github/workflows/agent-coordination.yml`.
+- [x] I054: Add a GitHub symlink surface table for `.github/copilot-instructions.md`.
+- [x] I055: Add a GitHub symlink surface table for `.github/AGENTS.md`.
+- [x] I056: Add a root-copy surface table for `.github/PULL_REQUEST_TEMPLATE/agent_canon.md`.
+- [x] I057: Add a standalone-only surface table for `vendor/agent-canon/.github/PULL_REQUEST_TEMPLATE.md`.
+- [x] I058: Add a rule that root copy surfaces must name their AgentCanon source in the file header.
+- [x] I059: Add a rule that root copy surfaces must be compared against vendor source by `sync_agent_canon.sh check`.
+- [x] I060: Add a rule that root copy surface changes require a source-side diff or a documented intentional override.
 
 - [ ] I061: Lock the full repo dependency review baseline so `run_repo_dependency_review.sh --fail-missing` remains stable across repeated runs.
 - [ ] I062: Decide whether dependency header tools should allow YAML frontmatter before the dependency manifest for `SKILL.md`.
