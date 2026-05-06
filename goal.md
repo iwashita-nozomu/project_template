@@ -15,7 +15,7 @@ downstream implementation tools/sync_agent_canon.sh applies AgentCanon submodule
 
 - goal_status: active
 - run_safety_cap: 20
-- current_iteration: 6
+- current_iteration: 7
 - active_run_id: 20260506-051028-full-repository-review-backlog-for-submo
 - stop_reason:
 
@@ -45,6 +45,7 @@ Turn the repository into a clean submodule-era template by resolving the file-by
 - 2026-05-06 iteration 4: Locked dependency-manifest top-of-file policy by documenting frontmatter / H1 allowance, full-repo strict review stability, and regression tests for SKILL.md frontmatter, Markdown H1, shell/TOML comments, symlink root views, and the I067-I080 agent runtime surfaces.
 - 2026-05-06 iteration 5: Extended dependency manifest tests to I081-I094 runtime/docs/memory/notes surfaces, added root symlink versus vendor source graph coverage, added missing-header owner summaries and `--explain-missing`, accepted `--allow-frontmatter`, and added `make dependency-review-surfaces` for root plus AgentCanon strict review.
 - 2026-05-06 iteration 6: Hardened submodule-era AgentCanon update commands by making status expose submodule mode, deprecating the snapshot alias, redirecting pull to ensure-latest in submodule mode, refusing direct main push by default, validating `.gitmodules` / submodule pin evidence in the PR gate, and adding smoke tests for current, remote-ahead, local-commit, `.gitmodules` URL, and link-root root-surface behavior. Also removed ignored generated template workspace artifacts and added `make clean-generated` plus VS Code generated-artifact hiding so the template view does not accumulate run/cache/build noise.
+- 2026-05-06 iteration 7: Added `check_github_workflows.py` and `make github-workflow-check` to mechanically validate GitHub Actions checkout submodules, credentials, permissions, concurrency, root-copy workflow headers, PR template evidence, and Copilot discovery surfaces. Wired the checker into `make agent-canon-pr-check`, added regression tests, documented branch protection baselines for AgentCanon and Template, and added PR body examples for AgentCanon pin-only, AgentCanon source plus template pin, root-only workflow, and Copilot-only instruction changes.
 
 ## Exit Criteria
 
@@ -184,26 +185,26 @@ Turn the repository into a clean submodule-era template by resolving the file-by
 - [x] I119: Add a smoke test that root `.github/PULL_REQUEST_TEMPLATE/agent_canon.md` matches vendor source after `link-root`.
 - [x] I120: Add a smoke test that standalone AgentCanon `.github/PULL_REQUEST_TEMPLATE.md` is not copied to root default PR template by accident.
 
-- [ ] I121: Review `.github/workflows/ci.yml` for submodule checkout in every job that uses AgentCanon-backed tools.
-- [ ] I122: Review `.github/workflows/docker-build.yml` for submodule checkout before Docker build context validation.
-- [ ] I123: Review `.github/workflows/agent-coordination.yml` for duplicated checkout blocks and consider YAML anchors or generated workflow composition.
-- [ ] I124: Add a workflow lint that counts checkout steps without `submodules: true` when AgentCanon paths are referenced.
-- [ ] I125: Add a workflow lint that rejects `persist-credentials: true` unless a job has documented write intent.
-- [ ] I126: Add a workflow lint that rejects missing `permissions:` on workflows.
-- [ ] I127: Add a workflow lint that warns on workflows missing `concurrency:` when jobs are long-running.
-- [ ] I128: Add a workflow lint that checks root copy workflow header points to vendor source.
-- [ ] I129: Add a workflow lint that checks AgentCanon workflow source header points to its PR workflow.
-- [ ] I130: Add a workflow lint that checks PR template checklist contains validation evidence, dependency evidence, and submodule evidence.
-- [ ] I131: Add a Copilot workflow acceptance test that `.github/copilot-instructions.md` links `agents/workflows/github-copilot-workflow.md`.
-- [ ] I132: Add a Copilot workflow acceptance test that standalone AgentCanon PR template is discoverable from AgentCanon README.
-- [ ] I133: Add a Copilot workflow acceptance test that template AgentCanon PR template is discoverable from root `.github/AGENTS.md`.
-- [ ] I134: Add GitHub branch protection documentation for template main.
-- [ ] I135: Add GitHub branch protection documentation for AgentCanon main.
-- [ ] I136: Add `gh pr create` guidance for AgentCanon changes that start in a derived repo.
-- [ ] I137: Add PR body examples for AgentCanon pin-only updates.
-- [ ] I138: Add PR body examples for AgentCanon source changes plus template pin update.
-- [ ] I139: Add PR body examples for root-only template workflow changes.
-- [ ] I140: Add PR body examples for Copilot-only instructions changes.
+- [x] I121: Review `.github/workflows/ci.yml` for submodule checkout in every job that uses AgentCanon-backed tools.
+- [x] I122: Review `.github/workflows/docker-build.yml` for submodule checkout before Docker build context validation.
+- [x] I123: Review `.github/workflows/agent-coordination.yml` for duplicated checkout blocks and consider YAML anchors or generated workflow composition.
+- [x] I124: Add a workflow lint that counts checkout steps without `submodules: true` when AgentCanon paths are referenced.
+- [x] I125: Add a workflow lint that rejects `persist-credentials: true` unless a job has documented write intent.
+- [x] I126: Add a workflow lint that rejects missing `permissions:` on workflows.
+- [x] I127: Add a workflow lint that warns on workflows missing `concurrency:` when jobs are long-running.
+- [x] I128: Add a workflow lint that checks root copy workflow header points to vendor source.
+- [x] I129: Add a workflow lint that checks AgentCanon workflow source header points to its PR workflow.
+- [x] I130: Add a workflow lint that checks PR template checklist contains validation evidence, dependency evidence, and submodule evidence.
+- [x] I131: Add a Copilot workflow acceptance test that `.github/copilot-instructions.md` links `agents/workflows/github-copilot-workflow.md`.
+- [x] I132: Add a Copilot workflow acceptance test that standalone AgentCanon PR template is discoverable from AgentCanon README.
+- [x] I133: Add a Copilot workflow acceptance test that template AgentCanon PR template is discoverable from root `.github/AGENTS.md`.
+- [x] I134: Add GitHub branch protection documentation for template main.
+- [x] I135: Add GitHub branch protection documentation for AgentCanon main.
+- [x] I136: Add `gh pr create` guidance for AgentCanon changes that start in a derived repo.
+- [x] I137: Add PR body examples for AgentCanon pin-only updates.
+- [x] I138: Add PR body examples for AgentCanon source changes plus template pin update.
+- [x] I139: Add PR body examples for root-only template workflow changes.
+- [x] I140: Add PR body examples for Copilot-only instructions changes.
 
 - [ ] I141: Review `agents/workflows/github-copilot-workflow.md` for clear separation between Copilot limits and Codex closeout gates.
 - [ ] I142: Review `agents/workflows/agent-canon-pr-workflow.md` for submodule-era sequencing.

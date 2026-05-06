@@ -5,7 +5,7 @@
 # upstream implementation tools/agent_tools/run_repo_dependency_review.sh exposes repo-wide dependency review
 # @dependency-end
 
-.PHONY: ci ci-quick docs-check clean-generated dev-setup tools-help agent-checks agent-canon-check agent-canon-latest-check agent-canon-links agent-canon-snapshot agent-canon-status agent-canon-ensure-latest agent-canon-update-plan agent-canon-update agent-canon-proposal-branch agent-canon-push-proposal agent-canon-register-local-bare agent-canon-pr-check docker-check python-env-status python-env-prepare docker-build-check docker-build-check-host-docker docker-run devcontainer-render server-check experiment-check docker-shell docker-jupyter docker-codex docker-codex-host-docker fresh-clone-check template-check start-repository task-start doc-start task-close agent-evaluate dependency-review dependency-review-surfaces waterfall-gate-check user-preference-log
+.PHONY: ci ci-quick docs-check clean-generated github-workflow-check dev-setup tools-help agent-checks agent-canon-check agent-canon-latest-check agent-canon-links agent-canon-snapshot agent-canon-status agent-canon-ensure-latest agent-canon-update-plan agent-canon-update agent-canon-proposal-branch agent-canon-push-proposal agent-canon-register-local-bare agent-canon-pr-check docker-check python-env-status python-env-prepare docker-build-check docker-build-check-host-docker docker-run devcontainer-render server-check experiment-check docker-shell docker-jupyter docker-codex docker-codex-host-docker fresh-clone-check template-check start-repository task-start doc-start task-close agent-evaluate dependency-review dependency-review-surfaces waterfall-gate-check user-preference-log
 
 # ★推奨: 統合 CI（pytest + pyright + ruff）
 ci:
@@ -72,6 +72,10 @@ docs-check:
 # remove generated, ignored artifacts that make the template workspace noisy
 clean-generated:
 	git clean -Xdf .pytest_cache .ruff_cache build logs reports tests tests/logs .devcontainer/docker-compose.generated.yml
+
+# GitHub Actions / PR template / Copilot convention checks
+github-workflow-check:
+	python3 tools/ci/check_github_workflows.py
 
 # agent runtime / skill drift checks
 agent-checks:

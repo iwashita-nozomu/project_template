@@ -37,6 +37,7 @@ upstream design ../documents/template-github-remote.md defines template GitHub r
 - [ ] `make agent-checks`
 - [ ] `make docs-check`
 - [ ] `make ci`
+- [ ] GitHub workflow / PR template changes: `python3 tools/ci/check_github_workflows.py`
 - [ ] Docker/devcontainer changes: `bash tools/docker_dependency_validator.sh`
 - [ ] GitHub workflow changes: every `actions/checkout` job that reads AgentCanon uses `submodules: true`.
 - [ ] GitHub workflow changes: `persist-credentials: false` is set unless the job has documented write intent.
