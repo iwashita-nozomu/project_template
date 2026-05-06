@@ -290,7 +290,7 @@ for path in sorted(Path('.github/workflows').glob('*.yml')):
     yaml.safe_load(path.read_text())
     print(f'{path}: yaml=pass')
 PY
-rg -n "submodules: true|permissions:|concurrency:|PULL_REQUEST_TEMPLATE|github-copilot-workflow" .github vendor/agent-canon/.github agents documents
+rg -n "submodules: false|checkout_agent_canon_submodule|permissions:|concurrency:|PULL_REQUEST_TEMPLATE|github-copilot-workflow" .github vendor/agent-canon/.github agents documents
 ```
 
 ## 14. Push と完了判定
