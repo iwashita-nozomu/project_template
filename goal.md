@@ -15,7 +15,7 @@ downstream implementation tools/sync_agent_canon.sh applies AgentCanon submodule
 
 - goal_status: active
 - run_safety_cap: 20
-- current_iteration: 3
+- current_iteration: 4
 - active_run_id: 20260506-051028-full-repository-review-backlog-for-submo
 - stop_reason:
 
@@ -42,6 +42,7 @@ Turn the repository into a clean submodule-era template by resolving the file-by
 - 2026-05-06 iteration 1: Updated `vendor/agent-canon/ROOT_AGENTS.md` through the root `AGENTS.md` shared view to define the submodule-first AgentCanon update flow, root shared-surface edit rules, closeout product/artifact gate split, independent diff-check exception model, eval artifact handling, workflow-monitor token requirements, and `goal_loop_status` completion gating. Added `review-submodule` / `align-main` tooling for AgentCanon submodule diff classification and safe main alignment. Added the static-analysis language-directory feedback to I171 without increasing the 200-item backlog size.
 - 2026-05-06 iteration 2: Cleaned template product tree by removing tracked historical `reports/agents/...` run bundles and generated report Markdown files, expanded `.gitignore` so root `reports/*.md` stays generated state, and updated submodule-first README / AgentCanon migration / PR checklist evidence for I021-I040.
 - 2026-05-06 iteration 3: Rewrote `vendor/README.md`, AgentCanon `AGENTS.md`, AgentCanon `README.md`, and `documents/SHARED_RUNTIME_SURFACES.md` to make submodule pin the normal path, isolate legacy subtree wording, list `.gitmodules` as template-local runtime contract, and document root synced-copy / GitHub symlink / standalone-only surfaces for I041-I060.
+- 2026-05-06 iteration 4: Locked dependency-manifest top-of-file policy by documenting frontmatter / H1 allowance, full-repo strict review stability, and regression tests for SKILL.md frontmatter, Markdown H1, shell/TOML comments, symlink root views, and the I067-I080 agent runtime surfaces.
 
 ## Exit Criteria
 
@@ -119,26 +120,26 @@ Turn the repository into a clean submodule-era template by resolving the file-by
 - [x] I059: Add a rule that root copy surfaces must be compared against vendor source by `sync_agent_canon.sh check`.
 - [x] I060: Add a rule that root copy surface changes require a source-side diff or a documented intentional override.
 
-- [ ] I061: Lock the full repo dependency review baseline so `run_repo_dependency_review.sh --fail-missing` remains stable across repeated runs.
-- [ ] I062: Decide whether dependency header tools should allow YAML frontmatter before the dependency manifest for `SKILL.md`.
-- [ ] I063: Decide whether dependency header tools should allow H1 title before the dependency manifest in Markdown docs.
-- [ ] I064: Add tests for dependency header detection with YAML frontmatter plus HTML comment blocks.
-- [ ] I065: Add tests for dependency header detection with TOML and shell comment syntax.
-- [ ] I066: Add tests for dependency header detection through symlink root views.
-- [ ] I067: Add regression coverage for `.agents/skills/codex-task-workflow/SKILL.md` dependency scan classification.
-- [ ] I068: Add regression coverage for `.claude/skills/adaptive-improvement-loop/SKILL.md` dependency scan classification.
-- [ ] I069: Add regression coverage for `.claude/skills/codex-task-workflow/SKILL.md` dependency scan classification.
-- [ ] I070: Add regression coverage for `.codex/README.md` dependency scan classification.
-- [ ] I071: Add regression coverage for `ROOT_AGENTS.md` missing/broken shared surface classification.
-- [ ] I072: Add regression coverage for `agents/TASK_WORKFLOWS.md` dependency scan classification.
-- [ ] I073: Add regression coverage for `agents/USER_GUIDE_JA.md` dependency scan classification.
-- [ ] I074: Add regression coverage for `agents/skills/catalog.yaml` dependency scan classification.
-- [ ] I075: Add regression coverage for `agents/skills/worktree-start.md` dependency scan classification.
-- [ ] I076: Add regression coverage for `agents/task_catalog.yaml` dependency scan classification.
-- [ ] I077: Add regression coverage for `agents/workflows/adaptive-improvement-workflow.md` dependency scan classification.
-- [ ] I078: Add regression coverage for `agents/workflows/agent-canon-pr-workflow.md` dependency scan classification.
-- [ ] I079: Add regression coverage for `agents/workflows/agent-learning-workflow.md` dependency scan classification.
-- [ ] I080: Add regression coverage for `agents/workflows/experiment-workflow.md` dependency scan classification.
+- [x] I061: Lock the full repo dependency review baseline so `run_repo_dependency_review.sh --fail-missing` remains stable across repeated runs.
+- [x] I062: Decide whether dependency header tools should allow YAML frontmatter before the dependency manifest for `SKILL.md`.
+- [x] I063: Decide whether dependency header tools should allow H1 title before the dependency manifest in Markdown docs.
+- [x] I064: Add tests for dependency header detection with YAML frontmatter plus HTML comment blocks.
+- [x] I065: Add tests for dependency header detection with TOML and shell comment syntax.
+- [x] I066: Add tests for dependency header detection through symlink root views.
+- [x] I067: Add regression coverage for `.agents/skills/codex-task-workflow/SKILL.md` dependency scan classification.
+- [x] I068: Add regression coverage for `.claude/skills/adaptive-improvement-loop/SKILL.md` dependency scan classification.
+- [x] I069: Add regression coverage for `.claude/skills/codex-task-workflow/SKILL.md` dependency scan classification.
+- [x] I070: Add regression coverage for `.codex/README.md` dependency scan classification.
+- [x] I071: Add regression coverage for `ROOT_AGENTS.md` missing/broken shared surface classification.
+- [x] I072: Add regression coverage for `agents/TASK_WORKFLOWS.md` dependency scan classification.
+- [x] I073: Add regression coverage for `agents/USER_GUIDE_JA.md` dependency scan classification.
+- [x] I074: Add regression coverage for `agents/skills/catalog.yaml` dependency scan classification.
+- [x] I075: Add regression coverage for `agents/skills/worktree-start.md` dependency scan classification.
+- [x] I076: Add regression coverage for `agents/task_catalog.yaml` dependency scan classification.
+- [x] I077: Add regression coverage for `agents/workflows/adaptive-improvement-workflow.md` dependency scan classification.
+- [x] I078: Add regression coverage for `agents/workflows/agent-canon-pr-workflow.md` dependency scan classification.
+- [x] I079: Add regression coverage for `agents/workflows/agent-learning-workflow.md` dependency scan classification.
+- [x] I080: Add regression coverage for `agents/workflows/experiment-workflow.md` dependency scan classification.
 - [ ] I081: Add regression coverage for `agents/workflows/implementation-waterfall-workflow.md` dependency scan classification.
 - [ ] I082: Add regression coverage for `documents/BRANCH_SCOPE.md` dependency scan classification.
 - [ ] I083: Add regression coverage for `documents/algorithm-implementation-boundary.md` dependency scan classification.
