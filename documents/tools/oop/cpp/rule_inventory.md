@@ -1,0 +1,1 @@
+../../../../vendor/agent-canon/documents/tools/oop/cpp/rule_inventory.md

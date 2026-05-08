@@ -1,0 +1,1 @@
+../vendor/agent-canon/documents/github-copilot-configuration.md

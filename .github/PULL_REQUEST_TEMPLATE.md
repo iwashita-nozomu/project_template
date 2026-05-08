@@ -6,6 +6,7 @@ upstream design ../AGENTS.md defines repository closeout requirements
 upstream design ../documents/repository-audit-checklist.md defines repository audit checklist
 upstream design ../documents/REVIEW_PROCESS.md defines review evidence requirements
 upstream design ../documents/template-github-remote.md defines template GitHub remote policy
+upstream design ../documents/github-copilot-configuration.md defines Copilot configuration and PR-template routing
 @dependency-end
 -->
 
@@ -14,6 +15,7 @@ upstream design ../documents/template-github-remote.md defines template GitHub r
 - What changed:
 - Why this change is needed:
 - User/request clause or issue:
+- Template / derived project PR context:
 
 ## Scope Classification
 
@@ -23,6 +25,32 @@ upstream design ../documents/template-github-remote.md defines template GitHub r
 - [ ] Docker/devcontainer/runtime change
 - [ ] GitHub Actions or PR checklist change
 - [ ] Documentation-only change
+
+## Repository Separation
+
+- [ ] This is a Template / derived project PR, not a standalone AgentCanon repository PR.
+- [ ] Standalone AgentCanon source changes, if needed, were opened or merged in the AgentCanon repository first.
+- [ ] Changes under `vendor/agent-canon/` also use `.github/PULL_REQUEST_TEMPLATE/agent_canon.md` evidence.
+- [ ] The standalone AgentCanon `.github/PULL_REQUEST_TEMPLATE.md` was not copied into the template root.
+
+## Plan Mode Evidence
+
+- [ ] Plan mode was used before non-trivial template, Copilot, GitHub Actions, PR-template, AgentCanon sync, or shared runtime-surface changes.
+- [ ] Written plan is included in the PR body, issue, run bundle, or linked comment when the runtime did not expose an explicit Plan mode.
+- [ ] Trivial-change exception is explained below when Plan mode was not used.
+
+Plan / exception:
+
+## Copilot Configuration Impact
+
+- [ ] `documents/github-copilot-configuration.md` was reviewed.
+- [ ] `.github/copilot-instructions.md` changed / reviewed / not affected.
+- [ ] `.github/instructions/*.instructions.md` changed / reviewed / not affected.
+- [ ] `.github/agents/*.md` changed / reviewed / not affected.
+- [ ] GitHub Copilot MCP, `copilot-setup-steps.yml`, or Copilot environment settings changed / reviewed / not affected.
+- [ ] PR template routing still separates Template / derived project PRs, AgentCanon pin PRs, and standalone AgentCanon repository PRs.
+
+Impact notes:
 
 ## Reuse And Drift
 
