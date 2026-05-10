@@ -1,4 +1,8 @@
 # Core numerical computing
+experiment-runner @ git+file:///mnt/git/experiment_runner.git
+jax_util @ git+file:///mnt/git/jax_util.git
+
+
 jaxtyping
 typeguard
 equinox
