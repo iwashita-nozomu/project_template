@@ -31,7 +31,8 @@ downstream design ../memory/README.md stable memory promotion target
 
 - 規約へ昇格する内容は `documents/` に移します。
 - branch / worktree の action log は closeout 時に `knowledge`、`themes`、`failures` へ昇格させます。
-- durable な user preference は `notes/themes/USER_PREFERENCES.md` に集約します。
+- cross-repo に効く durable な user preference は shared canon の `memory/USER_PREFERENCES.md` に記録し、安定後に `AGENTS.md` への昇格を判断します。
+- repo-specific な theme や調査メモは `notes/themes/` に置きます。`notes/themes/USER_PREFERENCES.md` は新規の正本として作りません。
 
 ## 参照先
 

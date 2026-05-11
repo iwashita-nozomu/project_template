@@ -31,6 +31,7 @@ agent を使う場合は次を見ます。
 
 - [agents/README.md](agents/README.md)
 - [documents/AGENTS_COORDINATION.md](documents/AGENTS_COORDINATION.md)
+- [documents/agent-canon-parent-repo-latest-checklist.md](documents/agent-canon-parent-repo-latest-checklist.md)
 
 ## 2. 作業の始め方
 
@@ -55,11 +56,13 @@ python3 -m pyright
 ```
 
 `make ci-quick` を host で直接流す場合は `docker/requirements.txt` 相当の Python tool が入っている前提です。canonical runtime は container なので、迷う場合は devcontainer か `docker/` 配下の runner から実行します。
+AgentCanon が submodule の repo では、親 repo に無関係な dirty path があっても AgentCanon update surface が clean なら `make agent-canon-ensure-latest` を先に実行できます。
 
 ## 3. 実装前の確認
 
 - `documents/conventions/README.md` と `documents/coding-conventions-python.md` を先に見ます。
 - agent workflow を使う変更なら `agents/workflows/README.md` と `agents/canonical/CODEX_WORKFLOW.md` を確認します。
+- AgentCanon submodule / root view を触る変更なら `documents/agent-canon-parent-repo-latest-checklist.md` と `documents/SHARED_RUNTIME_SURFACES.md` で owner class を確認します。
 
 ```bash
 make ci-quick
