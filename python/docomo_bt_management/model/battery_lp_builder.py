@@ -1,20 +1,66 @@
-"""Battery LP builder mirroring the C++ block-structured model.
-
-Constructs all equality/inequality block matrices using JAX BCOO so
-that downstream solvers (CPU or GPU) can consume the exact same LP as
-`battery_lp_model.hpp`.
-"""
+# @dependency-start
+# responsibility Provides a standalone jax_util algorithm-module shaped battery LP block assembler draft.
+# upstream design ../../../notes/knowledge/imported_battery_lp_model_analysis.md documents battery LP formulation
+# upstream implementation ./_env.py provides the repository default dtype
+# upstream implementation ../../../docker/requirements.txt declares the jax_util algorithm module dependency
+# @dependency-end
+"""Standalone battery LP block assembler shaped as a jax_util algorithm module."""
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Any
-
+import equinox as eqx
 from jax import numpy as jnp
 from jax.experimental import sparse as jsparse
+from jax.typing import DTypeLike
 from jax_util.base import Vector
+from jax_util.base import algorithm_module_protocol as amp
 from jaxtyping import Array
 
 from ._env import DEFAULT_DTYPE
+
+Z_MODE_BLOCKS = 7
+EQUALITY_BLOCKS = 6
+STATE_EQUATION_BLOCK = 3
+DISCHARGE_SUM_BLOCK = 4
+CHARGE_SUM_BLOCK = 5
+Z_B_OFFSET_BLOCK = 1
+M_HAT_OFFSET_BLOCK = 2
+M_A_OFFSET_BLOCK = 3
+M_P_OFFSET_BLOCK = 4
+R_HAT_OFFSET_BLOCK = 5
+R_C_OFFSET_BLOCK = 6
+
+
+class InitializeConfig(amp.InitializeConfig):
+    """Configuration for one battery LP block assembler."""
+
+    horizon: int = eqx.field(static=True)
+    efficiency: float = eqx.field(static=True)
+    pcs_capacity: float = eqx.field(static=True)
+    charge_rate: float = eqx.field(static=True)
+    B_lower: float = eqx.field(static=True)
+    B_upper: float = eqx.field(static=True)
+    loss: float = eqx.field(static=True)
+    dtype_name: str = eqx.field(static=True, default=jnp.dtype(DEFAULT_DTYPE).name)
+
+
+class SolveConfig(amp.SolveConfig):
+    """Runtime configuration for one battery LP assembly call."""
+
+
+class Problem(amp.Problem):
+    """Solve-time problem placeholder for parameter-free block assembly."""
+
+
+class State(amp.State):
+    """Warm-start state placeholder for stateless block assembly."""
+
+
+class Info(amp.Info):
+    """Diagnostics returned with assembled battery LP blocks."""
+
+    horizon: int = eqx.field(static=True)
+    equality_rows: int = eqx.field(static=True)
+    inequality_rows: int = eqx.field(static=True)
 
 
 class TripletBuilder:
@@ -32,7 +78,7 @@ class TripletBuilder:
         self.cols.append(int(col))
         self.data.append(float(value))
 
-    def to_bcoo(self, shape: tuple[int, int], dtype: type = DEFAULT_DTYPE) -> jsparse.BCOO:
+    def to_bcoo(self, shape: tuple[int, int], dtype: DTypeLike = DEFAULT_DTYPE) -> jsparse.BCOO:
         """Materialize the collected triplets as a BCOO matrix."""
         if not self.data:
             return jsparse.BCOO(
@@ -46,12 +92,11 @@ class TripletBuilder:
         return jsparse.BCOO((data, indices), shape=shape)
 
 
-@dataclass
-class BlockMatricesSchoolmodel:
-    """Block-structured LP matrices for the school battery model."""
+class Answer(amp.Answer):
+    """Block-structured LP matrices returned by one assembly call."""
 
     # Equality blocks (6N rows)
-    dtype: Any
+    dtype: DTypeLike = eqx.field(static=True)
     A_L0: jsparse.BCOO
     A_Lt: jsparse.BCOO
     A_x: jsparse.BCOO
@@ -77,42 +122,48 @@ class BlockMatricesSchoolmodel:
     b_ineq: Vector
 
 
-BlockMatrices = BlockMatricesSchoolmodel
+class Algorithm(amp.Algorithm[Problem, State, SolveConfig, Answer, Info]):
+    """Callable battery LP block assembler returned by ``initialize``."""
 
-class BatteryLPBuilder:
-    """Build the battery LP block matrices for one horizon length."""
+    N: int = eqx.field(static=True)
+    eff: float = eqx.field(static=True)
+    pcs: float = eqx.field(static=True)
+    charge: float = eqx.field(static=True)
+    B_lower: float = eqx.field(static=True)
+    B_upper: float = eqx.field(static=True)
+    loss: float = eqx.field(static=True)
+    dtype: DTypeLike = eqx.field(static=True)
+    M_x: float = eqx.field(static=True)
+    M_y: float = eqx.field(static=True)
+    M_b: float = eqx.field(static=True)
+    M_hat: float = eqx.field(static=True)
+    M_a1: float = eqx.field(static=True)
+    M_a2: float = eqx.field(static=True)
+    M_a3: float = eqx.field(static=True)
+    M_c1: float = eqx.field(static=True)
+    M_c2: float = eqx.field(static=True)
 
-    def __init__(self,
-                 horizon: int,
-                 efficiency: float,
-                 pcs_capacity: float,
-                 charge_rate: float,
-                 B_lower: float,
-                 B_upper: float,
-                 loss: float,
-                 dtype: Any = DEFAULT_DTYPE) -> None:
-        """Store physical parameters and derived big-M constants."""
-        self.N = int(horizon)
-        self.N = int(horizon)
-        self.eff = float(efficiency)
-        self.pcs = float(pcs_capacity)
-        self.charge = float(charge_rate)
-        self.B_lower = float(B_lower)
-        self.B_upper = float(B_upper)
-        self.loss = float(loss)
-        self.dtype = dtype
-        # Big-M constants
-        self.M_x = self.pcs
-        self.M_y = self.pcs
-        self.M_b = self.charge
-        self.M_hat = self.charge
-        self.M_a1 = self.M_hat
-        self.M_a2 = (self.B_upper - self.B_lower) + self.loss
-        self.M_a3 = 2.0 * self.pcs
-        self.M_c1 = self.M_hat
-        self.M_c2 = self.M_a2
+    def __call__(
+        self,
+        problem: Problem,
+        state: State,
+        runtime_config: SolveConfig,
+        /,
+    ) -> tuple[Answer, State, Info]:
+        """Assemble block matrices and return the unchanged stateless state."""
+        _ = problem, runtime_config
+        blocks = self._build_answer()
+        return (
+            blocks,
+            state,
+            Info(
+                horizon=self.N,
+                equality_rows=int(blocks.b_eq.shape[0]),
+                inequality_rows=int(blocks.b_ineq.shape[0]),
+            ),
+        )
 
-    def assemble(self) -> BlockMatricesSchoolmodel:
+    def _build_answer(self) -> Answer:
         """Assemble the full equality and inequality LP block matrices."""
         N = self.N
         dtype = self.dtype
@@ -121,12 +172,12 @@ class BatteryLPBuilder:
         dim_Lt = N
         dim_x = 2 * N
         dim_y = 2 * N
-        dim_z = 7 * N
+        dim_z = Z_MODE_BLOCKS * N
         dim_b = 2 * N
         dim_B = N + 1
         dim_hatb = 2 * N
 
-        eq_rows = 6 * N
+        eq_rows = EQUALITY_BLOCKS * N
 
         def eq_block(block_index: int, time_index: int) -> int:
             """Map one block/time pair to a row index."""
@@ -173,7 +224,7 @@ class BatteryLPBuilder:
 
         # 3) State
         for i in range(N):
-            row = eq_block(3, i)
+            row = eq_block(STATE_EQUATION_BLOCK, i)
             AB.add(row, i, 1.0)
             AB.add(row, i + 1, -1.0)
             Ab.add(row, i, -1.0)
@@ -181,22 +232,22 @@ class BatteryLPBuilder:
             b_eq[row] = self.loss
 
         # 4) Discharge sum
-        off_zb = N
-        off_mhat = 2 * N
-        off_ma = 3 * N
-        off_mp = 4 * N
+        off_zb = Z_B_OFFSET_BLOCK * N
+        off_mhat = M_HAT_OFFSET_BLOCK * N
+        off_ma = M_A_OFFSET_BLOCK * N
+        off_mp = M_P_OFFSET_BLOCK * N
         for i in range(N):
-            row = eq_block(4, i)
+            row = eq_block(DISCHARGE_SUM_BLOCK, i)
             Az.add(row, off_zb + i, 1.0)
             Az.add(row, off_mhat + i, -1.0)
             Az.add(row, off_ma + i, -1.0)
             Az.add(row, off_mp + i, -1.0)
 
         # 5) Charge sum
-        off_rhat = 5 * N
-        off_rc = 6 * N
+        off_rhat = R_HAT_OFFSET_BLOCK * N
+        off_rc = R_C_OFFSET_BLOCK * N
         for i in range(N):
-            row = eq_block(5, i)
+            row = eq_block(CHARGE_SUM_BLOCK, i)
             Az.add(row, off_rhat + i, 1.0)
             Az.add(row, off_rc + i, 1.0)
             Az.add(row, off_zb + i, 1.0)
@@ -479,7 +530,7 @@ class BatteryLPBuilder:
         def make(builder: TripletBuilder, rows: int, cols: int) -> jsparse.BCOO:
             return builder.to_bcoo((rows, cols), dtype)
 
-        return BlockMatricesSchoolmodel(
+        return Answer(
             dtype=dtype,
             A_L0=make(AL0, eq_rows, dim_L0),
             A_Lt=make(ALt, eq_rows, dim_Lt),
@@ -504,3 +555,47 @@ class BatteryLPBuilder:
             G_hatb=make(Ghat, m_ineq, dim_hatb),
             b_ineq=jnp.asarray(b_ineq, dtype=dtype),
         )
+
+
+def initialize(config: InitializeConfig) -> tuple[Algorithm, State]:
+    """Build one battery LP assembler and its stateless initial state."""
+    dtype = jnp.dtype(config.dtype_name)
+    pcs = float(config.pcs_capacity)
+    charge = float(config.charge_rate)
+    battery_span = float(config.B_upper) - float(config.B_lower)
+    M_hat = charge
+    M_a2 = battery_span + float(config.loss)
+    return (
+        Algorithm(
+            N=int(config.horizon),
+            eff=float(config.efficiency),
+            pcs=pcs,
+            charge=charge,
+            B_lower=float(config.B_lower),
+            B_upper=float(config.B_upper),
+            loss=float(config.loss),
+            dtype=dtype,
+            M_x=pcs,
+            M_y=pcs,
+            M_b=charge,
+            M_hat=M_hat,
+            M_a1=M_hat,
+            M_a2=M_a2,
+            M_a3=2.0 * pcs,
+            M_c1=M_hat,
+            M_c2=M_a2,
+        ),
+        State(),
+    )
+
+
+__all__ = [
+    "InitializeConfig",
+    "SolveConfig",
+    "Problem",
+    "State",
+    "Answer",
+    "Info",
+    "Algorithm",
+    "initialize",
+]

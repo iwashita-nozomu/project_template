@@ -1,3 +1,12 @@
+<!--
+@dependency-start
+responsibility Documents the imported battery LP model roles and formulation.
+upstream implementation ../../python/docomo_bt_management/model/battery_lp_builder.py builds battery LP block matrices
+upstream implementation ../../python/docomo_bt_management/model/LPproblem.py assembles solver-facing LP problems
+upstream implementation ../../python/docomo_bt_management/model/lp_protocol.py defines the local LP problem container
+@dependency-end
+-->
+
 # Imported Battery LP Model Analysis
 
 ## Scope
@@ -23,7 +32,7 @@
 
 ### `battery_lp_builder.py`
 
-- `BatteryLPBuilder.assemble()` が蓄電池運用問題の制約行列を構築する。
+- `battery_lp_builder.initialize()` で得る algorithm module が蓄電池運用問題の制約行列を構築し、`Answer` として返す。
 - 変数ブロックは以下のように読める。
   - `L0`: 一日のピーク需要
   - `Lt_t`: 各時刻の残需要

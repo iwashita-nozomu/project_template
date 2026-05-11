@@ -1,3 +1,10 @@
+# @dependency-start
+# responsibility Assembles solver-facing LP problems from battery LP block answers.
+# upstream implementation ./battery_lp_builder.py provides battery LP block Answer objects
+# upstream implementation ./lp_protocol.py defines the local LP problem container
+# downstream implementation ../pdipm_smoke.py runs a smoke solve on assembled LP problems
+# downstream implementation ../../../tests/model/test_battery_lp.py validates LP assembly behavior
+# @dependency-end
 """Assemble the battery-control LP from block matrices and exogenous series."""
 
 from __future__ import annotations
@@ -6,12 +13,12 @@ from jax import numpy as jnp
 from jax_util.base import Vector
 from jax_util.base.linearoperator import LinOp, hstack_linops
 
-from .battery_lp_builder import BlockMatricesSchoolmodel
+from . import battery_lp_builder
 from .lp_protocol import LPproblem
 
 
 def optimal_control_lp(
-    model: BlockMatricesSchoolmodel,
+    model: battery_lp_builder.Answer,
     pv: Vector,
     load: Vector,
 ) -> LPproblem:
