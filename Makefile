@@ -147,11 +147,11 @@ python-env-prepare:
 
 # Docker イメージ build 可否の確認
 docker-build-check:
-	bash tools/ci/check_docker_build.sh --pack docker/packs/default.toml
+	bash docker/check_build.sh --pack docker/packs/default.toml
 
 # Docker socket を mount した build smoke check
 docker-build-check-host-docker:
-	bash tools/ci/check_docker_build.sh --pack docker/packs/default-host-docker.toml
+	bash docker/check_build.sh --pack docker/packs/default-host-docker.toml
 
 # 任意 program を canonical container で実行
 docker-run:
@@ -159,7 +159,7 @@ docker-run:
 
 # devcontainer compose を canonical pack から生成
 devcontainer-render:
-	python3 tools/ci/render_devcontainer_compose.py --pack docker/packs/default.toml --output .devcontainer/docker-compose.generated.yml
+	bash .devcontainer/generate-runtime-compose.sh
 
 # main server host readiness
 server-check:
