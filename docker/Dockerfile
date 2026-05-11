@@ -1,6 +1,7 @@
 # @dependency-start
 # responsibility Defines the canonical development container image.
 # upstream environment README.md docker runtime guidance
+# downstream implementation install_python_dependencies.sh installs Python modules after workspace mount
 # downstream implementation ../tools/ci/check_fresh_clone.sh uses rsync for workspace overlay
 # downstream implementation ../tools/docker_dependency_validator.sh validates canonical image tools
 # @dependency-end
@@ -37,12 +38,6 @@ RUN curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-l
  && npm install -g @openai/codex \
  && codex --version \
  && npm cache clean --force
-
-RUN python3 -m pip install --upgrade pip
-
-# その他依存パッケージ（requirements.txt で一元管理）
-COPY docker/requirements.txt /tmp/requirements.txt
-RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
 COPY docker/register_safe_directories.sh /usr/local/bin/project-template-register-safe-directories
 RUN chmod +x /usr/local/bin/project-template-register-safe-directories

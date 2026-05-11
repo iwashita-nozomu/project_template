@@ -2,6 +2,7 @@
 # responsibility Defines ci YAML configuration.
 # upstream implementation ../../tools/ci/run_all_checks.sh repository CI entrypoint
 # upstream implementation ../../Makefile ci target contract
+# upstream environment ../../docker/install_python_dependencies.sh central Python dependency installer
 # upstream implementation ../scripts/checkout_agent_canon_submodule.sh private AgentCanon checkout gate
 # @dependency-end
 name: CI
@@ -51,9 +52,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y graphviz
 
       - name: Install pip dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r docker/requirements.txt
+        run: PYTHON_DEPENDENCY_MARKER_DIR=.state/python-deps bash docker/install_python_dependencies.sh "$PWD"
 
       - name: Run repository CI
         run: make ci
@@ -86,9 +85,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y graphviz
 
       - name: Install pip dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r docker/requirements.txt
+        run: PYTHON_DEPENDENCY_MARKER_DIR=.state/python-deps bash docker/install_python_dependencies.sh "$PWD"
 
       - name: Run shared canon PR gate
         run: make agent-canon-pr-check
@@ -121,9 +118,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y graphviz
 
       - name: Install pip dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r docker/requirements.txt
+        run: PYTHON_DEPENDENCY_MARKER_DIR=.state/python-deps bash docker/install_python_dependencies.sh "$PWD"
 
       - name: Run fresh clone acceptance
         run: make fresh-clone-check

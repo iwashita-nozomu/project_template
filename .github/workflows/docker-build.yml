@@ -1,8 +1,7 @@
 # @dependency-start
 # responsibility Defines docker build YAML configuration.
 # upstream environment ../../docker/README.md docker runtime contract
-# upstream implementation ../../tools/ci/check_docker_build.sh docker build validation
-# upstream implementation ../scripts/checkout_agent_canon_submodule.sh private AgentCanon checkout gate
+# upstream implementation ../../docker/check_build.sh submodule-free docker build validation
 # @dependency-end
 name: Docker Build
 
@@ -10,27 +9,22 @@ on:
   pull_request:
     paths:
       - "docker/**"
-      - "tools/ci/check_docker_build.sh"
-      - "tools/ci/container_runtime.py"
-      - "tools/ci/run_container_pack.py"
+      - ".dockerignore"
+      - ".devcontainer/**"
       - ".github/workflows/docker-build.yml"
       - "Makefile"
   push:
     branches: [ main, master ]
     paths:
       - "docker/**"
-      - "tools/ci/check_docker_build.sh"
-      - "tools/ci/container_runtime.py"
-      - "tools/ci/run_container_pack.py"
+      - ".dockerignore"
+      - ".devcontainer/**"
       - ".github/workflows/docker-build.yml"
       - "Makefile"
   workflow_dispatch:
 
 permissions:
   contents: read
-
-env:
-  AGENT_CANON_REPO_SSH_KEY: ${{ secrets.AGENT_CANON_REPO_SSH_KEY }}
 
 concurrency:
   group: docker-build-${{ github.ref }}
@@ -46,13 +40,9 @@ jobs:
         with:
           submodules: false
           persist-credentials: false
-      - name: Checkout AgentCanon submodule
-        env:
-          AGENT_CANON_REPO_TOKEN: ${{ secrets.AGENT_CANON_REPO_TOKEN }}
-        run: bash .github/scripts/checkout_agent_canon_submodule.sh
 
       - name: Run default Docker pack check
-        run: bash tools/ci/check_docker_build.sh --pack docker/packs/default.toml --pull --tag project-template:ci-default
+        run: bash docker/check_build.sh --pack docker/packs/default.toml --pull --tag project-template:ci-default
 
       - name: Run host-docker Docker pack check
-        run: bash tools/ci/check_docker_build.sh --pack docker/packs/default-host-docker.toml --pull --tag project-template:ci-host-docker
+        run: bash docker/check_build.sh --pack docker/packs/default-host-docker.toml --pull --tag project-template:ci-host-docker
