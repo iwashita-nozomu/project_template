@@ -5,5 +5,5 @@
 # @dependency-end
 [submodule "vendor/agent-canon"]
 	path = vendor/agent-canon
-	url = ../agent-canon.git
+	url = git@github.com:iwashita-nozomu/agent-canon.git
 	branch = main
