@@ -105,11 +105,11 @@ python3 --version
 python3 -m pip --version
 cmake --version
 ninja --version
+bash .devcontainer/post-create.sh /workspace
 node --version
 npm --version
 codex --version
 gh --version
-bash .devcontainer/post-create.sh /workspace
 jupyter --version
 jupyter lab --version
 ssh -V

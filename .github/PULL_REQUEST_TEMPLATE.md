@@ -64,9 +64,10 @@ Authority / blocker notes:
 ## Operational Findings / Issues
 
 - [ ] If this template / derived PR exposed an AgentCanon workflow, tool, memory, eval, or closeout defect, `vendor/agent-canon/issues/README.md` was reviewed.
-- [ ] Existing durable AgentCanon findings were searched in `vendor/agent-canon/issues/open/`, `vendor/agent-canon/memory/`, `vendor/agent-canon/notes/failures/`, relevant workflow docs, and prior run-bundle evidence when available.
+- [ ] Existing durable AgentCanon findings were searched in `vendor/agent-canon/issues/open/`, `vendor/agent-canon/issues/closed/`, `vendor/agent-canon/memory/`, `vendor/agent-canon/notes/failures/`, relevant workflow docs, and prior run-bundle evidence when available.
 - [ ] New AgentCanon operational findings were written to `vendor/agent-canon/issues/open/AC-YYYYMMDD-<slug>.md`, `vendor/agent-canon/memory/`, or `vendor/agent-canon/notes/failures/` before closeout, or no new durable finding is required.
 - [ ] Raw `rg` hits, if used to choose the fix surface, were expanded with `run_repo_dependency_review.sh --search-hits-file` and dependency-expanded edit scope is cited below.
+- [ ] Agent Improvement Guide artifact from `.github/workflows/agent-improvement-guide.yml` was reviewed when available.
 
 Issue / edit-scope evidence:
 
