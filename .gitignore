@@ -38,6 +38,7 @@ experiments/**/result/*
 
 # Analysis reports and agent run artifacts
 reports/agents/
+reports/hooks/
 reports/*.json
 reports/*.md
 reports/*.txt
