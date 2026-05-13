@@ -227,7 +227,7 @@ make tools-help
 
 ## Docker で Codex を使う
 
-`docker/Dockerfile` には Codex CLI と `docker` CLI を同梱します。container runtime の正本は [docker/README.md](docker/README.md) で、build / smoke は `docker/packs/*.toml` と `tools/ci/run_container_pack.py` から実行します。Codex 認証は host-local state を正本にし、host 側で `codex login` を済ませてから host `~/.codex` を container / devcontainer に mount して再利用します。API key を使う場合は host env の `OPENAI_API_KEY` を nested Codex profile で forward します。C++ を使う派生 repo に備えて `python3-dev`、`cmake`、`ninja-build` は canonical image に入れますが、JAX export / IREE などの重い runtime は template default には含めません。host から validation を直接流すより、container を canonical entrypoint にします。
+`docker/Dockerfile` には project runtime、build tool、`docker` CLI を同梱します。Codex CLI、Codex 用 Node/npm、GitHub CLI は Dockerfile に焼かず、shared `.devcontainer/post-create.sh` が workspace mount 後に導入します。container runtime の正本は [docker/README.md](docker/README.md) で、build / smoke は `docker/packs/*.toml` と `tools/ci/run_container_pack.py` から実行します。Codex 認証は host-local state を正本にし、host 側で `codex login` を済ませてから host `~/.codex` を container / devcontainer に mount して再利用します。API key を使う場合は host env の `OPENAI_API_KEY` を nested Codex profile で forward します。nested Codex runner は setup だけ root で行い、Codex 起動前に host `uid:gid` へ落とします。C++ を使う派生 repo に備えて `python3-dev`、`cmake`、`ninja-build` は canonical image に入れますが、JAX export / IREE などの重い runtime は template default には含めません。host から validation を直接流すより、container を canonical entrypoint にします。
 
 Jupyter notebook runtime は workspace mount 後の setup で導入します。host browser から使う場合は `make docker-jupyter` を実行し、runner が `docker/install_python_dependencies.sh` を通してから JupyterLab を起動します。既定では `http://127.0.0.1:8888/lab?token=project-template` を開きます。host port は `JUPYTER_HOST_PORT=8890`、token は `JUPYTER_TOKEN=my-token` のように上書きできます。host 側では repo-local `.venv` を作らず、devcontainer や nested Codex など container 内でだけ `make python-env-status` と `make python-env-prepare` を使って `.venv` を用意します。
 
@@ -250,7 +250,9 @@ docker run --rm -it \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v $(pwd):/workspace -w /workspace \
   project-template bash
+bash .devcontainer/post-create.sh /workspace
 codex --version
+gh --version
 docker --version
 ```
 
