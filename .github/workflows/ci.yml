@@ -49,7 +49,7 @@ jobs:
           cache-dependency-path: docker/requirements.txt
 
       - name: Install system packages
-        run: sudo apt-get update && sudo apt-get install -y graphviz
+        run: sudo apt-get update && sudo apt-get install -y graphviz ripgrep
 
       - name: Install pip dependencies
         run: PYTHON_DEPENDENCY_MARKER_DIR=.state/python-deps bash docker/install_python_dependencies.sh "$PWD"
@@ -82,7 +82,7 @@ jobs:
           cache-dependency-path: docker/requirements.txt
 
       - name: Install system packages
-        run: sudo apt-get update && sudo apt-get install -y graphviz
+        run: sudo apt-get update && sudo apt-get install -y graphviz ripgrep
 
       - name: Install pip dependencies
         run: PYTHON_DEPENDENCY_MARKER_DIR=.state/python-deps bash docker/install_python_dependencies.sh "$PWD"
@@ -115,7 +115,7 @@ jobs:
           cache-dependency-path: docker/requirements.txt
 
       - name: Install system packages
-        run: sudo apt-get update && sudo apt-get install -y graphviz
+        run: sudo apt-get update && sudo apt-get install -y graphviz ripgrep
 
       - name: Install pip dependencies
         run: PYTHON_DEPENDENCY_MARKER_DIR=.state/python-deps bash docker/install_python_dependencies.sh "$PWD"
