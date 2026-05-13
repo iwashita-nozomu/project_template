@@ -7,6 +7,7 @@ upstream design ../documents/repository-audit-checklist.md defines repository au
 upstream design ../documents/REVIEW_PROCESS.md defines review evidence requirements
 upstream design ../documents/template-github-remote.md defines template GitHub remote policy
 upstream design ../documents/github-copilot-configuration.md defines Copilot configuration and PR-template routing
+upstream design ../vendor/agent-canon/issues/README.md defines AgentCanon durable operational issue storage
 @dependency-end
 -->
 
@@ -40,6 +41,34 @@ upstream design ../documents/github-copilot-configuration.md defines Copilot con
 - [ ] Trivial-change exception is explained below when Plan mode was not used.
 
 Plan / exception:
+
+## PR Mutation Authority
+
+- [ ] This PR only required inspection, branch push, PR creation, title/body update, evidence comments, draft-state preservation, or conversion to draft.
+- [ ] Merge / close / ready-for-review / reviewer request / review dismissal / auto-merge / branch deletion was explicitly authorized by the user for this task, or was not performed.
+- [ ] If merge, close, or ready-for-review is still required, the blocker and required human/maintainer action are recorded below instead of being guessed from `gh` availability.
+- [ ] If `pr_mutation_authority: github_copilot_merge_when_green` is used, the PR has Copilot-visible evidence and local Codex did not perform the merge.
+
+Authority / blocker notes:
+
+## Copilot / Automation Output
+
+- goal `pr_mutation_authority`:
+- `COPILOT_PR_AUTHORITY=`:
+- `COPILOT_PR_DECISION=`:
+- `COPILOT_PR_CHECKS=`:
+- `COPILOT_VISIBLE_EVIDENCE=`:
+- `COPILOT_BLOCKER=`:
+- `gh pr checks` summary:
+
+## Operational Findings / Issues
+
+- [ ] If this template / derived PR exposed an AgentCanon workflow, tool, memory, eval, or closeout defect, `vendor/agent-canon/issues/README.md` was reviewed.
+- [ ] Existing durable AgentCanon findings were searched in `vendor/agent-canon/issues/open/`, `vendor/agent-canon/memory/`, `vendor/agent-canon/notes/failures/`, relevant workflow docs, and prior run-bundle evidence when available.
+- [ ] New AgentCanon operational findings were written to `vendor/agent-canon/issues/open/AC-YYYYMMDD-<slug>.md`, `vendor/agent-canon/memory/`, or `vendor/agent-canon/notes/failures/` before closeout, or no new durable finding is required.
+- [ ] Raw `rg` hits, if used to choose the fix surface, were expanded with `run_repo_dependency_review.sh --search-hits-file` and dependency-expanded edit scope is cited below.
+
+Issue / edit-scope evidence:
 
 ## Copilot Configuration Impact
 
