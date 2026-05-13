@@ -42,6 +42,14 @@ upstream design ../vendor/agent-canon/issues/README.md defines AgentCanon durabl
 
 Plan / exception:
 
+## PR Mutation Authority
+
+- [ ] This PR only required inspection, branch push, PR creation, title/body update, evidence comments, draft-state preservation, or conversion to draft.
+- [ ] Merge / close / ready-for-review / reviewer request / review dismissal / auto-merge / branch deletion was explicitly authorized by the user for this task, or was not performed.
+- [ ] If merge, close, or ready-for-review is still required, the blocker and required human/maintainer action are recorded below instead of being guessed from `gh` availability.
+
+Authority / blocker notes:
+
 ## Operational Findings / Issues
 
 - [ ] If this template / derived PR exposed an AgentCanon workflow, tool, memory, eval, or closeout defect, `vendor/agent-canon/issues/README.md` was reviewed.
