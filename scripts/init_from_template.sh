@@ -16,10 +16,6 @@ Options:
   --display-name <name>      Optional. Human-facing display name.
   --python-package <name>    Optional. Defaults to slug with '-' replaced by '_'.
   --bare-repo <name>.git     Optional. Defaults to <slug>.git.
-  --agent-canon-bare-repo <name>.git
-                            Optional. Defaults to <slug>-agent-canon.git.
-  --skip-agent-canon-bare-repo
-                            Do not create or seed the project-local agent-canon bare repo.
   --force                    Allow running with a dirty worktree.
   --dry-run                  Print the planned updates without writing files.
 EOF
@@ -29,9 +25,7 @@ PROJECT_SLUG=""
 DISPLAY_NAME=""
 PYTHON_PACKAGE=""
 BARE_REPO=""
-AGENT_CANON_BARE_REPO=""
 BARE_GIT_ROOT="${TEMPLATE_BARE_GIT_ROOT:-/mnt/git}"
-SKIP_AGENT_CANON_BARE_REPO=0
 FORCE=0
 DRY_RUN=0
 
@@ -52,14 +46,6 @@ while [[ $# -gt 0 ]]; do
     --bare-repo)
       BARE_REPO="${2:-}"
       shift 2
-      ;;
-    --agent-canon-bare-repo)
-      AGENT_CANON_BARE_REPO="${2:-}"
-      shift 2
-      ;;
-    --skip-agent-canon-bare-repo)
-      SKIP_AGENT_CANON_BARE_REPO=1
-      shift
       ;;
     --force)
       FORCE=1
@@ -104,10 +90,6 @@ if [[ -z "${BARE_REPO}" ]]; then
   BARE_REPO="${PROJECT_SLUG}.git"
 fi
 
-if [[ -z "${AGENT_CANON_BARE_REPO}" ]]; then
-  AGENT_CANON_BARE_REPO="${PROJECT_SLUG}-agent-canon.git"
-fi
-
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${ROOT_DIR}"
 
@@ -120,7 +102,6 @@ export TEMPLATE_PROJECT_SLUG="${PROJECT_SLUG}"
 export TEMPLATE_DISPLAY_NAME="${DISPLAY_NAME}"
 export TEMPLATE_PYTHON_PACKAGE="${PYTHON_PACKAGE}"
 export TEMPLATE_BARE_REPO="${BARE_REPO}"
-export TEMPLATE_AGENT_CANON_BARE_REPO="${AGENT_CANON_BARE_REPO}"
 export TEMPLATE_DRY_RUN="${DRY_RUN}"
 
 python3 - <<'PY'
@@ -134,7 +115,6 @@ project_slug = os.environ["TEMPLATE_PROJECT_SLUG"]
 display_name = os.environ["TEMPLATE_DISPLAY_NAME"]
 python_package = os.environ["TEMPLATE_PYTHON_PACKAGE"]
 bare_repo = os.environ["TEMPLATE_BARE_REPO"]
-agent_canon_bare_repo = os.environ["TEMPLATE_AGENT_CANON_BARE_REPO"]
 dry_run = os.environ["TEMPLATE_DRY_RUN"] == "1"
 
 replacements: dict[str, list[tuple[str, str]]] = {
@@ -182,7 +162,6 @@ replacements: dict[str, list[tuple[str, str]]] = {
     ],
     "documents/linux-wsl-host-requirements.md": [
         ("/mnt/git/template.git", f"/mnt/git/{bare_repo}"),
-        ("/mnt/git/agent-canon.git", f"/mnt/git/{agent_canon_bare_repo}"),
     ],
 }
 
@@ -204,36 +183,20 @@ print(f"project_slug={project_slug}")
 print(f"display_name={display_name}")
 print(f"python_package={python_package}")
 print(f"bare_repo={bare_repo}")
-print(f"agent_canon_bare_repo={agent_canon_bare_repo}")
+print("agent_canon_source=github_submodule")
 PY
 
-seed_agent_canon_bare_repo() {
-  local bare_repo_path="${BARE_GIT_ROOT}/${AGENT_CANON_BARE_REPO}"
-  local proposal_branch="canon-proposal/${PROJECT_SLUG}"
-
-  if [[ "${SKIP_AGENT_CANON_BARE_REPO}" == "1" ]]; then
-    echo "agent_canon_bare_repo=skipped"
-    return
-  fi
-
+report_agent_canon_source() {
   if [[ "${DRY_RUN}" == "1" ]]; then
-    echo "would seed agent_canon_bare_repo=${bare_repo_path}"
-    echo "would prepare agent_canon_proposal_branch=${proposal_branch}"
+    echo "would keep agent_canon_source=github_submodule"
     return
   fi
 
-  if [[ ! -d "${BARE_GIT_ROOT}" ]]; then
-    echo "agent_canon_bare_repo=skipped_missing_${BARE_GIT_ROOT}"
-    return
-  fi
-
-  bash tools/update_agent_canon.sh register-local-bare \
-    --bare-repo "${bare_repo_path}" \
-    --branch main \
-    --proposal-branch "${proposal_branch}"
+  echo "agent_canon_source=github_submodule"
+  echo "agent_canon_next=commit_shared_canon_changes_on_vendor_branch_and_open_AgentCanon_PR"
 }
 
-seed_agent_canon_bare_repo
+report_agent_canon_source
 
 if [[ "${DRY_RUN}" != "1" ]]; then
   echo "next:"

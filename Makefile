@@ -6,7 +6,7 @@
 # upstream implementation tools/agent_tools/review_backlog_scan.sh exposes integrated review backlog scans
 # @dependency-end
 
-.PHONY: ci ci-quick docs-check clean-generated github-workflow-check dev-setup tools-help agent-checks agent-canon-check agent-canon-latest-check agent-canon-links agent-canon-snapshot agent-canon-status agent-canon-ensure-latest agent-canon-update-plan agent-canon-update agent-canon-proposal-branch agent-canon-push-proposal agent-canon-register-local-bare agent-canon-pr-check docker-check python-env-status python-env-prepare docker-build-check docker-build-check-host-docker docker-run devcontainer-render server-check experiment-check docker-shell docker-jupyter docker-codex docker-codex-host-docker fresh-clone-check template-check start-repository task-start doc-start task-close agent-evaluate dependency-review dependency-review-surfaces review-backlog-scan waterfall-gate-check user-preference-log
+.PHONY: ci ci-quick docs-check clean-generated github-workflow-check dev-setup tools-help agent-checks agent-canon-check agent-canon-latest-check agent-canon-links agent-canon-status agent-canon-ensure-latest agent-canon-update-plan agent-canon-update agent-canon-merge-main agent-canon-pr-check docker-check python-env-status python-env-prepare docker-build-check docker-build-check-host-docker docker-run devcontainer-render server-check experiment-check docker-shell docker-jupyter docker-codex docker-codex-host-docker fresh-clone-check template-check start-repository task-start doc-start task-close agent-evaluate dependency-review dependency-review-surfaces review-backlog-scan waterfall-gate-check user-preference-log
 
 # ★推奨: 統合 CI（pytest + pyright + ruff）
 ci:
@@ -102,10 +102,6 @@ agent-canon-check:
 agent-canon-links:
 	bash tools/sync_agent_canon.sh link-root
 
-# deprecated backward-compatible link-root alias
-agent-canon-snapshot:
-	bash tools/sync_agent_canon.sh snapshot
-
 # submodule pin / legacy tree 設定を確認
 agent-canon-status:
 	bash tools/sync_agent_canon.sh status
@@ -120,14 +116,8 @@ agent-canon-update-plan:
 agent-canon-update:
 	bash tools/update_agent_canon.sh apply $(ARGS)
 
-agent-canon-proposal-branch:
-	bash tools/update_agent_canon.sh proposal-branch $(ARGS)
-
-agent-canon-push-proposal:
-	bash tools/update_agent_canon.sh push-proposal $(ARGS)
-
-agent-canon-register-local-bare:
-	bash tools/update_agent_canon.sh register-local-bare $(ARGS)
+agent-canon-merge-main:
+	bash tools/update_agent_canon.sh merge-main-into-current $(ARGS)
 
 # shared canon 専用の PR gate
 agent-canon-pr-check:

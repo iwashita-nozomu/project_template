@@ -15,7 +15,7 @@ shared automation は `tools/` を使います。
 - clone 直後の初期化
 - project slug や display name の置換
 - bare remote 名の初期化
-- project-local `agent-canon` bare repo の初期 seed
+- GitHub-backed `agent-canon` submodule 前提の初期化
 
 ## 置かないもの
 
@@ -30,12 +30,12 @@ shared automation は `tools/` を使います。
 ## 現在の入口
 
 - [init_from_template.sh](init_from_template.sh)
-  - clone 直後に project slug、display name、bare remote 名、project-local `agent-canon` bare repo などを初期化します。
+  - clone 直後に project slug、display name、project remote 名などを初期化します。
 - [start_repository.sh](start_repository.sh)
   - `$start-repository` skill から呼ぶ token-efficient wrapper です。
   - 既定では dry-run、clean clone なら init 前の `make agent-canon-ensure-latest`、初期化、必要な validation までを 1 command にまとめます。dirty state なら preflight の未実行理由を出します。`--force` を init に渡す場合は wrapper preflight を block 扱いで skip します。
   - init 変更を commit したあとは `--validate-only` で `make fresh-clone-check` と `make ci-quick` まで流します。
-  - project-local `agent-canon` bare repo の seed、proposal branch 準備、remote 設定は `tools/update_agent_canon.sh register-local-bare` へ委譲します。daily validation の正本は project-local remote に戻し、shared upstream refresh は `--source-repo` を明示したときだけ有効にします。
+  - AgentCanon は GitHub submodule を正本とし、project-local `agent-canon` bare repo は作りません。
 
 ## 参照先
 
