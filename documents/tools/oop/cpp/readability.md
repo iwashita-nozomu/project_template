@@ -1,1 +1,0 @@
-../../../../vendor/agent-canon/documents/tools/oop/cpp/readability.md

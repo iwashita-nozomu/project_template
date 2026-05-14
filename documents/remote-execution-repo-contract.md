@@ -1,7 +1,7 @@
 <!--
 @dependency-start
 responsibility Documents Remote Execution Repo Contract for this repository.
-upstream design ./SHARED_RUNTIME_SURFACES.md shared documents ownership policy
+upstream design ../vendor/agent-canon/documents/SHARED_RUNTIME_SURFACES.md shared documents ownership policy
 @dependency-end
 -->
 
@@ -49,5 +49,5 @@ target host のセットアップ自体は利用者責務にしつつ、repo 側
 
 登録 template の正本は次です。
 
-- `documents/templates/remote_execution_repo.template.toml`
-- `documents/templates/remote_execution_target.template.toml`
+- `vendor/agent-canon/documents/templates/remote_execution_repo.template.toml`
+- `vendor/agent-canon/documents/templates/remote_execution_target.template.toml`

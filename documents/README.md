@@ -1,12 +1,12 @@
 <!--
 @dependency-start
 responsibility Documents documents/ for this repository.
-upstream design ./SHARED_RUNTIME_SURFACES.md documents ownership policy
-upstream design ./shared-runtime-surfaces.toml machine-readable ownership manifest
-downstream design ./algorithm-implementation-boundary.md algorithm math-to-code boundary policy
-downstream design ./codex-configuration-reference.md Codex configuration reference
-downstream design ./object-oriented-design.md general OOP coding policy
-downstream design ./agent-canon-parent-repo-latest-checklist.md parent repo latest-state checklist
+upstream design ../vendor/agent-canon/documents/SHARED_RUNTIME_SURFACES.md documents ownership policy
+upstream design ../vendor/agent-canon/documents/shared-runtime-surfaces.toml machine-readable ownership manifest
+upstream design ../vendor/agent-canon/documents/algorithm-implementation-boundary.md algorithm math-to-code boundary policy
+upstream design ../vendor/agent-canon/documents/codex-configuration-reference.md Codex configuration reference
+upstream design ../vendor/agent-canon/documents/object-oriented-design.md general OOP coding policy
+upstream design ../vendor/agent-canon/documents/agent-canon-parent-repo-latest-checklist.md parent repo latest-state checklist
 @dependency-end
 -->
 
@@ -32,30 +32,30 @@ contract, edit the root regular file.
 
 ## Canon Runtime References
 
-- [Shared Runtime Surfaces](./SHARED_RUNTIME_SURFACES.md): owner classes,
+- [Shared Runtime Surfaces](../vendor/agent-canon/documents/SHARED_RUNTIME_SURFACES.md): owner classes,
   symlink/copy/regular behavior, and root-view repair rules.
-- [Shared Runtime Surface Manifest](./shared-runtime-surfaces.toml):
+- [Shared Runtime Surface Manifest](../vendor/agent-canon/documents/shared-runtime-surfaces.toml):
   machine-readable surface ownership list.
-- [AgentCanon Parent Repository Latest-State Checklist](./agent-canon-parent-repo-latest-checklist.md):
+- [AgentCanon Parent Repository Latest-State Checklist](../vendor/agent-canon/documents/agent-canon-parent-repo-latest-checklist.md):
   task-start checklist for repos that vendor AgentCanon.
-- [Codex Configuration Reference](./codex-configuration-reference.md): Codex CLI
+- [Codex Configuration Reference](../vendor/agent-canon/documents/codex-configuration-reference.md): Codex CLI
   / config schema / hooks / MCP / skills / subagents reference.
-- [AgentCanon GitHub Remote](./agent-canon-github-remote.md): GitHub canonical
+- [AgentCanon GitHub Remote](../vendor/agent-canon/documents/agent-canon-github-remote.md): GitHub canonical
   remote and local bare mirror compatibility.
-- [GitHub Copilot Configuration](./github-copilot-configuration.md): Copilot
+- [GitHub Copilot Configuration](../vendor/agent-canon/documents/github-copilot-configuration.md): Copilot
   repository instructions, path-specific instructions, custom agents, MCP, setup
   workflow, and PR template routing.
 
 ## Coding Policy References
 
-- [Algorithm Implementation Boundary Policy](./algorithm-implementation-boundary.md):
+- [Algorithm Implementation Boundary Policy](../vendor/agent-canon/documents/algorithm-implementation-boundary.md):
   math/specification boundary, implementation boundary, change classes, and
   review gates.
-- [Object-Oriented Design Policy](./object-oriented-design.md): class,
+- [Object-Oriented Design Policy](../vendor/agent-canon/documents/object-oriented-design.md): class,
   dataclass, Protocol, composition, and inheritance policy.
-- [Python Coding Conventions](./coding-conventions-python.md): Python-specific
+- [Python Coding Conventions](../vendor/agent-canon/documents/coding-conventions-python.md): Python-specific
   implementation rules.
-- [Project Coding Conventions](./coding-conventions-project.md): project-wide
+- [Project Coding Conventions](../vendor/agent-canon/documents/coding-conventions-project.md): project-wide
   environment, dependency, and runtime rules.
 
 ## Template-Owned Active Contracts
@@ -68,12 +68,13 @@ These files should be regular files in the template or derived repo root:
 - [Server Host Contract](./server-host-contract.md)
 - [Remote Execution Repo Contract](./remote-execution-repo-contract.md)
 
-AgentCanon provides reusable contract templates under [templates/](./templates/),
+AgentCanon provides reusable contract templates under
+[templates/](../vendor/agent-canon/documents/templates/),
 but the active contract for a derived repo belongs to that repo.
 
 ## Tooling And Artifact References
 
-- [Result Log Retention And Visualization](./result-log-retention-and-visualization.md):
+- [Result Log Retention And Visualization](../vendor/agent-canon/documents/result-log-retention-and-visualization.md):
   run result, summary, visualization artifact, and retention rules.
-- [Repo-Local Tool Imports](./repo-local-tool-imports.md): disposition ledger for
+- [Repo-Local Tool Imports](../vendor/agent-canon/documents/repo-local-tool-imports.md): disposition ledger for
   tools that grow in derived repos before AgentCanon promotion.

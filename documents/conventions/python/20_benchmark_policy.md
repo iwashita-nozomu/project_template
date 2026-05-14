@@ -1,1 +1,0 @@
-../../../vendor/agent-canon/documents/conventions/python/20_benchmark_policy.md

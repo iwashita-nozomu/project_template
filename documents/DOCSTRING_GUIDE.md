@@ -1,1 +1,0 @@
-../vendor/agent-canon/documents/DOCSTRING_GUIDE.md

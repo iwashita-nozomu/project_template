@@ -1,1 +1,0 @@
-../vendor/agent-canon/documents/coding-conventions-logging.md

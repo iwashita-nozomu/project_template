@@ -1,8 +1,8 @@
 <!--
 @dependency-start
 responsibility Documents Template Bootstrap for this repository.
-upstream design ./SHARED_RUNTIME_SURFACES.md shared documents ownership policy
-upstream design ./agent-canon-github-remote.md GitHub canonical remote policy
+upstream design ../vendor/agent-canon/documents/SHARED_RUNTIME_SURFACES.md shared documents ownership policy
+upstream design ../vendor/agent-canon/documents/agent-canon-github-remote.md GitHub canonical remote policy
 upstream design ./template-github-remote.md template GitHub canonical remote policy
 @dependency-end
 -->

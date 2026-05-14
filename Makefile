@@ -153,7 +153,7 @@ devcontainer-render:
 
 # main server host readiness
 server-check:
-	python3 tools/ci/check_server_readiness.py --layout documents/templates/server_runtime_layout.template.toml
+	python3 tools/ci/check_server_readiness.py --layout vendor/agent-canon/documents/templates/server_runtime_layout.template.toml
 
 # experiment registry validation
 experiment-check:

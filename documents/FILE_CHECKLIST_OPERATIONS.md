@@ -1,1 +1,0 @@
-../vendor/agent-canon/documents/FILE_CHECKLIST_OPERATIONS.md

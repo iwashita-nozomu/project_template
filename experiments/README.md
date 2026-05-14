@@ -2,7 +2,7 @@
 <!--
 @dependency-start
 responsibility Documents Experiments Hub for this repository.
-upstream design ../documents/experiment-registry.md experiment registry contract
+upstream design ../vendor/agent-canon/documents/experiment-registry.md experiment registry contract
 downstream environment registry.toml template-local registry
 @dependency-end
 -->

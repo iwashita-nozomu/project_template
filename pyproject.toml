@@ -1,6 +1,6 @@
 # @dependency-start
 # responsibility Defines Python packaging, dependency, and tool configuration.
-# upstream design documents/coding-conventions-python.md Python convention contract
+# upstream design vendor/agent-canon/documents/coding-conventions-python.md Python convention contract
 # downstream implementation tests/tools/test_python_env_policy.py validates Python environment policy
 # downstream implementation tests/tools/test_update_latest_result.py imports shared tools in pyright
 # @dependency-end

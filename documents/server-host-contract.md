@@ -1,7 +1,7 @@
 <!--
 @dependency-start
 responsibility Documents Server Host Contract for this repository.
-upstream design ./SHARED_RUNTIME_SURFACES.md shared documents ownership policy
+upstream design ../vendor/agent-canon/documents/SHARED_RUNTIME_SURFACES.md shared documents ownership policy
 @dependency-end
 -->
 
@@ -30,8 +30,8 @@ remote execution contract が「repo が外部 server から実行される条�
 - bare repo root を 1 か所に集約する
 - shared workspace root を 1 か所に集約する
 - Docker state は local Linux filesystem に置き、CIFS / 9p / network share に置かない
-- host inventory を `documents/templates/server_host_inventory.template.md` で記録する
-- path / mount / builder 前提を `documents/templates/server_runtime_layout.template.toml` で明文化する
+- host inventory を `vendor/agent-canon/documents/templates/server_host_inventory.template.md` で記録する
+- path / mount / builder 前提を `vendor/agent-canon/documents/templates/server_runtime_layout.template.toml` で明文化する
 - `python3 tools/ci/check_server_readiness.py` で定期的に readiness を確認する
 
 ## Storage Rule
@@ -65,7 +65,7 @@ remote execution contract が「repo が外部 server から実行される条�
 
 ```bash
 python3 tools/ci/check_server_readiness.py
-python3 tools/ci/check_server_readiness.py --layout documents/templates/server_runtime_layout.template.toml
+python3 tools/ci/check_server_readiness.py --layout vendor/agent-canon/documents/templates/server_runtime_layout.template.toml
 make docker-build-check
 make docker-build-check-host-docker
 ```
@@ -74,6 +74,6 @@ make docker-build-check-host-docker
 
 - `documents/linux-wsl-host-requirements.md`
 - `documents/remote-execution-repo-contract.md`
-- `documents/templates/server_host_inventory.template.md`
-- `documents/templates/server_runtime_layout.template.toml`
+- `vendor/agent-canon/documents/templates/server_host_inventory.template.md`
+- `vendor/agent-canon/documents/templates/server_runtime_layout.template.toml`
 - `notes/github-mirror-procedure.md`
