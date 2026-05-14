@@ -3,6 +3,7 @@
 @dependency-start
 responsibility Documents Docker Runtime for this repository.
 upstream design ../documents/linux-wsl-host-requirements.md host runtime requirements
+upstream design ../vendor/agent-canon/CONTAINER_OPERATIONS.md AgentCanon container and devcontainer operation rulebook
 downstream environment packs/default.toml default container pack
 downstream environment packs/default-host-docker.toml host-docker container pack
 @dependency-end
@@ -53,7 +54,7 @@ runtime pack には次を 1 つの spec としてまとめます。
 - `python3 tools/ci/run_container_pack.py`
   - pack 定義から build と smoke を実行します。
 - `bash docker/check_build.sh`
-  - GitHub Docker Build workflow と `make docker-build-check` が使う submodule-free build gate です。root `.dockerignore` で `vendor/agent-canon` を除外し、AgentCanon checkout なしで Dockerfile と post-create smoke を確認します。
+  - GitHub Docker Build workflow と `make docker-build-check` が使う submodule-aware build gate です。root `.dockerignore` は image build context から `vendor/agent-canon` を除外しますが、runtime smoke は checkout 済み `vendor/agent-canon` から shared `.devcontainer/post-create.sh` を使います。
 - `python3 tools/ci/run_in_repo_container.py`
   - pack 定義から repo workspace を mount した container command を実行します。
 - `python3 tools/ci/run_repo_program.py`
@@ -63,7 +64,7 @@ runtime pack には次を 1 つの spec としてまとめます。
 - `python3 tools/ci/run_codex_in_repo_container.py`
   - repo を mount した canonical container 内で nested Codex を起動します。
 - `bash .devcontainer/generate-runtime-compose.sh`
-  - devcontainer 用の compose を canonical pack から root-local に生成します。AgentCanon submodule checkout が無い状態でも動きます。
+  - devcontainer 用の compose を canonical pack から root-local に生成します。`.devcontainer/` は AgentCanon-owned root view なので、実行前に AgentCanon submodule checkout が必要です。
 
 ## Nested Codex
 

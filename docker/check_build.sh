@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # @dependency-start
-# responsibility Builds and smoke-tests the template Docker image without AgentCanon submodule tooling.
+# responsibility Builds and smoke-tests the template Docker image with submodule-aware AgentCanon devcontainer smoke.
 # upstream environment Dockerfile canonical container image definition
 # upstream environment packs/default.toml default runtime pack metadata
-# upstream environment ../.dockerignore excludes AgentCanon from build context
-# downstream implementation ../.github/workflows/docker-build.yml uses this submodule-free build gate
+# upstream environment ../.dockerignore excludes AgentCanon from image build context
+# upstream design ../vendor/agent-canon/CONTAINER_OPERATIONS.md AgentCanon container and devcontainer operation rulebook
+# downstream implementation ../.github/workflows/docker-build.yml uses this submodule-aware build gate
 # @dependency-end
 
 set -euo pipefail
@@ -105,6 +106,10 @@ python3 --version
 python3 -m pip --version
 cmake --version
 ninja --version
+test -f .devcontainer/post-create.sh || {
+  printf "missing shared devcontainer post-create; checkout vendor/agent-canon before Docker smoke\n" >&2
+  exit 2
+}
 bash .devcontainer/post-create.sh /workspace
 node --version
 npm --version
