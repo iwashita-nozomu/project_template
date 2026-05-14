@@ -69,7 +69,7 @@ runtime pack には次を 1 つの spec としてまとめます。
 - `python3 tools/ci/run_codex_in_repo_container.py`
   - repo を mount した canonical container 内で nested Codex を起動します。
 - `bash .devcontainer/generate-runtime-compose.sh`
-  - devcontainer 用の compose を canonical pack から root-local に生成します。`.devcontainer/` は AgentCanon-owned root view なので、実行前に AgentCanon submodule checkout が必要です。
+  - devcontainer 用の compose を canonical pack から root-local に生成します。template / derived repo では `.devcontainer/` が AgentCanon-owned root view なので、実行前に AgentCanon submodule checkout が必要です。
 
 ## Nested Codex
 
@@ -256,7 +256,7 @@ repo-defined container runner でも、host `~/.codex` が存在するときは 
 
 ## VS Code Dev Container
 
-`.devcontainer/devcontainer.json` は 1 枚の generated Docker Compose file を使います。起動前に `.devcontainer/generate-runtime-compose.sh` を走らせます。生成 script は root-local で、`docker/packs/default.toml` を読み、AgentCanon submodule checkout が無くても compose を作れます。host を見て次を自動切替します。
+`.devcontainer/devcontainer.json` は 1 枚の generated Docker Compose file を使います。起動前に `.devcontainer/generate-runtime-compose.sh` を走らせます。template / derived repo ではこの script 自体が AgentCanon-owned root view なので、AgentCanon submodule checkout 後に実行します。script は repo-local `docker/packs/default.toml` を読み、host を見て次を自動切替します。
 
 - NVIDIA GPU が見えるとき:
   - `gpus: all` を追加
