@@ -1,1 +1,0 @@
-../../../vendor/agent-canon/documents/conventions/python/11_naming.md

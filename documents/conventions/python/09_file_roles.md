@@ -1,1 +1,0 @@
-../../../vendor/agent-canon/documents/conventions/python/09_file_roles.md

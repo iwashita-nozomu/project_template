@@ -1,1 +1,0 @@
-../../../vendor/agent-canon/documents/conventions/python/04_type_annotations.md

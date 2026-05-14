@@ -1,1 +1,0 @@
-../vendor/agent-canon/documents/experiment-critical-review.md

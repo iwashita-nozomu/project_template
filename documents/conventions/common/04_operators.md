@@ -1,1 +1,0 @@
-../../../vendor/agent-canon/documents/conventions/common/04_operators.md

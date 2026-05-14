@@ -1,1 +1,0 @@
-../vendor/agent-canon/documents/dependency-manifest-design.md

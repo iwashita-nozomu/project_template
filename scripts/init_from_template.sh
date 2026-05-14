@@ -151,15 +151,6 @@ replacements: dict[str, list[tuple[str, str]]] = {
     "docker/packs/default-host-docker.toml": [
         ('image_tag = "project-template:default-runtime-pack-host-docker"', f'image_tag = "{project_slug}:default-runtime-pack-host-docker"'),
     ],
-    "documents/templates/server_runtime_layout.template.toml": [
-        ('local_state_root = "/var/lib/project-template"', f'local_state_root = "/var/lib/{project_slug}"'),
-        ('artifact_root = "/mnt/l/workspace/project_template/reports"', f'artifact_root = "/mnt/l/workspace/{project_slug}/reports"'),
-    ],
-    "documents/templates/remote_execution_repo.template.toml": [
-        ('id = "project-template"', f'id = "{project_slug}"'),
-        ('label = "project-template"', f'label = "{display_name}"'),
-        ('clone_url = "git@github.com:example/project-template.git"', f'clone_url = "git@github.com:example/{project_slug}.git"'),
-    ],
     "documents/linux-wsl-host-requirements.md": [
         ("/mnt/git/template.git", f"/mnt/git/{bare_repo}"),
     ],

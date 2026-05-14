@@ -1,1 +1,0 @@
-../vendor/agent-canon/documents/algorithm-implementation-boundary.md

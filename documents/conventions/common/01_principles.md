@@ -1,1 +1,0 @@
-../../../vendor/agent-canon/documents/conventions/common/01_principles.md

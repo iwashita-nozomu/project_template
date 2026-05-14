@@ -1,1 +1,0 @@
-../vendor/agent-canon/documents/WORKTREE_SCOPE_TEMPLATE.md

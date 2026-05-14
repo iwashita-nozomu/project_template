@@ -40,5 +40,5 @@ shared automation は `tools/` を使います。
 ## 参照先
 
 - [tools/README.md](../tools/README.md)
-- [documents/tools/README.md](../documents/tools/README.md)
-- [documents/SHARED_RUNTIME_SURFACES.md](../documents/SHARED_RUNTIME_SURFACES.md)
+- [documents/tools/README.md](../vendor/agent-canon/documents/tools/README.md)
+- [documents/SHARED_RUNTIME_SURFACES.md](../vendor/agent-canon/documents/SHARED_RUNTIME_SURFACES.md)

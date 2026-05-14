@@ -1,1 +1,0 @@
-../../vendor/agent-canon/documents/templates/server_host_inventory.template.md

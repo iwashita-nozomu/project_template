@@ -2,10 +2,10 @@
 @dependency-start
 responsibility Provides a Japanese repository audit checklist for this template.
 upstream design ../AGENTS.md defines runtime and closeout gates.
-upstream design REVIEW_PROCESS.md defines review evidence and merge gates.
-upstream design agent-canon-github-remote.md defines AgentCanon remote policy.
+upstream design ../vendor/agent-canon/documents/REVIEW_PROCESS.md defines review evidence and merge gates.
+upstream design ../vendor/agent-canon/documents/agent-canon-github-remote.md defines AgentCanon remote policy.
 upstream design template-github-remote.md defines Template remote policy.
-upstream design FILE_CHECKLIST_OPERATIONS.md defines routine operation checks.
+upstream design ../vendor/agent-canon/documents/FILE_CHECKLIST_OPERATIONS.md defines routine operation checks.
 @dependency-end
 -->
 

@@ -1,1 +1,0 @@
-../../../../vendor/agent-canon/documents/tools/oop/python/rule_inventory.md

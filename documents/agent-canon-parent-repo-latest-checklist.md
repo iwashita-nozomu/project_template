@@ -1,1 +1,0 @@
-../vendor/agent-canon/documents/agent-canon-parent-repo-latest-checklist.md
