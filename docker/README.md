@@ -258,6 +258,12 @@ repo-defined container runner でも、host `~/.codex` が存在するときは 
 
 `.devcontainer/devcontainer.json` は 1 枚の generated Docker Compose file を使います。起動前に `.devcontainer/generate-runtime-compose.sh` を走らせます。template / derived repo ではこの script 自体が AgentCanon-owned root view なので、AgentCanon submodule checkout 後に実行します。script は repo-local `docker/packs/default.toml` を読み、host を見て次を自動切替します。
 
+生成 compose には repo path 由来の unique project name を入れます。共有
+`.devcontainer/devcontainer.json` の display name は
+`${localWorkspaceFolderBasename}-devcontainer` とし、Docker Compose project
+name は `<repo-slug>-<path-hash>-devcontainer` 形式にします。同名 clone などで
+さらに明示したい場合だけ、host 側で `DEVCONTAINER_PROJECT_NAME` を指定します。
+
 - NVIDIA GPU が見えるとき:
   - `gpus: all` を追加
 - GPU が見えないとき:
