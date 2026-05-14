@@ -1,3 +1,9 @@
+# @dependency-start
+# responsibility Defines a small LP protocol-compatible container.
+# upstream implementation LPproblem.py provides the legacy LP assembly surface.
+# upstream implementation battery_lp_builder.py builds LP-compatible structures.
+# downstream implementation ../../../tests/model/test_battery_lp.py validates LP behavior.
+# @dependency-end
 """Small LP container matching the optimizer protocol surface used in this repo."""
 
 from __future__ import annotations

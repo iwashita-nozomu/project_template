@@ -1,1 +1,0 @@
-../../../vendor/agent-canon/documents/conventions/python/30_experiment_directory_structure.md

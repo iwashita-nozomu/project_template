@@ -1,3 +1,10 @@
+# @dependency-start
+# responsibility Defines the Docker runtime pack that mounts the host Docker socket.
+# upstream implementation ../Dockerfile builds the project runtime image.
+# downstream implementation ../../tools/ci/check_docker_build.sh validates this pack.
+# downstream implementation ../../tools/ci/run_container_pack.py renders build and smoke commands.
+# @dependency-end
+
 [pack]
 name = "default-host-docker"
 dockerfile = "docker/Dockerfile"

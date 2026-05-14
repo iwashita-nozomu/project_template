@@ -1,1 +1,0 @@
-../vendor/agent-canon/documents/BRANCH_SCOPE.md

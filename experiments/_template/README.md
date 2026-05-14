@@ -1,5 +1,15 @@
 # Experiment Topic Template
 
+<!--
+@dependency-start
+responsibility Documents the managed experiment topic scaffold.
+upstream design ../../vendor/agent-canon/documents/experiment-registry.md defines managed experiment command protocol.
+upstream implementation ../registry.toml registers the template topic.
+downstream implementation experimentcode.py provides the topic entrypoint.
+downstream implementation cases.py defines the template case set.
+@dependency-end
+-->
+
 このディレクトリは、新しい experiment topic を始めるための最小雛形です。
 server 上でそのまま回せるように、`cases.py`、`experimentcode.py`、`result/` の入口をそろえています。
 

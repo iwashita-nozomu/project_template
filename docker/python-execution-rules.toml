@@ -1,3 +1,10 @@
+# @dependency-start
+# responsibility Maps repository Python execution roots to Docker runtime packs.
+# upstream design ../vendor/agent-canon/CONTAINER_OPERATIONS.md defines Python dependency installation boundaries.
+# upstream implementation packs/default.toml defines the default Python runtime pack.
+# downstream implementation ../tools/ci/run_python_in_dockerfile.py consumes execution rules.
+# @dependency-end
+
 [defaults]
 default_pack = "docker/packs/default.toml"
 

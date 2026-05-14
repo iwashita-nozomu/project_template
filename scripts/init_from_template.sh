@@ -1,4 +1,12 @@
 #!/usr/bin/env bash
+# @dependency-start
+# responsibility Initializes a template-derived repository without mutating shared AgentCanon-owned runtime views.
+# upstream design ../vendor/agent-canon/documents/github-first-module-and-devcontainer-policy.md defines shared devcontainer ownership.
+# upstream design ../vendor/agent-canon/CONTAINER_OPERATIONS.md defines Docker and devcontainer boundary rules.
+# downstream implementation start_repository.sh wraps this initializer.
+# downstream implementation ../tests/tools/test_start_repository_script.py verifies dry-run and AgentCanon seeding behavior.
+# @dependency-end
+
 set -euo pipefail
 
 usage() {
@@ -147,18 +155,8 @@ replacements: dict[str, list[tuple[str, str]]] = {
         ("  project-template bash", f"  {project_slug} bash"),
         ("/mnt/git/template.git", f"/mnt/git/{bare_repo}"),
     ],
-    ".devcontainer/devcontainer.json": [
-        ('"name": "project-template"', f'"name": "{project_slug}"'),
-    ],
-    ".devcontainer/post-attach.sh": [
-        ('echo "project-template devcontainer"', f'echo "{project_slug} devcontainer"'),
-    ],
-    "docker/Dockerfile": [
-        ('"${TEMPLATE_BARE_GIT_ROOT}/template.git"', f'"${{TEMPLATE_BARE_GIT_ROOT}}/{bare_repo}"'),
-    ],
     "docker/packs/default.toml": [
         ('image_tag = "project-template:default-runtime-pack"', f'image_tag = "{project_slug}:default-runtime-pack"'),
-        ("/mnt/git/template.git", f"/mnt/git/{bare_repo}"),
     ],
     "docker/packs/default-host-docker.toml": [
         ('image_tag = "project-template:default-runtime-pack-host-docker"', f'image_tag = "{project_slug}:default-runtime-pack-host-docker"'),
@@ -180,6 +178,10 @@ replacements: dict[str, list[tuple[str, str]]] = {
 
 for relative_path, pairs in replacements.items():
     path = root / relative_path
+    if not path.exists():
+        if dry_run:
+            print(f"would skip missing {relative_path}")
+        continue
     text = path.read_text(encoding="utf-8")
     original = text
     for before, after in pairs:
@@ -202,6 +204,11 @@ PY
 seed_agent_canon_bare_repo() {
   local bare_repo_path="${BARE_GIT_ROOT}/${AGENT_CANON_BARE_REPO}"
   local proposal_branch="canon-proposal/${PROJECT_SLUG}"
+  local canon_dir="${ROOT_DIR}/vendor/agent-canon"
+  local canon_toplevel=""
+  local tmp_dir=""
+  local work_dir=""
+  local seed_method=""
 
   if [[ "${SKIP_AGENT_CANON_BARE_REPO}" == "1" ]]; then
     echo "agent_canon_bare_repo=skipped"
@@ -219,13 +226,84 @@ seed_agent_canon_bare_repo() {
     return
   fi
 
-  bash tools/update_agent_canon.sh register-local-bare \
-    --bare-repo "${bare_repo_path}" \
-    --branch main \
-    --proposal-branch "${proposal_branch}"
+  if [[ ! -d "${canon_dir}" ]]; then
+    echo "agent_canon_bare_repo=skipped_missing_vendor_agent_canon"
+    return
+  fi
+
+  git init --bare --initial-branch=main "${bare_repo_path}" >/dev/null
+  canon_toplevel="$(git -C "${canon_dir}" rev-parse --show-toplevel 2>/dev/null || true)"
+  if [[ "${canon_toplevel}" == "$(cd "${canon_dir}" && pwd -P)" ]]; then
+    git -C "${canon_dir}" push --force "${bare_repo_path}" \
+      "HEAD:refs/heads/main" \
+      "HEAD:refs/heads/${proposal_branch}" >/dev/null
+    seed_method="submodule_head"
+  else
+    tmp_dir="$(mktemp -d)"
+    work_dir="${tmp_dir}/agent-canon-snapshot"
+    mkdir -p "${work_dir}"
+    (cd "${canon_dir}" && tar --exclude=.git -cf - .) | (cd "${work_dir}" && tar -xf -)
+    git -C "${work_dir}" init --initial-branch=main >/dev/null
+    git -C "${work_dir}" config user.name "Agent Canon Seeder"
+    git -C "${work_dir}" config user.email "agent-canon-seeder@example.invalid"
+    git -C "${work_dir}" add -A
+    git -C "${work_dir}" commit -m "Seed AgentCanon snapshot" >/dev/null
+    git -C "${work_dir}" branch -M main
+    git -C "${work_dir}" push --force "${bare_repo_path}" \
+      "main:refs/heads/main" \
+      "main:refs/heads/${proposal_branch}" >/dev/null
+    rm -rf "${tmp_dir}"
+    seed_method="snapshot_tree"
+  fi
+
+  if git remote get-url agent-canon >/dev/null 2>&1; then
+    git remote set-url agent-canon "${bare_repo_path}"
+  else
+    git remote add agent-canon "${bare_repo_path}"
+  fi
+  git config agent-canon.proposalBranch "${proposal_branch}"
+
+  echo "agent_canon_bare_repo=${bare_repo_path}"
+  echo "agent_canon_seed_method=${seed_method}"
+  echo "agent_canon_proposal_branch=${proposal_branch}"
+}
+
+ensure_agent_canon_submodule_checkout() {
+  local relative_path="vendor/agent-canon"
+  local canon_dir="${ROOT_DIR}/${relative_path}"
+  local canon_toplevel=""
+  local pin=""
+  local remote_url=""
+
+  if [[ "$(git ls-tree HEAD "${relative_path}" 2>/dev/null | awk '{print $1}')" != "160000" ]]; then
+    return
+  fi
+  if [[ ! -d "${canon_dir}" ]]; then
+    pin="$(git rev-parse "HEAD:${relative_path}")"
+    remote_url="$(git config -f .gitmodules --get "submodule.${relative_path}.url")"
+    git clone --no-checkout "${remote_url}" "${canon_dir}" >/dev/null
+    git -C "${canon_dir}" checkout --detach "${pin}" >/dev/null
+    echo "agent_canon_submodule_checkout=initialized"
+    return
+  fi
+
+  canon_toplevel="$(git -C "${canon_dir}" rev-parse --show-toplevel 2>/dev/null || true)"
+  if [[ "${canon_toplevel}" == "$(cd "${canon_dir}" && pwd -P)" ]]; then
+    return
+  fi
+
+  rm -rf "${canon_dir}"
+  pin="$(git rev-parse "HEAD:${relative_path}")"
+  remote_url="$(git config -f .gitmodules --get "submodule.${relative_path}.url")"
+  git clone --no-checkout "${remote_url}" "${canon_dir}" >/dev/null
+  git -C "${canon_dir}" checkout --detach "${pin}" >/dev/null
+  echo "agent_canon_submodule_checkout=repaired"
 }
 
 seed_agent_canon_bare_repo
+if [[ "${DRY_RUN}" != "1" ]]; then
+  ensure_agent_canon_submodule_checkout
+fi
 
 if [[ "${DRY_RUN}" != "1" ]]; then
   echo "next:"

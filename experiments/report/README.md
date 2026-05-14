@@ -1,5 +1,14 @@
 # Experiment Reports
 
+<!--
+@dependency-start
+responsibility Documents per-run experiment report placement.
+upstream design ../../vendor/agent-canon/documents/experiment-report-style.md defines report style.
+upstream implementation ../registry.toml defines experiment report_root.
+downstream implementation ../../tools/experiments/run_managed_experiment.py writes report stubs.
+@dependency-end
+-->
+
 `experiments/report/` には 1 回の run に対応する report を置きます。
 report 名は `run_name` とそろえ、`experiments/<topic>/result/<run_name>/` と 1 対 1 で辿れるようにします。
 

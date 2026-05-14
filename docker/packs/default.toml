@@ -1,3 +1,11 @@
+# @dependency-start
+# responsibility Defines the default Docker runtime pack and smoke commands.
+# upstream implementation ../Dockerfile builds the project runtime image.
+# upstream implementation ../install_python_dependencies.sh installs workspace-mounted Python dependencies.
+# upstream implementation ../register_safe_directories.sh registers mounted Git safe directories.
+# downstream implementation ../../.github/workflows/docker-build.yml runs this pack in CI.
+# @dependency-end
+
 [pack]
 name = "default"
 dockerfile = "docker/Dockerfile"
@@ -11,10 +19,9 @@ commands = [
   "python3 -m pip --version",
   "cmake --version",
   "ninja --version",
-  "node --version",
-  "npm --version",
-  "codex --version",
   "docker --version",
+  "bash docker/register_safe_directories.sh /workspace",
+  "bash docker/install_python_dependencies.sh /workspace",
   "bash tools/docker_dependency_validator.sh",
   "python3 -c \"import jax; print(jax.__version__)\"",
   "python3 -c \"from iree import compiler as ireec; from iree import runtime as ireert; print(ireec.__name__); print(ireert.__name__)\"",
@@ -23,7 +30,7 @@ commands = [
   "cmake --build build/cpp/docker-smoke --target project_template_cpp_smoke",
   "ctest --test-dir build/cpp/docker-smoke --output-on-failure",
   "safe_dirs=\"$(git config --get-all safe.directory || true)\"",
-  "for safe_dir in /workspace /mnt/git/docomo_bt_management.git /mnt/git/docomo_bt_management-agent-canon.git; do printf '%s\\n' \"$safe_dirs\" | grep -Fx \"$safe_dir\" >/dev/null; done",
+  "for safe_dir in /workspace /workspace/vendor/agent-canon; do if [ -d \"$safe_dir\" ]; then printf '%s\\n' \"$safe_dirs\" | grep -Fx \"$safe_dir\" >/dev/null; fi; done",
 ]
 
 [runtime]

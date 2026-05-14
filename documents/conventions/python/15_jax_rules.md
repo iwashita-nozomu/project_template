@@ -1,1 +1,0 @@
-../../../vendor/agent-canon/documents/conventions/python/15_jax_rules.md

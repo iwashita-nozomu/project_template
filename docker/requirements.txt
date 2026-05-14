@@ -1,8 +1,12 @@
-# Core numerical computing
-experiment-runner @ git+file:///mnt/git/experiment_runner.git
-jax_util @ git+file:///mnt/git/jax_util.git
+# @dependency-start
+# responsibility Declares repo Python dependencies installed after workspace mount.
+# upstream design ../vendor/agent-canon/CONTAINER_OPERATIONS.md keeps repo requirements out of Docker image build.
+# downstream implementation install_python_dependencies.sh installs these dependencies.
+# downstream implementation ../.github/workflows/ci.yml installs these dependencies for CI.
+# @dependency-end
 
-
+experiment-runner
+jax_util
 jaxtyping
 typeguard
 equinox
@@ -39,4 +43,6 @@ cryptography>=41.0.0
 # Data validation
 pydantic>=2.0.0
 
+jupyterlab
+notebook
 ipykernel

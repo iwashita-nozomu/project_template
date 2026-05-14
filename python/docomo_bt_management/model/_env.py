@@ -1,4 +1,9 @@
 # type: ignore
+# @dependency-start
+# responsibility Configures local JAX dtype defaults for model smoke runs.
+# upstream implementation ../../../pyproject.toml declares Python package configuration.
+# downstream implementation LPproblem.py and model modules use JAX arrays.
+# @dependency-end
 import jax
 from jax import numpy as jnp
 

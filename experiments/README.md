@@ -1,5 +1,15 @@
 # Experiments Hub
 
+<!--
+@dependency-start
+responsibility Documents repository-local experiment topic and report layout.
+upstream design ../vendor/agent-canon/documents/experiment-registry.md defines managed experiment registry policy.
+upstream implementation registry.toml defines active experiment topics.
+downstream implementation _template provides the topic scaffold.
+downstream implementation report stores per-run experiment reports.
+@dependency-end
+-->
+
 `experiments/` は、server 上で回す実験コード、run ごとの生成物、1 run ごとの report をまとめる場所です。
 この template では、topic ごとの実験コードと run artifact を同じ tree に寄せます。
 shared canon では、このうち topic 共通の scaffold と report 導線だけを保持し、派生 repo ごとの `registry.toml` と `experiments/<topic>/` は root 側の正本に残します。

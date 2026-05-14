@@ -1,3 +1,11 @@
+# @dependency-start
+# responsibility Configures the Python package and repository static-analysis tools.
+# upstream implementation python/docomo_bt_management package source tree.
+# upstream implementation tests test suite.
+# upstream implementation tools/agent_tools shared agent tooling imported by mirrored tests.
+# downstream implementation .github/workflows/ci.yml runs pyright and pytest with this configuration.
+# @dependency-end
+
 [build-system]
 requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
@@ -63,7 +71,7 @@ exclude = [
 ]
 
 # ローカルパッケージ解決のため、python を追加します。
-extraPaths = ["./python","/usr/local/lib/python3.10/dist-packages"]
+extraPaths = ["./python","./tools/agent_tools","/usr/local/lib/python3.10/dist-packages"]
 stubPath = "./python/typings"
 
 

@@ -157,7 +157,7 @@ class SymbolicExpression:
 
 
 def D(value: object, coordinate: str, *, order: int = 1) -> object:
-    """Mark a derivative such as ``D(x, "t", order=2)``."""
+    """Mark a time derivative expression."""
     if coordinate != "t":
         raise ValueError("Only derivatives with respect to t are supported.")
     if order < 1:

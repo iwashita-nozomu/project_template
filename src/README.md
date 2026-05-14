@@ -1,5 +1,14 @@
 # src
 
+<!--
+@dependency-start
+responsibility Documents the optional C++ source directory policy.
+upstream design ../vendor/agent-canon/documents/cpp-build-layout.md defines C++ source layout.
+upstream implementation ../CMakeLists.txt defines the canonical C++ entrypoint.
+downstream implementation ../include contains the default header-only implementation surface.
+@dependency-end
+-->
+
 template 既定の C++ 実装は header-only です。
 通常は `include/project_template/*.hpp` に実装し、`src/` は使いません。
 

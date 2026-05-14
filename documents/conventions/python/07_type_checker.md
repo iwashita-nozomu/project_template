@@ -1,1 +1,0 @@
-../../../vendor/agent-canon/documents/conventions/python/07_type_checker.md

@@ -1,1 +1,0 @@
-../vendor/agent-canon/documents/AGENTS_COORDINATION.md

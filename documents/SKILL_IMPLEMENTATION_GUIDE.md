@@ -1,1 +1,0 @@
-../vendor/agent-canon/documents/SKILL_IMPLEMENTATION_GUIDE.md

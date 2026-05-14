@@ -1,3 +1,11 @@
+# @dependency-start
+# responsibility Defines repo-local nested Codex container profiles.
+# upstream design ../vendor/agent-canon/CONTAINER_OPERATIONS.md defines Docker and devcontainer ownership boundaries.
+# upstream implementation packs/default.toml defines the default runtime pack.
+# upstream implementation packs/default-host-docker.toml defines the host-Docker runtime pack.
+# downstream implementation ../tools/ci/run_codex_in_repo_container.py consumes these profiles.
+# @dependency-end
+
 [defaults]
 container_home_root = "/workspace/.state/nested-codex"
 use_host_user = true

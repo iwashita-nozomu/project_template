@@ -1,29 +1,39 @@
 # Quick Start
 
+<!--
+@dependency-start
+responsibility Provides the short human bootstrap path for this repository.
+upstream design vendor/agent-canon/CONTAINER_OPERATIONS.md defines Docker and devcontainer ownership boundaries.
+upstream design vendor/agent-canon/documents/SHARED_RUNTIME_SURFACES.md defines shared root-view ownership.
+downstream implementation scripts/start_repository.sh initializes template-derived repositories.
+downstream implementation docker/README.md documents repo-local container usage.
+@dependency-end
+-->
+
 このファイルは、テンプレート repo で作業を始めるための最短入口です。
 
 ## 1. 最初に読む
 
-- [README.md](/mnt/l/workspace/project_template/README.md)
-- [documents/README.md](/mnt/l/workspace/project_template/documents/README.md)
-- [agents/workflows/README.md](/mnt/l/workspace/project_template/agents/workflows/README.md)
-- [documents/linux-wsl-host-requirements.md](/mnt/l/workspace/project_template/documents/linux-wsl-host-requirements.md)
-- [documents/template-bootstrap.md](/mnt/l/workspace/project_template/documents/template-bootstrap.md)
-- [documents/conventions/README.md](/mnt/l/workspace/project_template/documents/conventions/README.md)
-- [documents/coding-conventions-python.md](/mnt/l/workspace/project_template/documents/coding-conventions-python.md)
-- [documents/cpp-build-layout.md](/mnt/l/workspace/project_template/documents/cpp-build-layout.md)
+- [README.md](README.md)
+- [documents/README.md](documents/README.md)
+- [agents/workflows/README.md](agents/workflows/README.md)
+- [documents/linux-wsl-host-requirements.md](documents/linux-wsl-host-requirements.md)
+- [documents/template-bootstrap.md](documents/template-bootstrap.md)
+- [documents/conventions/README.md](vendor/agent-canon/documents/conventions/README.md)
+- [documents/coding-conventions-python.md](vendor/agent-canon/documents/coding-conventions-python.md)
+- [documents/cpp-build-layout.md](vendor/agent-canon/documents/cpp-build-layout.md)
 
 実験を扱う場合は追加で次を見ます。
 
-- [agents/workflows/experiment-workflow.md](/mnt/l/workspace/project_template/agents/workflows/experiment-workflow.md)
-- [agents/workflows/research-workflow.md](/mnt/l/workspace/project_template/agents/workflows/research-workflow.md)
-- [documents/experiment-registry.md](/mnt/l/workspace/project_template/documents/experiment-registry.md)
-- [experiments/README.md](/mnt/l/workspace/project_template/experiments/README.md)
+- [agents/workflows/experiment-workflow.md](agents/workflows/experiment-workflow.md)
+- [agents/workflows/research-workflow.md](agents/workflows/research-workflow.md)
+- [documents/experiment-registry.md](vendor/agent-canon/documents/experiment-registry.md)
+- [experiments/README.md](experiments/README.md)
 
 agent を使う場合は次を見ます。
 
-- [agents/README.md](/mnt/l/workspace/project_template/agents/README.md)
-- [documents/AGENTS_COORDINATION.md](/mnt/l/workspace/project_template/documents/AGENTS_COORDINATION.md)
+- [agents/README.md](agents/README.md)
+- [documents/AGENTS_COORDINATION.md](vendor/agent-canon/documents/AGENTS_COORDINATION.md)
 
 ## 2. 作業の始め方
 
@@ -50,7 +60,7 @@ python3 -m pyright
 
 ## 3. 実装前の確認
 
-- `documents/conventions/README.md` と `documents/coding-conventions-python.md` を先に見ます。
+- `vendor/agent-canon/documents/conventions/README.md` と `vendor/agent-canon/documents/coding-conventions-python.md` を先に見ます。
 - agent workflow を使う変更なら `agents/workflows/README.md` と `agents/canonical/CODEX_WORKFLOW.md` を確認します。
 
 ```bash
@@ -102,7 +112,7 @@ bash tools/run_comprehensive_review.sh
 - Markdown の体裁ルールは `.markdownlint.json` と `documents/conventions/common/05_docs.md` を基準にします。
 - 依存棚卸しは `pipdeptree` と `deptry` を baseline にします。
 
-Codex CLI と `docker` CLI は `docker/Dockerfile` に同梱します。コンテナ内では `codex login`、API key を使う場合は `printenv OPENAI_API_KEY | codex login --with-api-key` を使います。`safe.directory` は image build 時に `git config --global` で固定し、既定で `/workspace` と local bare remote 用の `/mnt/git/docomo_bt_management.git`、`/mnt/git/docomo_bt_management-agent-canon.git` を登録します。project-scoped Codex config の `.codex/config.toml` では `approval_policy = "never"` と `sandbox_mode = "danger-full-access"` を既定にしているので、container 内で起動した Codex も最初から full access です。`jax.export` 用には `CMAKE_GENERATOR=Ninja` を image 側で固定し、calling convention は installed JAX wheel の supported range に追従させます。
+`docker/Dockerfile` は project runtime image だけを定義します。Codex CLI、Node/npm、GitHub CLI、認証 mount は AgentCanon-owned `.devcontainer/post-create.sh` が workspace mount 後に扱います。Python 依存は image build では入れず、container 起動後に `docker/install_python_dependencies.sh` で入れます。`safe.directory` は `docker/register_safe_directories.sh` が `/workspace` と mount 済み `vendor/*` を動的に登録します。`/mnt/git` は host に存在するときだけ shared devcontainer が mount する互換 path です。
 
 VS Code から開発コンテナへ入る場合は `.devcontainer/` を使います。compose 生成の正本は `python3 tools/ci/render_devcontainer_compose.py --pack docker/packs/default.toml` で、GPU がある host では自動で `gpus: all` を追加し、GPU が無い host では CPU-only で起動します。`/mnt/git` も host に存在するときだけ mount し、container 内から local bare remote へ push/pull できます。host `~/.codex` があれば `/root/.codex` として自動 mount し、container 内の Codex auth / config は host と同じ state を使います。attach 直後には banner を出し、GPU、`/mnt/git`、host `~/.codex`、Docker socket、Codex の `approval_policy` / `sandbox_mode` を表示します。前提拡張は `.vscode/extensions.json` を見ます。
 
@@ -112,9 +122,8 @@ docker run --rm -it \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v $(pwd):/workspace -w /workspace \
   docomo_bt_management bash
-codex --version
 docker --version
-codex login
+bash docker/install_python_dependencies.sh /workspace
 ```
 
 build 可否だけを確認したい場合は次です。

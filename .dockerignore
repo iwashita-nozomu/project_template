@@ -1,0 +1,16 @@
+# @dependency-start
+# responsibility Keeps Docker build context limited to project-owned runtime inputs.
+# upstream design vendor/agent-canon/CONTAINER_OPERATIONS.md defines build-context boundaries.
+# upstream implementation docker/Dockerfile consumes this build context.
+# @dependency-end
+.git
+vendor/agent-canon
+reports
+.venv
+venv
+env
+.conda
+conda-env
+build
+dist
+*.egg-info

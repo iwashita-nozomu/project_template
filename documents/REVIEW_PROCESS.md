@@ -1,1 +1,0 @@
-../vendor/agent-canon/documents/REVIEW_PROCESS.md

@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+# @dependency-start
+# responsibility Wraps template repository initialization and post-init validation.
+# upstream implementation init_from_template.sh performs repository-local slug and AgentCanon seeding.
+# upstream implementation ../tools/sync_agent_canon.sh checks AgentCanon freshness.
+# downstream implementation ../tests/tools/test_start_repository_script.py validates wrapper behavior.
+# @dependency-end
+
 set -euo pipefail
 
 usage() {

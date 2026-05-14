@@ -1,3 +1,8 @@
+// @dependency-start
+// responsibility Provides a minimal XLA FFI header smoke surface.
+// upstream design ../../vendor/agent-canon/documents/cpp-build-layout.md defines C++ header placement.
+// @dependency-end
+
 #pragma once
 
 #include <cstddef>

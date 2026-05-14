@@ -1,5 +1,14 @@
 # Implementation Waterfall Literature Note
 
+<!--
+@dependency-start
+responsibility Records literature notes for staged implementation workflow design.
+upstream design ../../vendor/agent-canon/agents/workflows/implementation-waterfall-workflow.md defines the workflow informed by this note.
+upstream design ../../vendor/agent-canon/agents/workflows/README.md indexes workflow references.
+downstream implementation ../../vendor/agent-canon/agents/canonical/CODEX_WORKFLOW.md applies staged implementation gates.
+@dependency-end
+-->
+
 ## Question
 
 agent を使う repo の実装プロセスを、どのような段階ゲート付きウォーターフォールとして定義すべきか。

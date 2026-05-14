@@ -1,3 +1,9 @@
+# @dependency-start
+# responsibility Tests worktree note bootstrap and append helpers.
+# upstream implementation ../../tools/agent_tools/bootstrap_worktree_notes.py fills worktree note placeholders.
+# upstream implementation ../../tools/agent_tools/work_log.py appends worktree action log entries.
+# upstream design ../../vendor/agent-canon/documents/worktree-lifecycle.md defines worktree note policy.
+# @dependency-end
 """Tests for worktree note bootstrap and append helpers."""
 
 from __future__ import annotations

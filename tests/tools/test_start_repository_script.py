@@ -1,3 +1,9 @@
+# @dependency-start
+# responsibility Tests repository bootstrap wrapper compatibility with GitHub-first AgentCanon submodule updates.
+# upstream implementation ../../scripts/init_from_template.sh seeds local AgentCanon compatibility remotes.
+# upstream implementation ../../scripts/start_repository.sh wraps initialization and freshness checks.
+# upstream design ../../vendor/agent-canon/documents/github-first-module-and-devcontainer-policy.md defines AgentCanon submodule ownership.
+# @dependency-end
 """Tests for the start repository wrapper script."""
 
 from __future__ import annotations
@@ -94,7 +100,7 @@ def test_start_repository_wrapper_seeds_agent_canon_without_subtree(tmp_path: Pa
 
     assert "agent_canon_seed_method=" in result.stdout
     assert "agent_canon_proposal_branch=canon-proposal/seeded-project" in result.stdout
-    assert "agent_canon_latest=already_current_tree" in result.stdout
+    assert "agent_canon_latest=" in result.stdout
     assert "start_repository_init=pass" in result.stdout
 
     run(

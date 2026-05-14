@@ -1,4 +1,17 @@
+# @dependency-start
+# responsibility Runs Docker runtime pack checks in GitHub Actions.
+# upstream design ../../vendor/agent-canon/CONTAINER_OPERATIONS.md defines Docker workflow checkout rules.
+# upstream implementation ../scripts/checkout_agent_canon_submodule.sh checks out AgentCanon before shared checks.
+# upstream implementation ../../docker/packs/default.toml defines the default runtime pack.
+# @dependency-end
 name: Docker Build
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docker-build-${{ github.ref }}
+  cancel-in-progress: true
 
 on:
   pull_request:
@@ -23,11 +36,20 @@ on:
 jobs:
   docker-build:
     runs-on: ubuntu-latest
+    env:
+      AGENT_CANON_REPO_TOKEN: ${{ secrets.AGENT_CANON_REPO_TOKEN }}
+      AGENT_CANON_REPO_SSH_KEY: ${{ secrets.AGENT_CANON_REPO_SSH_KEY }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: false
+          persist-credentials: false
+
+      - name: Checkout AgentCanon submodule
+        run: bash .github/scripts/checkout_agent_canon_submodule.sh
 
       - name: Run default Docker pack check
-        run: bash tools/ci/check_docker_build.sh --pack docker/packs/default.toml --pull --tag project-template:ci-default
+        run: bash tools/ci/check_docker_build.sh --pack docker/packs/default.toml --pull --tag docomo_bt_management:ci-default
 
       - name: Run host-docker Docker pack check
-        run: bash tools/ci/check_docker_build.sh --pack docker/packs/default-host-docker.toml --pull --tag project-template:ci-host-docker
+        run: bash tools/ci/check_docker_build.sh --pack docker/packs/default-host-docker.toml --pull --tag docomo_bt_management:ci-host-docker

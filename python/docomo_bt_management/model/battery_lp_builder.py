@@ -1,6 +1,5 @@
 # @dependency-start
 # responsibility Provides a standalone jax_util algorithm-module shaped battery LP block assembler draft.
-# upstream design ../../../notes/knowledge/imported_battery_lp_model_analysis.md documents battery LP formulation
 # upstream implementation ./_env.py provides the repository default dtype
 # upstream implementation ../../../docker/requirements.txt declares the jax_util algorithm module dependency
 # @dependency-end

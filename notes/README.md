@@ -1,5 +1,14 @@
 # Notes Hub
 
+<!--
+@dependency-start
+responsibility Documents repository-local durable note categories.
+upstream design ../vendor/agent-canon/documents/notes-lifecycle.md defines note promotion policy.
+upstream design ../vendor/agent-canon/documents/worktree-lifecycle.md defines worktree action log policy.
+downstream implementation experiments uses notes for cross-run knowledge.
+@dependency-end
+-->
+
 `notes/` は、この template で長く残したい知見、比較、補助メモの置き場です。
 規約や設計の一次情報は `documents/` に残し、ここではそれに昇格させる前の知見や、run をまたいで残したい判断を扱います。
 
@@ -28,5 +37,5 @@
 
 ## 参照先
 
-- `documents/notes-lifecycle.md`
-- `documents/worktree-lifecycle.md`
+- `vendor/agent-canon/documents/notes-lifecycle.md`
+- `vendor/agent-canon/documents/worktree-lifecycle.md`

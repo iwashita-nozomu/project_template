@@ -1,4 +1,12 @@
-.PHONY: ci ci-quick docs-check dev-setup tools-help agent-checks agent-canon-check agent-canon-links agent-canon-snapshot agent-canon-status agent-canon-ensure-latest agent-canon-update-plan agent-canon-update agent-canon-proposal-branch agent-canon-push-proposal agent-canon-register-local-bare agent-canon-pr-check docker-check docker-build-check docker-build-check-host-docker docker-run devcontainer-render server-check experiment-check docker-shell docker-codex docker-codex-host-docker fresh-clone-check template-check start-repository task-start doc-start task-close waterfall-gate-check user-preference-log
+# @dependency-start
+# responsibility Provides short repository validation and bootstrap command aliases.
+# upstream design vendor/agent-canon/documents/github-first-module-and-devcontainer-policy.md defines AgentCanon update ownership.
+# upstream design vendor/agent-canon/CONTAINER_OPERATIONS.md defines Docker and devcontainer validation boundaries.
+# downstream implementation tools/update_agent_canon.sh provides GitHub-first AgentCanon update commands.
+# downstream implementation tools/ci/run_all_checks.sh runs repository CI.
+# @dependency-end
+
+.PHONY: ci ci-quick docs-check dev-setup tools-help agent-checks agent-canon-check agent-canon-links agent-canon-snapshot agent-canon-status agent-canon-ensure-latest agent-canon-update-plan agent-canon-update agent-canon-merge-main agent-canon-pr-check docker-check docker-build-check docker-build-check-host-docker docker-run devcontainer-render server-check experiment-check docker-shell docker-codex docker-codex-host-docker fresh-clone-check template-check start-repository task-start doc-start task-close waterfall-gate-check user-preference-log
 
 # ★推奨: 統合 CI（pytest + pyright + ruff）
 ci:
@@ -76,14 +84,8 @@ agent-canon-update-plan:
 agent-canon-update:
 	bash tools/update_agent_canon.sh apply $(ARGS)
 
-agent-canon-proposal-branch:
-	bash tools/update_agent_canon.sh proposal-branch $(ARGS)
-
-agent-canon-push-proposal:
-	bash tools/update_agent_canon.sh push-proposal $(ARGS)
-
-agent-canon-register-local-bare:
-	bash tools/update_agent_canon.sh register-local-bare $(ARGS)
+agent-canon-merge-main:
+	bash tools/update_agent_canon.sh merge-main-into-current $(ARGS)
 
 # shared canon 専用の PR gate
 agent-canon-pr-check:

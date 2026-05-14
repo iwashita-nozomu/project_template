@@ -1,3 +1,11 @@
+# @dependency-start
+# responsibility Defines managed experiment topics and registered run commands.
+# upstream design ../vendor/agent-canon/documents/experiment-registry.md defines registry schema.
+# upstream implementation ../tools/experiments/run_managed_experiment.py expands run_dir and config_path placeholders.
+# downstream implementation ../tools/ci/check_experiment_registry.py validates registered commands.
+# downstream implementation _template/experimentcode.py consumes exported run configuration.
+# @dependency-end
+
 schema_version = 1
 
 [defaults]
@@ -15,6 +23,6 @@ canonical_entrypoint = "experiments/_template/experimentcode.py"
 result_root = "experiments/_template/result"
 report_root = "experiments/report"
 default_variant = "formal"
-smoke_inner_command = "python3 experiments/_template/experimentcode.py --run-dir {run_dir} --limit 4"
-formal_inner_command = "python3 experiments/_template/experimentcode.py --run-dir {run_dir} --limit 32"
+smoke_inner_command = "python3 experiments/_template/experimentcode.py --run-dir {run_dir} --config {config_path} --mode smoke --limit 4"
+formal_inner_command = "python3 experiments/_template/experimentcode.py --run-dir {run_dir} --config {config_path} --mode formal --limit 32"
 active_branch = "main"

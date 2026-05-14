@@ -1,1 +1,0 @@
-../../../vendor/agent-canon/documents/conventions/common/02_naming.md

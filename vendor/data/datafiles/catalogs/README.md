@@ -1,9 +1,8 @@
 <!--
 @dependency-start
 responsibility Documents the tracked canonical catalogs used by normalized data assets.
-upstream design ../../documents/rootdata-normalization-plan.md defines catalog and normalized data layout
-upstream design ../../documents/csv-datetime-conventions.md defines shared CSV date and time conventions
-downstream implementation ../normalized/sites/README.md consumes catalog identifiers for normalized site data
+upstream implementation basename_catalog.json defines normalized data basename identifiers
+downstream implementation ../normalized/apparent_power_demand consumes catalog identifiers for normalized demand data
 @dependency-end
 -->
 

@@ -1,5 +1,14 @@
 # CMake Layout
 
+<!--
+@dependency-start
+responsibility Documents CMake helper layout for the repository.
+upstream design ../vendor/agent-canon/documents/cpp-build-layout.md defines C++ build layout.
+upstream implementation ../CMakeLists.txt consumes cmake helper modules.
+downstream implementation ../docker/Dockerfile provides CMake and Ninja in the runtime image.
+@dependency-end
+-->
+
 この template で C++ を使うときの CMake 正本は root の `CMakeLists.txt` です。
 
 - root `CMakeLists.txt`

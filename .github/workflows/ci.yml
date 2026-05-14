@@ -1,4 +1,17 @@
+# @dependency-start
+# responsibility Runs repository CI with explicit AgentCanon submodule checkout.
+# upstream implementation ../scripts/checkout_agent_canon_submodule.sh checks out shared AgentCanon paths.
+# upstream implementation ../../docker/requirements.txt declares CI Python dependencies.
+# downstream implementation ../../Makefile provides CI command targets.
+# @dependency-end
 name: CI
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 on:
   push:
@@ -9,11 +22,20 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      AGENT_CANON_REPO_TOKEN: ${{ secrets.AGENT_CANON_REPO_TOKEN }}
+      AGENT_CANON_REPO_SSH_KEY: ${{ secrets.AGENT_CANON_REPO_SSH_KEY }}
     strategy:
       matrix:
         python-version: ["3.10"]
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: false
+          persist-credentials: false
+
+      - name: Checkout AgentCanon submodule
+        run: bash .github/scripts/checkout_agent_canon_submodule.sh
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -33,11 +55,20 @@ jobs:
 
   agent-canon-pr:
     runs-on: ubuntu-latest
+    env:
+      AGENT_CANON_REPO_TOKEN: ${{ secrets.AGENT_CANON_REPO_TOKEN }}
+      AGENT_CANON_REPO_SSH_KEY: ${{ secrets.AGENT_CANON_REPO_SSH_KEY }}
     strategy:
       matrix:
         python-version: ["3.10"]
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: false
+          persist-credentials: false
+
+      - name: Checkout AgentCanon submodule
+        run: bash .github/scripts/checkout_agent_canon_submodule.sh
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -57,11 +88,20 @@ jobs:
 
   fresh-clone-acceptance:
     runs-on: ubuntu-latest
+    env:
+      AGENT_CANON_REPO_TOKEN: ${{ secrets.AGENT_CANON_REPO_TOKEN }}
+      AGENT_CANON_REPO_SSH_KEY: ${{ secrets.AGENT_CANON_REPO_SSH_KEY }}
     strategy:
       matrix:
         python-version: ["3.10"]
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: false
+          persist-credentials: false
+
+      - name: Checkout AgentCanon submodule
+        run: bash .github/scripts/checkout_agent_canon_submodule.sh
 
       - name: Set up Python
         uses: actions/setup-python@v4

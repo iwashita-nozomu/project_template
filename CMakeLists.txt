@@ -1,3 +1,10 @@
+# @dependency-start
+# responsibility Defines the repository C++ build entrypoint and smoke target.
+# upstream design vendor/agent-canon/documents/cpp-build-layout.md defines C++ build layout.
+# downstream implementation include/project_template/jax_export_smoke.hpp provides the header smoke surface.
+# downstream implementation docker/Dockerfile installs CMake and Ninja for container smoke builds.
+# @dependency-end
+
 cmake_minimum_required(VERSION 3.22)
 
 project(project_template LANGUAGES CXX)
