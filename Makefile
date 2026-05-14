@@ -135,7 +135,7 @@ python-env-status:
 python-env-prepare:
 	python3 tools/ci/python_env_policy.py --create
 
-# Docker イメージ build 可否の確認
+# Docker イメージ build / smoke 可否の確認
 docker-build-check:
 	bash docker/check_build.sh --pack docker/packs/default.toml
 

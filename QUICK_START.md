@@ -4,6 +4,7 @@
 responsibility Documents Quick Start for this repository.
 upstream design README.md primary repository overview
 upstream design AGENTS.md runtime agent entrypoint
+upstream design vendor/agent-canon/CONTAINER_OPERATIONS.md AgentCanon container and devcontainer operation rulebook
 @dependency-end
 -->
 
@@ -105,8 +106,9 @@ bash tools/run_comprehensive_review.sh
 - 共通開発環境は `docker/` を基準にします。
 - host 前提は `documents/linux-wsl-host-requirements.md` を正本にします。
 - container runtime の再利用 surface は `docker/packs/*.toml` と `tools/ci/run_container_pack.py` を基準にします。
+- container / devcontainer の責務境界は `vendor/agent-canon/CONTAINER_OPERATIONS.md` を正本にします。
 - Python 依存を追加する場合は `docker/requirements.txt` を更新し、導入は post-create / runtime setup の `docker/install_python_dependencies.sh` に集約します。
-- `docker/Dockerfile`、`docker/requirements.txt`、post-create、または runtime setup を更新したら `make docker-build-check` を流します。
+- `docker/Dockerfile`、`docker/requirements.txt`、post-create、または runtime setup を更新したら `bash tools/docker_dependency_validator.sh` を先に流し、image / pack smoke に影響する変更では `make docker-build-check` も流します。
 - repo-wide な tool 導入案や Docker 変更では `agents/templates/environment_change_proposal.md` に triggering code requirement と blocked command を先に記録します。
 - container 内では `PYTHONPATH=/workspace/python` を前提にします。
 - Jupyter notebook runtime は workspace mount 後の `docker/install_python_dependencies.sh` で導入します。
@@ -117,9 +119,10 @@ bash tools/run_comprehensive_review.sh
 - Markdown の体裁ルールは `.markdownlint.json` と `documents/conventions/common/05_docs.md` を基準にします。
 - 依存棚卸しは `pipdeptree` と `deptry` を baseline にします。
 
-`docker/Dockerfile` は project runtime、build tool、`docker` CLI だけを同梱します。Codex CLI、Codex 用 Node/npm、GitHub CLI は Dockerfile に焼かず、shared `.devcontainer/post-create.sh` が workspace mount 後に導入します。Codex 認証は host-local state を正本にし、host 側で `codex login` を済ませてから `~/.codex` を container / devcontainer に mount して再利用します。API key を使う場合は host env の `OPENAI_API_KEY` を nested Codex profile で forward します。nested Codex runner は setup だけ root で行い、Codex 起動前に host `uid:gid` へ落とします。`safe.directory` は `/workspace` と、mount 済み workspace の `vendor/*` から動的に見つけた `/workspace/vendor/<name>` を登録します。Template / AgentCanon 固有の local mirror path は Dockerfile に焼きません。project-scoped Codex config の `.codex/config.toml` では `approval_policy = "never"` と `sandbox_mode = "danger-full-access"` を既定にしているので、container 内で起動した Codex も最初から full access です。C++ を使う派生 repo に備えて `CMAKE_GENERATOR=Ninja` は image 側で固定します。
-
-VS Code から開発コンテナへ入る場合は `.devcontainer/` を使います。compose 生成の正本は `bash .devcontainer/generate-runtime-compose.sh` または `make devcontainer-render` で、GPU がある host では自動で `gpus: all` を追加し、GPU が無い host では CPU-only で起動します。`/mnt/git` も host に存在するときだけ mount し、container 内から local bare remote へ push / pull できます。host `~/.codex`、`~/.config/gh`、`~/.ssh` があれば container へ mount し、`SSH_AUTH_SOCK` が有効なら `/ssh-agent` として forward します。初回 `gh auth login` と SSH host key 登録は host 側で行い、container はその state を再利用します。post-create で Python dependencies を導入し、attach 直後には banner を出し、GPU、`/mnt/git`、host auth mount、SSH agent、Docker socket、Codex の `approval_policy` / `sandbox_mode` を表示します。前提拡張は `.vscode/extensions.json` を見ます。
+`docker/Dockerfile` は project runtime、shared `.devcontainer/` は Codex / GitHub CLI /
+host mount などの agent ergonomics を持ちます。詳細な境界、例外、validation は
+`vendor/agent-canon/CONTAINER_OPERATIONS.md`、template 固有の実行手順は
+`docker/README.md` を見ます。
 
 ```bash
 docker build -t project-template -f docker/Dockerfile .

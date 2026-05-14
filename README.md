@@ -228,21 +228,26 @@ make tools-help
 
 ## Docker で Codex を使う
 
-`docker/Dockerfile` には project runtime、build tool、`docker` CLI を同梱します。Codex CLI、Codex 用 Node/npm、GitHub CLI は Dockerfile に焼かず、shared `.devcontainer/post-create.sh` が workspace mount 後に導入します。container runtime の正本は [docker/README.md](docker/README.md) で、build / smoke は `docker/packs/*.toml` と `tools/ci/run_container_pack.py` から実行します。Codex 認証は host-local state を正本にし、host 側で `codex login` を済ませてから host `~/.codex` を container / devcontainer に mount して再利用します。API key を使う場合は host env の `OPENAI_API_KEY` を nested Codex profile で forward します。nested Codex runner は setup だけ root で行い、Codex 起動前に host `uid:gid` へ落とします。C++ を使う派生 repo に備えて `python3-dev`、`cmake`、`ninja-build` は canonical image に入れますが、JAX export / IREE などの重い runtime は template default には含めません。host から validation を直接流すより、container を canonical entrypoint にします。
-
-AgentCanon を持つ repo の container / devcontainer 境界は [CONTAINER_OPERATIONS.md](vendor/agent-canon/CONTAINER_OPERATIONS.md) を先に見ます。
+AgentCanon を持つ repo の container / devcontainer 境界は
+[CONTAINER_OPERATIONS.md](vendor/agent-canon/CONTAINER_OPERATIONS.md) を先に見ます。
+`docker/Dockerfile` は project runtime、shared `.devcontainer/` は Codex / GitHub CLI /
+host mount などの agent ergonomics を持ちます。template 固有の実装 runbook は
+[docker/README.md](docker/README.md) です。
 
 Jupyter notebook runtime は workspace mount 後の setup で導入します。host browser から使う場合は `make docker-jupyter` を実行し、runner が `docker/install_python_dependencies.sh` を通してから JupyterLab を起動します。既定では `http://127.0.0.1:8888/lab?token=project-template` を開きます。host port は `JUPYTER_HOST_PORT=8890`、token は `JUPYTER_TOKEN=my-token` のように上書きできます。host 側では repo-local `.venv` を作らず、devcontainer や nested Codex など container 内でだけ `make python-env-status` と `make python-env-prepare` を使って `.venv` を用意します。
 
-`docker/Dockerfile` か `docker/requirements.txt` を更新した変更では、`make docker-build-check` を通して build 可否を確認します。ローカルに `docker` / `podman` がない場合は、GitHub Actions の `Docker Build` workflow を使います。
+Dockerfile、requirements、Python installer、runtime pack のいずれかを変えたら
+`bash tools/docker_dependency_validator.sh` を先に通します。image build や pack smoke に
+影響する変更では `make docker-build-check` も通します。ローカルに `docker` / `podman` が
+ない場合は、GitHub Actions の `Docker Build` workflow を使います。
 
 repo-wide な tool 導入案や Docker 変更では `agents/templates/environment_change_proposal.md` に triggering code requirement、blocked command、Docker 影響、validation、rollback を残します。
 
-`safe.directory` は `docker/Dockerfile` から `docker/register_safe_directories.sh` を呼んで `git config --global` に登録します。template の canonical image では `/workspace` を登録し、devcontainer 作成時や container smoke では mount 済み workspace の `vendor/*` を列挙して `/workspace/vendor/<name>` を動的に登録します。Template / AgentCanon 固有の local mirror path は Dockerfile に焼きません。
-
 project-scoped Codex config の正本は `.codex/config.toml` です。template 既定では `approval_policy = "never"` と `sandbox_mode = "danger-full-access"` を入れているので、container 内で起動した Codex も最初から full access 前提です。
 
-VS Code の dev container は `.devcontainer/` から起動します。起動時の compose 生成は `bash .devcontainer/generate-runtime-compose.sh`、または `make devcontainer-render` を正本にし、GPU が見える host では `gpus: all` を自動追加し、GPU が無い host では CPU-only で起動します。`/mnt/git` も host に path がある場合だけ mount し、local bare remote への push/pull を container 内から継続できます。host `~/.codex`、`~/.config/gh`、`~/.ssh` があれば container へ mount し、`SSH_AUTH_SOCK` が有効なら `/ssh-agent` として forward します。初回 `codex login`、`gh auth login`、SSH host key 登録は host 側で行い、container はその state を再利用します。post-create で `docker/install_python_dependencies.sh` を実行し、attach 直後には banner を出し、GPU、`/mnt/git`、host auth mount、Codex login、SSH agent、Docker socket、Codex の `approval_policy` / `sandbox_mode` の状態を表示します。前提拡張は `.vscode/extensions.json` にまとめています。
+VS Code の dev container は `.devcontainer/` から起動します。compose 生成、mount、
+auth reuse、post-create、attach status の詳細は `CONTAINER_OPERATIONS.md` と
+`docker/README.md` に寄せます。
 
 container 内では `PYTHONPATH=/workspace/python` を前提にします。
 C++ を使うときの canonical entrypoint は root [CMakeLists.txt](CMakeLists.txt) です。helper module は [cmake/README.md](cmake/README.md)、layout と artifact reuse policy は [cpp-build-layout.md](documents/cpp-build-layout.md) を見ます。
