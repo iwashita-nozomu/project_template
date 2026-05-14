@@ -25,10 +25,8 @@ downstream design agent-canon/README.md vendored shared canon overview
 
 ```bash
 bash tools/update_agent_canon.sh plan
-bash tools/update_agent_canon.sh review-submodule
 bash tools/update_agent_canon.sh apply
-bash tools/update_agent_canon.sh push-proposal
-bash tools/update_agent_canon.sh align-main
+bash tools/update_agent_canon.sh merge-main-into-current
 bash tools/sync_agent_canon.sh status
 bash tools/sync_agent_canon.sh link-root
 bash tools/sync_agent_canon.sh check
@@ -37,7 +35,7 @@ bash tools/sync_agent_canon.sh check
 Legacy subtree operations:
 - `bash tools/sync_agent_canon.sh pull` と `bash tools/sync_agent_canon.sh push` は subtree-era compatibility または maintainer 低レベル操作です
 - submodule 化済み repo の通常更新では `update_agent_canon.sh plan -> apply` を使います
-- submodule 内の local commit は `review-submodule` で分類し、必要なら `push-proposal` で AgentCanon PR に回します
+- submodule 内の local commit は `merge-main-into-current` で GitHub `main` を取り込み、通常の AgentCanon GitHub branch / PR に回します
 
 注意:
 - `vendor/agent-canon/AGENTS.md` は、standalone AgentCanon repo 用 entrypoint として扱います

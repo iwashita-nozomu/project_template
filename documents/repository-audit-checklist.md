@@ -251,7 +251,7 @@ rg -n "status=pass|user_completion_report=unlocked|eval|feedback|monitoring" rep
 ## 12. 派生 Repo 監査
 
 - [ ] 派生 repo の `vendor/agent-canon` pin が GitHub AgentCanon `main` と一致している
-- [ ] 派生 repo 固有の AgentCanon 差分がある場合、proposal branch または PR に分離されている
+- [ ] 派生 repo 固有の AgentCanon 差分がある場合、dedicated GitHub branch と AgentCanon PR に分離されている
 - [ ] Template 由来 repo では root surface が Template と構造的に一致している
 - [ ] repo 固有の差分は `documents/`、project code、config に限定され、shared canon に混入していない
 - [ ] `make agent-canon-ensure-latest` と `bash tools/sync_agent_canon.sh check` が派生 repo でも pass している
