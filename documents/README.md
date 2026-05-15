@@ -7,6 +7,8 @@ upstream design ../vendor/agent-canon/documents/algorithm-implementation-boundar
 upstream design ../vendor/agent-canon/documents/codex-configuration-reference.md Codex configuration reference
 upstream design ../vendor/agent-canon/documents/object-oriented-design.md general OOP coding policy
 upstream design ../vendor/agent-canon/documents/agent-canon-parent-repo-latest-checklist.md parent repo latest-state checklist
+upstream design ../vendor/agent-canon/documents/agent-canon-licensing-policy.md AgentCanon licensing boundary
+downstream design ./licensing-policy.md repository license boundary
 @dependency-end
 -->
 
@@ -20,15 +22,13 @@ seed this file, but derived repositories own their local index.
 
 | Class | Examples | Edit source |
 | --- | --- | --- |
-| AgentCanon-owned shared policy symlink | coding conventions, review process, workflow-supporting policies, shared templates, tool docs | `vendor/agent-canon/documents/` |
-| Template-owned active contract | bootstrap, host requirements, server contract, remote execution contract, template remote policy | root `documents/` regular files |
+| AgentCanon-owned shared policy source | coding conventions, review process, workflow-supporting policies, shared templates, tool docs | `vendor/agent-canon/documents/` |
+| Template-owned active contract | bootstrap, host requirements, server contract, remote execution contract, template remote policy, licensing boundary | root `documents/` regular files |
 | Project-owned docs | architecture notes, project-specific design specs, implementation contracts | root `documents/` regular files |
 | Generated or run artifacts | agent reports, experiment outputs, logs | `reports/` or `experiments/`, not `documents/` |
 
-If a file is an AgentCanon-owned symlink, edit the source under
-`vendor/agent-canon/` and repair the root view with
-`bash tools/sync_agent_canon.sh link-root`. If a file is a template-owned active
-contract, edit the root regular file.
+If a file is AgentCanon-owned, edit the source under `vendor/agent-canon/`. If a
+file is a template-owned active contract, edit the root regular file.
 
 ## Canon Runtime References
 
@@ -63,6 +63,7 @@ contract, edit the root regular file.
 These files should be regular files in the template or derived repo root:
 
 - [Template Bootstrap](./template-bootstrap.md)
+- [Licensing Policy](./licensing-policy.md)
 - [Template GitHub Remote](./template-github-remote.md)
 - [Linux / WSL Host Requirements](./linux-wsl-host-requirements.md)
 - [Server Host Contract](./server-host-contract.md)

@@ -1,5 +1,7 @@
 # @dependency-start
 # responsibility Defines Python packaging, dependency, and tool configuration.
+# upstream design LICENSE repository license text
+# upstream design documents/licensing-policy.md repository license ownership
 # upstream design vendor/agent-canon/documents/coding-conventions-python.md Python convention contract
 # downstream implementation tests/tools/test_python_env_policy.py validates Python environment policy
 # downstream implementation tests/tools/test_update_latest_result.py imports shared tools in pyright
@@ -13,7 +15,11 @@ name = "project-template"
 version = "0.1.0"
 description = "Template repository for implementation, experiments, and agent workflows"
 readme = "README.md"
+license = { file = "LICENSE" }
 requires-python = ">=3.10"
+classifiers = [
+  "License :: OSI Approved :: Apache Software License",
+]
 dependencies = []
 
 [project.optional-dependencies]
