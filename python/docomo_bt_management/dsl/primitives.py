@@ -129,8 +129,16 @@ def D(value: object, coordinate: str, *, order: int = 1) -> object:
 class DiscretizationRequest:
     """Request for discretizing a pointwise scalar function."""
 
-    grid: Array
+    interval: tuple[float, float]
+    points: int
     scheme: DifferenceScheme = "central"
+
+    def time_grid(self) -> Array:
+        """Return the uniform grid implied by the interval and point count."""
+        if self.points < 2:
+            raise ValueError("points must be at least 2.")
+        start, stop = self.interval
+        return jnp.linspace(start, stop, self.points, dtype=jnp.float64)
 
 
 @dataclass(frozen=True)
@@ -141,6 +149,7 @@ class _RestoredInputBlocks(Mapping[str, Array]):
     output_values: Mapping[str, Array]
     f_tilde_shape: tuple[int, ...]
     z_shape: tuple[int, ...]
+    grid: Array
 
     def __getitem__(self, name: str) -> Array:
         """Return the full source block, including internal derivative samples."""
@@ -167,6 +176,7 @@ class InputBlockRestorer:
     total_width: int
     input_width: int
     f_tilde_shape: tuple[int, ...]
+    grid: Array
     _output_slice: slice
     _sample_points: Array
 
@@ -213,6 +223,7 @@ def _restore_input_blocks(
         output_values=output_values,
         f_tilde_shape=restorer.f_tilde_shape,
         z_shape=restorer.z_shape,
+        grid=restorer.grid,
     )
 
 
@@ -360,7 +371,7 @@ def discretization(
     request: DiscretizationRequest,
 ) -> DiscretizationResult:
     """Return ``f_tilde(z)`` and a restorer for the named input blocks in ``z``."""
-    grid = jnp.asarray(request.grid)
+    grid = request.time_grid()
     if grid.ndim != 1 or grid.shape[0] < 2:
         raise ValueError("grid must be a one-dimensional array with at least two points.")
     parameter_names = _discretization_parameter_names(function)
@@ -392,6 +403,7 @@ def discretization(
         total_width=total_width,
         input_width=input_width,
         f_tilde_shape=(output_count,),
+        grid=grid,
         _output_slice=grid_slice,
         _sample_points=time_samples,
     )
@@ -407,10 +419,7 @@ def discretization(
     }
     def f_tilde(stacked_values: Array) -> Array:
         stacked_values = jnp.reshape(stacked_values, (total_width,))
-        source_blocks = tuple(
-            stacked_values[input_slices[name]]
-            for name in input_names
-        )
+        source_blocks = tuple(stacked_values[input_slices[name]] for name in input_names)
         context = _DerivativeEvaluationContext(
             grid=grid,
             scheme=request.scheme,

@@ -35,6 +35,11 @@ class _RestoredInputBlocks(Protocol):
         """Return the stacked input shape expected by ``f_tilde``."""
         ...
 
+    @property
+    def grid(self) -> Array:
+        """Return the output grid generated from the discretization request."""
+        ...
+
     def at_output(self, name: str) -> Array:
         """Return one source block aligned with ``f_tilde`` output positions."""
         ...
@@ -66,6 +71,11 @@ class BlockRestorer(Protocol):
         ...
 
     @property
+    def grid(self) -> Array:
+        """Return the output grid generated from the discretization request."""
+        ...
+
+    @property
     def input_shape(self) -> tuple[int, ...]:
         """Return the internal shape for each source input block."""
         ...
@@ -90,8 +100,10 @@ DiscretizationResult: TypeAlias = tuple[DiscreteScalarFunction, BlockRestorer]
 class DiscretizationRequest:
     """Request for discretizing ``f(x, y, ..., t)``."""
 
-    grid: Array
+    interval: tuple[float, float]
+    points: int
     scheme: DifferenceScheme = "central"
+
 
 
 @overload

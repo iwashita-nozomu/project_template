@@ -88,19 +88,20 @@ def test_high_order_central_difference_matches_polynomials() -> None:
     def fourth_order_polynomial(x: object, t: object) -> object:
         return D(x, "t", order=4) + x  # type: ignore[operator]
 
-    grid = jnp.linspace(0.0, 1.0, 5, dtype=jnp.float64)
     second_tilde, second_blocks = discretization(
         second_order_polynomial,
-        DiscretizationRequest(grid=grid, scheme="central"),
+        DiscretizationRequest(interval=(0.0, 1.0), points=5, scheme="central"),
     )
     fourth_tilde, fourth_blocks = discretization(
         fourth_order_polynomial,
-        DiscretizationRequest(grid=grid, scheme="central"),
+        DiscretizationRequest(interval=(0.0, 1.0), points=5, scheme="central"),
     )
 
     second_samples = second_blocks.pack(x=_square_path)
     fourth_samples = fourth_blocks.pack(x=_quartic_path)
+    grid = second_blocks.grid
 
+    assert jnp.allclose(fourth_blocks.grid, grid)
     assert jnp.allclose(second_tilde(second_samples), 2.0 + grid**2, atol=1e-4)
     assert jnp.allclose(fourth_tilde(fourth_samples), 24.0 + grid**4, atol=1e-3)
 
@@ -111,13 +112,13 @@ def test_discretizes_derivative_of_user_expression() -> None:
     def residual(x: object, t: object) -> object:
         return D(jnp.sin(x), "t") + x  # type: ignore[arg-type, operator]
 
-    grid = jnp.linspace(0.0, 1.0, 5, dtype=jnp.float64)
     f_tilde, restore_blocks = discretization(
         residual,
-        DiscretizationRequest(grid=grid, scheme="central"),
+        DiscretizationRequest(interval=(0.0, 1.0), points=5, scheme="central"),
     )
     x_samples = restore_blocks.pack(x=_shifted_quadratic_path)
     blocks = restore_blocks(x_samples)
+    grid = restore_blocks.grid
     step = grid[1] - grid[0]
     expression_samples = jnp.sin(blocks["x"])
     expected_expression_derivative = (
@@ -126,6 +127,7 @@ def test_discretizes_derivative_of_user_expression() -> None:
 
     assert blocks["x"].shape == restore_blocks.input_shape
     assert blocks.f_tilde_shape == restore_blocks.f_tilde_shape == (5,)
+    assert jnp.allclose(blocks.grid, restore_blocks.grid)
     assert jnp.allclose(
         f_tilde(x_samples),
         expected_expression_derivative + blocks.at_output("x"),
@@ -139,12 +141,12 @@ def test_discretizes_user_function_of_derivative() -> None:
     def residual(x: object, t: object) -> object:
         return jnp.sin(D(x, "t")) + x  # type: ignore[arg-type, operator]
 
-    grid = jnp.linspace(0.0, 1.0, 5, dtype=jnp.float64)
     f_tilde, restore_blocks = discretization(
         residual,
-        DiscretizationRequest(grid=grid, scheme="central"),
+        DiscretizationRequest(interval=(0.0, 1.0), points=5, scheme="central"),
     )
     x_samples = restore_blocks.pack(x=_square_path)
+    grid = restore_blocks.grid
 
     assert jnp.allclose(f_tilde(x_samples), jnp.sin(2.0 * grid) + grid**2, atol=1e-6)
 
@@ -155,13 +157,13 @@ def test_expression_derivative_uses_shared_multi_input_halo() -> None:
     def residual(x: object, y: object, t: object) -> object:
         return D(jnp.sin(x + y), "t") + y  # type: ignore[arg-type, operator]
 
-    grid = jnp.linspace(0.0, 1.0, 5, dtype=jnp.float64)
     f_tilde, restore_blocks = discretization(
         residual,
-        DiscretizationRequest(grid=grid, scheme="central"),
+        DiscretizationRequest(interval=(0.0, 1.0), points=5, scheme="central"),
     )
     z = restore_blocks.pack(x=_square_path, y=_linear_offset_path)
     blocks = restore_blocks(z)
+    grid = restore_blocks.grid
     step = grid[1] - grid[0]
     expression_samples = jnp.sin(blocks["x"] + blocks["y"])
     expected_expression_derivative = (
@@ -186,15 +188,15 @@ def test_non_derivative_jax_function_and_constant_residual() -> None:
     def constant_residual(t: object) -> object:
         return 3.0
 
-    grid = jnp.linspace(0.0, 1.0, 5, dtype=jnp.float64)
-    f_tilde, restore_blocks = discretization(residual, DiscretizationRequest(grid=grid))
+    f_tilde, restore_blocks = discretization(residual, DiscretizationRequest((0.0, 1.0), 5))
     constant_tilde, constant_blocks = discretization(
         constant_residual,
-        DiscretizationRequest(grid=grid),
+        DiscretizationRequest((0.0, 1.0), 5),
     )
     z = restore_blocks.pack(x=_square_path)
 
     blocks = restore_blocks(z)
+    grid = restore_blocks.grid
     assert blocks["x"].shape == restore_blocks.input_shape == (5,)
     assert blocks.at_output("x").shape == restore_blocks.f_tilde_shape
     assert jnp.allclose(f_tilde(z), jnp.exp(z) + grid)
@@ -208,10 +210,9 @@ def test_non_derivative_jax_function_and_constant_residual() -> None:
 
 def test_discretizes_nonlinear_manufactured_residual() -> None:
     """A nonlinear residual is zero on its manufactured solution."""
-    grid = jnp.linspace(0.0, 1.0, 6, dtype=jnp.float64)
     f_tilde, restore_blocks = discretization(
         _nonlinear_residual,
-        DiscretizationRequest(grid=grid, scheme="central"),
+        DiscretizationRequest(interval=(0.0, 1.0), points=6, scheme="central"),
     )
     z = restore_blocks.pack(x=_quadratic_solution)
 
@@ -219,6 +220,7 @@ def test_discretizes_nonlinear_manufactured_residual() -> None:
     blocks = restore_blocks(z)
 
     assert restore_blocks.names() == ("x",)
+    assert jnp.allclose(restore_blocks.grid, jnp.linspace(0.0, 1.0, 6, dtype=jnp.float64))
     assert blocks["x"].shape == restore_blocks.input_shape
     assert residual.shape == blocks.f_tilde_shape == restore_blocks.f_tilde_shape
     assert jnp.allclose(residual, jnp.zeros_like(residual), atol=5e-5)
@@ -226,10 +228,9 @@ def test_discretizes_nonlinear_manufactured_residual() -> None:
 
 def test_solves_nonlinear_manufactured_system() -> None:
     """The nonlinear residual plus halo constraints recovers the solution."""
-    grid = jnp.linspace(0.0, 1.0, 6, dtype=jnp.float64)
     f_tilde, restore_blocks = discretization(
         _nonlinear_residual,
-        DiscretizationRequest(grid=grid, scheme="central"),
+        DiscretizationRequest(interval=(0.0, 1.0), points=6, scheme="central"),
     )
     exact_z = restore_blocks.pack(x=_quadratic_solution)
 
@@ -263,8 +264,7 @@ def test_rejects_invalid_runtime_shape_and_signature() -> None:
     def residual(x: object, t: object) -> object:
         return D(x, "t", order=2) + x  # type: ignore[operator]
 
-    grid = jnp.linspace(0.0, 1.0, 5, dtype=jnp.float64)
-    f_tilde, restore_blocks = discretization(residual, DiscretizationRequest(grid=grid))
+    f_tilde, restore_blocks = discretization(residual, DiscretizationRequest((0.0, 1.0), 5))
     z = restore_blocks.pack(x=_square_path)
 
     with pytest.raises(TypeError):
@@ -279,9 +279,11 @@ def test_rejects_invalid_runtime_shape_and_signature() -> None:
         return x + y + t  # type: ignore[operator]
 
     with pytest.raises(ValueError, match="time argument t"):
-        discretization(missing_t, DiscretizationRequest(grid=grid))
+        discretization(missing_t, DiscretizationRequest((0.0, 1.0), 5))
     with pytest.raises(ValueError, match="time argument t"):
-        discretization(misplaced_t, DiscretizationRequest(grid=grid))
+        discretization(misplaced_t, DiscretizationRequest((0.0, 1.0), 5))
+    with pytest.raises(ValueError, match="points"):
+        discretization(residual, DiscretizationRequest((0.0, 1.0), 1))
 
 
 def test_restorer_rejects_bad_pack_inputs() -> None:
@@ -290,12 +292,11 @@ def test_restorer_rejects_bad_pack_inputs() -> None:
     def residual(x: object, t: object) -> object:
         return D(x, "t") + x  # type: ignore[operator]
 
-    grid = jnp.linspace(0.0, 1.0, 5, dtype=jnp.float64)
-    _f_tilde, restore_blocks = discretization(residual, DiscretizationRequest(grid=grid))
+    _f_tilde, restore_blocks = discretization(residual, DiscretizationRequest((0.0, 1.0), 5))
 
     with pytest.raises(ValueError, match="expected inputs x; got <none>"):
         restore_blocks.pack()
     with pytest.raises(ValueError, match="expected inputs x; got x, y"):
         restore_blocks.pack(x=_square_path, y=_square_path)
     with pytest.raises(ValueError, match="must produce shape"):
-        restore_blocks.pack(x=grid)
+        restore_blocks.pack(x=restore_blocks.grid)
