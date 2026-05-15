@@ -37,3 +37,6 @@ commands = [
 shell = "/bin/bash"
 workdir = "/workspace"
 workspace_mount = "/workspace"
+env = [
+  "PYTHONPATH=/workspace/python",
+]

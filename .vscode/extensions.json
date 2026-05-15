@@ -1,11 +1,17 @@
+// @dependency-start
+// responsibility Recommends VS Code extensions for the repository's devcontainer, Python, notebook, Docker, and C++ workflows.
+// upstream environment ../.devcontainer/devcontainer.json installs the same core extensions inside the devcontainer.
+// downstream implementation settings.json configures workspace defaults consumed by these extensions.
+// @dependency-end
 {
   "recommendations": [
     "ms-vscode-remote.remote-containers",
     "ms-python.python",
+    "ms-python.vscode-pylance",
     "ms-toolsai.jupyter",
+    "ms-toolsai.jupyter-renderers",
     "ms-azuretools.vscode-docker",
     "ms-vscode.cpptools",
-    "ms-vscode.cmake-tools",
-    "ms-python.python"
+    "ms-vscode.cmake-tools"
   ]
 }

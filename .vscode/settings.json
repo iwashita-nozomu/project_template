@@ -1,3 +1,9 @@
+// @dependency-start
+// responsibility Configures VS Code workspace defaults for Python, Jupyter, and native build tooling.
+// upstream environment ../docker/packs/default.toml defines the devcontainer Python import root.
+// upstream implementation ../python/docomo_bt_management package source tree.
+// downstream implementation ../jupyter/test_primitive.ipynb demonstrates notebook execution against the repo package.
+// @dependency-end
 {
   "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
   "C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json",
@@ -9,11 +15,12 @@
     "*.hpp": "cpp",
     "*.h": "cpp"
   },
-  "python.envFile": "${workspaceFolder}/.env",
-  "python-envs.pythonProjects": [],
+  "jupyter.notebookFileRoot": "${workspaceFolder}",
   "python.analysis.extraPaths": [
-    "./python",
-    "./python"
+    "${workspaceFolder}/python"
   ],
+  "python.defaultInterpreterPath": "/usr/bin/python3",
+  "python.terminal.activateEnvironment": false,
+  "python-envs.pythonProjects": [],
   "python-envs.defaultEnvManager": "ms-python.python:system"
 }
