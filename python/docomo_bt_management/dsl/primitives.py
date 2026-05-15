@@ -11,8 +11,8 @@ from __future__ import annotations
 import inspect
 import math
 from collections.abc import Callable, Mapping
+from contextvars import ContextVar
 from dataclasses import dataclass
-from types import FunctionType
 from typing import Literal, TypeAlias
 
 import jax
@@ -32,128 +32,76 @@ UNSUPPORTED_PARAMETER_KINDS = (
 )
 
 
-@dataclass(frozen=True)
-class DerivativeMarker:
-    """Marker for a derivative argument in a pointwise function signature."""
+def _required_halo_width(scheme: DifferenceScheme, order: int) -> int:
+    """Return the source halo width required by a finite-difference stencil."""
+    if order < 0:
+        raise ValueError("Derivative order must be non-negative.")
+    if scheme == "forward" or scheme == "backward":
+        return order
+    if scheme == "central":
+        return 2 * math.ceil(order / 2)
+    raise ValueError(f"Unknown difference scheme: {scheme}")
 
-    source_name: str
-    order: int = 1
+
+def _left_halo_width(scheme: DifferenceScheme, input_halo: int) -> int:
+    """Return how many halo samples appear before the grid-aligned samples."""
+    if input_halo < 0:
+        raise ValueError("input_halo must be non-negative.")
+    if scheme == "forward":
+        return 0
+    if scheme == "backward":
+        return input_halo
+    if scheme == "central":
+        return input_halo // 2
+    raise ValueError(f"Unknown difference scheme: {scheme}")
 
 
-@dataclass(frozen=True)
-class SymbolicExpression:
-    """Expression traced from a pointwise function before discretization."""
+@dataclass
+class _DerivativeEvaluationContext:
+    """Runtime state used by ``D`` while a function is being discretized."""
 
-    code: str
-    source_name: str | None = None
-    input_names: frozenset[str] = frozenset()
-    derivatives: frozenset[DerivativeMarker] = frozenset()
+    grid: Array
+    scheme: DifferenceScheme
+    input_halo: int
+    mode: Literal["probe", "runtime"]
+    derivative_matrices: Mapping[int, Array]
+    observed_orders: list[int]
+    output_count: int
+    input_width: int
+    grid_slice: slice
 
-    @classmethod
-    def variable(cls, name: str) -> SymbolicExpression:
-        """Return a symbolic function argument."""
-        if name == "t":
-            return cls("grid_points")
-        return cls(f"value_{name}", name, frozenset({name}))
+    def apply_derivative(self, value: object, order: int) -> Array:
+        """Apply or record a finite-difference derivative marker."""
+        self.observed_orders.append(order)
+        value_array = jnp.asarray(value)
+        if self.mode == "probe":
+            return jnp.zeros_like(value_array)
+        return self._apply_runtime_derivative(value_array, order)
 
-    @classmethod
-    def constant(cls, value: object) -> SymbolicExpression:
-        """Return a scalar constant expression."""
-        if isinstance(value, int | float):
-            return cls(repr(value))
-        raise TypeError("Pointwise function must return a symbolic scalar expression.")
+    def _apply_runtime_derivative(self, value: Array, order: int) -> Array:
+        flattened = jnp.reshape(value, (-1,))
+        if flattened.shape[0] != self.input_width:
+            raise TypeError(
+                "D inside discretization expects an expression sampled on "
+                "the derivative halo."
+            )
+        matrix = self.derivative_matrices.get(order)
+        if matrix is None:
+            matrix = finite_difference_matrix(
+                self.grid,
+                self.scheme,
+                order,
+                self.input_halo,
+                dtype=value.dtype,
+            )
+        derivative_values = matrix @ flattened
+        embedded = jnp.zeros((self.input_width,), dtype=derivative_values.dtype)
+        return embedded.at[self.grid_slice].set(derivative_values)
 
-    def coerce(self, other: object) -> SymbolicExpression:
-        if isinstance(other, SymbolicExpression):
-            return other
-        return self.constant(other)
 
-    def __add__(self, other: object) -> SymbolicExpression:  # noqa: D105
-        rhs = self.coerce(other)
-        return SymbolicExpression(
-            f"({self.code} + {rhs.code})",
-            input_names=self.input_names | rhs.input_names,
-            derivatives=self.derivatives | rhs.derivatives,
-        )
-
-    def __radd__(self, other: object) -> SymbolicExpression:  # noqa: D105
-        lhs = self.coerce(other)
-        return SymbolicExpression(
-            f"({lhs.code} + {self.code})",
-            input_names=lhs.input_names | self.input_names,
-            derivatives=lhs.derivatives | self.derivatives,
-        )
-
-    def __sub__(self, other: object) -> SymbolicExpression:  # noqa: D105
-        rhs = self.coerce(other)
-        return SymbolicExpression(
-            f"({self.code} - {rhs.code})",
-            input_names=self.input_names | rhs.input_names,
-            derivatives=self.derivatives | rhs.derivatives,
-        )
-
-    def __rsub__(self, other: object) -> SymbolicExpression:  # noqa: D105
-        lhs = self.coerce(other)
-        return SymbolicExpression(
-            f"({lhs.code} - {self.code})",
-            input_names=lhs.input_names | self.input_names,
-            derivatives=lhs.derivatives | self.derivatives,
-        )
-
-    def __mul__(self, other: object) -> SymbolicExpression:  # noqa: D105
-        rhs = self.coerce(other)
-        return SymbolicExpression(
-            f"({self.code} * {rhs.code})",
-            input_names=self.input_names | rhs.input_names,
-            derivatives=self.derivatives | rhs.derivatives,
-        )
-
-    def __rmul__(self, other: object) -> SymbolicExpression:  # noqa: D105
-        lhs = self.coerce(other)
-        return SymbolicExpression(
-            f"({lhs.code} * {self.code})",
-            input_names=lhs.input_names | self.input_names,
-            derivatives=lhs.derivatives | self.derivatives,
-        )
-
-    def __truediv__(self, other: object) -> SymbolicExpression:  # noqa: D105
-        rhs = self.coerce(other)
-        return SymbolicExpression(
-            f"({self.code} / {rhs.code})",
-            input_names=self.input_names | rhs.input_names,
-            derivatives=self.derivatives | rhs.derivatives,
-        )
-
-    def __rtruediv__(self, other: object) -> SymbolicExpression:  # noqa: D105
-        lhs = self.coerce(other)
-        return SymbolicExpression(
-            f"({lhs.code} / {self.code})",
-            input_names=lhs.input_names | self.input_names,
-            derivatives=lhs.derivatives | self.derivatives,
-        )
-
-    def __pow__(self, other: object) -> SymbolicExpression:  # noqa: D105
-        rhs = self.coerce(other)
-        return SymbolicExpression(
-            f"({self.code} ** {rhs.code})",
-            input_names=self.input_names | rhs.input_names,
-            derivatives=self.derivatives | rhs.derivatives,
-        )
-
-    def __rpow__(self, other: object) -> SymbolicExpression:  # noqa: D105
-        lhs = self.coerce(other)
-        return SymbolicExpression(
-            f"({lhs.code} ** {self.code})",
-            input_names=lhs.input_names | self.input_names,
-            derivatives=lhs.derivatives | self.derivatives,
-        )
-
-    def __neg__(self) -> SymbolicExpression:  # noqa: D105
-        return SymbolicExpression(
-            f"(-{self.code})",
-            input_names=self.input_names,
-            derivatives=self.derivatives,
-        )
+_ACTIVE_DERIVATIVE_CONTEXT: ContextVar[_DerivativeEvaluationContext | None] = (
+    ContextVar("_ACTIVE_DERIVATIVE_CONTEXT", default=None)
+)
 
 
 def D(value: object, coordinate: str, *, order: int = 1) -> object:
@@ -162,20 +110,18 @@ def D(value: object, coordinate: str, *, order: int = 1) -> object:
         raise ValueError("Only derivatives with respect to t are supported.")
     if order < 1:
         raise ValueError("Derivative order must be positive.")
-    if isinstance(value, SymbolicExpression):
-        if value.source_name is None:
-            raise TypeError("D expects a direct scalar path argument.")
-        marker = DerivativeMarker(value.source_name, order)
-        return SymbolicExpression(
-            f"derivative_{value.source_name}_{order}",
-            derivatives=frozenset({marker}),
-        )
+    context = _ACTIVE_DERIVATIVE_CONTEXT.get()
+    if context is not None and not callable(value):
+        return context.apply_derivative(value, order)
     if callable(value):
         derivative = value
         for _ in range(order):
             derivative = jax.grad(derivative)
         return derivative
-    raise TypeError("D expects a symbolic path or callable scalar path.")
+    raise TypeError(
+        "D expects a callable scalar path outside discretization or an array "
+        "expression inside discretization."
+    )
 
 
 @dataclass(frozen=True)
@@ -223,19 +169,15 @@ def finite_difference_matrix(
     output_count = len(grid)
     if scheme == "forward":
         offsets = tuple(range(order + 1))
-        left_halo = 0
-        required_halo = order
     elif scheme == "backward":
         offsets = tuple(range(-order, 1))
-        left_halo = input_halo
-        required_halo = order
     elif scheme == "central":
         radius = math.ceil(order / 2)
         offsets = tuple(range(-radius, radius + 1))
-        left_halo = input_halo // 2
-        required_halo = 2 * radius
     else:
         raise ValueError(f"Unknown difference scheme: {scheme}")
+    left_halo = _left_halo_width(scheme, input_halo)
+    required_halo = _required_halo_width(scheme, order)
     if input_halo < required_halo:
         raise ValueError("input_halo is too small for the requested derivative.")
     columns = output_count + input_halo
@@ -255,82 +197,134 @@ def finite_difference_matrix(
     return matrix
 
 
-def discretization(
-    function: PointwiseScalarFunction,
-    request: DiscretizationRequest,
-) -> DiscretizationResult:
-    """Return ``f_tilde(z)`` and a restorer for the named input blocks in ``z``."""
-    grid = jnp.asarray(request.grid)
+def _discretization_parameter_names(function: PointwiseScalarFunction) -> tuple[str, ...]:
     parameters = tuple(inspect.signature(function).parameters.values())
     if any(parameter.kind in UNSUPPORTED_PARAMETER_KINDS for parameter in parameters):
         raise TypeError("discretization requires positional pointwise arguments.")
     parameter_names = tuple(parameter.name for parameter in parameters)
     if not parameter_names or parameter_names[-1] != "t":
         raise ValueError("Pointwise function must end with the time argument t.")
-    input_names = parameter_names[:-1]
-    symbolic_args = tuple(SymbolicExpression.variable(name) for name in parameter_names)
-    expression = function(*symbolic_args)
-    if not isinstance(expression, SymbolicExpression):
-        expression = SymbolicExpression.constant(expression)
-    source_halos = dict.fromkeys(input_names, 0)
-    input_order = {name: index for index, name in enumerate(input_names)}
-    derivatives = tuple(
-        sorted(expression.derivatives, key=lambda item: (input_order[item.source_name], item.order))
+    return parameter_names
+
+
+def _probe_derivative_orders(
+    function: PointwiseScalarFunction,
+    input_names: tuple[str, ...],
+    grid: Array,
+    scheme: DifferenceScheme,
+) -> tuple[int, ...]:
+    output_count = int(grid.shape[0])
+    probe_context = _DerivativeEvaluationContext(
+        grid=grid,
+        scheme=scheme,
+        input_halo=0,
+        mode="probe",
+        derivative_matrices={},
+        observed_orders=[],
+        output_count=output_count,
+        input_width=output_count,
+        grid_slice=slice(0, output_count),
     )
-    for derivative in derivatives:
-        if derivative.source_name not in source_halos:
-            raise ValueError(f"Missing derivative source: {derivative.source_name}")
-        halo = (
-            2 * math.ceil(derivative.order / 2)
-            if request.scheme == "central"
-            else derivative.order
-        )
-        source_halos[derivative.source_name] = max(source_halos[derivative.source_name], halo)
-    output_count = len(grid)
-    input_widths = {name: output_count + source_halos[name] for name in input_names}
+    token = _ACTIVE_DERIVATIVE_CONTEXT.set(probe_context)
+    try:
+        function(*(jnp.zeros_like(grid) for _ in input_names), grid)
+    finally:
+        _ACTIVE_DERIVATIVE_CONTEXT.reset(token)
+    return tuple(sorted(set(probe_context.observed_orders)))
+
+
+def _normalize_discretized_result(
+    result: object,
+    output_count: int,
+    input_width: int,
+    grid_slice: slice,
+) -> Array:
+    result_array = jnp.asarray(result)
+    if result_array.ndim == 0:
+        return jnp.full((output_count,), result_array, dtype=result_array.dtype)
+    flattened = jnp.reshape(result_array, (-1,))
+    if flattened.shape[0] == input_width:
+        return flattened[grid_slice]
+    if flattened.shape[0] == output_count:
+        return flattened
+    raise TypeError(
+        "Pointwise function must return a scalar, grid-sized expression, "
+        "or halo-sized expression."
+    )
+
+
+def discretization(
+    function: PointwiseScalarFunction,
+    request: DiscretizationRequest,
+) -> DiscretizationResult:
+    """Return ``f_tilde(z)`` and a restorer for the named input blocks in ``z``."""
+    grid = jnp.asarray(request.grid)
+    if grid.ndim != 1 or grid.shape[0] < 2:
+        raise ValueError("grid must be a one-dimensional array with at least two points.")
+    parameter_names = _discretization_parameter_names(function)
+    input_names = parameter_names[:-1]
+    output_count = int(grid.shape[0])
+    derivative_orders = _probe_derivative_orders(
+        function,
+        input_names,
+        grid,
+        request.scheme,
+    )
+    input_halo = max(
+        (_required_halo_width(request.scheme, order) for order in derivative_orders),
+        default=0,
+    )
+    left_halo = _left_halo_width(request.scheme, input_halo)
+    input_width = output_count + input_halo
+    grid_slice = slice(left_halo, left_halo + output_count)
     input_slices: dict[str, slice] = {}
     total_width = 0
-    for name, width in input_widths.items():
-        input_slices[name] = slice(total_width, total_width + width)
-        total_width += width
+    for name in input_names:
+        input_slices[name] = slice(total_width, total_width + input_width)
+        total_width += input_width
 
     block_restorer = InputBlockRestorer(input_slices, total_width)
-    namespace: dict[str, object] = {
-        "grid_points": grid,
-        "reshape": jnp.reshape,
-        "total_shape": (total_width,),
+    derivative_matrices = {
+        order: finite_difference_matrix(
+            grid,
+            request.scheme,
+            order,
+            input_halo,
+            dtype=grid.dtype,
+        )
+        for order in derivative_orders
     }
-    generated_lines = [
-        "def f_tilde(stacked_values):",
-        "    stacked_values = reshape(stacked_values, total_shape)",
-    ]
-    for index, name in enumerate(input_names):
-        namespace[f"input_slice_{index}"] = input_slices[name]
-        namespace[f"matrix_{index}"] = finite_difference_matrix(
-            grid, request.scheme, 0, source_halos[name],
-            dtype=grid.dtype,
-        )
-        generated_lines.append(
-            f"    value_{name} = matrix_{index} @ stacked_values[input_slice_{index}]"
-        )
-    for index, derivative in enumerate(derivatives):
-        namespace[f"derivative_slice_{index}"] = input_slices[derivative.source_name]
-        namespace[f"derivative_matrix_{index}"] = finite_difference_matrix(
-            grid, request.scheme, derivative.order, source_halos[derivative.source_name],
-            dtype=grid.dtype,
-        )
-        generated_lines.append(
-            f"    derivative_{derivative.source_name}_{derivative.order} = "
-            f"derivative_matrix_{index} @ stacked_values[derivative_slice_{index}]"
-        )
-    generated_lines.append(f"    return {expression.code}")
-    exec("\n".join(generated_lines), namespace)  # noqa: S102
-    generated_f_tilde = namespace["f_tilde"]
-    if not isinstance(generated_f_tilde, FunctionType):
-        raise TypeError("Generated discretized function is not callable.")
+    time_offsets = jnp.arange(input_width, dtype=grid.dtype) - left_halo
+    time_samples = grid[0] + time_offsets * (grid[1] - grid[0])
 
     def f_tilde(stacked_values: Array) -> Array:
-        return generated_f_tilde(stacked_values)
+        stacked_values = jnp.reshape(stacked_values, (total_width,))
+        source_blocks = tuple(
+            stacked_values[input_slices[name]]
+            for name in input_names
+        )
+        context = _DerivativeEvaluationContext(
+            grid=grid,
+            scheme=request.scheme,
+            input_halo=input_halo,
+            mode="runtime",
+            derivative_matrices=derivative_matrices,
+            observed_orders=[],
+            output_count=output_count,
+            input_width=input_width,
+            grid_slice=grid_slice,
+        )
+        token = _ACTIVE_DERIVATIVE_CONTEXT.set(context)
+        try:
+            result = function(*source_blocks, time_samples)
+        finally:
+            _ACTIVE_DERIVATIVE_CONTEXT.reset(token)
+        return _normalize_discretized_result(
+            result,
+            output_count,
+            input_width,
+            grid_slice,
+        )
 
     return f_tilde, block_restorer
 

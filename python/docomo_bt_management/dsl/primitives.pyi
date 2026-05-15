@@ -9,7 +9,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Literal, Protocol, TypeAlias, overload
 
-from jaxtyping import Array
+from jaxtyping import Array, DTypeLike
 
 DifferenceScheme: TypeAlias = Literal["forward", "backward", "central"]
 PointwiseScalarFunction: TypeAlias = Callable[..., object]
@@ -51,6 +51,16 @@ def D(
 
 @overload
 def D(value: object, coordinate: Literal["t"], *, order: int = 1) -> object: ...
+
+
+def finite_difference_matrix(
+    grid: Array,
+    scheme: DifferenceScheme,
+    order: int,
+    input_halo: int,
+    *,
+    dtype: DTypeLike = ...,
+) -> Array: ...
 
 
 def discretization(

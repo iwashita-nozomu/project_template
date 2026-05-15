@@ -8,11 +8,15 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
+from typing import cast
+
 import jax.numpy as jnp
 import numpy as np
 import numpy.typing as npt
 import pytest
 from docomo_bt_management.dsl import D, DiscretizationRequest, discretization
+from docomo_bt_management.dsl.primitives import finite_difference_matrix
 from scipy.optimize import root
 
 
@@ -25,11 +29,44 @@ def _nonlinear_residual(x: object, t: object) -> object:
     return D(x, "t", order=2) + x**2 - (2.0 + exact**2)  # type: ignore[operator]
 
 
+def _central_halo_points(grid: jnp.ndarray, halo: int) -> jnp.ndarray:
+    left_halo = halo // 2
+    offsets = jnp.arange(grid.size + halo, dtype=grid.dtype) - left_halo
+    return grid[0] + offsets * (grid[1] - grid[0])
+
+
 def test_public_surface_exports_expected_symbols() -> None:
     """Public DSL import exposes only the intended primitives."""
     from docomo_bt_management import dsl
 
     assert set(dsl.__all__) == {"D", "DiscretizationRequest", "discretization"}
+
+
+def test_callable_derivative_and_finite_difference_matrix() -> None:
+    """Direct primitives keep their callable and matrix behavior."""
+
+    def cubic_path(t: jnp.ndarray) -> jnp.ndarray:
+        return t**3
+
+    second_derivative = cast(Callable[[jnp.ndarray], jnp.ndarray], D(cubic_path, "t", order=2))
+    grid = jnp.linspace(0.0, 1.0, 5, dtype=jnp.float64)
+    forward_samples = jnp.linspace(0.0, 1.25, 6, dtype=jnp.float64)
+    forward_matrix = finite_difference_matrix(
+        grid,
+        "forward",
+        1,
+        1,
+        dtype=jnp.float64,
+    )
+
+    assert jnp.allclose(second_derivative(jnp.asarray(2.0)), 12.0)
+    assert jnp.allclose(forward_matrix @ forward_samples, jnp.ones_like(grid))
+    with pytest.raises(ValueError, match="Only derivatives"):
+        D(cubic_path, "x")  # type: ignore[call-overload]
+    with pytest.raises(ValueError, match="positive"):
+        D(cubic_path, "t", order=0)
+    with pytest.raises(TypeError, match="callable scalar path"):
+        D(1.0, "t")
 
 
 def test_high_order_central_difference_matches_polynomials() -> None:
@@ -56,6 +93,106 @@ def test_high_order_central_difference_matches_polynomials() -> None:
 
     assert jnp.allclose(second_tilde(second_halo_points**2), 2.0 + grid**2, atol=1e-4)
     assert jnp.allclose(fourth_tilde(fourth_halo_points**4), 24.0 + grid**4, atol=1e-3)
+
+
+def test_discretizes_derivative_of_user_expression() -> None:
+    """``D(jnp.sin(x), "t")`` samples the expression before differencing."""
+
+    def residual(x: object, t: object) -> object:
+        return D(jnp.sin(x), "t") + x  # type: ignore[arg-type, operator]
+
+    grid = jnp.linspace(0.0, 1.0, 5, dtype=jnp.float64)
+    halo_points = _central_halo_points(grid, 2)
+    x_samples = 1.0 + halo_points**2
+    f_tilde, restore_blocks = discretization(
+        residual,
+        DiscretizationRequest(grid=grid, scheme="central"),
+    )
+    step = grid[1] - grid[0]
+    expected_expression_derivative = (
+        jnp.sin(x_samples[2:]) - jnp.sin(x_samples[:-2])
+    ) / (2.0 * step)
+
+    assert restore_blocks(x_samples)["x"].shape == (7,)
+    assert jnp.allclose(
+        f_tilde(x_samples),
+        expected_expression_derivative + (1.0 + grid**2),
+        atol=1e-6,
+    )
+
+
+def test_discretizes_user_function_of_derivative() -> None:
+    """Normal user functions compose with the array returned by ``D``."""
+
+    def residual(x: object, t: object) -> object:
+        return jnp.sin(D(x, "t")) + x  # type: ignore[arg-type, operator]
+
+    grid = jnp.linspace(0.0, 1.0, 5, dtype=jnp.float64)
+    halo_points = _central_halo_points(grid, 2)
+    x_samples = halo_points**2
+    f_tilde, _ = discretization(
+        residual,
+        DiscretizationRequest(grid=grid, scheme="central"),
+    )
+
+    assert jnp.allclose(f_tilde(x_samples), jnp.sin(2.0 * grid) + grid**2, atol=1e-6)
+
+
+def test_expression_derivative_uses_shared_multi_input_halo() -> None:
+    """Expression derivatives keep every input available on the same halo."""
+
+    def residual(x: object, y: object, t: object) -> object:
+        return D(jnp.sin(x + y), "t") + y  # type: ignore[arg-type, operator]
+
+    grid = jnp.linspace(0.0, 1.0, 5, dtype=jnp.float64)
+    halo_points = _central_halo_points(grid, 2)
+    x_samples = halo_points**2
+    y_samples = 2.0 + halo_points
+    z = jnp.concatenate([x_samples, y_samples])
+    f_tilde, restore_blocks = discretization(
+        residual,
+        DiscretizationRequest(grid=grid, scheme="central"),
+    )
+    blocks = restore_blocks(z)
+    step = grid[1] - grid[0]
+    expression_samples = jnp.sin(x_samples + y_samples)
+    expected_expression_derivative = (
+        expression_samples[2:] - expression_samples[:-2]
+    ) / (2.0 * step)
+
+    assert blocks["x"].shape == (7,)
+    assert blocks["y"].shape == (7,)
+    assert jnp.allclose(
+        f_tilde(z),
+        expected_expression_derivative + (2.0 + grid),
+        atol=1e-6,
+    )
+
+
+def test_non_derivative_jax_function_and_constant_residual() -> None:
+    """Functions without ``D`` run directly and do not allocate halo values."""
+
+    def residual(x: object, t: object) -> object:
+        return jnp.exp(x) + t  # type: ignore[arg-type, operator]
+
+    def constant_residual(t: object) -> object:
+        return 3.0
+
+    grid = jnp.linspace(0.0, 1.0, 5, dtype=jnp.float64)
+    f_tilde, restore_blocks = discretization(residual, DiscretizationRequest(grid=grid))
+    constant_tilde, constant_blocks = discretization(
+        constant_residual,
+        DiscretizationRequest(grid=grid),
+    )
+    z = grid**2
+
+    assert restore_blocks(z)["x"].shape == (5,)
+    assert jnp.allclose(f_tilde(z), jnp.exp(z) + grid)
+    assert constant_blocks.names() == ()
+    assert jnp.allclose(
+        constant_tilde(jnp.array([], dtype=jnp.float64)),
+        jnp.full((5,), 3.0, dtype=jnp.float64),
+    )
 
 
 def test_discretizes_nonlinear_manufactured_residual() -> None:
