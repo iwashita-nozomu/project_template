@@ -6,7 +6,6 @@
 # @dependency-end
 
 experiment-runner
-jax_util
 jaxtyping
 typeguard
 equinox

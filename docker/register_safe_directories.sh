@@ -2,7 +2,7 @@
 # @dependency-start
 # responsibility Registers Git safe.directory entries for mounted repo workspaces.
 # upstream design ../vendor/agent-canon/CONTAINER_OPERATIONS.md defines dynamic safe.directory policy.
-# upstream implementation Dockerfile installs this helper in the project image.
+# downstream implementation Dockerfile installs this helper in the project image.
 # downstream implementation ../vendor/agent-canon/.devcontainer/post-create.sh calls this helper after mount.
 # @dependency-end
 
@@ -17,6 +17,7 @@ register_safe_directory() {
 }
 
 register_safe_directory "$workspace"
+register_safe_directory "${workspace%/}/.git"
 
 if [ -d "${workspace%/}/vendor" ]; then
   while IFS= read -r vendor_path; do

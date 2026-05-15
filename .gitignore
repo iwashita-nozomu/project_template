@@ -20,6 +20,7 @@ dist/
 # Logs
 logs/
 tests/logs/
+reports/hooks/
 
 # Local git worktrees
 .worktrees/
@@ -38,5 +39,6 @@ reports/*.patch
 .devcontainer/docker-compose.generated.yml
 
 # Reusable local C++ / jax.export artifacts
+.state/docker/
 .state/cpp-install/
 .state/jax-export/
