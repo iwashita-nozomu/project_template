@@ -24,15 +24,25 @@ def _quadratic_solution(points: jnp.ndarray) -> jnp.ndarray:
     return 1.0 + points**2
 
 
+def _square_path(points: jnp.ndarray) -> jnp.ndarray:
+    return points**2
+
+
+def _quartic_path(points: jnp.ndarray) -> jnp.ndarray:
+    return points**4
+
+
+def _shifted_quadratic_path(points: jnp.ndarray) -> jnp.ndarray:
+    return 1.0 + points**2
+
+
+def _linear_offset_path(points: jnp.ndarray) -> jnp.ndarray:
+    return 2.0 + points
+
+
 def _nonlinear_residual(x: object, t: object) -> object:
     exact = 1.0 + t**2  # type: ignore[operator]
     return D(x, "t", order=2) + x**2 - (2.0 + exact**2)  # type: ignore[operator]
-
-
-def _central_halo_points(grid: jnp.ndarray, halo: int) -> jnp.ndarray:
-    left_halo = halo // 2
-    offsets = jnp.arange(grid.size + halo, dtype=grid.dtype) - left_halo
-    return grid[0] + offsets * (grid[1] - grid[0])
 
 
 def test_public_surface_exports_expected_symbols() -> None:
@@ -79,20 +89,20 @@ def test_high_order_central_difference_matches_polynomials() -> None:
         return D(x, "t", order=4) + x  # type: ignore[operator]
 
     grid = jnp.linspace(0.0, 1.0, 5, dtype=jnp.float64)
-    second_tilde, _ = discretization(
+    second_tilde, second_blocks = discretization(
         second_order_polynomial,
         DiscretizationRequest(grid=grid, scheme="central"),
     )
-    fourth_tilde, _ = discretization(
+    fourth_tilde, fourth_blocks = discretization(
         fourth_order_polynomial,
         DiscretizationRequest(grid=grid, scheme="central"),
     )
 
-    second_halo_points = jnp.linspace(-0.25, 1.25, 7, dtype=jnp.float64)
-    fourth_halo_points = jnp.linspace(-0.5, 1.5, 9, dtype=jnp.float64)
+    second_samples = second_blocks.pack(x=_square_path)
+    fourth_samples = fourth_blocks.pack(x=_quartic_path)
 
-    assert jnp.allclose(second_tilde(second_halo_points**2), 2.0 + grid**2, atol=1e-4)
-    assert jnp.allclose(fourth_tilde(fourth_halo_points**4), 24.0 + grid**4, atol=1e-3)
+    assert jnp.allclose(second_tilde(second_samples), 2.0 + grid**2, atol=1e-4)
+    assert jnp.allclose(fourth_tilde(fourth_samples), 24.0 + grid**4, atol=1e-3)
 
 
 def test_discretizes_derivative_of_user_expression() -> None:
@@ -102,21 +112,23 @@ def test_discretizes_derivative_of_user_expression() -> None:
         return D(jnp.sin(x), "t") + x  # type: ignore[arg-type, operator]
 
     grid = jnp.linspace(0.0, 1.0, 5, dtype=jnp.float64)
-    halo_points = _central_halo_points(grid, 2)
-    x_samples = 1.0 + halo_points**2
     f_tilde, restore_blocks = discretization(
         residual,
         DiscretizationRequest(grid=grid, scheme="central"),
     )
+    x_samples = restore_blocks.pack(x=_shifted_quadratic_path)
+    blocks = restore_blocks(x_samples)
     step = grid[1] - grid[0]
+    expression_samples = jnp.sin(blocks["x"])
     expected_expression_derivative = (
-        jnp.sin(x_samples[2:]) - jnp.sin(x_samples[:-2])
+        expression_samples[2:] - expression_samples[:-2]
     ) / (2.0 * step)
 
-    assert restore_blocks(x_samples)["x"].shape == (7,)
+    assert blocks["x"].shape == restore_blocks.input_shape
+    assert blocks.f_tilde_shape == restore_blocks.f_tilde_shape == (5,)
     assert jnp.allclose(
         f_tilde(x_samples),
-        expected_expression_derivative + (1.0 + grid**2),
+        expected_expression_derivative + blocks.at_output("x"),
         atol=1e-6,
     )
 
@@ -128,12 +140,11 @@ def test_discretizes_user_function_of_derivative() -> None:
         return jnp.sin(D(x, "t")) + x  # type: ignore[arg-type, operator]
 
     grid = jnp.linspace(0.0, 1.0, 5, dtype=jnp.float64)
-    halo_points = _central_halo_points(grid, 2)
-    x_samples = halo_points**2
-    f_tilde, _ = discretization(
+    f_tilde, restore_blocks = discretization(
         residual,
         DiscretizationRequest(grid=grid, scheme="central"),
     )
+    x_samples = restore_blocks.pack(x=_square_path)
 
     assert jnp.allclose(f_tilde(x_samples), jnp.sin(2.0 * grid) + grid**2, atol=1e-6)
 
@@ -145,26 +156,23 @@ def test_expression_derivative_uses_shared_multi_input_halo() -> None:
         return D(jnp.sin(x + y), "t") + y  # type: ignore[arg-type, operator]
 
     grid = jnp.linspace(0.0, 1.0, 5, dtype=jnp.float64)
-    halo_points = _central_halo_points(grid, 2)
-    x_samples = halo_points**2
-    y_samples = 2.0 + halo_points
-    z = jnp.concatenate([x_samples, y_samples])
     f_tilde, restore_blocks = discretization(
         residual,
         DiscretizationRequest(grid=grid, scheme="central"),
     )
+    z = restore_blocks.pack(x=_square_path, y=_linear_offset_path)
     blocks = restore_blocks(z)
     step = grid[1] - grid[0]
-    expression_samples = jnp.sin(x_samples + y_samples)
+    expression_samples = jnp.sin(blocks["x"] + blocks["y"])
     expected_expression_derivative = (
         expression_samples[2:] - expression_samples[:-2]
     ) / (2.0 * step)
 
-    assert blocks["x"].shape == (7,)
-    assert blocks["y"].shape == (7,)
+    assert blocks["x"].shape == restore_blocks.input_shape
+    assert blocks["y"].shape == restore_blocks.input_shape
     assert jnp.allclose(
         f_tilde(z),
-        expected_expression_derivative + (2.0 + grid),
+        expected_expression_derivative + blocks.at_output("y"),
         atol=1e-6,
     )
 
@@ -184,13 +192,16 @@ def test_non_derivative_jax_function_and_constant_residual() -> None:
         constant_residual,
         DiscretizationRequest(grid=grid),
     )
-    z = grid**2
+    z = restore_blocks.pack(x=_square_path)
 
-    assert restore_blocks(z)["x"].shape == (5,)
+    blocks = restore_blocks(z)
+    assert blocks["x"].shape == restore_blocks.input_shape == (5,)
+    assert blocks.at_output("x").shape == restore_blocks.f_tilde_shape
     assert jnp.allclose(f_tilde(z), jnp.exp(z) + grid)
     assert constant_blocks.names() == ()
+    assert constant_blocks.f_tilde_shape == (5,)
     assert jnp.allclose(
-        constant_tilde(jnp.array([], dtype=jnp.float64)),
+        constant_tilde(constant_blocks.pack()),
         jnp.full((5,), 3.0, dtype=jnp.float64),
     )
 
@@ -202,27 +213,25 @@ def test_discretizes_nonlinear_manufactured_residual() -> None:
         _nonlinear_residual,
         DiscretizationRequest(grid=grid, scheme="central"),
     )
-    halo_points = jnp.linspace(-0.2, 1.2, 8, dtype=jnp.float64)
-    z = _quadratic_solution(halo_points)
+    z = restore_blocks.pack(x=_quadratic_solution)
 
     residual = f_tilde(z)
     blocks = restore_blocks(z)
 
     assert restore_blocks.names() == ("x",)
-    assert blocks["x"].shape == (8,)
-    assert residual.shape == (6,)
+    assert blocks["x"].shape == restore_blocks.input_shape
+    assert residual.shape == blocks.f_tilde_shape == restore_blocks.f_tilde_shape
     assert jnp.allclose(residual, jnp.zeros_like(residual), atol=5e-5)
 
 
 def test_solves_nonlinear_manufactured_system() -> None:
     """The nonlinear residual plus halo constraints recovers the solution."""
     grid = jnp.linspace(0.0, 1.0, 6, dtype=jnp.float64)
-    halo_points = jnp.linspace(-0.2, 1.2, 8, dtype=jnp.float64)
-    exact_z = _quadratic_solution(halo_points)
     f_tilde, restore_blocks = discretization(
         _nonlinear_residual,
         DiscretizationRequest(grid=grid, scheme="central"),
     )
+    exact_z = restore_blocks.pack(x=_quadratic_solution)
 
     def residual(z_values: npt.NDArray[np.float64]) -> npt.NDArray[np.float64]:
         z_array = jnp.asarray(z_values, dtype=jnp.float64)
@@ -240,8 +249,10 @@ def test_solves_nonlinear_manufactured_system() -> None:
     assert np.linalg.norm(residual(solution.x), ord=np.inf) < 5e-5
     assert np.allclose(solution.x, np.asarray(exact_z), atol=2e-3)
     assert np.allclose(
-        np.asarray(restore_blocks(jnp.asarray(solution.x, dtype=jnp.float64))["x"][1:-1]),
-        np.asarray(_quadratic_solution(grid)),
+        np.asarray(
+            restore_blocks(jnp.asarray(solution.x, dtype=jnp.float64)).at_output("x")
+        ),
+        np.asarray(restore_blocks(exact_z).at_output("x")),
         atol=2e-3,
     )
 
@@ -253,8 +264,8 @@ def test_rejects_invalid_runtime_shape_and_signature() -> None:
         return D(x, "t", order=2) + x  # type: ignore[operator]
 
     grid = jnp.linspace(0.0, 1.0, 5, dtype=jnp.float64)
-    f_tilde, _ = discretization(residual, DiscretizationRequest(grid=grid))
-    z = jnp.linspace(-0.25, 1.25, 7, dtype=jnp.float64)
+    f_tilde, restore_blocks = discretization(residual, DiscretizationRequest(grid=grid))
+    z = restore_blocks.pack(x=_square_path)
 
     with pytest.raises(TypeError):
         f_tilde(z[:-1])
@@ -271,3 +282,20 @@ def test_rejects_invalid_runtime_shape_and_signature() -> None:
         discretization(missing_t, DiscretizationRequest(grid=grid))
     with pytest.raises(ValueError, match="time argument t"):
         discretization(misplaced_t, DiscretizationRequest(grid=grid))
+
+
+def test_restorer_rejects_bad_pack_inputs() -> None:
+    """Restorer packing fails before callers can build malformed ``z`` blocks."""
+
+    def residual(x: object, t: object) -> object:
+        return D(x, "t") + x  # type: ignore[operator]
+
+    grid = jnp.linspace(0.0, 1.0, 5, dtype=jnp.float64)
+    _f_tilde, restore_blocks = discretization(residual, DiscretizationRequest(grid=grid))
+
+    with pytest.raises(ValueError, match="expected inputs x; got <none>"):
+        restore_blocks.pack()
+    with pytest.raises(ValueError, match="expected inputs x; got x, y"):
+        restore_blocks.pack(x=_square_path, y=_square_path)
+    with pytest.raises(ValueError, match="must produce shape"):
+        restore_blocks.pack(x=grid)

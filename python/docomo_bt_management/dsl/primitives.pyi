@@ -5,7 +5,7 @@
 # @dependency-end
 """Type stubs for scalar function discretization primitives."""
 
-from collections.abc import Callable
+from collections.abc import Callable, Iterator, Mapping
 from dataclasses import dataclass
 from typing import Literal, Protocol, TypeAlias, overload
 
@@ -17,14 +17,68 @@ DiscreteScalarFunction: TypeAlias = Callable[[Array], Array]
 NamedInputBlocks: TypeAlias = dict[str, Array]
 
 
+class _RestoredInputBlocks(Protocol):
+    """Restored named variable blocks with output-aligned metadata."""
+
+    @property
+    def output_values(self) -> Mapping[str, Array]:
+        """Return source values aligned with ``f_tilde`` output positions."""
+        ...
+
+    @property
+    def f_tilde_shape(self) -> tuple[int, ...]:
+        """Return the output shape produced by ``f_tilde``."""
+        ...
+
+    @property
+    def z_shape(self) -> tuple[int, ...]:
+        """Return the stacked input shape expected by ``f_tilde``."""
+        ...
+
+    def at_output(self, name: str) -> Array:
+        """Return one source block aligned with ``f_tilde`` output positions."""
+        ...
+
+    def __getitem__(self, name: str) -> Array:
+        """Return the full source block, including internal derivative samples."""
+        ...
+
+    def __iter__(self) -> Iterator[str]:
+        """Iterate over source block names."""
+        ...
+
+    def __len__(self) -> int:
+        """Return the number of source blocks."""
+        ...
+
+
 class BlockRestorer(Protocol):
     """Callable that restores named variable blocks from ``z``."""
+
+    @property
+    def f_tilde_shape(self) -> tuple[int, ...]:
+        """Return the output shape produced by ``f_tilde``."""
+        ...
+
+    @property
+    def z_shape(self) -> tuple[int, ...]:
+        """Return the stacked input shape expected by ``f_tilde``."""
+        ...
+
+    @property
+    def input_shape(self) -> tuple[int, ...]:
+        """Return the internal shape for each source input block."""
+        ...
 
     def names(self) -> tuple[str, ...]:
         """Return source block names in stack order."""
         ...
 
-    def __call__(self, stacked_values: Array, /) -> NamedInputBlocks:
+    def pack(self, **values_or_paths: object) -> Array:
+        """Return ``z`` by sampling callables or stacking already sampled values."""
+        ...
+
+    def __call__(self, stacked_values: Array, /) -> _RestoredInputBlocks:
         """Return named source blocks from a vector shaped like ``z``."""
         ...
 

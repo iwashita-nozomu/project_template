@@ -10,10 +10,10 @@ from __future__ import annotations
 
 import inspect
 import math
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Iterator, Mapping
 from contextvars import ContextVar
 from dataclasses import dataclass
-from typing import Literal, TypeAlias
+from typing import Literal, TypeAlias, cast
 
 import jax
 import jax.numpy as jnp
@@ -23,7 +23,8 @@ DifferenceScheme: TypeAlias = Literal["forward", "backward", "central"]
 PointwiseScalarFunction: TypeAlias = Callable[..., object]
 DiscreteScalarFunction: TypeAlias = Callable[[Array], Array]
 NamedInputBlocks: TypeAlias = dict[str, Array]
-BlockRestorer: TypeAlias = Callable[[Array], NamedInputBlocks]
+InputPathOrSamples: TypeAlias = Callable[[Array], object] | object
+BlockRestorer: TypeAlias = Callable[[Array], "_RestoredInputBlocks"]
 DiscretizationResult: TypeAlias = tuple[DiscreteScalarFunction, BlockRestorer]
 UNSUPPORTED_PARAMETER_KINDS = (
     inspect.Parameter.KEYWORD_ONLY,
@@ -133,23 +134,124 @@ class DiscretizationRequest:
 
 
 @dataclass(frozen=True)
+class _RestoredInputBlocks(Mapping[str, Array]):
+    """Named input blocks restored from ``z`` with output-aligned metadata."""
+
+    all_values: Mapping[str, Array]
+    output_values: Mapping[str, Array]
+    f_tilde_shape: tuple[int, ...]
+    z_shape: tuple[int, ...]
+
+    def __getitem__(self, name: str) -> Array:
+        """Return the full source block, including internal derivative samples."""
+        return self.all_values[name]
+
+    def __iter__(self) -> Iterator[str]:
+        """Iterate over restored block names."""
+        return iter(self.all_values)
+
+    def __len__(self) -> int:
+        """Return the number of restored source blocks."""
+        return len(self.all_values)
+
+    def at_output(self, name: str) -> Array:
+        """Return values aligned with ``f_tilde`` output positions."""
+        return self.output_values[name]
+
+
+@dataclass(frozen=True)
 class InputBlockRestorer:
     """Callable layout for restoring named input blocks from ``z``."""
 
     input_slices: Mapping[str, slice]
     total_width: int
+    input_width: int
+    f_tilde_shape: tuple[int, ...]
+    _output_slice: slice
+    _sample_points: Array
+
+    @property
+    def z_shape(self) -> tuple[int, ...]:
+        """Return the expected shape of the stacked ``z`` vector."""
+        return (self.total_width,)
+
+    @property
+    def input_shape(self) -> tuple[int, ...]:
+        """Return the internal per-input block shape."""
+        return (self.input_width,)
 
     def names(self) -> tuple[str, ...]:
         """Return source block names in stack order."""
         return tuple(self.input_slices)
 
-    def __call__(self, stacked_values: Array, /) -> NamedInputBlocks:
+    def __call__(self, stacked_values: Array, /) -> _RestoredInputBlocks:
         """Return named source blocks from a vector shaped like ``z``."""
-        stacked_values = jnp.reshape(stacked_values, (self.total_width,))
-        return {
-            name: stacked_values[input_slice]
-            for name, input_slice in self.input_slices.items()
-        }
+        return _restore_input_blocks(self, stacked_values)
+
+    def pack(self, **values_or_paths: InputPathOrSamples) -> Array:
+        """Return ``z`` by sampling paths on internal points or stacking samples."""
+        return _pack_input_blocks(self, values_or_paths)
+
+
+def _restore_input_blocks(
+    restorer: InputBlockRestorer,
+    stacked_values: Array,
+) -> _RestoredInputBlocks:
+    """Return restored input blocks with output-aligned values."""
+    stacked_values = jnp.reshape(stacked_values, restorer.z_shape)
+    output_slice = cast(slice, getattr(restorer, "_output_slice"))
+    all_values = {
+        name: stacked_values[input_slice]
+        for name, input_slice in restorer.input_slices.items()
+    }
+    output_values = {
+        name: values[output_slice]
+        for name, values in all_values.items()
+    }
+    return _RestoredInputBlocks(
+        all_values=all_values,
+        output_values=output_values,
+        f_tilde_shape=restorer.f_tilde_shape,
+        z_shape=restorer.z_shape,
+    )
+
+
+def _pack_input_blocks(
+    restorer: InputBlockRestorer,
+    values_or_paths: Mapping[str, InputPathOrSamples],
+) -> Array:
+    """Return ``z`` by sampling paths on internal points or stacking samples."""
+    expected_names = set(restorer.input_slices)
+    provided_names = set(values_or_paths)
+    if provided_names != expected_names:
+        expected = ", ".join(restorer.input_slices) or "<none>"
+        provided = ", ".join(sorted(provided_names)) or "<none>"
+        raise ValueError(f"pack expected inputs {expected}; got {provided}.")
+    blocks = [
+        _coerce_input_block(restorer, name, values_or_paths[name])
+        for name in restorer.input_slices
+    ]
+    if not blocks:
+        sample_points = cast(Array, getattr(restorer, "_sample_points"))
+        return jnp.zeros(restorer.z_shape, dtype=sample_points.dtype)
+    return jnp.concatenate(blocks)
+
+
+def _coerce_input_block(
+    restorer: InputBlockRestorer,
+    name: str,
+    value_or_path: InputPathOrSamples,
+) -> Array:
+    """Return one input block shaped for the internal discretization layout."""
+    sample_points = cast(Array, getattr(restorer, "_sample_points"))
+    raw_values = value_or_path(sample_points) if callable(value_or_path) else value_or_path
+    values = jnp.reshape(jnp.asarray(raw_values), (-1,))
+    if values.shape[0] != restorer.input_width:
+        raise ValueError(
+            f"Input {name!r} must produce shape {restorer.input_shape}; "
+            f"got {(values.shape[0],)}."
+        )
+    return values
 
 
 def finite_difference_matrix(
@@ -283,7 +385,16 @@ def discretization(
         input_slices[name] = slice(total_width, total_width + input_width)
         total_width += input_width
 
-    block_restorer = InputBlockRestorer(input_slices, total_width)
+    time_offsets = jnp.arange(input_width, dtype=grid.dtype) - left_halo
+    time_samples = grid[0] + time_offsets * (grid[1] - grid[0])
+    block_restorer = InputBlockRestorer(
+        input_slices=input_slices,
+        total_width=total_width,
+        input_width=input_width,
+        f_tilde_shape=(output_count,),
+        _output_slice=grid_slice,
+        _sample_points=time_samples,
+    )
     derivative_matrices = {
         order: finite_difference_matrix(
             grid,
@@ -294,9 +405,6 @@ def discretization(
         )
         for order in derivative_orders
     }
-    time_offsets = jnp.arange(input_width, dtype=grid.dtype) - left_halo
-    time_samples = grid[0] + time_offsets * (grid[1] - grid[0])
-
     def f_tilde(stacked_values: Array) -> Array:
         stacked_values = jnp.reshape(stacked_values, (total_width,))
         source_blocks = tuple(
