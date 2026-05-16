@@ -7,6 +7,8 @@ upstream design ../vendor/agent-canon/documents/algorithm-implementation-boundar
 upstream design ../vendor/agent-canon/documents/codex-configuration-reference.md Codex configuration reference
 upstream design ../vendor/agent-canon/documents/object-oriented-design.md general OOP coding policy
 upstream design ../vendor/agent-canon/documents/agent-canon-parent-repo-latest-checklist.md parent repo latest-state checklist
+upstream design ../vendor/agent-canon/documents/runtime-profiles-and-check-matrix.md runtime profile and validation routing policy
+upstream design ../vendor/agent-canon/documents/template-agent-canon-audit-resolution.md audit resolution ledger
 upstream design ../vendor/agent-canon/documents/agent-canon-licensing-policy.md AgentCanon licensing boundary
 downstream design ./licensing-policy.md repository license boundary
 @dependency-end
@@ -32,6 +34,10 @@ file is a template-owned active contract, edit the root regular file.
 
 ## Canon Runtime References
 
+- [Runtime Profiles And Check Matrix](../vendor/agent-canon/documents/runtime-profiles-and-check-matrix.md):
+  active profile selection, risk classes, and check matrix.
+- [Template / AgentCanon Audit Resolution](../vendor/agent-canon/documents/template-agent-canon-audit-resolution.md):
+  2026-05-16 500-item audit coverage and resolution ledger.
 - [Shared Runtime Surfaces](../vendor/agent-canon/documents/SHARED_RUNTIME_SURFACES.md): owner classes,
   symlink/copy/regular behavior, and root-view repair rules.
 - [Shared Runtime Surface Manifest](../vendor/agent-canon/documents/shared-runtime-surfaces.toml):
