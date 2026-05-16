@@ -1,0 +1,27 @@
+{
+  "_dependency_manifest": [
+    "@dependency-start",
+    "responsibility Exposes VS Code task entrypoints for template runtime commands.",
+    "upstream design ../README.md repository overview",
+    "upstream environment ../docker/README.md Jupyter container runtime guidance",
+    "upstream implementation ../Makefile docker-jupyter target",
+    "@dependency-end"
+  ],
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Docker: Start JupyterLab",
+      "type": "shell",
+      "command": "make docker-jupyter",
+      "group": "build",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Template: Clean Generated Artifacts",
+      "type": "shell",
+      "command": "make clean-generated",
+      "problemMatcher": []
+    }
+  ]
+}

@@ -4,6 +4,13 @@
 // downstream implementation settings.json configures workspace defaults consumed by these extensions.
 // @dependency-end
 {
+  "_dependency_manifest": [
+    "@dependency-start",
+    "responsibility Lists recommended VS Code extensions for template users.",
+    "upstream design ../README.md repository overview",
+    "upstream environment ../docker/README.md development environment guidance",
+    "@dependency-end"
+  ],
   "recommendations": [
     "ms-vscode-remote.remote-containers",
     "ms-python.python",

@@ -1,4 +1,11 @@
 # Experiment Reports
+<!--
+@dependency-start
+responsibility Documents Experiment Reports for this repository.
+upstream design ../README.md experiments hub guidance
+upstream design ../../vendor/agent-canon/documents/experiment-report-style.md report style contract
+@dependency-end
+-->
 
 <!--
 @dependency-start
@@ -19,6 +26,7 @@ report 名は `run_name` とそろえ、`experiments/<topic>/result/<run_name>/`
 - exact command
 - `result/<run_name>/` の path
 - `run_manifest.json`
+- `eval_manifest.json`
 - `summary.json`
 - `cases.jsonl`
 

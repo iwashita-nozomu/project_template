@@ -1,0 +1,15 @@
+# @dependency-start
+# responsibility Tracks this parent repo's applied AgentCanon update TODO boundary.
+# upstream design ../vendor/agent-canon/documents/agent-canon-parent-repo-latest-checklist.md parent update workflow
+# upstream design ../vendor/agent-canon/documents/agent-canon-update-tasks.toml shared update TODO manifest
+# downstream implementation ../tools/agent_tools/agent_canon_update_todos.py advances this state
+# @dependency-end
+
+[agent_canon_update]
+tasks_applied_through = "f5782ab1c35259be60d0a34433ffb41fc5711781"
+
+[completed_tasks."ACUT-20260515-parent-update-state"]
+note = "initialized parent update TODO state for project_template"
+owner = "codex"
+status = "done"
+updated_at = "2026-05-15T07:24:38Z"

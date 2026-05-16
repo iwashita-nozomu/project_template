@@ -1,4 +1,11 @@
 {
+  "_dependency_manifest": [
+    "@dependency-start",
+    "responsibility Configures repository Markdown lint behavior.",
+    "upstream implementation tools/ci/run_docs_checks.sh markdown lint entrypoint",
+    "downstream implementation tests/tools/test_audit_and_fix_links.py documentation test coverage",
+    "@dependency-end"
+  ],
   "default": true,
   "MD003": {
     "style": "consistent"

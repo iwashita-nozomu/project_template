@@ -1,4 +1,11 @@
 # Experiments Hub
+<!--
+@dependency-start
+responsibility Documents Experiments Hub for this repository.
+upstream design ../vendor/agent-canon/documents/experiment-registry.md experiment registry contract
+downstream environment registry.toml template-local registry
+@dependency-end
+-->
 
 <!--
 @dependency-start
@@ -52,6 +59,8 @@ experiments/
 - formal run でどの code を実行するかは `registry.toml` の `formal_inner_command` を正本にします。
 - 主要生成物は次を基準にします。
   - `result/<run_name>/run_manifest.json`
+  - `result/<run_name>/config.json`
+  - `result/<run_name>/eval_manifest.json`
   - `result/<run_name>/run.log`
   - `result/<run_name>/summary.json`
   - `result/<run_name>/cases.jsonl`
@@ -81,7 +90,7 @@ python3 tools/experiments/run_managed_experiment.py \
   --use-registered-command smoke
 ```
 
-この wrapper は、`registry.toml` の topic entry を見て command 実行前に result dir と report stub を初期化し、終了後に manifest を更新します。
+この wrapper は、`registry.toml` の topic entry を見て command 実行前に result dir、`config.json`、report stub を初期化し、終了後に manifest を更新し、`summary.json` / `cases.jsonl` / `config.json` と registry で指定した追加 eval artifact を `eval_manifest.json` に収集します。top-level の `run_manifest.json`、`eval_manifest.json`、`run.log` は reserved managed file として eval collection の対象外です。
 
 ## Registry Check
 
