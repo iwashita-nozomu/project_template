@@ -6,21 +6,26 @@
 # upstream implementation tools/agent_tools/review_backlog_scan.sh exposes integrated review backlog scans
 # @dependency-end
 
-.PHONY: ci ci-quick docs-check clean-generated github-workflow-check dev-setup tools-help agent-checks agent-canon-check agent-canon-latest-check agent-canon-links agent-canon-status agent-canon-ensure-latest agent-canon-update-plan agent-canon-latest agent-canon-update agent-canon-merge-main agent-canon-pr-check docker-check python-env-status python-env-prepare docker-build-check docker-build-check-host-docker docker-run devcontainer-render server-check experiment-check docker-shell docker-jupyter docker-codex docker-codex-host-docker fresh-clone-check template-check start-repository task-start doc-start task-close agent-evaluate dependency-review dependency-review-surfaces review-backlog-scan waterfall-gate-check user-preference-log
+.PHONY: ci ci-quick check-matrix docs-check clean-generated github-workflow-check dev-setup tools-help agent-checks agent-surface-checks agent-canon-check agent-canon-latest-check agent-canon-links agent-canon-status agent-canon-ensure-latest agent-canon-update-plan agent-canon-latest agent-canon-update agent-canon-merge-main agent-canon-pr-check docker-check python-env-status python-env-prepare docker-build-check docker-build-check-host-docker docker-run devcontainer-render server-check experiment-check docker-shell docker-jupyter docker-codex docker-codex-host-docker fresh-clone-check template-check start-repository task-start doc-start task-close agent-evaluate dependency-review dependency-review-surfaces review-backlog-scan waterfall-gate-check user-preference-log
 
 # ★推奨: 統合 CI（pytest + pyright + ruff）
 ci:
-	bash tools/ci/check_agent_canon_latest.sh
-	bash tools/sync_agent_canon.sh check
-	python3 tools/agent_tools/check_agent_runtime_alignment.py
 	bash tools/ci/run_all_checks.sh
 
 # CI 高速モード（ruff skip）
 ci-quick:
-	bash tools/ci/check_agent_canon_latest.sh
-	bash tools/sync_agent_canon.sh check
-	python3 tools/agent_tools/check_agent_runtime_alignment.py
 	bash tools/ci/run_all_checks.sh --quick
+
+# changed-path / profile based check selector
+check-matrix:
+	@echo "Check matrix:"
+	@echo "  docs-only:        make docs-check && dependency header checks for changed docs"
+	@echo "  Python changes:   targeted pytest + python3 -m pyright + python3 -m ruff check python tests --select D,E,F,I,UP"
+	@echo "  AgentCanon/root:  make agent-canon-pr-check or make agent-surface-checks"
+	@echo "  Docker/runtime:   make docker-check [and make docker-build-check if build behavior changed]"
+	@echo "  GitHub/Copilot:   make github-workflow-check"
+	@echo "  Experiment:       make experiment-check"
+	@echo "  Full confidence:  make ci"
 
 # template fresh clone acceptance
 fresh-clone-check:
@@ -76,7 +81,7 @@ docs-check:
 
 # remove generated, ignored artifacts that make the template workspace noisy
 clean-generated:
-	git clean -Xdf .pytest_cache .ruff_cache build logs reports tests tests/logs .devcontainer/docker-compose.generated.yml
+	git clean -Xdf .pytest_cache .ruff_cache build logs reports tests/logs .devcontainer/docker-compose.generated.yml
 
 # GitHub Actions / PR template / Copilot convention checks
 github-workflow-check:
@@ -84,6 +89,9 @@ github-workflow-check:
 
 # agent runtime / skill drift checks
 agent-checks:
+	$(MAKE) agent-surface-checks
+
+agent-surface-checks:
 	bash tools/ci/check_agent_canon_latest.sh
 	bash tools/sync_agent_canon.sh check
 	python3 tools/docs/mirror_skill_shims.py --target .claude/skills --prune --check
@@ -184,6 +192,7 @@ dev-setup:
 
 # ツール情報表示
 tools-help:
-	@echo "=== Available Tools & Scripts ==="
+	@echo "=== Tool entrypoints ==="
 	@echo ""
-	@cat tools/README.md | head -40
+	@echo "Start with: make check-matrix"
+	@echo "Detailed catalog: python3 tools/agent_tools/tool_catalog.py --format markdown"
