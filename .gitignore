@@ -38,6 +38,7 @@ experiments/**/result/*
 
 # Analysis reports and agent run artifacts
 reports/agents/
+reports/agent-improvement-guide/
 reports/hooks/
 reports/*.json
 reports/*.md
