@@ -116,7 +116,7 @@ agent-canon-status:
 
 # upstream agent-canon を task 開始時に取り込む
 agent-canon-ensure-latest:
-	bash tools/update_agent_canon.sh apply
+	bash tools/update_agent_canon.sh latest $(ARGS)
 
 agent-canon-rebuild-tools:
 	bash tools/update_agent_canon.sh rebuild-tools
@@ -128,7 +128,7 @@ agent-canon-latest:
 	bash tools/update_agent_canon.sh latest $(ARGS)
 
 agent-canon-update:
-	bash tools/update_agent_canon.sh apply $(ARGS)
+	bash tools/update_agent_canon.sh latest $(ARGS)
 
 agent-canon-merge-main:
 	bash tools/update_agent_canon.sh merge-main-into-current $(ARGS)

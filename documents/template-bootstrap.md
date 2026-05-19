@@ -48,7 +48,7 @@ AgentCanon は GitHub submodule を正本とし、初期化時に project-local 
 
 ```bash
 bash tools/update_agent_canon.sh plan
-bash tools/update_agent_canon.sh apply
+make agent-canon-ensure-latest
 ```
 
 派生 repo 側で shared canon を直した場合は、`vendor/agent-canon/` 内で通常の GitHub branch を作って commit し、main を取り込んでから PR を出します。
@@ -61,7 +61,7 @@ bash tools/update_agent_canon.sh merge-main-into-current
 git -C vendor/agent-canon push origin HEAD
 ```
 
-AgentCanon PR merge 後に派生 repo 側へ戻り、`bash tools/update_agent_canon.sh apply` と `bash tools/sync_agent_canon.sh link-root` で pin と root view を更新します。
+AgentCanon PR merge 後に派生 repo 側へ戻り、`make agent-canon-ensure-latest` で pin、root view、compiled tool rebuild、親 repo update TODO routing をまとめて更新します。
 
 GitHub 管理では template の canonical remote を
 `https://github.com/iwashita-nozomu/project_template.git` にし、local

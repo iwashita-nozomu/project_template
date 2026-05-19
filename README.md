@@ -112,7 +112,7 @@ profile と validation の正本は
 - `make agent-canon-update-plan`
   - 派生 repo から `agent-canon` だけ更新するときの route を read-only で確認します。
 - `make agent-canon-update`
-  - 派生 repo から `agent-canon` だけ更新します。内部では `ensure-latest` を使います。
+  - 派生 repo から `agent-canon` だけ更新します。内部では `update_agent_canon.sh latest` を使う `make agent-canon-latest` と同じ high-level route です。
 - `make agent-canon-merge-main`
   - `vendor/agent-canon/` の current branch に GitHub `main` を merge します。派生 repo 側で shared canon を直した branch は、このあと GitHub に push して AgentCanon PR を開きます。
 - `make agent-checks`
