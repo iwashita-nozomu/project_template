@@ -348,7 +348,7 @@ repo maintenance helper が前提にする host-compatible tool も canonical im
 
 C++ を使う派生 repo に備えて、canonical image には次を同梱します。
 
-- `python3-dev`
+- `python3.11-dev`
 - `cmake`
 - `ninja-build`
 - `build-essential`
