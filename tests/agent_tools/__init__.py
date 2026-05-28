@@ -1,6 +1,1 @@
-# @dependency-start
-# responsibility Marks the package boundary for repository test modules.
-# upstream design ../../tools/README.md validated automation surface
-# @dependency-end
-
-"""Agent tool test cases."""
+../../vendor/agent-canon/tests/agent_tools/__init__.py
