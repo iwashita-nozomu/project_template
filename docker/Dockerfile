@@ -8,12 +8,14 @@
 FROM nvidia/cuda:12.2.0-devel-ubuntu22.04
 ENV DEBIAN_FRONTEND=noninteractive
 
-# GCCやビルド系 + Python
+# GCCやビルド系 + Python 3.11
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates curl git docker.io \
     build-essential pkg-config cmake ninja-build \
-    python3 python3-dev python3-pip python3-venv \
+    python3.11 python3.11-dev python3.11-venv python3-venv python3-pip \
     openssh-client graphviz rsync \
+ && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 20 \
+ && python3 --version | grep -E '^Python 3\.11\.' \
  && rm -rf /var/lib/apt/lists/*
 
 COPY docker/register_safe_directories.sh /usr/local/bin/project-template-register-safe-directories

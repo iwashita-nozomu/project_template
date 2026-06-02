@@ -66,6 +66,14 @@ Authority / blocker notes:
 
 Plan / exception:
 
+## Agent Orchestration Evidence
+
+- [ ] First work update, run bundle, or linked PR comment recorded `workflow=<family>`, `skills=$agent-orchestration,...`, and `review=<...>` before implementation.
+- [ ] `python3 tools/agent_tools/route.py --prompt "<user request>" --format json` was reviewed, or the no-repo-task / routing-only exception is recorded below.
+- [ ] If `$agent-orchestration` was not selected first, this PR is paused until the exception is explicit and reviewed.
+
+Orchestration evidence:
+
 ## Operational Findings / Issues
 
 - [ ] `vendor/agent-canon/issues/README.md` was reviewed.
@@ -98,6 +106,10 @@ Impact notes:
 - [ ] `bash tools/sync_agent_canon.sh check`
 - [ ] `make agent-canon-pr-check`
 - [ ] `bash tools/agent_tools/run_repo_dependency_review.sh --fail-missing`
+- [ ] `python3 tools/docs/mirror_skill_shims.py --target .claude/skills --prune --check`
+- [ ] `python3 tools/agent_tools/check_agent_runtime_alignment.py`
+- [ ] `python3 tools/agent_tools/evaluate_skill_workflow_prompts.py --manifest agents/evals/skill_workflow_prompt_eval.toml`
+- [ ] `python3 tools/agent_tools/check_convention_compliance.py`
 - [ ] `python3 tools/agent_tools/tool_catalog.py`
 - [ ] `python3 tools/agent_tools/tool_drift.py`
 - [ ] `python3 tools/agent_tools/responsibility_scope.py`

@@ -38,7 +38,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
 include(CTest)
 
-find_package(Python3 3.10 REQUIRED COMPONENTS Interpreter)
+find_package(Python3 3.11 REQUIRED COMPONENTS Interpreter)
 
 add_library(project_template_cpp INTERFACE)
 target_include_directories(

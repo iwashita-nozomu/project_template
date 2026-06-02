@@ -263,6 +263,7 @@ repo-defined container runner でも、host `~/.codex` が存在するときは 
 `${localWorkspaceFolderBasename}-devcontainer` とし、Docker Compose project
 name は `<repo-slug>-<path-hash>-devcontainer` 形式にします。同名 clone などで
 さらに明示したい場合だけ、host 側で `DEVCONTAINER_PROJECT_NAME` を指定します。
+subnet / gateway / IPAM は固定せず、Docker Compose の default network 自動割当に任せます。
 
 - NVIDIA GPU が見えるとき:
   - `gpus: all` を追加
@@ -347,7 +348,7 @@ repo maintenance helper が前提にする host-compatible tool も canonical im
 
 C++ を使う派生 repo に備えて、canonical image には次を同梱します。
 
-- `python3-dev`
+- `python3.11-dev`
 - `cmake`
 - `ninja-build`
 - `build-essential`
