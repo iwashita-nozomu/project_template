@@ -75,6 +75,7 @@ These files should be regular files in the template or derived repo root:
 - [Linux / WSL Host Requirements](./linux-wsl-host-requirements.md)
 - [Server Host Contract](./server-host-contract.md)
 - [Remote Execution Repo Contract](./remote-execution-repo-contract.md)
+- [Repository Audit Checklist](./repository-audit-checklist.md)
 
 AgentCanon provides reusable contract templates under
 [templates/](../vendor/agent-canon/documents/templates/),
