@@ -91,7 +91,7 @@ git status --short --branch --untracked-files=all
 - [ ] root `.agents/` は `vendor/agent-canon/.agents` と整合している
 - [ ] root `tools/` は `vendor/agent-canon/tools` と整合している
 - [ ] root `mcp/` は `vendor/agent-canon/mcp` と整合している
-- [ ] `AGENTS.md` と `CLAUDE.md` は thin entrypoint として保たれている
+- [ ] `AGENTS.md` は thin entrypoint として保たれている
 - [ ] shared surface の変更は `vendor/agent-canon/` 側を正本としている
 - [ ] template 固有の説明は `documents/` に置かれ、Dockerfile に焼き込まれていない
 
@@ -100,7 +100,7 @@ git status --short --branch --untracked-files=all
 ```bash
 bash tools/sync_agent_canon.sh check
 find agents .agents tools mcp -maxdepth 1 -type l -ls
-git diff -- .agents .claude AGENTS.md CLAUDE.md agents mcp tools
+git diff -- .agents AGENTS.md agents mcp tools
 ```
 
 ## 5. Dependency Header と Graph
@@ -277,7 +277,7 @@ done
 - [ ] Template default PR checklist が repo-local 変更、AgentCanon pin、Docker、GitHub workflow、validation evidence を分けている
 - [ ] Template 側 AgentCanon PR checklist が shared canon source、root surface sync、GitHub mirror evidence を要求している
 - [ ] Standalone AgentCanon repo 用の独立 PR checklist が `vendor/agent-canon/.github/PULL_REQUEST_TEMPLATE.md` にある
-- [ ] GitHub Copilot workflow が `.github/copilot-instructions.md` から辿れる
+- [ ] GitHub automation と PR checklist が Codex workflow から辿れる
 - [ ] PR checklist が未実行 command を pass と書かない運用になっている
 
 確認コマンド:
@@ -290,7 +290,7 @@ for path in sorted(Path('.github/workflows').glob('*.yml')):
     yaml.safe_load(path.read_text())
     print(f'{path}: yaml=pass')
 PY
-rg -n "submodules: false|checkout_agent_canon_submodule|permissions:|concurrency:|PULL_REQUEST_TEMPLATE|github-copilot-workflow" .github vendor/agent-canon/.github agents documents
+rg -n "submodules: false|checkout_agent_canon_submodule|permissions:|concurrency:|PULL_REQUEST_TEMPLATE|agent-canon-pr-workflow" .github vendor/agent-canon/.github agents documents
 ```
 
 ## 14. Push と完了判定

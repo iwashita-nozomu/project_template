@@ -6,8 +6,31 @@
 # upstream implementation tools/agent_tools/review_backlog_scan.sh exposes integrated review backlog scans
 # @dependency-end
 
-.PHONY: ci ci-quick check-matrix docs-check clean-generated github-workflow-check dev-setup tools-help agent-checks agent-surface-checks agent-canon-check agent-canon-latest-check agent-canon-links agent-canon-status agent-canon-ensure-latest agent-canon-rebuild-tools agent-canon-update-plan agent-canon-latest agent-canon-update agent-canon-merge-main agent-canon-pr-check docker-check python-env-status python-env-prepare docker-build-check docker-build-check-host-docker docker-run devcontainer-render server-check experiment-check docker-shell docker-jupyter docker-codex docker-codex-host-docker fresh-clone-check template-check start-repository task-start doc-start task-close agent-evaluate dependency-review dependency-review-surfaces review-backlog-scan waterfall-gate-check user-preference-log
+PYTHON ?= python3
 
+AGENT_TOOLS := tools/agent_tools
+CI_TOOLS := tools/ci
+AGENT_CANON_SYNC := bash tools/sync_agent_canon.sh
+AGENT_CANON_UPDATE := bash tools/update_agent_canon.sh
+
+DOCKER_DEFAULT_PACK ?= docker/packs/default.toml
+DOCKER_HOST_PACK ?= docker/packs/default-host-docker.toml
+SERVER_LAYOUT ?= vendor/agent-canon/documents/templates/server_runtime_layout.template.toml
+
+.PHONY: ci ci-quick check-matrix docs-check clean-generated github-workflow-check
+.PHONY: fresh-clone-check template-check dev-setup tools-help
+.PHONY: start-repository task-start doc-start task-close agent-evaluate
+.PHONY: dependency-review dependency-review-surfaces review-backlog-scan waterfall-gate-check
+.PHONY: user-preference-log
+.PHONY: agent-checks agent-surface-checks
+.PHONY: agent-canon-check agent-canon-latest-check agent-canon-links agent-canon-status
+.PHONY: agent-canon-ensure-latest agent-canon-rebuild-tools agent-canon-update-plan
+.PHONY: agent-canon-latest agent-canon-update agent-canon-merge-main agent-canon-pr-check
+.PHONY: docker-check python-env-status python-env-prepare
+.PHONY: docker-build-check docker-build-check-host-docker docker-run devcontainer-render
+.PHONY: server-check experiment-check docker-shell docker-jupyter docker-codex docker-codex-host-docker
+
+# Validation targets
 # ★推奨: 統合 CI（pytest + pyright + ruff）
 ci:
 	bash tools/ci/run_all_checks.sh
@@ -21,9 +44,11 @@ check-matrix:
 	@echo "Check matrix:"
 	@echo "  docs-only:        make docs-check && dependency header checks for changed docs"
 	@echo "  Python changes:   targeted pytest + python3 -m pyright + python3 -m ruff check python tests --select D,E,F,I,UP"
-	@echo "  AgentCanon/root:  make agent-canon-pr-check or make agent-surface-checks"
+	@echo "  AgentCanon source:   make agent-canon-pr-check"
+	@echo "  AgentCanon shared views: make agent-canon-check"
+	@echo "  submodule pin:    make agent-canon-status"
 	@echo "  Docker/runtime:   make docker-check [and make docker-build-check if build behavior changed]"
-	@echo "  GitHub/Copilot:   make github-workflow-check"
+	@echo "  GitHub automation: make github-workflow-check"
 	@echo "  Experiment:       make experiment-check"
 	@echo "  Full confidence:  make ci"
 
@@ -34,58 +59,68 @@ fresh-clone-check:
 # higher-level template acceptance
 template-check: fresh-clone-check
 
+# Agent workflow targets
 # clone-time repository bootstrap
 start-repository:
 	bash scripts/start_repository.sh $(ARGS)
 
 # machine-driven task start
 task-start:
-	python3 tools/agent_tools/task_start.py $(ARGS)
+	$(PYTHON) $(AGENT_TOOLS)/task_start.py $(ARGS)
 
 # machine-driven document start
 doc-start:
-	python3 tools/agent_tools/doc_start.py $(ARGS)
+	$(PYTHON) $(AGENT_TOOLS)/doc_start.py $(ARGS)
 
 # machine-driven task close gate
 task-close:
-	python3 tools/agent_tools/task_close.py $(ARGS)
+	$(PYTHON) $(AGENT_TOOLS)/task_close.py $(ARGS)
 
 # machine-driven agent behavior evaluation
 agent-evaluate:
-	python3 tools/agent_tools/evaluate_agent_run.py $(ARGS)
+	$(PYTHON) $(AGENT_TOOLS)/evaluate_agent_run.py $(ARGS)
 
 # machine-driven repo-wide dependency review
 dependency-review:
-	bash tools/agent_tools/run_repo_dependency_review.sh $(ARGS)
+	bash $(AGENT_TOOLS)/run_repo_dependency_review.sh $(ARGS)
 
 # strict dependency review for both template root views and AgentCanon source
 dependency-review-surfaces:
-	bash tools/agent_tools/run_repo_dependency_review.sh --fail-missing $(ARGS)
-	bash tools/agent_tools/run_repo_dependency_review.sh --root vendor/agent-canon --fail-missing $(ARGS)
+	bash $(AGENT_TOOLS)/run_repo_dependency_review.sh --fail-missing $(ARGS)
+	bash $(AGENT_TOOLS)/run_repo_dependency_review.sh --root vendor/agent-canon --fail-missing $(ARGS)
 
 # integrated file-by-file review backlog scan
 review-backlog-scan:
-	bash tools/agent_tools/review_backlog_scan.sh $(ARGS)
+	bash $(AGENT_TOOLS)/review_backlog_scan.sh $(ARGS)
 
 # machine-driven intermediate waterfall gate check
 waterfall-gate-check:
-	python3 tools/agent_tools/waterfall_gate_check.py $(ARGS)
+	$(PYTHON) $(AGENT_TOOLS)/waterfall_gate_check.py $(ARGS)
 
 # machine-driven user preference note append
 user-preference-log:
-	python3 tools/agent_tools/log_user_preference.py $(ARGS)
+	$(PYTHON) $(AGENT_TOOLS)/log_user_preference.py $(ARGS)
 
+# Documentation and generated artifacts
 # repo-wide Markdown lint / link checks
 docs-check:
 	bash tools/ci/run_docs_checks.sh
 
 # remove generated, ignored artifacts that make the template workspace noisy
 clean-generated:
-	git clean -Xdf .pytest_cache .ruff_cache build logs reports tests/logs .devcontainer/docker-compose.generated.yml
+	git clean -Xdf \
+		.pytest_cache \
+		.ruff_cache \
+		build \
+		logs \
+		reports \
+		tests/logs \
+		.devcontainer/docker-compose.generated.yml
 
-# GitHub Actions / PR template / Copilot convention checks
+# GitHub and agent-runtime targets
+# GitHub Actions / PR template convention checks
 github-workflow-check:
-	python3 tools/ci/check_github_workflows.py
+	$(PYTHON) $(CI_TOOLS)/check_github_workflows.py
 
 # agent runtime / skill drift checks
 agent-checks:
@@ -93,73 +128,68 @@ agent-checks:
 
 agent-surface-checks:
 	bash tools/ci/check_agent_canon_latest.sh
-	bash tools/sync_agent_canon.sh check
-	python3 tools/docs/mirror_skill_shims.py --target .claude/skills --prune --check
-	python3 tools/agent_tools/check_agent_runtime_alignment.py
-	python3 tools/agent_tools/smoke_test_research_perspective_pack.py
+	$(AGENT_CANON_SYNC) check
+	$(PYTHON) $(AGENT_TOOLS)/check_agent_runtime_alignment.py
+	$(PYTHON) $(AGENT_TOOLS)/smoke_test_research_perspective_pack.py
 
+# AgentCanon sync/update targets
 # read-only gate for upstream agent-canon freshness
 agent-canon-latest-check:
 	bash tools/ci/check_agent_canon_latest.sh
 
 # shared surface drift only
 agent-canon-check:
-	bash tools/sync_agent_canon.sh check
+	$(AGENT_CANON_SYNC) check
 
 # root shared surface を vendor 正本へ再リンク
 agent-canon-links:
-	bash tools/sync_agent_canon.sh link-root
+	$(AGENT_CANON_SYNC) link-root
 
 # submodule pin / legacy tree 設定を確認
 agent-canon-status:
-	bash tools/sync_agent_canon.sh status
+	$(AGENT_CANON_SYNC) status
 
 # upstream agent-canon を task 開始時に取り込む
-agent-canon-ensure-latest:
-	bash tools/update_agent_canon.sh latest $(ARGS)
+agent-canon-ensure-latest agent-canon-latest agent-canon-update:
+	$(AGENT_CANON_UPDATE) latest $(ARGS)
 
 agent-canon-rebuild-tools:
-	bash tools/update_agent_canon.sh rebuild-tools
+	$(AGENT_CANON_UPDATE) rebuild-tools
 
 agent-canon-update-plan:
-	bash tools/update_agent_canon.sh plan $(ARGS)
-
-agent-canon-latest:
-	bash tools/update_agent_canon.sh latest $(ARGS)
-
-agent-canon-update:
-	bash tools/update_agent_canon.sh latest $(ARGS)
+	$(AGENT_CANON_UPDATE) plan $(ARGS)
 
 agent-canon-merge-main:
-	bash tools/update_agent_canon.sh merge-main-into-current $(ARGS)
+	$(AGENT_CANON_UPDATE) merge-main-into-current $(ARGS)
 
 # shared canon 専用の PR gate
 agent-canon-pr-check:
 	bash tools/ci/check_agent_canon_pr.sh
 
+# Docker and runtime targets
 # Dockerfile と requirements の整合
 docker-check:
 	bash tools/docker_dependency_validator.sh
 
 # 現在の runtime で repo-local .venv が許可されるかを表示
 python-env-status:
-	python3 tools/ci/python_env_policy.py
+	$(PYTHON) $(CI_TOOLS)/python_env_policy.py
 
 # 許可される runtime で canonical .venv を準備
 python-env-prepare:
-	python3 tools/ci/python_env_policy.py --create
+	$(PYTHON) $(CI_TOOLS)/python_env_policy.py --create
 
 # Docker イメージ build / smoke 可否の確認
 docker-build-check:
-	bash docker/check_build.sh --pack docker/packs/default.toml
+	bash docker/check_build.sh --pack $(DOCKER_DEFAULT_PACK)
 
 # Docker socket を mount した build smoke check
 docker-build-check-host-docker:
-	bash docker/check_build.sh --pack docker/packs/default-host-docker.toml
+	bash docker/check_build.sh --pack $(DOCKER_HOST_PACK)
 
 # 任意 program を canonical container で実行
 docker-run:
-	python3 tools/ci/run_repo_program.py $(ARGS)
+	$(PYTHON) $(CI_TOOLS)/run_repo_program.py $(ARGS)
 
 # devcontainer compose を canonical pack から生成
 devcontainer-render:
@@ -167,35 +197,41 @@ devcontainer-render:
 
 # main server host readiness
 server-check:
-	python3 tools/ci/check_server_readiness.py --layout vendor/agent-canon/documents/templates/server_runtime_layout.template.toml
+	$(PYTHON) $(CI_TOOLS)/check_server_readiness.py --layout $(SERVER_LAYOUT)
 
 # experiment registry validation
 experiment-check:
-	python3 tools/ci/check_experiment_registry.py
+	$(PYTHON) $(CI_TOOLS)/check_experiment_registry.py
 
 # 既定 pack の shell を起動
 docker-shell:
-	python3 tools/ci/run_in_repo_container.py --pack docker/packs/default.toml --shell-session --tty
+	$(PYTHON) $(CI_TOOLS)/run_in_repo_container.py --pack $(DOCKER_DEFAULT_PACK) --shell-session --tty
 
 # canonical container で JupyterLab を起動
 docker-jupyter:
-	python3 tools/ci/run_in_repo_container.py --pack docker/packs/default.toml --keep-image --port $${JUPYTER_HOST_PORT:-8888}:8888 -- jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root --ServerApp.token="$${JUPYTER_TOKEN:-project-template}"
+	$(PYTHON) $(CI_TOOLS)/run_in_repo_container.py --pack $(DOCKER_DEFAULT_PACK) --keep-image --port $${JUPYTER_HOST_PORT:-8888}:8888 -- jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root --ServerApp.token="$${JUPYTER_TOKEN:-project-template}"
 
 # nested Codex を既定 pack で起動
 docker-codex:
-	python3 tools/ci/run_codex_in_repo_container.py
+	$(PYTHON) $(CI_TOOLS)/run_codex_in_repo_container.py
 
 # nested Codex を host Docker socket 付き pack で起動
 docker-codex-host-docker:
-	python3 tools/ci/run_codex_in_repo_container.py --profile host-docker
+	$(PYTHON) $(CI_TOOLS)/run_codex_in_repo_container.py --profile host-docker
 
+# Help targets
 # 開発開始の確認
 dev-setup:
 	@echo "Template clone is ready. Read documents/template-bootstrap.md, then run: make fresh-clone-check"
 
 # ツール情報表示
 tools-help:
-	@echo "=== Tool entrypoints ==="
+	@echo "Core targets:"
+	@echo "  make check-matrix        Show validation routing"
+	@echo "  make ci-quick            Run quick local validation"
+	@echo "  make docs-check          Run Markdown/document checks"
+	@echo "  make agent-checks        Check shared agent surfaces"
+	@echo "  make docker-check        Check Docker dependency boundaries"
 	@echo ""
-	@echo "Start with: make check-matrix"
-	@echo "Detailed catalog: python3 tools/agent_tools/tool_catalog.py --format markdown"
+	@echo "Detailed catalog:"
+	@echo "  $(PYTHON) $(AGENT_TOOLS)/tool_catalog.py --format markdown"
