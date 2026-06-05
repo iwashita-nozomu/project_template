@@ -49,7 +49,7 @@ file is a template-owned active contract, edit the root regular file.
 - [Codex Configuration Reference](../vendor/agent-canon/documents/codex-configuration-reference.md): Codex CLI
   / config schema / hooks / MCP / skills / subagents reference.
 - [AgentCanon GitHub Remote](../vendor/agent-canon/documents/agent-canon-github-remote.md): GitHub canonical
-  remote and local bare mirror compatibility.
+  remote and submodule update workflow.
   repository instructions, path-specific instructions, custom agents, MCP, setup
   workflow, and PR template routing.
 

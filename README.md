@@ -99,7 +99,7 @@ profile と validation の正本は
   - 実装本体、共通 runtime、テスト対象コードの主置き場です。
 - `tests/`
   - pytest ベースのテストを置く場所です。
-  - `tests/agent_tools/` と `tests/tools/` は AgentCanon-owned mirror test、`tests/project/` や package-specific tests は project-local implementation test です。
+  - `tests/agent_tools/` と `tests/tools/` は AgentCanon-owned shared-runtime test、`tests/project/` や package-specific tests は project-local implementation test です。
 
 ### Bootstrap と Validation の入口
 
@@ -156,7 +156,7 @@ bash tools/sync_agent_canon.sh check
 
 AgentCanon の URL や branch 情報が `.gitmodules` と submodule config でずれた場合は `git submodule sync vendor/agent-canon` を先に実行します。submodule worktree が stale / detached / local-only commit を含む場合は、親 repo の tree diff ではなく `vendor/agent-canon/` の branch / status を確認します。local commit がある branch は `bash tools/update_agent_canon.sh merge-main-into-current` で GitHub `main` を取り込んでから GitHub へ push し、AgentCanon PR にします。
 
-AgentCanon の更新順序は、AgentCanon repo を更新して push / PR merge、template の `vendor/agent-canon` pin 更新、`bash tools/sync_agent_canon.sh link-root`、validation、template commit / push です。`.gitmodules` は template runtime contract の一部なので、AgentCanon URL や branch に関わる PR では必ず確認します。GitHub `origin/main`、template `origin/main`、local `/mnt/git` mirror は別の remote なので、PR や closeout ではそれぞれの SHA を混同しません。
+AgentCanon の更新順序は、AgentCanon repo を更新して push / PR merge、template の `vendor/agent-canon` pin 更新、`bash tools/sync_agent_canon.sh link-root`、validation、template commit / push です。`.gitmodules` は template runtime contract の一部なので、AgentCanon URL や branch に関わる PR では必ず確認します。AgentCanon GitHub `main`、template GitHub `origin/main`、submodule pin SHA を PR や closeout で混同しません。
 
 ## まず読むもの
 
@@ -191,7 +191,7 @@ git commit -m "chore: initialize project from template"
 bash scripts/start_repository.sh --validate-only
 ```
 
-初期化時の AgentCanon 正本は GitHub submodule です。project-local bare repo は新規運用では使いません。shared canon の差分は `vendor/agent-canon/` 内の GitHub branch に commit し、AgentCanon PR で戻します。
+初期化時の AgentCanon 正本は GitHub submodule です。shared canon の差分は `vendor/agent-canon/` 内の GitHub branch に commit し、AgentCanon PR で戻します。
 
 最短 runbook は `documents/template-bootstrap.md`、notes を育てる方針は `vendor/agent-canon/documents/notes-lifecycle.md` を見ます。
 

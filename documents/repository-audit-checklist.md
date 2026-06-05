@@ -30,9 +30,8 @@ upstream design ../vendor/agent-canon/documents/FILE_CHECKLIST_OPERATIONS.md def
 - [ ] `git status --short --branch --untracked-files=all` を確認した
 - [ ] 作業開始時点の dirty file を user 変更、生成物、今回変更に分類した
 - [ ] `origin` が GitHub canonical repo を向いている
-- [ ] local bare mirror がある場合、`local-bare` など canonical でない名前で分離されている
 - [ ] `main` が `origin/main` と意図通り一致している
-- [ ] push 先が GitHub canonical と local mirror のどちらかを明示している
+- [ ] push 先が GitHub canonical であることを確認した
 - [ ] commit message に remote migration や AgentCanon pin 変更の理由が残っている
 
 確認コマンド:
@@ -52,7 +51,6 @@ git rev-parse origin/main
 - [ ] GitHub 操作の protocol が `gh auth status` と矛盾していない
 - [ ] SSH 利用時は `github.com` の host key と GitHub auth が通る
 - [ ] HTTPS 利用時は非対話 fetch が credential error で止まらない
-- [ ] local bare mirror は compatibility mirror であり、latest 判定の正本ではない
 - [ ] shared root surface drift がある場合は `bash tools/sync_agent_canon.sh link-root` で修復済み
 
 確認コマンド:
@@ -139,7 +137,7 @@ bash tools/agent_tools/check_dependency_graph.sh --print-edges
 make docs-check
 python3 tools/docs/check_markdown_lint.py --check documents/repository-audit-checklist.md
 python3 tools/docs/check_markdown_math.py documents/repository-audit-checklist.md
-rg -n "TODO|FIXME|old|legacy|subtree|/mnt/git/template.git|/mnt/git/agent-canon.git" README.md documents agents tools
+rg -n "TODO|FIXME|old|legacy|subtree" README.md documents agents tools
 ```
 
 ## 7. Workflow、Skill、Eval、Goal
@@ -196,7 +194,7 @@ python3 tools/agent_tools/vector_search.py --query "dependency review" --limit 5
 - [ ] `docker/register_safe_directories.sh /workspace` が `/workspace` と `vendor/*` 由来の `/workspace/vendor/<name>` を `safe.directory` に登録する
 - [ ] `.devcontainer/devcontainer.json` の `postCreateCommand` が safe.directory 登録 helper を呼ぶ
 - [ ] `docker/packs/default.toml` の smoke が vendor safe.directory 登録を検証している
-- [ ] Dockerfile に Template / AgentCanon の local mirror path が焼き込まれていない
+- [ ] Dockerfile に Template / AgentCanon の machine-local remote path が焼き込まれていない
 - [ ] `docker/requirements.txt`、`docker/README.md`、`.devcontainer/` が矛盾していない
 - [ ] Docker dependency validator が pass している
 
@@ -255,16 +253,12 @@ rg -n "status=pass|user_completion_report=unlocked|eval|feedback|monitoring" rep
 - [ ] Template 由来 repo では root surface が Template と構造的に一致している
 - [ ] repo 固有の差分は `documents/`、project code、config に限定され、shared canon に混入していない
 - [ ] `make agent-canon-ensure-latest` と `bash tools/sync_agent_canon.sh check` が派生 repo でも pass している
-- [ ] local mirror だけを latest 正本にしていない
-- [ ] migration 済み repo は GitHub canonical と local mirror の関係を文書化している
 
 確認コマンド:
 
 ```bash
-for repo in /mnt/git/*; do
-  test -d "$repo" || continue
-  printf '%s\n' "$repo"
-done
+git remote -v
+git submodule status vendor/agent-canon
 ```
 
 ## 13. GitHub Actions と PR Checklist
@@ -275,7 +269,7 @@ done
 - [ ] `.github/workflows/agent-coordination.yml` は AgentCanon 正本から root copy へ同期されている
 - [ ] Agent coordination workflow の各 job が AgentCanon submodule を checkout する
 - [ ] Template default PR checklist が repo-local 変更、AgentCanon pin、Docker、GitHub workflow、validation evidence を分けている
-- [ ] Template 側 AgentCanon PR checklist が shared canon source、root surface sync、GitHub mirror evidence を要求している
+- [ ] Template 側 AgentCanon PR checklist が shared canon source、root surface sync、GitHub evidence を要求している
 - [ ] Standalone AgentCanon repo 用の独立 PR checklist が `vendor/agent-canon/.github/PULL_REQUEST_TEMPLATE.md` にある
 - [ ] GitHub automation と PR checklist が Codex workflow から辿れる
 - [ ] PR checklist が未実行 command を pass と書かない運用になっている
@@ -297,7 +291,6 @@ rg -n "submodules: false|checkout_agent_canon_submodule|permissions:|concurrency
 
 - [ ] 変更を commit 済み
 - [ ] GitHub canonical remote へ push 済み
-- [ ] local mirror が必要な repo は local mirror へも push 済み
 - [ ] `git status --short --branch --untracked-files=all` が clean
 - [ ] `git log --oneline --decorate -5` で対象 commit が確認できる
 - [ ] 未完了の planned work、review finding、validation、commit、push、follow-up 判断が残っていない
@@ -309,7 +302,6 @@ rg -n "submodules: false|checkout_agent_canon_submodule|permissions:|concurrency
 git log --oneline --decorate -5
 git status --short --branch --untracked-files=all
 git push origin main
-git push local-bare main
 ```
 
 ## 最終監査判定

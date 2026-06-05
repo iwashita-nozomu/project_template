@@ -16,6 +16,8 @@ AGENT_CANON_UPDATE := bash tools/update_agent_canon.sh
 DOCKER_DEFAULT_PACK ?= docker/packs/default.toml
 DOCKER_HOST_PACK ?= docker/packs/default-host-docker.toml
 SERVER_LAYOUT ?= vendor/agent-canon/documents/templates/server_runtime_layout.template.toml
+REPO_WIDE_REVIEW_REPORT_DIR ?= reports/agents/repo-wide-review-check
+REPO_WIDE_REVIEW_QUERY ?= repo-wide review runtime surface stale path check
 
 .PHONY: ci ci-quick check-matrix docs-check clean-generated github-workflow-check
 .PHONY: fresh-clone-check template-check dev-setup tools-help
@@ -23,6 +25,7 @@ SERVER_LAYOUT ?= vendor/agent-canon/documents/templates/server_runtime_layout.te
 .PHONY: dependency-review dependency-review-surfaces review-backlog-scan waterfall-gate-check
 .PHONY: user-preference-log
 .PHONY: agent-checks agent-surface-checks
+.PHONY: repo-wide-review-check semantic-index-stale-check
 .PHONY: agent-canon-check agent-canon-latest-check agent-canon-links agent-canon-status
 .PHONY: agent-canon-ensure-latest agent-canon-rebuild-tools agent-canon-update-plan
 .PHONY: agent-canon-latest agent-canon-update agent-canon-merge-main agent-canon-pr-check
@@ -92,6 +95,33 @@ dependency-review-surfaces:
 # integrated file-by-file review backlog scan
 review-backlog-scan:
 	bash $(AGENT_TOOLS)/review_backlog_scan.sh $(ARGS)
+
+# machine-driven repo-wide review closeout gate
+repo-wide-review-check:
+	@mkdir -p "$(REPO_WIDE_REVIEW_REPORT_DIR)"
+	@test -f reports/agents/.active_run
+	@printf 'REPO_WIDE_REVIEW_CHECK_REPORT_DIR=%s\n' "$(REPO_WIDE_REVIEW_REPORT_DIR)" | tee "$(REPO_WIDE_REVIEW_REPORT_DIR)/report_contract.txt"
+	@printf 'ACTIVE_RUN=%s\n' "$$(cat reports/agents/.active_run)" | tee -a "$(REPO_WIDE_REVIEW_REPORT_DIR)/report_contract.txt"
+	bash -o pipefail -c '$(MAKE) agent-canon-ensure-latest 2>&1 | tee "$(REPO_WIDE_REVIEW_REPORT_DIR)/agent-canon-ensure-latest.txt"'
+	bash -o pipefail -c '$(AGENT_CANON_SYNC) check 2>&1 | tee "$(REPO_WIDE_REVIEW_REPORT_DIR)/agent-canon-sync-check.txt"'
+	bash -o pipefail -c '$(PYTHON) $(AGENT_TOOLS)/check_agent_runtime_alignment.py 2>&1 | tee "$(REPO_WIDE_REVIEW_REPORT_DIR)/agent-runtime-alignment.txt"'
+	bash $(AGENT_TOOLS)/review_backlog_scan.sh --report-dir "$(REPO_WIDE_REVIEW_REPORT_DIR)/review-backlog" --check inventory --check stale --check dependency-review --check semantic-index
+	$(MAKE) semantic-index-stale-check REPO_WIDE_REVIEW_REPORT_DIR="$(REPO_WIDE_REVIEW_REPORT_DIR)"
+	$(MAKE) docker-check
+	$(MAKE) github-workflow-check
+	bash -o pipefail -c '$(PYTHON) $(AGENT_TOOLS)/check_convention_compliance.py 2>&1 | tee "$(REPO_WIDE_REVIEW_REPORT_DIR)/convention-compliance.txt"'
+
+semantic-index-stale-check:
+	@mkdir -p "$(REPO_WIDE_REVIEW_REPORT_DIR)"
+	@printf '%s\n' "$(REPO_WIDE_REVIEW_QUERY)" > "$(REPO_WIDE_REVIEW_REPORT_DIR)/semantic-index-query.txt"
+	bash -o pipefail -c '\
+		if [ -f vendor/agent-canon/rust/agent-canon/Cargo.toml ]; then \
+			agent_canon_cmd="cargo run --quiet --manifest-path vendor/agent-canon/rust/agent-canon/Cargo.toml --"; \
+		else \
+			agent_canon_cmd="agent-canon"; \
+		fi; \
+		$$agent_canon_cmd semantic-index build --root . 2>&1 | tee "$(REPO_WIDE_REVIEW_REPORT_DIR)/semantic-index-build.txt"; \
+		$$agent_canon_cmd semantic-index search --root . --query-file "$(REPO_WIDE_REVIEW_REPORT_DIR)/semantic-index-query.txt" --top-k 5 --format jsonl 2>&1 | tee "$(REPO_WIDE_REVIEW_REPORT_DIR)/semantic-index-stale-check.jsonl"'
 
 # machine-driven intermediate waterfall gate check
 waterfall-gate-check:

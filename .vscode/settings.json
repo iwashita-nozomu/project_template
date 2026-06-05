@@ -23,16 +23,15 @@
     "**/.ruff_cache": true,
     "**/__pycache__": true,
     "build": true,
-    "logs": true,
-    "reports": true
+    "logs": true
   },
+  "explorer.excludeGitIgnore": false,
   "search.exclude": {
     "**/.pytest_cache": true,
     "**/.ruff_cache": true,
     "**/__pycache__": true,
     "build": true,
-    "logs": true,
-    "reports": true
+    "logs": true
   },
   "python.envFile": "${workspaceFolder}/.env",
   "python-envs.pythonProjects": [],
