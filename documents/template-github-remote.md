@@ -12,45 +12,18 @@ downstream design ../agents/workflows/agent-canon-pr-workflow.md consumes templa
 この root copy は template / derived repo が所有する active contract です。AgentCanon は GitHub / PR / sync policy を提供しますが、この repo の template remote contract の正本はこの regular file です。
 
 `iwashita-nozomu/project_template` on GitHub is the canonical template
-repository. Local bare repositories under `/mnt/git` are compatibility mirrors,
-not the source of truth.
+repository. Template bootstrap and update workflows use the GitHub canonical
+remote.
 
 ## Canonical Defaults
 
 - Canonical URL: `https://github.com/iwashita-nozomu/project_template.git`
 - Canonical branch: `main`
-- Optional local mirror: `/mnt/git/template.git`
-- Optional local remote name: `local-bare`
 
-Use `origin` for GitHub and reserve `local-bare` for the local mirror:
+Use `origin` for GitHub:
 
 ```bash
 git remote set-url origin https://github.com/iwashita-nozomu/project_template.git
-git remote add local-bare /mnt/git/template.git
-```
-
-If `local-bare` already exists, use `git remote set-url local-bare
-/mnt/git/template.git`.
-
-## Existing Local-Bare Repos
-
-Repos cloned from `/mnt/git/template.git` can migrate without rewriting
-history. First fetch the GitHub canonical branch, then push the same current
-tree to both remotes.
-
-```bash
-git fetch origin main
-git push origin main
-git push local-bare main
-```
-
-Commit messages for template remote migration should include:
-
-```text
-Template remote migration:
-- canonical remote: https://github.com/iwashita-nozomu/project_template.git
-- previous local mirror: /mnt/git/template.git
-- local bare remotes are compatibility mirrors, not source of truth
 ```
 
 ## AgentCanon Submodule

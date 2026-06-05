@@ -8,12 +8,13 @@ upstream design vendor/agent-canon/CONTAINER_OPERATIONS.md AgentCanon container 
 @dependency-end
 -->
 
-このファイルは、テンプレート repo で作業を始めるための最短入口です。
+このファイルは、作業を開始するための最短入口です。テンプレート全体像は
+[README.md](README.md) を先に読むと流れが付きます。
 
 ## 1. 最初に読む
 
-- [README.md](README.md)
 - [documents/README.md](documents/README.md)
+- [README.md](README.md): repository-wide map
 - [Runtime Profiles And Check Matrix](vendor/agent-canon/documents/runtime-profiles-and-check-matrix.md)
 
 必要な profile だけ追加で読みます。

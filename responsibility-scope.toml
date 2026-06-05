@@ -52,13 +52,11 @@ paths = [
   "vendor/agent-canon/**",
   "agents",
   ".agents",
-  ".claude",
   ".codex/**",
   ".devcontainer",
   "mcp",
   "tools",
   "AGENTS.md",
-  "CLAUDE.md",
   "memory/**",
 ]
 protecting_tools = [

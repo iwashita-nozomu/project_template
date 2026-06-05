@@ -36,6 +36,8 @@ file is a template-owned active contract, edit the root regular file.
 
 - [Runtime Profiles And Check Matrix](../vendor/agent-canon/documents/runtime-profiles-and-check-matrix.md):
   active profile selection, risk classes, and check matrix.
+- [Runtime Profiles Inventory JSON](../vendor/agent-canon/documents/runtime-profiles-and-check-matrix.json):
+  machine-readable runtime profile inventory (root `documents/` has no vendored JSON copy).
 - [Template / AgentCanon Audit Resolution](../vendor/agent-canon/documents/template-agent-canon-audit-resolution.md):
   2026-05-16 500-item audit coverage and resolution ledger.
 - [Shared Runtime Surfaces](../vendor/agent-canon/documents/SHARED_RUNTIME_SURFACES.md): owner classes,
@@ -47,8 +49,7 @@ file is a template-owned active contract, edit the root regular file.
 - [Codex Configuration Reference](../vendor/agent-canon/documents/codex-configuration-reference.md): Codex CLI
   / config schema / hooks / MCP / skills / subagents reference.
 - [AgentCanon GitHub Remote](../vendor/agent-canon/documents/agent-canon-github-remote.md): GitHub canonical
-  remote and local bare mirror compatibility.
-- [GitHub Copilot Configuration](../vendor/agent-canon/documents/github-copilot-configuration.md): Copilot
+  remote and submodule update workflow.
   repository instructions, path-specific instructions, custom agents, MCP, setup
   workflow, and PR template routing.
 
@@ -74,6 +75,7 @@ These files should be regular files in the template or derived repo root:
 - [Linux / WSL Host Requirements](./linux-wsl-host-requirements.md)
 - [Server Host Contract](./server-host-contract.md)
 - [Remote Execution Repo Contract](./remote-execution-repo-contract.md)
+- [Repository Audit Checklist](./repository-audit-checklist.md)
 
 AgentCanon provides reusable contract templates under
 [templates/](../vendor/agent-canon/documents/templates/),
