@@ -1,7 +1,7 @@
 # @dependency-start
-# responsibility Tests test worktree note bootstrap behavior.
+# responsibility Tests worktree note bootstrap and current-checkout work-log behavior.
 # upstream implementation ../../tools/agent_tools/bootstrap_worktree_notes.py bootstrap helper
-# upstream implementation ../../tools/agent_tools/work_log.py worktree log helper
+# upstream implementation ../../tools/agent_tools/work_log.py run-local work-log helper
 # upstream design ../../vendor/agent-canon/documents/worktree-lifecycle.md worktree lifecycle contract
 # @dependency-end
 """Tests for worktree note bootstrap and append helpers."""
@@ -18,16 +18,18 @@ BOOTSTRAP_SCRIPT = PROJECT_ROOT / "tools" / "agent_tools" / "bootstrap_worktree_
 WORK_LOG_SCRIPT = PROJECT_ROOT / "tools" / "agent_tools" / "work_log.py"
 
 
-def test_bootstrap_worktree_notes_and_append_log(tmp_path: Path) -> None:
-    """The helpers should fill scope placeholders and append a concrete log entry."""
+def test_bootstrap_worktree_notes_and_append_run_log(tmp_path: Path) -> None:
+    """The helpers fill legacy note paths and append current run-bundle entries."""
     repo_root = tmp_path / "repo"
     workspace_root = repo_root / ".worktrees" / "work-demo"
     notes_worktrees = repo_root / "notes" / "worktrees"
     notes_branches = repo_root / "notes" / "branches"
+    run_dir = repo_root / "reports" / "agents" / "run-demo"
 
     workspace_root.mkdir(parents=True)
     notes_worktrees.mkdir(parents=True)
     notes_branches.mkdir(parents=True)
+    run_dir.mkdir(parents=True)
 
     (workspace_root / "WORKTREE_SCOPE.md").write_text(
         "\n".join(
@@ -119,6 +121,8 @@ def test_bootstrap_worktree_notes_and_append_log(tmp_path: Path) -> None:
             str(WORK_LOG_SCRIPT),
             "--workspace-root",
             str(workspace_root),
+            "--report-dir",
+            str(run_dir),
             "--kind",
             "test",
             "--message",
@@ -137,8 +141,8 @@ def test_bootstrap_worktree_notes_and_append_log(tmp_path: Path) -> None:
     )
     assert work_log.returncode == 0, work_log.stderr
 
-    action_log_text = action_log.read_text(encoding="utf-8")
-    assert "ran smoke checks" in action_log_text
-    assert "request_clause_ids: R1" in action_log_text
-    assert "refs: reports/demo" in action_log_text
-    assert "next: prepare closeout" in action_log_text
+    run_log_text = (run_dir / "work_log.md").read_text(encoding="utf-8")
+    assert "ran smoke checks" in run_log_text
+    assert "request_clause_ids: R1" in run_log_text
+    assert "refs: reports/demo" in run_log_text
+    assert "next: prepare closeout" in run_log_text
