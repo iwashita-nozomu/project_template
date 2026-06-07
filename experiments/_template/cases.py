@@ -1,7 +1,7 @@
 # @dependency-start
 # responsibility Provides the template experiment cases module.
 # upstream design README.md experiment topic template
-# downstream implementation experimentcode.py consumes case definitions
+# downstream implementation run.py consumes case definitions
 # @dependency-end
 """Minimal case definitions for one experiment topic."""
 

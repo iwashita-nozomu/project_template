@@ -22,7 +22,8 @@ experiments/
 └── <topic>/
     ├── README.md
     ├── cases.py
-    ├── experimentcode.py
+    ├── config.yaml
+    ├── run.py
     └── result/
         └── <run_name>/
 ```
@@ -66,7 +67,8 @@ python3 tools/experiments/create_experiment_topic.py <topic>
 
 - `README.md`
 - `cases.py`
-- `experimentcode.py`
+- `config.yaml`
+- `run.py`
 - `registry.toml` の topic entry
 - 標準コマンド
 - `Question:`
