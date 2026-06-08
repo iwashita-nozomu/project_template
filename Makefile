@@ -190,7 +190,7 @@ agent-canon-update-plan:
 	$(AGENT_CANON_UPDATE) plan $(ARGS)
 
 agent-canon-merge-main:
-	$(AGENT_CANON_UPDATE) merge-main-into-current $(ARGS)
+	$(AGENT_CANON_UPDATE) merge-main-into-current-preserve-dirty $(ARGS)
 
 # shared canon 専用の PR gate
 agent-canon-pr-check:
