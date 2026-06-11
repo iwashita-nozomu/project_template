@@ -47,9 +47,10 @@ class AuditAndFixLinksTest(unittest.TestCase):
             result = self.run_cli(root, "--check", "documents")
 
             self.assertEqual(result.returncode, 1)
-            self.assertIn("unresolved: 1", result.stdout)
-            report = (root / "reports" / "broken_links.txt").read_text(encoding="utf-8")
-            self.assertIn("missing.md", report)
+            self.assertIn("DOCS_CHECK_FINDING=markdown-links", result.stderr)
+            self.assertIn("DOCS_CHECK_REPORT_BEGIN", result.stderr)
+            self.assertIn("Open only the reported location", result.stderr)
+            self.assertIn("missing.md", result.stderr)
 
     def test_apply_rewrites_uniquely_resolvable_relative_targets(self) -> None:
         """Apply mode should rewrite uniquely resolvable local targets."""
@@ -69,7 +70,7 @@ class AuditAndFixLinksTest(unittest.TestCase):
 
             check_result = self.run_cli(root, "--check", "agents")
             self.assertEqual(check_result.returncode, 0, check_result.stdout)
-            self.assertIn("unresolved: 0", check_result.stdout)
+            self.assertIn("DOCS_CHECK=pass", check_result.stdout)
 
     def test_workspace_absolute_links_become_pending_relative_fixes(self) -> None:
         """Workspace absolute links should be rewritten to portable relative links."""
@@ -84,7 +85,9 @@ class AuditAndFixLinksTest(unittest.TestCase):
 
             check_result = self.run_cli(root, "--check", "agents")
             self.assertEqual(check_result.returncode, 1, check_result.stdout)
-            self.assertIn("pending_fixes: 1", check_result.stdout)
+            self.assertIn("DOCS_CHECK_FINDING=markdown-links", check_result.stderr)
+            self.assertIn("DOCS_CHECK_REPORT_BEGIN", check_result.stderr)
+            self.assertIn("workspace-absolute markdown link should be relative", check_result.stderr)
 
             apply_result = self.run_cli(root, "--apply", "agents")
             self.assertEqual(apply_result.returncode, 0, apply_result.stderr)
