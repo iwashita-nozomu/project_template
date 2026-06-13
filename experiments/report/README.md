@@ -20,5 +20,7 @@ report 名は `run_name` とそろえ、`experiments/<topic>/result/<run_name>/`
 - `eval_manifest.json`
 - `summary.json`
 - `cases.jsonl`
+- `result/<run_name>/logs/`
+- 可視化 notebook
 
 cross-run の要約や campaign 全体の知見は `notes/experiments/` へ移します。
