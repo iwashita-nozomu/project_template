@@ -55,3 +55,4 @@ goal.md
 
 # Reusable local C++ artifacts
 .state/cpp-install/
+.state/agent-eval-runs/
