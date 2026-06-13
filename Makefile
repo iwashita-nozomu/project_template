@@ -134,7 +134,7 @@ user-preference-log:
 # Documentation and generated artifacts
 # repo-wide Markdown lint / link checks
 docs-check:
-	bash tools/ci/run_docs_checks.sh
+	tools/bin/agent-canon docs check
 
 # remove generated, ignored artifacts that make the template workspace noisy
 clean-generated:
