@@ -9,7 +9,7 @@ downstream implementation run.py run scaffold
 -->
 
 このディレクトリは、新しい experiment topic を始めるための最小雛形です。
-server 上でそのまま回せるように、`cases.py`、`run.py`、`config.yaml`、`result/` の入口をそろえています。
+server 上でそのまま回せるように、`cases.py`、`run.py`、`config.yaml`、`notebooks/`、`result/` の入口をそろえています。
 
 ## Question
 
@@ -18,6 +18,18 @@ server 上でそのまま回せるように、`cases.py`、`run.py`、`config.ya
 ## Comparison Target
 
 <!-- main、baseline、reference method などを書く -->
+
+## Visualization Notebook
+
+可視化は `notebooks/` 配下の Jupyter notebook に置きます。Notebook は
+`result/<run_name>/summary.json`、`cases.jsonl`、必要な `logs/` artifact を読み、
+figure / table を作る入口です。formal run の起動や設定正本にはしません。
+
+## Logs
+
+各 run は `result/<run_name>/logs/` を持ちます。top-level の `run.log` は
+managed runner の互換ログとして残し、追加 stdout / stderr、tool log、diagnostic
+log は `logs/` 配下へ置きます。
 
 ## Standard Commands
 
@@ -43,8 +55,10 @@ python3 tools/experiments/run_managed_experiment.py \
 - `result/<run_name>/config.json`
 - `result/<run_name>/eval_manifest.json`
 - `result/<run_name>/run.log`
+- `result/<run_name>/logs/`
 - `result/<run_name>/summary.json`
 - `result/<run_name>/cases.jsonl`
+- `notebooks/<run_name>.ipynb` またはこの topic で固定した可視化 notebook
 - `experiments/report/<run_name>.md`
 
 ## Notes

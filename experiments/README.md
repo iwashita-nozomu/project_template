@@ -23,9 +23,11 @@ experiments/
     ├── README.md
     ├── cases.py
     ├── config.yaml
+    ├── notebooks/
     ├── run.py
     └── result/
         └── <run_name>/
+            └── logs/
 ```
 
 ## まず使うもの
@@ -41,7 +43,7 @@ experiments/
 - `tools/experiments/sync_experiment_registry_context.py`
   - current branch / worktree / scope file を registry に同期します。
 - `tools/experiments/run_managed_experiment.py`
-  - `run_manifest.json` と `run.log` を残しながら実験を実行する入口です。
+  - `run_manifest.json`、`run.log`、run ごとの `logs/` を残しながら実験を実行する入口です。
 
 ## server 実行の既定
 
@@ -53,8 +55,10 @@ experiments/
   - `result/<run_name>/config.json`
   - `result/<run_name>/eval_manifest.json`
   - `result/<run_name>/run.log`
+  - `result/<run_name>/logs/`
   - `result/<run_name>/summary.json`
   - `result/<run_name>/cases.jsonl`
+- 可視化は `experiments/<topic>/notebooks/` の Jupyter notebook に置きます。Notebook は run artifact を読んで図表化する入口で、正式 run の起動や設定正本にはしません。
 - 1 回の run report は `experiments/report/<run_name>.md` に置きます。
 
 ## topic の作り始め
@@ -68,11 +72,14 @@ python3 tools/experiments/create_experiment_topic.py <topic>
 - `README.md`
 - `cases.py`
 - `config.yaml`
+- `notebooks/`
 - `run.py`
 - `registry.toml` の topic entry
 - 標準コマンド
 - `Question:`
 - `Comparison Target:`
+- `Visualization Notebook:`
+- `Logs:`
 
 ## 実行例
 
@@ -82,7 +89,7 @@ python3 tools/experiments/run_managed_experiment.py \
   --use-registered-command smoke
 ```
 
-この wrapper は、`registry.toml` の topic entry を見て command 実行前に result dir、`config.json`、report stub を初期化し、終了後に manifest を更新し、`summary.json` / `cases.jsonl` / `config.json` と registry で指定した追加 eval artifact を `eval_manifest.json` に収集します。top-level の `run_manifest.json`、`eval_manifest.json`、`run.log` は reserved managed file として eval collection の対象外です。
+この wrapper は、`registry.toml` の topic entry を見て command 実行前に result dir、`logs/`、`config.json`、report stub を初期化し、終了後に manifest を更新し、`summary.json` / `cases.jsonl` / `config.json` と registry で指定した追加 eval artifact を `eval_manifest.json` に収集します。top-level の `run_manifest.json`、`eval_manifest.json`、`run.log` は reserved managed file として eval collection の対象外です。
 
 ## Registry Check
 
