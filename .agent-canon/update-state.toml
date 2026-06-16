@@ -6,7 +6,7 @@
 # @dependency-end
 
 [agent_canon_update]
-tasks_applied_through = "34c7064c65956ee148554ea3926dea8cf2b44ec1"
+tasks_applied_through = "79fd33755205f92ee37234f887975dcf8971e76f"
 
 [completed_tasks."ACUT-20260515-parent-update-state"]
 note = "initialized parent update TODO state for project_template"
