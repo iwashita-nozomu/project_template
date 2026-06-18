@@ -41,6 +41,7 @@ reports/agents/
 reports/agent-improvement-guide/
 reports/agent-eval-runs/
 reports/agent-runtime-dashboard/
+reports/review/
 reports/hooks/
 reports/*.json
 reports/*.md
