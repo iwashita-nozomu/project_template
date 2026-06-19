@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # @dependency-start
+# contract environment
 # responsibility Installs repo Python dependencies after the workspace is mounted.
 # upstream environment requirements.txt canonical Python dependency list
 # upstream environment ../.devcontainer/post-create.sh devcontainer post-create entrypoint

@@ -1,6 +1,7 @@
 # Notes Hub
 <!--
 @dependency-start
+contract design
 responsibility Documents Notes Hub for this repository.
 upstream design ../vendor/agent-canon/documents/notes-lifecycle.md note lifecycle contract
 downstream design ../memory/README.md stable memory promotion target

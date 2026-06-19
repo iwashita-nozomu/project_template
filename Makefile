@@ -1,4 +1,5 @@
 # @dependency-start
+# contract configuration
 # responsibility Defines template make targets for validation, setup, and agent workflow automation.
 # upstream implementation tools/agent_tools/evaluate_agent_run.py exposes agent-evaluate target
 # upstream implementation tools/agent_tools/task_close.py enforces closeout gates

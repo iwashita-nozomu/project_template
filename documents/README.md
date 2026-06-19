@@ -1,5 +1,6 @@
 <!--
 @dependency-start
+contract design
 responsibility Documents documents/ for this repository.
 upstream design ../vendor/agent-canon/documents/SHARED_RUNTIME_SURFACES.md documents ownership policy
 upstream design ../vendor/agent-canon/documents/shared-runtime-surfaces.toml machine-readable ownership manifest

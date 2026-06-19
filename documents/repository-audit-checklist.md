@@ -1,5 +1,6 @@
 <!--
 @dependency-start
+contract policy
 responsibility Provides a Japanese repository audit checklist for this template.
 upstream design ../AGENTS.md defines runtime and closeout gates.
 upstream design ../vendor/agent-canon/documents/REVIEW_PROCESS.md defines review evidence and merge gates.

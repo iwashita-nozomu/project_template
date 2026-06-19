@@ -1,4 +1,5 @@
 # @dependency-start
+# contract workflow
 # responsibility Defines ci YAML configuration.
 # upstream implementation ../../tools/ci/run_all_checks.sh repository CI entrypoint
 # upstream implementation ../../Makefile ci target contract

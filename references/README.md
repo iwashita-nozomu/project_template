@@ -1,6 +1,7 @@
 # References
 <!--
 @dependency-start
+contract design
 responsibility Documents References for this repository.
 upstream design ../AGENTS.md reference sweep requirement
 @dependency-end

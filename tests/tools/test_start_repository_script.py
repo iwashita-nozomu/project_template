@@ -1,4 +1,5 @@
 # @dependency-start
+# contract test
 # responsibility Tests test start repository script behavior.
 # upstream implementation ../../scripts/start_repository.sh repository start wrapper
 # upstream design ../../documents/template-bootstrap.md bootstrap contract

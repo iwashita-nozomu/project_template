@@ -1,4 +1,5 @@
 # @dependency-start
+# contract configuration
 # responsibility Defines ignored generated, local, and cache artifacts for the template repository.
 # upstream design AGENTS.md repository closeout and artifact policy
 # upstream design vendor/agent-canon/documents/result-log-retention-and-visualization.md generated report retention policy

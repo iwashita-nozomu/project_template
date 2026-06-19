@@ -1,6 +1,7 @@
 # CMake Layout
 <!--
 @dependency-start
+contract design
 responsibility Documents CMake Layout for this repository.
 downstream implementation ../CMakeLists.txt CMake entrypoint
 downstream design ../src/README.md C++ source layout guidance

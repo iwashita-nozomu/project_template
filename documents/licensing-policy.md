@@ -1,6 +1,7 @@
 # Licensing Policy
 <!--
 @dependency-start
+contract policy
 responsibility Documents template and derived repository licensing ownership.
 upstream design ../README.md repository ownership overview
 upstream design ../LICENSE repository license text

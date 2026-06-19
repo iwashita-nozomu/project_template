@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # @dependency-start
+# contract environment
 # responsibility Builds and smoke-tests the template Docker image with submodule-aware AgentCanon devcontainer smoke.
 # upstream environment Dockerfile canonical container image definition
 # upstream environment packs/default.toml default runtime pack metadata

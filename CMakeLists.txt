@@ -1,4 +1,5 @@
 # @dependency-start
+# contract configuration
 # responsibility Defines the optional C++ build configuration.
 # upstream design cmake/README.md CMake layout guidance
 # downstream design src/README.md C++ source layout guidance

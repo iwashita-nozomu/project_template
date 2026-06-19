@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # @dependency-start
+# contract tool
 # responsibility Starts a new repository from the template helper entrypoint.
 # upstream design ../documents/template-bootstrap.md bootstrap contract
 # upstream implementation init_from_template.sh template initialization helper

@@ -1,6 +1,7 @@
 # Experiments Hub
 <!--
 @dependency-start
+contract design
 responsibility Documents Experiments Hub for this repository.
 upstream design ../vendor/agent-canon/documents/experiment-registry.md experiment registry contract
 downstream environment registry.toml template-local registry

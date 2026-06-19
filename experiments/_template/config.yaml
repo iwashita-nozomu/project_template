@@ -1,4 +1,5 @@
 # @dependency-start
+# contract template
 # responsibility Defines default template experiment configuration.
 # upstream design README.md experiment topic template
 # downstream implementation run.py reads generated run config that includes this file.

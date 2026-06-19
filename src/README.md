@@ -1,6 +1,7 @@
 # src
 <!--
 @dependency-start
+contract design
 responsibility Documents src for this repository.
 upstream design ../cmake/README.md CMake layout guidance
 @dependency-end

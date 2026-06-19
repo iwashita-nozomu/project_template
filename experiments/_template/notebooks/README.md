@@ -1,6 +1,7 @@
 # Visualization Notebooks
 <!--
 @dependency-start
+contract template
 responsibility Documents Experiment Topic Notebook Template for this repository.
 upstream design ../README.md experiment topic template contract
 @dependency-end

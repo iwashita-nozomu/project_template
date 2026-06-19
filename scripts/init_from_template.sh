@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # @dependency-start
+# contract tool
 # responsibility Initializes a project repository from the template snapshot.
 # upstream design README.md template overview
 # downstream implementation start_repository.sh wraps template initialization
