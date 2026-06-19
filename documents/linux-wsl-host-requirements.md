@@ -1,5 +1,6 @@
 <!--
 @dependency-start
+contract policy
 responsibility Documents Linux / WSL Host Requirements for this repository.
 upstream design ../vendor/agent-canon/documents/SHARED_RUNTIME_SURFACES.md shared documents ownership policy
 upstream design ../vendor/agent-canon/CONTAINER_OPERATIONS.md container and devcontainer ownership boundary

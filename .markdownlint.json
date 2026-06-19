@@ -1,6 +1,7 @@
 {
   "_dependency_manifest": [
     "@dependency-start",
+    "contract configuration",
     "responsibility Configures repository Markdown lint behavior.",
     "upstream implementation tools/ci/run_docs_checks.sh markdown lint entrypoint",
     "downstream implementation tests/tools/test_audit_and_fix_links.py documentation test coverage",

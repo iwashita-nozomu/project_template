@@ -1,4 +1,5 @@
 # @dependency-start
+# contract environment
 # responsibility Defines Codex container runtime profiles.
 # upstream environment README.md docker runtime guidance
 # downstream implementation ../tools/ci/container_runtime.py consumes container profiles

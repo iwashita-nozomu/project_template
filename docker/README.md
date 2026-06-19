@@ -1,6 +1,7 @@
 # Docker Runtime
 <!--
 @dependency-start
+contract environment
 responsibility Documents Docker Runtime for this repository.
 upstream design ../documents/linux-wsl-host-requirements.md host runtime requirements
 upstream design ../vendor/agent-canon/CONTAINER_OPERATIONS.md AgentCanon container and devcontainer operation rulebook

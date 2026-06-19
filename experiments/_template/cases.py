@@ -1,4 +1,5 @@
 # @dependency-start
+# contract template
 # responsibility Provides the template experiment cases module.
 # upstream design README.md experiment topic template
 # downstream implementation run.py consumes case definitions
@@ -9,6 +10,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+DEFAULT_CASE_LIMIT = 8
+
 
 @dataclass(frozen=True)
 class ExperimentCase:
@@ -18,7 +21,7 @@ class ExperimentCase:
     value: int
 
 
-def build_cases(limit: int = 8) -> list[ExperimentCase]:
+def build_cases(limit: int = DEFAULT_CASE_LIMIT) -> list[ExperimentCase]:
     """Build a small deterministic case list."""
     return [
         ExperimentCase(case_id=f"case_{index:03d}", value=index)

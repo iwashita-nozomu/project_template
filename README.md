@@ -1,6 +1,7 @@
 # Project Template
 <!--
 @dependency-start
+contract design
 responsibility Documents Project Template for this repository.
 upstream design AGENTS.md agent runtime entrypoint
 upstream design LICENSE repository license text

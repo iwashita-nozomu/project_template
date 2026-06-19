@@ -1,4 +1,5 @@
 # @dependency-start
+# contract environment
 # responsibility Defines the canonical development container image.
 # upstream environment README.md docker runtime guidance
 # downstream implementation install_python_dependencies.sh installs Python modules after workspace mount

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # @dependency-start
+# contract environment
 # responsibility Registers the workspace and direct vendor children as Git safe directories.
 # upstream environment Dockerfile installs this helper into the canonical image.
 # downstream environment ../.devcontainer/devcontainer.json runs this helper after workspace mount.

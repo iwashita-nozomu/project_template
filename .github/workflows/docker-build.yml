@@ -1,4 +1,5 @@
 # @dependency-start
+# contract workflow
 # responsibility Defines docker build YAML configuration.
 # upstream environment ../../docker/README.md docker runtime contract
 # upstream implementation ../../docker/check_build.sh submodule-aware docker build validation

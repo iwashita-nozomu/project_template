@@ -1,4 +1,5 @@
 # @dependency-start
+# contract registry
 # responsibility Defines top-level responsibility scopes and protecting tools for this repository.
 # upstream design AGENTS.md parent repository runtime entrypoint
 # upstream design vendor/agent-canon/documents/responsibility-scope-management.md responsibility scope policy

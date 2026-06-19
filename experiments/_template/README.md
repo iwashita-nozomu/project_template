@@ -1,6 +1,7 @@
 # Experiment Topic Template
 <!--
 @dependency-start
+contract template
 responsibility Documents Experiment Topic Template for this repository.
 upstream design ../README.md experiments hub guidance
 downstream implementation cases.py case scaffold

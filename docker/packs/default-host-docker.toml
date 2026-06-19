@@ -1,4 +1,5 @@
 # @dependency-start
+# contract environment
 # responsibility Defines the host Docker container pack configuration.
 # upstream environment ../README.md docker runtime guidance
 # upstream environment ../Dockerfile default runtime image

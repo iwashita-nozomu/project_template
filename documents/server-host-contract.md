@@ -1,5 +1,6 @@
 <!--
 @dependency-start
+contract policy
 responsibility Documents Server Host Contract for this repository.
 upstream design ../vendor/agent-canon/documents/SHARED_RUNTIME_SURFACES.md shared documents ownership policy
 @dependency-end
