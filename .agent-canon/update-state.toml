@@ -1,5 +1,5 @@
 # @dependency-start
-# contract data
+# contract agent-runtime
 # responsibility Tracks this parent repo's applied AgentCanon update TODO boundary.
 # upstream design ../vendor/agent-canon/documents/agent-canon-parent-repo-latest-checklist.md parent update workflow
 # upstream design ../vendor/agent-canon/documents/agent-canon-update-tasks.toml shared update TODO manifest
@@ -7,7 +7,7 @@
 # @dependency-end
 
 [agent_canon_update]
-tasks_applied_through = "c3266cd271f1c5e1cf9a8e3b697e3a059efac494"
+tasks_applied_through = "30856b1511ed9adbf6516e7ada2ea64762c2ff0b"
 
 [completed_tasks."ACUT-20260515-parent-update-state"]
 note = "initialized parent update TODO state for project_template"
