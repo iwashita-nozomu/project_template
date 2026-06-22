@@ -1,5 +1,4 @@
 # @dependency-start
-# contract data
 # responsibility Tracks this parent repo's applied AgentCanon update TODO boundary.
 # upstream design ../vendor/agent-canon/documents/agent-canon-parent-repo-latest-checklist.md parent update workflow
 # upstream design ../vendor/agent-canon/documents/agent-canon-update-tasks.toml shared update TODO manifest
