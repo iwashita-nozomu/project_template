@@ -29,8 +29,9 @@ figure / table を作る入口です。formal run の起動や設定正本には
 ## Logs
 
 各 run は `result/<run_name>/logs/` を持ちます。top-level の `run.log` は
-managed runner の互換ログとして残し、追加 stdout / stderr、tool log、diagnostic
-log は `logs/` 配下へ置きます。
+managed runner の統合ログとして残します。runner は `logs/startup.jsonl`、
+`logs/stdout.log`、`logs/stderr.log` を作り、topic 固有の tool log と diagnostic
+log も `logs/` 配下へ置きます。
 
 ## Standard Commands
 
@@ -53,10 +54,17 @@ python3 tools/experiments/run_managed_experiment.py \
 ## Expected Outputs
 
 - `result/<run_name>/run_manifest.json`
-- `result/<run_name>/config.json`
 - `result/<run_name>/eval_manifest.json`
+- `result/<run_name>/artifact_manifest.json`
+- `result/<run_name>/command.json`
+- `result/<run_name>/environment.json`
+- `result/<run_name>/source_snapshot.json`
+- `result/<run_name>/config.json`
+- `result/<run_name>/config_source.yaml`
 - `result/<run_name>/run.log`
-- `result/<run_name>/logs/`
+- `result/<run_name>/logs/startup.jsonl`
+- `result/<run_name>/logs/stdout.log`
+- `result/<run_name>/logs/stderr.log`
 - `result/<run_name>/summary.json`
 - `result/<run_name>/cases.jsonl`
 - `notebooks/<run_name>.ipynb` またはこの topic で固定した可視化 notebook
@@ -68,5 +76,6 @@ python3 tools/experiments/run_managed_experiment.py \
 - `run.py` は CLI、orchestration、summary 出力に集中させます。
 - `experiments/registry.toml` に topic entry を追加し、`smoke_inner_command` と `formal_inner_command` を正本にします。
 - registered command には `{config_path}` を含め、実験 script は `--config <path>` から JSON object を読みます。
-- 追加で自動収集したい eval artifact がある場合は、`experiments/registry.toml` の `required_eval_artifacts` / `optional_eval_artifacts` に pattern を書きます。top-level managed file (`run_manifest.json`、`eval_manifest.json`、`run.log`) は pattern に入れてはいけません。
+- `config.yaml` は managed runner の起動前提です。`source_snapshot.json` は topic source、registry、command source、runner source、dirty source file の digest と git status を持ちます。
+- 追加で自動収集したい eval artifact がある場合は、`experiments/registry.toml` の `required_eval_artifacts` / `optional_eval_artifacts` に topic 固有 artifact の pattern を書きます。managed file と managed log は `artifact_manifest.json` で辿ります。
 - formal run では `run_name` と protocol を固定した fresh 実行にします。
