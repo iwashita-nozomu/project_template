@@ -13,6 +13,13 @@ upstream design ./template-github-remote.md template GitHub canonical remote pol
 この文書は、`git clone <template>` 直後に新しい repo を使い始めるときの最短 runbook です。
 この root copy は template / derived repo が所有する active contract です。AgentCanon は shared tooling と seed template を提供しますが、この repo の bootstrap 手順の正本はこの regular file です。
 
+## この文書の読み方
+
+- この文書は、template clone 直後の初期化、受け入れ確認、開発環境、作業開始の最短手順を所有します。
+- Clone 直後、初期化、受け入れ確認、開発環境、作業開始の順に読み、GitHub remote、AgentCanon submodule、root view 更新の入口を確認します。
+- 新しい derived repo を作るとき、template / AgentCanon remote を確認するとき、または bootstrap 後の validation を走らせるときに読みます。
+- AgentCanon は shared tooling と seed template を提供しますが、この repo の bootstrap 手順は root regular file 側の active contract です。
+
 ## 1. Clone 直後
 
 ```bash

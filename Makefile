@@ -35,11 +35,12 @@ REPO_WIDE_REVIEW_QUERY ?= repo-wide review runtime surface stale path check
 .PHONY: server-check experiment-check docker-shell docker-jupyter docker-codex docker-codex-host-docker
 
 # Validation targets
-# ★推奨: 統合 CI（pytest + pyright + ruff）
+# Full confidence gate: agent/runtime, docs, Rust, container, pytest, pyright,
+# pydocstyle, and ruff. Use check-matrix for targeted day-to-day validation.
 ci:
 	bash tools/ci/run_all_checks.sh
 
-# CI 高速モード（ruff skip）
+# Broad gate with ruff skipped; still runs the other full-confidence surfaces.
 ci-quick:
 	bash tools/ci/run_all_checks.sh --quick
 
@@ -48,7 +49,7 @@ check-matrix:
 	@echo "Check matrix:"
 	@echo "  docs-only:        make docs-check && dependency header checks for changed docs"
 	@echo "  Python changes:   targeted pytest + python3 -m pyright + python3 -m ruff check python tests --select D,E,F,I,UP"
-	@echo "  AgentCanon source:   make agent-canon-pr-check"
+	@echo "  AgentCanon source:   make agent-canon-pr-check (includes broad quick CI with duplicate docs/workflow gates skipped)"
 	@echo "  AgentCanon shared views: make agent-canon-check"
 	@echo "  submodule pin:    make agent-canon-status"
 	@echo "  Docker/runtime:   make docker-check [and make docker-build-check if build behavior changed]"

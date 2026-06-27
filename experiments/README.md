@@ -12,6 +12,13 @@ downstream environment registry.toml template-local registry
 この template では、topic ごとの実験コードと run artifact を同じ tree に寄せます。
 shared canon では、このうち topic 共通の scaffold と report 導線だけを保持し、派生 repo ごとの `registry.toml` と `experiments/<topic>/` は root 側の正本に残します。
 
+## この文書の読み方
+
+- この文書は、root `experiments/` の標準構成、topic 作成、server 実行、registry check、context sync の入口を説明します。
+- 前半は標準構成と最初に使う tool、server 実行の生成物、topic の作り始めを扱い、後半は実行例、registry check、context sync を扱います。
+- 新しい experiment topic を作るとき、formal run の置き場所を確認するとき、または registry と branch / worktree context を同期するときに読みます。
+- 派生 repo ごとの `registry.toml` と `experiments/<topic>/` が root 側の正本であり、shared canon は共通 scaffold と report 導線だけを持ちます。
+
 ## 標準構成
 
 ```text

@@ -15,6 +15,12 @@ upstream design ../vendor/agent-canon/documents/FILE_CHECKLIST_OPERATIONS.md def
 このチェックリストは、template repo と派生 repo の状態を監査するときの確認項目です。
 差分だけでなく、repo 全体の runtime surface、AgentCanon pin、検証コマンド、文書導線を確認します。
 
+## この文書の読み方
+
+- この checklist は、template / 派生 repo の監査観点と完了判定を 1 回の確認順にまとめます。
+- 前半は Git、AgentCanon pin、MCP、runtime surface、dependency graph、文書導線を確認し、後半は workflow、tooling、Docker、実験 artifact、GitHub Actions、push 判定を確認します。
+- repo 全体の状態監査、移行前後の健全性確認、closeout 前の抜け漏れ確認で使います。
+
 ## 監査メタ情報
 
 - [ ] 監査日:

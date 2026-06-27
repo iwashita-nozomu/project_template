@@ -21,6 +21,18 @@ downstream design ./licensing-policy.md repository license boundary
 is repo-local and should stay a regular file after template clone. AgentCanon may
 seed this file, but derived repositories own their local index.
 
+## Reader Map
+
+- This file owns the root `documents/` index and separates AgentCanon-owned
+  shared policy sources from template-owned and project-owned regular files.
+- Use the ownership matrix first, then follow canon runtime references, coding
+  policy references, template-owned active contracts, and tooling/artifact
+  references.
+- Read it when choosing whether to edit `vendor/agent-canon/documents/` or a root
+  `documents/` regular file.
+- It is an index and ownership guide, not the source of the policies linked from
+  the referenced documents.
+
 ## Ownership Matrix
 
 | Class | Examples | Edit source |

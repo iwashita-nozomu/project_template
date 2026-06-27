@@ -12,6 +12,12 @@ upstream design vendor/agent-canon/CONTAINER_OPERATIONS.md AgentCanon container 
 このファイルは、作業を開始するための最短入口です。テンプレート全体像は
 [README.md](README.md) を先に読むと流れが付きます。
 
+## この文書の読み方
+
+- この quick start は、repo を触り始めるための最短読了順、開始コマンド、実装前確認、終了時整理を扱います。
+- `最初に読む` で profile 別の入口を選び、作業開始、実装前確認、よく使うコマンド、実験、環境、終了整理を順に確認します。
+- clone 直後、短い作業開始、必要な validation route を素早く決めるときに読みます。
+
 ## 1. 最初に読む
 
 - [documents/README.md](documents/README.md)

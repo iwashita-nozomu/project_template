@@ -20,6 +20,12 @@ Container / devcontainer の責務境界は
 この file は template repo の `docker/` 実装 runbook であり、AgentCanon policy を再定義しません。
 矛盾した場合は `CONTAINER_OPERATIONS.md` を直し、その後でこの runbook と validator を追従させます。
 
+## この文書の読み方
+
+- この runbook は、template repo の `docker/` 実装、runtime pack、container 実行入口を扱います。
+- `Primary Files` と `Runtime Pack` で正本 file と pack 構成を確認し、nested Codex、Python、Jupyter、Docker-in-Docker、dev container は該当 section を読みます。
+- Docker profile、pack smoke、container 内実行、runtime 更新の入口を確認するときに読みます。
+
 ## Primary Files
 
 - `Dockerfile`

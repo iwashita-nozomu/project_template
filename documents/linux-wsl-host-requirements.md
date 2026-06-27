@@ -14,6 +14,12 @@ upstream design ../vendor/agent-canon/CONTAINER_OPERATIONS.md container and devc
 この文書は、この template を日常利用する host の前提条件をまとめます。
 対象は Linux と WSL2 です。macOS や純 Windows native は正本対象にしません。
 
+## この文書の読み方
+
+- この文書は、template / 派生 repo を日常利用する Linux / WSL2 host の前提条件を扱います。
+- `対象`、`必須`、`推奨` で基本条件を確認し、WSL2、Docker / container、VS Code、GPU、Codex / agent、初期確認は環境に応じて読みます。
+- host を準備するとき、workspace の置き場や container / devcontainer 前提を確認するときに読みます。
+
 ## 1. 対象
 
 - Ubuntu などの Linux host
