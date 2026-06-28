@@ -12,6 +12,13 @@ downstream implementation run.py run scaffold
 このディレクトリは、新しい experiment topic を始めるための最小雛形です。
 server 上でそのまま回せるように、`cases.py`、`run.py`、`config.yaml`、`notebooks/`、`result/` の入口をそろえています。
 
+## この文書の読み方
+
+- この template は、新しい experiment topic の question、comparison target、notebook、logs、standard commands、expected outputs、notes の入口をそろえます。
+- Question と Comparison Target で目的を固定し、Visualization Notebook、Logs、Standard Commands、Expected Outputs、Notes で run と artifact の形を確認します。
+- `_template/` から topic を作った直後、managed runner の smoke / formal command、生成物、registry entry を埋めるときに読みます。
+- Topic 固有の仮説や結果はこの template に残さず、作成した topic の README、result、report に移します。
+
 ## Question
 
 <!-- この topic が何を確かめる実験なのかを書く -->
