@@ -74,19 +74,17 @@ git -C vendor/agent-canon ls-remote origin main
 
 ## 3. MCP と Codex Runtime
 
-- [ ] `.codex/config.toml` に `repo_mcp_server` が定義されている
-- [ ] canonical launcher が `bash mcp/repo_mcp_server.sh` になっている
-- [ ] MCP inventory check が pass している
-- [ ] MCP 起動失敗時に ad hoc local process へ置換していない
-- [ ] `mcp/` が AgentCanon の対応 surface と一致している
-- [ ] Hook や workflow から MCP preflight が機械的に呼ばれる
+- [ ] MCP は root `mcp/` directory ではなく `.codex/config.toml` と Codex
+  runtime surface の責務として扱われている
+- [ ] removed legacy surface `mcp` が tracked root に復活していない
+- [ ] MCP に関する運用判断を ad hoc local process 置換で済ませていない
 - [ ] MCP status と通常の `git status` の差異がある場合、原因を確認済み
 
 確認コマンド:
 
 ```bash
-python3 tools/agent_tools/check_mcp_inventory.py --require repo_mcp_server
-bash mcp/repo_mcp_server.sh --help
+python3 tools/agent_tools/surface_manifest.py removed-legacy-paths
+test ! -e mcp
 git status --short --branch --untracked-files=all
 ```
 
@@ -95,7 +93,7 @@ git status --short --branch --untracked-files=all
 - [ ] root `agents/` は `vendor/agent-canon/agents` の runtime view として整合している
 - [ ] root `.agents/` は `vendor/agent-canon/.agents` と整合している
 - [ ] root `tools/` は `vendor/agent-canon/tools` と整合している
-- [ ] root `mcp/` は `vendor/agent-canon/mcp` と整合している
+- [ ] removed legacy surface `mcp` は root view として扱われていない
 - [ ] `AGENTS.md` は thin entrypoint として保たれている
 - [ ] shared surface の変更は `vendor/agent-canon/` 側を正本としている
 - [ ] template 固有の説明は `documents/` に置かれ、Dockerfile に焼き込まれていない
@@ -104,8 +102,8 @@ git status --short --branch --untracked-files=all
 
 ```bash
 bash tools/sync_agent_canon.sh check
-find agents .agents tools mcp -maxdepth 1 -type l -ls
-git diff -- .agents AGENTS.md agents mcp tools
+find AGENTS.md agents .agents tools .codex -maxdepth 1 -type l -ls
+git diff -- .agents .codex AGENTS.md agents tools
 ```
 
 ## 5. Dependency Header と Graph
@@ -144,7 +142,7 @@ bash tools/agent_tools/check_dependency_graph.sh --print-edges
 make docs-check
 python3 tools/docs/check_markdown_lint.py --check documents/repository-audit-checklist.md
 python3 tools/docs/check_markdown_math.py documents/repository-audit-checklist.md
-rg -n "TODO|FIXME|old|legacy|subtree" README.md documents agents tools
+git grep -n -E "TODO|FIXME|old|legacy|subtree" -- README.md documents agents tools || true
 ```
 
 ## 7. Workflow、Skill、Eval、Goal
@@ -164,7 +162,7 @@ rg -n "TODO|FIXME|old|legacy|subtree" README.md documents agents tools
 python3 tools/agent_tools/evaluate_skill_workflow_prompts.py --help
 python3 tools/agent_tools/goal_loop.py --help
 python3 tools/agent_tools/check_convention_compliance.py
-rg -n "agent-orchestration|adaptive-improvement-loop|goal|eval|subagent_lifecycle" agents documents tools AGENTS.md
+git grep -n -E "agent-orchestration|adaptive-improvement-loop|goal|eval|subagent_lifecycle" -- agents documents tools AGENTS.md || true
 ```
 
 ## 8. Tooling と静的解析
@@ -232,7 +230,7 @@ python3 tools/agent_tools/check_static_any.py --help
 python3 tools/agent_tools/check_hardcoded_numbers.py --help
 python3 tools/oop/python/readability.py --help
 python3 tools/agent_tools/oop_rule_inventory.py --help
-rg -n "Any|None|TODO|FIXME|_log|hardcoded" python tests tools
+git grep -n -E "Any|None|TODO|FIXME|_log|hardcoded" -- python tests tools || true
 ```
 
 ## 11. 結果ログ、可視化、Artifact
@@ -250,7 +248,7 @@ rg -n "Any|None|TODO|FIXME|_log|hardcoded" python tests tools
 
 ```bash
 find reports/agents -maxdepth 2 -type f | sort | tail -50
-rg -n "status=pass|user_completion_report=unlocked|eval|feedback|monitoring" reports notes memory agents documents
+git grep -n -E "status=pass|user_completion_report=unlocked|eval|feedback|monitoring" -- notes memory agents documents || true
 ```
 
 ## 12. 派生 Repo 監査
@@ -291,7 +289,7 @@ for path in sorted(Path('.github/workflows').glob('*.yml')):
     yaml.safe_load(path.read_text())
     print(f'{path}: yaml=pass')
 PY
-rg -n "submodules: false|checkout_agent_canon_submodule|permissions:|concurrency:|PULL_REQUEST_TEMPLATE|agent-canon-pr-workflow" .github vendor/agent-canon/.github agents documents
+git grep -n -E "submodules: false|checkout_agent_canon_submodule|permissions:|concurrency:|PULL_REQUEST_TEMPLATE|agent-canon-pr-workflow" -- .github vendor/agent-canon/.github agents documents || true
 ```
 
 ## 14. Push と完了判定

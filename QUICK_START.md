@@ -20,8 +20,8 @@ upstream design vendor/agent-canon/CONTAINER_OPERATIONS.md AgentCanon container 
 
 ## 1. 最初に読む
 
-- [documents/README.md](documents/README.md)
 - [README.md](README.md): repository-wide map
+- [documents/README.md](documents/README.md)
 - [Runtime Profiles And Check Matrix](vendor/agent-canon/documents/runtime-profiles-and-check-matrix.md)
 
 必要な profile だけ追加で読みます。

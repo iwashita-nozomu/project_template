@@ -20,9 +20,12 @@ downstream design documents/licensing-policy.md repository license boundary
 実装、文書、必要に応じた実験・エージェント運用を 1 つの repo で扱うためのテンプレートです。
 base profile は Python 実装と Markdown 文書を想定しますが、Docker、C++、実験、GitHub automation、memory は opt-in profile です。
 
-この README は人間向けの入口です。Codex runtime が最初に読む repo instruction
-surface は `AGENTS.md` で、`agents/README.md` は人間と agent が workflow /
-skill / runtime hub を探すための次の入口です。
+この README は人間向けの入口です。Codex の自動 instruction chain は
+Codex home の global guidance を読んだ後、project root から current working
+directory までの `AGENTS.override.md` / `AGENTS.md` / configured fallback file
+で決まります。この template で最上位の repo instruction surface は
+`AGENTS.md` で、`agents/README.md` は人間と agent が workflow / skill /
+runtime hub を探すための次の入口です。
 
 ## この文書の読み方
 
@@ -33,13 +36,13 @@ skill / runtime hub を探すための次の入口です。
 ## テンプレート構造
 
 この repo は、project 固有の実装、実験、文書、開発環境、agent runtime を同じ root から扱えるように分けています。
-clone 直後にまず見る入口はこの README、Codex runtime instruction の入口は `AGENTS.md`、agent workflow / skill の hub は `agents/README.md`、実際の初期化入口は `scripts/start_repository.sh` です。
+clone 直後にまず見る入口はこの README、Codex repo instruction chain の最上位入口は `AGENTS.md`、agent workflow / skill の hub は `agents/README.md`、実際の初期化入口は `scripts/start_repository.sh` です。
 
 ```text
 .
 ├── README.md                         # 人間向けの全体入口
 ├── QUICK_START.md                    # 最短の手動起動手順
-├── AGENTS.md                         # agent runtime entrypoint。AgentCanon submodule pin への symlink
+├── AGENTS.md                         # Codex repo instruction view。AgentCanon submodule pin への symlink
 ├── Makefile                          # 日常 check / bootstrap / validation の短い入口
 ├── pyproject.toml                    # Python project metadata と tool 設定
 ├── CMakeLists.txt                    # C++ profile を使う場合の root entrypoint
@@ -71,7 +74,7 @@ profile と validation の正本は
 です。
 
 - Base project: README、QUICK_START、documents index、project code/tests。
-- Agent runtime: `AGENTS.md`、`agents/`、`.agents/`、`.codex/`、`mcp/`、shared `tools/`。
+- Agent runtime: `AGENTS.md`、`agents/`、`.agents/`、`.codex/`、shared `tools/`。
 - Environment: `docker/`、`.devcontainer/`、runtime packs、Jupyter。
 - GitHub automation: `.github/`、Actions、PR templates。
 - Experiment / research: `experiments/`、`references/`、managed run artifacts。

@@ -59,12 +59,12 @@ file is a template-owned active contract, edit the root regular file.
   machine-readable surface ownership list.
 - [AgentCanon Parent Repository Latest-State Checklist](../vendor/agent-canon/documents/agent-canon-parent-repo-latest-checklist.md):
   task-start checklist for repos that vendor AgentCanon.
-- [Codex Configuration Reference](../vendor/agent-canon/documents/codex-configuration-reference.md): Codex CLI
-  / config schema / hooks / MCP / skills / subagents reference.
+- [Codex Configuration Reference](../vendor/agent-canon/documents/codex-configuration-reference.md):
+  Codex CLI / config schema / hooks / MCP / skills / subagents reference,
+  including repository instructions, path-specific instructions, custom agents,
+  MCP setup, workflow, and PR template routing.
 - [AgentCanon GitHub Remote](../vendor/agent-canon/documents/agent-canon-github-remote.md): GitHub canonical
   remote and submodule update workflow.
-  repository instructions, path-specific instructions, custom agents, MCP, setup
-  workflow, and PR template routing.
 
 ## Coding Policy References
 
