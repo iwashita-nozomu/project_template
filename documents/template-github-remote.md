@@ -67,9 +67,10 @@ other projects as a source template.
 Minimum settings:
 
 - Require pull request before merge.
-- Require status checks for `make ci` / CI, `make agent-canon-pr-check` when
-  AgentCanon surfaces are touched, and Docker build checks when Docker paths are
-  touched.
+- Require status checks for `Repository CI (3.11)` and `Fresh Clone Acceptance
+  (3.11)`. Require `Docker Build` only when Docker paths are touched.
+- Run `make agent-canon-pr-check` explicitly for full AgentCanon
+  maintenance/source validation; it is not a branch-protection status context.
 - Restrict force-push and deletion on `main`.
 - Keep vulnerability alerts and Dependabot alerts enabled for the canonical
   GitHub repository.
