@@ -21,7 +21,7 @@ REPO_WIDE_REVIEW_REPORT_DIR ?= reports/agents/repo-wide-review-check
 REPO_WIDE_REVIEW_QUERY ?= repo-wide review runtime surface stale path check
 
 .PHONY: ci ci-quick check-matrix docs-check clean-generated github-workflow-check
-.PHONY: fresh-clone-check template-check dev-setup tools-help
+.PHONY: fresh-clone-check dev-setup tools-help
 .PHONY: start-repository task-start doc-start task-close agent-evaluate
 .PHONY: dependency-review dependency-review-surfaces review-backlog-scan waterfall-gate-check
 .PHONY: user-preference-log
@@ -60,9 +60,6 @@ check-matrix:
 # template fresh clone acceptance
 fresh-clone-check:
 	bash tools/ci/check_fresh_clone.sh
-
-# higher-level template acceptance
-template-check: fresh-clone-check
 
 # Agent workflow targets
 # clone-time repository bootstrap
