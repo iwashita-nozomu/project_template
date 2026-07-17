@@ -17,9 +17,6 @@ on:
 permissions:
   contents: read
 
-env:
-  AGENT_CANON_REPO_SSH_KEY: ${{ secrets.AGENT_CANON_REPO_SSH_KEY }}
-
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -40,6 +37,7 @@ jobs:
       - name: Checkout AgentCanon submodule
         env:
           AGENT_CANON_REPO_TOKEN: ${{ secrets.AGENT_CANON_REPO_TOKEN }}
+          AGENT_CANON_REPO_SSH_KEY: ${{ secrets.AGENT_CANON_REPO_SSH_KEY }}
         run: bash .github/scripts/checkout_agent_canon_submodule.sh
 
       - name: Set up Python
@@ -73,6 +71,7 @@ jobs:
       - name: Checkout AgentCanon submodule
         env:
           AGENT_CANON_REPO_TOKEN: ${{ secrets.AGENT_CANON_REPO_TOKEN }}
+          AGENT_CANON_REPO_SSH_KEY: ${{ secrets.AGENT_CANON_REPO_SSH_KEY }}
         run: bash .github/scripts/checkout_agent_canon_submodule.sh
 
       - name: Set up Python
