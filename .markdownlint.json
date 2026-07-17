@@ -3,7 +3,7 @@
     "@dependency-start",
     "contract configuration",
     "responsibility Configures repository Markdown lint behavior.",
-    "upstream implementation tools/ci/run_docs_checks.sh markdown lint entrypoint",
+    "upstream implementation vendor/agent-canon/tools/ci/run_all_checks.sh documentation check entrypoint",
     "downstream implementation tests/tools/test_audit_and_fix_links.py documentation test coverage",
     "@dependency-end"
   ],
