@@ -79,6 +79,20 @@ exclude = [
   "./lib",
   "./src",
   "./scripts",
+  # AgentCanon-owned mode-120000 test views are validated by AgentCanon.
+  # Keep the mixed tests/tools entries exact so parent-owned tests stay typed.
+  "./tests/agent_tools",
+  "./tests/tools/test_check_bootstrap_docs.py",
+  "./tests/tools/test_check_github_workflows.py",
+  "./tests/tools/test_check_markdown_math.py",
+  "./tests/tools/test_check_merge_structure.py",
+  "./tests/tools/test_container_config.py",
+  "./tests/tools/test_result_log_tools.py",
+  "./tests/tools/test_run_codex_in_repo_container.py",
+  "./tests/tools/test_run_managed_experiment.py",
+  "./tests/tools/test_run_repo_program.py",
+  "./tests/tools/test_update_agent_canon.py",
+  "./tests/tools/test_update_latest_result.py",
   "./.worktrees",
 ]
 
