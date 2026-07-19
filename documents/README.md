@@ -12,6 +12,7 @@ upstream design ../vendor/agent-canon/documents/runtime-profiles-and-check-matri
 upstream design ../vendor/agent-canon/documents/template-agent-canon-audit-resolution.md audit resolution ledger
 upstream design ../vendor/agent-canon/documents/agent-canon-licensing-policy.md AgentCanon licensing boundary
 downstream design ./licensing-policy.md repository license boundary
+downstream design ./wiki-submodule-publication-design.md GitHub Wiki publication and parent projection target-state design
 @dependency-end
 -->
 
@@ -85,6 +86,7 @@ These files should be regular files in the template or derived repo root:
 - [Template Bootstrap](./template-bootstrap.md)
 - [Licensing Policy](./licensing-policy.md)
 - [Template GitHub Remote](./template-github-remote.md)
+- [Wiki Submodule Publication Design](./wiki-submodule-publication-design.md)
 - [Linux / WSL Host Requirements](./linux-wsl-host-requirements.md)
 - [Server Host Contract](./server-host-contract.md)
 - [Remote Execution Repo Contract](./remote-execution-repo-contract.md)
