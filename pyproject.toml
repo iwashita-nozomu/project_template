@@ -51,6 +51,12 @@ ignore = ["E501"]
 [tool.ruff.lint.pydocstyle]
 convention = "pep257"
 
+[tool.ruff.lint.per-file-ignores]
+# AgentCanon-owned root test views are symlinked into these exact path sets.
+# Parent-owned Python remains subject to the repository-wide D/I selection.
+"tests/agent_tools/**.py" = ["D102", "D107", "I001"]
+"tests/tools/test_{check_bootstrap_docs,check_github_workflows,check_markdown_math,check_merge_structure,container_config,result_log_tools,run_codex_in_repo_container,run_managed_experiment,run_repo_program,update_agent_canon,update_latest_result}.py" = ["D102", "D107", "I001"]
+
 [tool.pyright]
 # 型検査は strict を基本方針とします。
 typeCheckingMode = "strict"
