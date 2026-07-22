@@ -1,0 +1,4331 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-canon.invalid/contracts/experiment-readme/v1",
+  "title": "AgentCanon experiment README metadata contract r9",
+  "description": "Normative r9 metadata-block schema. The JSON object, kind/status predicates, complete Runner evidence payload schemas, typed no-replace publication result and aggregate, closed failure algebra, actual Runner runtime-root binding, dual-root resource-planner contract, and CLI rules are authoritative; Markdown is rationale only.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_revision",
+    "readme_kind",
+    "status",
+    "reader_question_id",
+    "reader_question",
+    "topic",
+    "run_name",
+    "slots",
+    "bindings"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "experiment-readme-contract/v1"
+    },
+    "contract_revision": {
+      "const": "r9"
+    },
+    "readme_kind": {
+      "type": "string",
+      "enum": [
+        "plan",
+        "run",
+        "result",
+        "report"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "planned",
+        "running",
+        "complete",
+        "failed",
+        "partial",
+        "superseded"
+      ]
+    },
+    "reader_question_id": {
+      "type": "string",
+      "enum": [
+        "approve_protocol",
+        "identify_execution",
+        "locate_evidence",
+        "interpret_bound_run"
+      ]
+    },
+    "reader_question": {
+      "type": "string",
+      "minLength": 1
+    },
+    "topic": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "run_name": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "slots": {
+      "type": "array",
+      "minItems": 13,
+      "items": {
+        "$ref": "#/$defs/slot"
+      }
+    },
+    "bindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "registry",
+        "topic_readme"
+      ],
+      "properties": {
+        "registry": {
+          "$ref": "#/$defs/binding"
+        },
+        "topic_readme": {
+          "$ref": "#/$defs/binding"
+        },
+        "command": {
+          "$ref": "#/$defs/binding"
+        },
+        "entrypoint": {
+          "$ref": "#/$defs/binding"
+        },
+        "config": {
+          "$ref": "#/$defs/binding"
+        },
+        "config_source": {
+          "$ref": "#/$defs/binding"
+        },
+        "source_snapshot": {
+          "$ref": "#/$defs/binding"
+        },
+        "run_manifest": {
+          "$ref": "#/$defs/binding"
+        },
+        "environment": {
+          "$ref": "#/$defs/binding"
+        },
+        "resource_plan": {
+          "$ref": "#/$defs/binding"
+        },
+        "gpu_allocation": {
+          "$ref": "#/$defs/binding"
+        },
+        "terminal": {
+          "$ref": "#/$defs/binding"
+        },
+        "partial": {
+          "$ref": "#/$defs/binding"
+        },
+        "artifact_manifest": {
+          "$ref": "#/$defs/binding"
+        },
+        "result_readme": {
+          "$ref": "#/$defs/binding"
+        },
+        "report": {
+          "$ref": "#/$defs/binding"
+        },
+        "logs": {
+          "$ref": "#/$defs/binding"
+        },
+        "replacement": {
+          "$ref": "#/$defs/binding"
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "readme_kind": {
+            "const": "plan"
+          }
+        },
+        "required": [
+          "readme_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "status": {
+            "enum": [
+              "draft",
+              "planned",
+              "complete",
+              "superseded"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "readme_kind": {
+            "const": "run"
+          }
+        },
+        "required": [
+          "readme_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "status": {
+            "enum": [
+              "running",
+              "complete",
+              "failed",
+              "partial",
+              "superseded"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "readme_kind": {
+            "const": "result"
+          }
+        },
+        "required": [
+          "readme_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "status": {
+            "enum": [
+              "running",
+              "complete",
+              "failed",
+              "partial",
+              "superseded"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "readme_kind": {
+            "const": "report"
+          }
+        },
+        "required": [
+          "readme_kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "status": {
+            "enum": [
+              "draft",
+              "complete",
+              "failed",
+              "partial",
+              "superseded"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "digest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "value",
+        "source"
+      ],
+      "properties": {
+        "algorithm": {
+          "const": "sha256"
+        },
+        "value": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "declared",
+            "observed"
+          ]
+        }
+      }
+    },
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^(?!/)(?![A-Za-z]:[/\\\\]).+"
+        },
+        "json_pointer": {
+          "type": "string",
+          "pattern": "^/"
+        },
+        "optional_digest": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/digest"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dirty_state": {
+          "type": "string",
+          "enum": [
+            "clean",
+            "dirty",
+            "unknown"
+          ]
+        },
+        "dirty_policy": {
+          "type": "string",
+          "enum": [
+            "reject",
+            "allow_with_digest",
+            "allowed_planned"
+          ]
+        }
+      }
+    },
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ref_kind",
+        "value"
+      ],
+      "properties": {
+        "ref_kind": {
+          "type": "string",
+          "enum": [
+            "anchor",
+            "binding",
+            "path",
+            "url"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1
+        },
+        "binding_key": {
+          "type": "string",
+          "enum": [
+            "registry",
+            "topic_readme",
+            "command",
+            "entrypoint",
+            "config",
+            "config_source",
+            "source_snapshot",
+            "run_manifest",
+            "environment",
+            "resource_plan",
+            "gpu_allocation",
+            "terminal",
+            "partial",
+            "artifact_manifest",
+            "result_readme",
+            "report",
+            "logs",
+            "replacement"
+          ]
+        },
+        "json_pointer": {
+          "type": "string",
+          "pattern": "^/"
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence_id",
+        "class",
+        "slot_ids",
+        "reference",
+        "state"
+      ],
+      "properties": {
+        "evidence_id": {
+          "type": "string",
+          "pattern": "^EV-[0-9A-Z][0-9A-Z._-]*$"
+        },
+        "class": {
+          "type": "string",
+          "enum": [
+            "prose_claim",
+            "registry_ref",
+            "source_ref",
+            "config_ref",
+            "command_ref",
+            "entrypoint_ref",
+            "matrix_ref",
+            "environment_ref",
+            "resource_ref",
+            "gpu_allocation_ref",
+            "run_manifest_ref",
+            "terminal_ref",
+            "partial_ref",
+            "artifact_ref",
+            "digest_ref",
+            "oracle_ref",
+            "exclusion_ref",
+            "status_ref",
+            "result_link",
+            "report_link",
+            "review_ref",
+            "replay_ref",
+            "log_ref",
+            "replacement_link"
+          ]
+        },
+        "slot_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/slot_id"
+          }
+        },
+        "reference": {
+          "$ref": "#/$defs/reference"
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "observed",
+            "planned",
+            "not_applicable"
+          ]
+        },
+        "claim": {
+          "type": "string",
+          "minLength": 1
+        },
+        "optional_digest": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/digest"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "slot_id": {
+      "type": "string",
+      "enum": [
+        "EXP-README-01",
+        "EXP-README-02",
+        "EXP-README-03",
+        "EXP-README-04",
+        "EXP-README-05",
+        "EXP-README-06",
+        "EXP-README-07",
+        "EXP-README-08",
+        "EXP-README-09",
+        "EXP-README-10",
+        "EXP-README-11",
+        "EXP-README-12",
+        "EXP-README-13"
+      ]
+    },
+    "slot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "slot_id",
+        "state",
+        "anchor",
+        "evidence"
+      ],
+      "properties": {
+        "slot_id": {
+          "$ref": "#/$defs/slot_id"
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "satisfied",
+            "planned",
+            "not_applicable"
+          ]
+        },
+        "anchor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "owner": {
+          "type": "string",
+          "minLength": 1
+        },
+        "acceptance_oracle": {
+          "type": "string",
+          "minLength": 1
+        },
+        "next_transition": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/evidence"
+          }
+        }
+      }
+    }
+  },
+  "x_metadata_block": {
+    "marker": "<!-- experiment-readme-contract",
+    "closing_marker": "-->",
+    "exact_count": 1,
+    "payload": "one JSON object",
+    "zero_count_error": "ERD-001",
+    "duplicate_count_error": "ERD-014"
+  },
+  "x_unknown_key_policy": {
+    "objects": "reject",
+    "arrays": "reject unknown item fields",
+    "error": "ERD-013",
+    "extensions": false
+  },
+  "x_kind_status_matrix": {
+    "plan": {
+      "draft": {
+        "reader_question_id": "approve_protocol",
+        "required_slot_ids": [
+          "EXP-README-01",
+          "EXP-README-02",
+          "EXP-README-03",
+          "EXP-README-04",
+          "EXP-README-05",
+          "EXP-README-06",
+          "EXP-README-07",
+          "EXP-README-08",
+          "EXP-README-09",
+          "EXP-README-10",
+          "EXP-README-11",
+          "EXP-README-12",
+          "EXP-README-13"
+        ],
+        "allowed_slot_states": [
+          "satisfied",
+          "planned",
+          "not_applicable"
+        ],
+        "forward_references": true,
+        "runtime_required": false,
+        "observed_result_claims": false,
+        "required_binding_keys": [
+          "registry",
+          "topic_readme"
+        ],
+        "predicate_id": "R5.KS.PLAN.DRAFT",
+        "predicate_ids": [
+          "R5.KS.PLAN.DRAFT",
+          "R5.TERM.NONE",
+          "R5.LOG.NONE",
+          "R5.PARTIAL.FORBIDDEN",
+          "R5.REPLACEMENT.NONE",
+          "R5.DIRTY.PLANNED",
+          "R5.RUNNER.NONE",
+          "R5.CLAIM.NO_OBSERVED",
+          "R5.FORWARD.PLANNED_OWNER_ORACLE",
+          "R5.RUNTIME.NOT_REQUIRED"
+        ],
+        "terminal_predicate_id": "R5.TERM.NONE",
+        "log_predicate_id": "R5.LOG.NONE",
+        "partial_predicate_id": "R5.PARTIAL.FORBIDDEN",
+        "replacement_predicate_id": "R5.REPLACEMENT.NONE",
+        "dirty_source_predicate_id": "R5.DIRTY.PLANNED",
+        "runner_status_predicate_id": "R5.RUNNER.NONE",
+        "observed_claim_predicate_id": "R5.CLAIM.NO_OBSERVED",
+        "forward_reference_predicate_id": "R5.FORWARD.PLANNED_OWNER_ORACLE",
+        "runtime_flag_predicate_id": "R5.RUNTIME.NOT_REQUIRED",
+        "predicate": {
+          "terminal": "forbidden_or_not_applicable",
+          "logs": "not_required",
+          "partial_partition": "forbidden",
+          "replacement": "not_required",
+          "dirty_source": "R5.DIRTY.PLANNED",
+          "runner_status": "R5.RUNNER.NONE",
+          "observed_claims": "R5.CLAIM.NO_OBSERVED",
+          "forward_references": "R5.FORWARD.PLANNED_OWNER_ORACLE",
+          "runtime_required": false,
+          "runtime_flag": "R5.RUNTIME.NOT_REQUIRED"
+        },
+        "replacement_pointer_predicate_id": "R5.REPLACEMENT.NONE",
+        "replacement_pointer_direction": "none"
+      },
+      "planned": {
+        "reader_question_id": "approve_protocol",
+        "required_slot_ids": [
+          "EXP-README-01",
+          "EXP-README-02",
+          "EXP-README-03",
+          "EXP-README-04",
+          "EXP-README-05",
+          "EXP-README-06",
+          "EXP-README-07",
+          "EXP-README-08",
+          "EXP-README-09",
+          "EXP-README-10",
+          "EXP-README-11",
+          "EXP-README-12",
+          "EXP-README-13"
+        ],
+        "allowed_slot_states": [
+          "satisfied",
+          "planned",
+          "not_applicable"
+        ],
+        "forward_references": true,
+        "runtime_required": false,
+        "observed_result_claims": false,
+        "required_binding_keys": [
+          "registry",
+          "topic_readme",
+          "entrypoint",
+          "config"
+        ],
+        "predicate_id": "R5.KS.PLAN.PLANNED",
+        "predicate_ids": [
+          "R5.KS.PLAN.PLANNED",
+          "R5.TERM.NONE",
+          "R5.LOG.NONE",
+          "R5.PARTIAL.FORBIDDEN",
+          "R5.REPLACEMENT.NONE",
+          "R5.DIRTY.PLANNED",
+          "R5.RUNNER.NONE",
+          "R5.CLAIM.NO_OBSERVED",
+          "R5.FORWARD.PLANNED_OWNER_ORACLE",
+          "R5.RUNTIME.NOT_REQUIRED"
+        ],
+        "terminal_predicate_id": "R5.TERM.NONE",
+        "log_predicate_id": "R5.LOG.NONE",
+        "partial_predicate_id": "R5.PARTIAL.FORBIDDEN",
+        "replacement_predicate_id": "R5.REPLACEMENT.NONE",
+        "dirty_source_predicate_id": "R5.DIRTY.PLANNED",
+        "runner_status_predicate_id": "R5.RUNNER.NONE",
+        "observed_claim_predicate_id": "R5.CLAIM.NO_OBSERVED",
+        "forward_reference_predicate_id": "R5.FORWARD.PLANNED_OWNER_ORACLE",
+        "runtime_flag_predicate_id": "R5.RUNTIME.NOT_REQUIRED",
+        "predicate": {
+          "terminal": "forbidden_or_not_applicable",
+          "logs": "not_required",
+          "partial_partition": "forbidden",
+          "replacement": "not_required",
+          "dirty_source": "R5.DIRTY.PLANNED",
+          "runner_status": "R5.RUNNER.NONE",
+          "observed_claims": "R5.CLAIM.NO_OBSERVED",
+          "forward_references": "R5.FORWARD.PLANNED_OWNER_ORACLE",
+          "runtime_required": false,
+          "runtime_flag": "R5.RUNTIME.NOT_REQUIRED"
+        },
+        "replacement_pointer_predicate_id": "R5.REPLACEMENT.NONE",
+        "replacement_pointer_direction": "none"
+      },
+      "complete": {
+        "reader_question_id": "approve_protocol",
+        "required_slot_ids": [
+          "EXP-README-01",
+          "EXP-README-02",
+          "EXP-README-03",
+          "EXP-README-04",
+          "EXP-README-05",
+          "EXP-README-06",
+          "EXP-README-07",
+          "EXP-README-08",
+          "EXP-README-09",
+          "EXP-README-10",
+          "EXP-README-11",
+          "EXP-README-12",
+          "EXP-README-13"
+        ],
+        "allowed_slot_states": [
+          "satisfied",
+          "not_applicable"
+        ],
+        "forward_references": false,
+        "runtime_required": false,
+        "observed_result_claims": false,
+        "required_binding_keys": [
+          "registry",
+          "topic_readme",
+          "entrypoint",
+          "config"
+        ],
+        "predicate_id": "R5.KS.PLAN.COMPLETE",
+        "predicate_ids": [
+          "R5.KS.PLAN.COMPLETE",
+          "R5.TERM.NONE",
+          "R5.LOG.NONE",
+          "R5.PARTIAL.FORBIDDEN",
+          "R5.REPLACEMENT.NONE",
+          "R5.DIRTY.PLANNED",
+          "R5.RUNNER.NONE",
+          "R5.CLAIM.NO_OBSERVED",
+          "R5.FORWARD.NONE",
+          "R5.RUNTIME.NOT_REQUIRED"
+        ],
+        "terminal_predicate_id": "R5.TERM.NONE",
+        "log_predicate_id": "R5.LOG.NONE",
+        "partial_predicate_id": "R5.PARTIAL.FORBIDDEN",
+        "replacement_predicate_id": "R5.REPLACEMENT.NONE",
+        "dirty_source_predicate_id": "R5.DIRTY.PLANNED",
+        "runner_status_predicate_id": "R5.RUNNER.NONE",
+        "observed_claim_predicate_id": "R5.CLAIM.NO_OBSERVED",
+        "forward_reference_predicate_id": "R5.FORWARD.NONE",
+        "runtime_flag_predicate_id": "R5.RUNTIME.NOT_REQUIRED",
+        "predicate": {
+          "terminal": "forbidden_or_not_applicable",
+          "logs": "not_required",
+          "partial_partition": "forbidden",
+          "replacement": "not_required",
+          "dirty_source": "R5.DIRTY.PLANNED",
+          "runner_status": "R5.RUNNER.NONE",
+          "observed_claims": "R5.CLAIM.NO_OBSERVED",
+          "forward_references": "R5.FORWARD.NONE",
+          "runtime_required": false,
+          "runtime_flag": "R5.RUNTIME.NOT_REQUIRED"
+        },
+        "replacement_pointer_predicate_id": "R5.REPLACEMENT.NONE",
+        "replacement_pointer_direction": "none"
+      },
+      "superseded": {
+        "reader_question_id": "approve_protocol",
+        "required_slot_ids": [
+          "EXP-README-01",
+          "EXP-README-02",
+          "EXP-README-03",
+          "EXP-README-04",
+          "EXP-README-05",
+          "EXP-README-06",
+          "EXP-README-07",
+          "EXP-README-08",
+          "EXP-README-09",
+          "EXP-README-10",
+          "EXP-README-11",
+          "EXP-README-12",
+          "EXP-README-13"
+        ],
+        "allowed_slot_states": [
+          "satisfied",
+          "planned",
+          "not_applicable"
+        ],
+        "forward_references": false,
+        "runtime_required": false,
+        "observed_result_claims": false,
+        "required_binding_keys": [
+          "registry",
+          "topic_readme",
+          "replacement"
+        ],
+        "predicate_id": "R5.KS.PLAN.SUPERSEDED",
+        "predicate_ids": [
+          "R5.KS.PLAN.SUPERSEDED",
+          "R5.TERM.NONE",
+          "R5.LOG.NONE",
+          "R5.PARTIAL.FORBIDDEN",
+          "R5.REPLACEMENT.REQUIRED",
+          "R5.DIRTY.PLANNED",
+          "R5.RUNNER.NONE",
+          "R5.CLAIM.NO_OBSERVED",
+          "R5.FORWARD.NONE",
+          "R5.RUNTIME.NOT_REQUIRED",
+          "R5.REPLACEMENT.FORWARD_REQUIRED"
+        ],
+        "terminal_predicate_id": "R5.TERM.NONE",
+        "log_predicate_id": "R5.LOG.NONE",
+        "partial_predicate_id": "R5.PARTIAL.FORBIDDEN",
+        "replacement_predicate_id": "R5.REPLACEMENT.REQUIRED",
+        "dirty_source_predicate_id": "R5.DIRTY.PLANNED",
+        "runner_status_predicate_id": "R5.RUNNER.NONE",
+        "observed_claim_predicate_id": "R5.CLAIM.NO_OBSERVED",
+        "forward_reference_predicate_id": "R5.FORWARD.NONE",
+        "runtime_flag_predicate_id": "R5.RUNTIME.NOT_REQUIRED",
+        "predicate": {
+          "terminal": "forbidden_or_not_applicable",
+          "logs": "not_required",
+          "partial_partition": "forbidden",
+          "replacement": "required",
+          "dirty_source": "R5.DIRTY.PLANNED",
+          "runner_status": "R5.RUNNER.NONE",
+          "observed_claims": "R5.CLAIM.NO_OBSERVED",
+          "forward_references": "R5.FORWARD.NONE",
+          "runtime_required": false,
+          "runtime_flag": "R5.RUNTIME.NOT_REQUIRED"
+        },
+        "replacement_pointer_predicate_id": "R5.REPLACEMENT.FORWARD_REQUIRED",
+        "replacement_pointer_direction": "forward_required"
+      }
+    },
+    "run": {
+      "running": {
+        "reader_question_id": "identify_execution",
+        "required_slot_ids": [
+          "EXP-README-01",
+          "EXP-README-02",
+          "EXP-README-03",
+          "EXP-README-04",
+          "EXP-README-05",
+          "EXP-README-06",
+          "EXP-README-07",
+          "EXP-README-08",
+          "EXP-README-09",
+          "EXP-README-10",
+          "EXP-README-11",
+          "EXP-README-12",
+          "EXP-README-13"
+        ],
+        "allowed_slot_states": [
+          "satisfied",
+          "not_applicable"
+        ],
+        "forward_references": false,
+        "runtime_required": true,
+        "observed_result_claims": false,
+        "required_binding_keys": [
+          "registry",
+          "topic_readme",
+          "entrypoint",
+          "config",
+          "config_source",
+          "source_snapshot",
+          "run_manifest",
+          "environment",
+          "resource_plan",
+          "gpu_allocation",
+          "artifact_manifest"
+        ],
+        "predicate_id": "R5.KS.RUN.RUNNING",
+        "predicate_ids": [
+          "R5.KS.RUN.RUNNING",
+          "R5.TERM.NONE",
+          "R5.LOG.NONE",
+          "R5.PARTIAL.FORBIDDEN",
+          "R5.REPLACEMENT.NONE",
+          "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+          "R5.RUNNER.RUNNING_EXACT",
+          "R5.CLAIM.NO_OBSERVED",
+          "R5.FORWARD.NONE",
+          "R5.RUNTIME.REQUIRED"
+        ],
+        "terminal_predicate_id": "R5.TERM.NONE",
+        "log_predicate_id": "R5.LOG.NONE",
+        "partial_predicate_id": "R5.PARTIAL.FORBIDDEN",
+        "replacement_predicate_id": "R5.REPLACEMENT.NONE",
+        "dirty_source_predicate_id": "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+        "runner_status_predicate_id": "R5.RUNNER.RUNNING_EXACT",
+        "observed_claim_predicate_id": "R5.CLAIM.NO_OBSERVED",
+        "forward_reference_predicate_id": "R5.FORWARD.NONE",
+        "runtime_flag_predicate_id": "R5.RUNTIME.REQUIRED",
+        "predicate": {
+          "terminal": "forbidden_or_not_applicable",
+          "logs": "not_required",
+          "partial_partition": "forbidden",
+          "replacement": "not_required",
+          "dirty_source": "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+          "runner_status": "R5.RUNNER.RUNNING_EXACT",
+          "observed_claims": "R5.CLAIM.NO_OBSERVED",
+          "forward_references": "R5.FORWARD.NONE",
+          "runtime_required": true,
+          "runtime_flag": "R5.RUNTIME.REQUIRED"
+        },
+        "replacement_pointer_predicate_id": "R5.REPLACEMENT.NONE",
+        "replacement_pointer_direction": "none"
+      },
+      "complete": {
+        "reader_question_id": "identify_execution",
+        "required_slot_ids": [
+          "EXP-README-01",
+          "EXP-README-02",
+          "EXP-README-03",
+          "EXP-README-04",
+          "EXP-README-05",
+          "EXP-README-06",
+          "EXP-README-07",
+          "EXP-README-08",
+          "EXP-README-09",
+          "EXP-README-10",
+          "EXP-README-11",
+          "EXP-README-12",
+          "EXP-README-13"
+        ],
+        "allowed_slot_states": [
+          "satisfied",
+          "not_applicable"
+        ],
+        "forward_references": false,
+        "runtime_required": true,
+        "observed_result_claims": true,
+        "required_binding_keys": [
+          "registry",
+          "topic_readme",
+          "entrypoint",
+          "config",
+          "config_source",
+          "source_snapshot",
+          "run_manifest",
+          "environment",
+          "resource_plan",
+          "gpu_allocation",
+          "terminal",
+          "artifact_manifest"
+        ],
+        "predicate_id": "R5.KS.RUN.COMPLETE",
+        "predicate_ids": [
+          "R5.KS.RUN.COMPLETE",
+          "R5.TERM.TERMINAL_REQUIRED",
+          "R5.LOG.NONE",
+          "R5.PARTIAL.FORBIDDEN",
+          "R5.REPLACEMENT.NONE",
+          "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+          "R5.RUNNER.COMPLETED_TO_COMPLETE",
+          "R5.CLAIM.OBSERVED_ALLOWED",
+          "R5.FORWARD.NONE",
+          "R5.RUNTIME.REQUIRED"
+        ],
+        "terminal_predicate_id": "R5.TERM.TERMINAL_REQUIRED",
+        "log_predicate_id": "R5.LOG.NONE",
+        "partial_predicate_id": "R5.PARTIAL.FORBIDDEN",
+        "replacement_predicate_id": "R5.REPLACEMENT.NONE",
+        "dirty_source_predicate_id": "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+        "runner_status_predicate_id": "R5.RUNNER.COMPLETED_TO_COMPLETE",
+        "observed_claim_predicate_id": "R5.CLAIM.OBSERVED_ALLOWED",
+        "forward_reference_predicate_id": "R5.FORWARD.NONE",
+        "runtime_flag_predicate_id": "R5.RUNTIME.REQUIRED",
+        "predicate": {
+          "terminal": "required",
+          "logs": "not_required",
+          "partial_partition": "forbidden",
+          "replacement": "not_required",
+          "dirty_source": "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+          "runner_status": "R5.RUNNER.COMPLETED_TO_COMPLETE",
+          "observed_claims": "R5.CLAIM.OBSERVED_ALLOWED",
+          "forward_references": "R5.FORWARD.NONE",
+          "runtime_required": true,
+          "runtime_flag": "R5.RUNTIME.REQUIRED"
+        },
+        "replacement_pointer_predicate_id": "R5.REPLACEMENT.NONE",
+        "replacement_pointer_direction": "none"
+      },
+      "failed": {
+        "reader_question_id": "identify_execution",
+        "required_slot_ids": [
+          "EXP-README-01",
+          "EXP-README-02",
+          "EXP-README-03",
+          "EXP-README-04",
+          "EXP-README-05",
+          "EXP-README-06",
+          "EXP-README-07",
+          "EXP-README-08",
+          "EXP-README-09",
+          "EXP-README-10",
+          "EXP-README-11",
+          "EXP-README-12",
+          "EXP-README-13"
+        ],
+        "allowed_slot_states": [
+          "satisfied",
+          "not_applicable"
+        ],
+        "forward_references": false,
+        "runtime_required": true,
+        "observed_result_claims": false,
+        "required_binding_keys": [
+          "registry",
+          "topic_readme",
+          "entrypoint",
+          "config",
+          "config_source",
+          "source_snapshot",
+          "run_manifest",
+          "environment",
+          "resource_plan",
+          "gpu_allocation",
+          "terminal",
+          "artifact_manifest",
+          "logs"
+        ],
+        "predicate_id": "R5.KS.RUN.FAILED",
+        "predicate_ids": [
+          "R5.KS.RUN.FAILED",
+          "R5.TERM.FAILURE_REQUIRED",
+          "R5.LOG.FAILURE_REQUIRED",
+          "R5.PARTIAL.FORBIDDEN",
+          "R5.REPLACEMENT.NONE",
+          "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+          "R5.RUNNER.FAILED_EXACT",
+          "R5.CLAIM.NO_OBSERVED",
+          "R5.FORWARD.NONE",
+          "R5.RUNTIME.REQUIRED"
+        ],
+        "terminal_predicate_id": "R5.TERM.FAILURE_REQUIRED",
+        "log_predicate_id": "R5.LOG.FAILURE_REQUIRED",
+        "partial_predicate_id": "R5.PARTIAL.FORBIDDEN",
+        "replacement_predicate_id": "R5.REPLACEMENT.NONE",
+        "dirty_source_predicate_id": "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+        "runner_status_predicate_id": "R5.RUNNER.FAILED_EXACT",
+        "observed_claim_predicate_id": "R5.CLAIM.NO_OBSERVED",
+        "forward_reference_predicate_id": "R5.FORWARD.NONE",
+        "runtime_flag_predicate_id": "R5.RUNTIME.REQUIRED",
+        "predicate": {
+          "terminal": "required",
+          "logs": "required",
+          "partial_partition": "forbidden",
+          "replacement": "not_required",
+          "dirty_source": "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+          "runner_status": "R5.RUNNER.FAILED_EXACT",
+          "observed_claims": "R5.CLAIM.NO_OBSERVED",
+          "forward_references": "R5.FORWARD.NONE",
+          "runtime_required": true,
+          "runtime_flag": "R5.RUNTIME.REQUIRED"
+        },
+        "replacement_pointer_predicate_id": "R5.REPLACEMENT.NONE",
+        "replacement_pointer_direction": "none"
+      },
+      "partial": {
+        "reader_question_id": "identify_execution",
+        "required_slot_ids": [
+          "EXP-README-01",
+          "EXP-README-02",
+          "EXP-README-03",
+          "EXP-README-04",
+          "EXP-README-05",
+          "EXP-README-06",
+          "EXP-README-07",
+          "EXP-README-08",
+          "EXP-README-09",
+          "EXP-README-10",
+          "EXP-README-11",
+          "EXP-README-12",
+          "EXP-README-13"
+        ],
+        "allowed_slot_states": [
+          "satisfied",
+          "not_applicable"
+        ],
+        "forward_references": false,
+        "runtime_required": true,
+        "observed_result_claims": false,
+        "required_binding_keys": [
+          "registry",
+          "topic_readme",
+          "entrypoint",
+          "config",
+          "config_source",
+          "source_snapshot",
+          "run_manifest",
+          "environment",
+          "resource_plan",
+          "gpu_allocation",
+          "terminal",
+          "partial",
+          "artifact_manifest",
+          "logs"
+        ],
+        "predicate_id": "R5.KS.RUN.PARTIAL",
+        "predicate_ids": [
+          "R5.KS.RUN.PARTIAL",
+          "R5.TERM.PARTIAL_REQUIRED",
+          "R5.LOG.PARTIAL_REQUIRED",
+          "R5.PARTIAL.PARTITION_REQUIRED",
+          "R5.REPLACEMENT.NONE",
+          "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+          "R5.RUNNER.PARTIAL_EVIDENCE_REQUIRED",
+          "R5.CLAIM.NO_OBSERVED",
+          "R5.FORWARD.NONE",
+          "R5.RUNTIME.REQUIRED"
+        ],
+        "terminal_predicate_id": "R5.TERM.PARTIAL_REQUIRED",
+        "log_predicate_id": "R5.LOG.PARTIAL_REQUIRED",
+        "partial_predicate_id": "R5.PARTIAL.PARTITION_REQUIRED",
+        "replacement_predicate_id": "R5.REPLACEMENT.NONE",
+        "dirty_source_predicate_id": "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+        "runner_status_predicate_id": "R5.RUNNER.PARTIAL_EVIDENCE_REQUIRED",
+        "observed_claim_predicate_id": "R5.CLAIM.NO_OBSERVED",
+        "forward_reference_predicate_id": "R5.FORWARD.NONE",
+        "runtime_flag_predicate_id": "R5.RUNTIME.REQUIRED",
+        "predicate": {
+          "terminal": "required",
+          "logs": "required",
+          "partial_partition": "required",
+          "replacement": "not_required",
+          "dirty_source": "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+          "runner_status": "R5.RUNNER.PARTIAL_EVIDENCE_REQUIRED",
+          "observed_claims": "R5.CLAIM.NO_OBSERVED",
+          "forward_references": "R5.FORWARD.NONE",
+          "runtime_required": true,
+          "runtime_flag": "R5.RUNTIME.REQUIRED"
+        },
+        "replacement_pointer_predicate_id": "R5.REPLACEMENT.NONE",
+        "replacement_pointer_direction": "none"
+      },
+      "superseded": {
+        "reader_question_id": "identify_execution",
+        "required_slot_ids": [
+          "EXP-README-01",
+          "EXP-README-02",
+          "EXP-README-03",
+          "EXP-README-04",
+          "EXP-README-05",
+          "EXP-README-06",
+          "EXP-README-07",
+          "EXP-README-08",
+          "EXP-README-09",
+          "EXP-README-10",
+          "EXP-README-11",
+          "EXP-README-12",
+          "EXP-README-13"
+        ],
+        "allowed_slot_states": [
+          "satisfied",
+          "not_applicable"
+        ],
+        "forward_references": false,
+        "runtime_required": true,
+        "observed_result_claims": false,
+        "required_binding_keys": [
+          "registry",
+          "topic_readme",
+          "entrypoint",
+          "config",
+          "config_source",
+          "source_snapshot",
+          "run_manifest",
+          "environment",
+          "resource_plan",
+          "gpu_allocation",
+          "terminal",
+          "artifact_manifest",
+          "replacement"
+        ],
+        "predicate_id": "R5.KS.RUN.SUPERSEDED",
+        "predicate_ids": [
+          "R5.KS.RUN.SUPERSEDED",
+          "R5.TERM.TERMINAL_REQUIRED",
+          "R5.LOG.NONE",
+          "R5.PARTIAL.FORBIDDEN",
+          "R5.REPLACEMENT.REQUIRED",
+          "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+          "R5.RUNNER.SUPERSEDED_WITH_REPLACEMENT",
+          "R5.CLAIM.NO_OBSERVED",
+          "R5.FORWARD.NONE",
+          "R5.RUNTIME.REQUIRED",
+          "R5.REPLACEMENT.FORWARD_REQUIRED"
+        ],
+        "terminal_predicate_id": "R5.TERM.TERMINAL_REQUIRED",
+        "log_predicate_id": "R5.LOG.NONE",
+        "partial_predicate_id": "R5.PARTIAL.FORBIDDEN",
+        "replacement_predicate_id": "R5.REPLACEMENT.REQUIRED",
+        "dirty_source_predicate_id": "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+        "runner_status_predicate_id": "R5.RUNNER.SUPERSEDED_WITH_REPLACEMENT",
+        "observed_claim_predicate_id": "R5.CLAIM.NO_OBSERVED",
+        "forward_reference_predicate_id": "R5.FORWARD.NONE",
+        "runtime_flag_predicate_id": "R5.RUNTIME.REQUIRED",
+        "predicate": {
+          "terminal": "required",
+          "logs": "not_required",
+          "partial_partition": "forbidden",
+          "replacement": "required",
+          "dirty_source": "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+          "runner_status": "R5.RUNNER.SUPERSEDED_WITH_REPLACEMENT",
+          "observed_claims": "R5.CLAIM.NO_OBSERVED",
+          "forward_references": "R5.FORWARD.NONE",
+          "runtime_required": true,
+          "runtime_flag": "R5.RUNTIME.REQUIRED"
+        },
+        "replacement_pointer_predicate_id": "R5.REPLACEMENT.FORWARD_REQUIRED",
+        "replacement_pointer_direction": "forward_required"
+      }
+    },
+    "result": {
+      "running": {
+        "reader_question_id": "locate_evidence",
+        "required_slot_ids": [
+          "EXP-README-01",
+          "EXP-README-02",
+          "EXP-README-03",
+          "EXP-README-04",
+          "EXP-README-05",
+          "EXP-README-06",
+          "EXP-README-07",
+          "EXP-README-08",
+          "EXP-README-09",
+          "EXP-README-10",
+          "EXP-README-11",
+          "EXP-README-12",
+          "EXP-README-13"
+        ],
+        "allowed_slot_states": [
+          "satisfied",
+          "not_applicable"
+        ],
+        "forward_references": false,
+        "runtime_required": true,
+        "observed_result_claims": false,
+        "required_binding_keys": [
+          "registry",
+          "topic_readme",
+          "config",
+          "source_snapshot",
+          "run_manifest",
+          "environment",
+          "resource_plan",
+          "gpu_allocation",
+          "artifact_manifest",
+          "result_readme"
+        ],
+        "predicate_id": "R5.KS.RESULT.RUNNING",
+        "predicate_ids": [
+          "R5.KS.RESULT.RUNNING",
+          "R5.TERM.NONE",
+          "R5.LOG.NONE",
+          "R5.PARTIAL.FORBIDDEN",
+          "R5.REPLACEMENT.NONE",
+          "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+          "R5.RUNNER.RUNNING_EXACT",
+          "R5.CLAIM.NO_OBSERVED",
+          "R5.FORWARD.NONE",
+          "R5.RUNTIME.REQUIRED"
+        ],
+        "terminal_predicate_id": "R5.TERM.NONE",
+        "log_predicate_id": "R5.LOG.NONE",
+        "partial_predicate_id": "R5.PARTIAL.FORBIDDEN",
+        "replacement_predicate_id": "R5.REPLACEMENT.NONE",
+        "dirty_source_predicate_id": "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+        "runner_status_predicate_id": "R5.RUNNER.RUNNING_EXACT",
+        "observed_claim_predicate_id": "R5.CLAIM.NO_OBSERVED",
+        "forward_reference_predicate_id": "R5.FORWARD.NONE",
+        "runtime_flag_predicate_id": "R5.RUNTIME.REQUIRED",
+        "predicate": {
+          "terminal": "forbidden_or_not_applicable",
+          "logs": "not_required",
+          "partial_partition": "forbidden",
+          "replacement": "not_required",
+          "dirty_source": "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+          "runner_status": "R5.RUNNER.RUNNING_EXACT",
+          "observed_claims": "R5.CLAIM.NO_OBSERVED",
+          "forward_references": "R5.FORWARD.NONE",
+          "runtime_required": true,
+          "runtime_flag": "R5.RUNTIME.REQUIRED"
+        },
+        "replacement_pointer_predicate_id": "R5.REPLACEMENT.NONE",
+        "replacement_pointer_direction": "none"
+      },
+      "complete": {
+        "reader_question_id": "locate_evidence",
+        "required_slot_ids": [
+          "EXP-README-01",
+          "EXP-README-02",
+          "EXP-README-03",
+          "EXP-README-04",
+          "EXP-README-05",
+          "EXP-README-06",
+          "EXP-README-07",
+          "EXP-README-08",
+          "EXP-README-09",
+          "EXP-README-10",
+          "EXP-README-11",
+          "EXP-README-12",
+          "EXP-README-13"
+        ],
+        "allowed_slot_states": [
+          "satisfied",
+          "not_applicable"
+        ],
+        "forward_references": false,
+        "runtime_required": true,
+        "observed_result_claims": true,
+        "required_binding_keys": [
+          "registry",
+          "topic_readme",
+          "config",
+          "config_source",
+          "source_snapshot",
+          "run_manifest",
+          "environment",
+          "resource_plan",
+          "gpu_allocation",
+          "terminal",
+          "artifact_manifest",
+          "result_readme",
+          "report"
+        ],
+        "predicate_id": "R5.KS.RESULT.COMPLETE",
+        "predicate_ids": [
+          "R5.KS.RESULT.COMPLETE",
+          "R5.TERM.TERMINAL_REQUIRED",
+          "R5.LOG.NONE",
+          "R5.PARTIAL.FORBIDDEN",
+          "R5.REPLACEMENT.NONE",
+          "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+          "R5.RUNNER.COMPLETED_TO_COMPLETE",
+          "R5.CLAIM.OBSERVED_ALLOWED",
+          "R5.FORWARD.NONE",
+          "R5.RUNTIME.REQUIRED"
+        ],
+        "terminal_predicate_id": "R5.TERM.TERMINAL_REQUIRED",
+        "log_predicate_id": "R5.LOG.NONE",
+        "partial_predicate_id": "R5.PARTIAL.FORBIDDEN",
+        "replacement_predicate_id": "R5.REPLACEMENT.NONE",
+        "dirty_source_predicate_id": "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+        "runner_status_predicate_id": "R5.RUNNER.COMPLETED_TO_COMPLETE",
+        "observed_claim_predicate_id": "R5.CLAIM.OBSERVED_ALLOWED",
+        "forward_reference_predicate_id": "R5.FORWARD.NONE",
+        "runtime_flag_predicate_id": "R5.RUNTIME.REQUIRED",
+        "predicate": {
+          "terminal": "required",
+          "logs": "not_required",
+          "partial_partition": "forbidden",
+          "replacement": "not_required",
+          "dirty_source": "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+          "runner_status": "R5.RUNNER.COMPLETED_TO_COMPLETE",
+          "observed_claims": "R5.CLAIM.OBSERVED_ALLOWED",
+          "forward_references": "R5.FORWARD.NONE",
+          "runtime_required": true,
+          "runtime_flag": "R5.RUNTIME.REQUIRED"
+        },
+        "replacement_pointer_predicate_id": "R5.REPLACEMENT.NONE",
+        "replacement_pointer_direction": "none"
+      },
+      "failed": {
+        "reader_question_id": "locate_evidence",
+        "required_slot_ids": [
+          "EXP-README-01",
+          "EXP-README-02",
+          "EXP-README-03",
+          "EXP-README-04",
+          "EXP-README-05",
+          "EXP-README-06",
+          "EXP-README-07",
+          "EXP-README-08",
+          "EXP-README-09",
+          "EXP-README-10",
+          "EXP-README-11",
+          "EXP-README-12",
+          "EXP-README-13"
+        ],
+        "allowed_slot_states": [
+          "satisfied",
+          "not_applicable"
+        ],
+        "forward_references": false,
+        "runtime_required": true,
+        "observed_result_claims": false,
+        "required_binding_keys": [
+          "registry",
+          "topic_readme",
+          "config",
+          "source_snapshot",
+          "run_manifest",
+          "environment",
+          "resource_plan",
+          "gpu_allocation",
+          "terminal",
+          "artifact_manifest",
+          "result_readme",
+          "report",
+          "logs"
+        ],
+        "predicate_id": "R5.KS.RESULT.FAILED",
+        "predicate_ids": [
+          "R5.KS.RESULT.FAILED",
+          "R5.TERM.FAILURE_REQUIRED",
+          "R5.LOG.FAILURE_REQUIRED",
+          "R5.PARTIAL.FORBIDDEN",
+          "R5.REPLACEMENT.NONE",
+          "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+          "R5.RUNNER.FAILED_EXACT",
+          "R5.CLAIM.NO_OBSERVED",
+          "R5.FORWARD.NONE",
+          "R5.RUNTIME.REQUIRED"
+        ],
+        "terminal_predicate_id": "R5.TERM.FAILURE_REQUIRED",
+        "log_predicate_id": "R5.LOG.FAILURE_REQUIRED",
+        "partial_predicate_id": "R5.PARTIAL.FORBIDDEN",
+        "replacement_predicate_id": "R5.REPLACEMENT.NONE",
+        "dirty_source_predicate_id": "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+        "runner_status_predicate_id": "R5.RUNNER.FAILED_EXACT",
+        "observed_claim_predicate_id": "R5.CLAIM.NO_OBSERVED",
+        "forward_reference_predicate_id": "R5.FORWARD.NONE",
+        "runtime_flag_predicate_id": "R5.RUNTIME.REQUIRED",
+        "predicate": {
+          "terminal": "required",
+          "logs": "required",
+          "partial_partition": "forbidden",
+          "replacement": "not_required",
+          "dirty_source": "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+          "runner_status": "R5.RUNNER.FAILED_EXACT",
+          "observed_claims": "R5.CLAIM.NO_OBSERVED",
+          "forward_references": "R5.FORWARD.NONE",
+          "runtime_required": true,
+          "runtime_flag": "R5.RUNTIME.REQUIRED"
+        },
+        "replacement_pointer_predicate_id": "R5.REPLACEMENT.NONE",
+        "replacement_pointer_direction": "none"
+      },
+      "partial": {
+        "reader_question_id": "locate_evidence",
+        "required_slot_ids": [
+          "EXP-README-01",
+          "EXP-README-02",
+          "EXP-README-03",
+          "EXP-README-04",
+          "EXP-README-05",
+          "EXP-README-06",
+          "EXP-README-07",
+          "EXP-README-08",
+          "EXP-README-09",
+          "EXP-README-10",
+          "EXP-README-11",
+          "EXP-README-12",
+          "EXP-README-13"
+        ],
+        "allowed_slot_states": [
+          "satisfied",
+          "not_applicable"
+        ],
+        "forward_references": false,
+        "runtime_required": true,
+        "observed_result_claims": false,
+        "required_binding_keys": [
+          "registry",
+          "topic_readme",
+          "config",
+          "config_source",
+          "source_snapshot",
+          "run_manifest",
+          "environment",
+          "resource_plan",
+          "gpu_allocation",
+          "terminal",
+          "partial",
+          "artifact_manifest",
+          "result_readme",
+          "report",
+          "logs"
+        ],
+        "predicate_id": "R5.KS.RESULT.PARTIAL",
+        "predicate_ids": [
+          "R5.KS.RESULT.PARTIAL",
+          "R5.TERM.PARTIAL_REQUIRED",
+          "R5.LOG.PARTIAL_REQUIRED",
+          "R5.PARTIAL.PARTITION_REQUIRED",
+          "R5.REPLACEMENT.NONE",
+          "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+          "R5.RUNNER.PARTIAL_EVIDENCE_REQUIRED",
+          "R5.CLAIM.NO_OBSERVED",
+          "R5.FORWARD.NONE",
+          "R5.RUNTIME.REQUIRED"
+        ],
+        "terminal_predicate_id": "R5.TERM.PARTIAL_REQUIRED",
+        "log_predicate_id": "R5.LOG.PARTIAL_REQUIRED",
+        "partial_predicate_id": "R5.PARTIAL.PARTITION_REQUIRED",
+        "replacement_predicate_id": "R5.REPLACEMENT.NONE",
+        "dirty_source_predicate_id": "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+        "runner_status_predicate_id": "R5.RUNNER.PARTIAL_EVIDENCE_REQUIRED",
+        "observed_claim_predicate_id": "R5.CLAIM.NO_OBSERVED",
+        "forward_reference_predicate_id": "R5.FORWARD.NONE",
+        "runtime_flag_predicate_id": "R5.RUNTIME.REQUIRED",
+        "predicate": {
+          "terminal": "required",
+          "logs": "required",
+          "partial_partition": "required",
+          "replacement": "not_required",
+          "dirty_source": "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+          "runner_status": "R5.RUNNER.PARTIAL_EVIDENCE_REQUIRED",
+          "observed_claims": "R5.CLAIM.NO_OBSERVED",
+          "forward_references": "R5.FORWARD.NONE",
+          "runtime_required": true,
+          "runtime_flag": "R5.RUNTIME.REQUIRED"
+        },
+        "replacement_pointer_predicate_id": "R5.REPLACEMENT.NONE",
+        "replacement_pointer_direction": "none"
+      },
+      "superseded": {
+        "reader_question_id": "locate_evidence",
+        "required_slot_ids": [
+          "EXP-README-01",
+          "EXP-README-02",
+          "EXP-README-03",
+          "EXP-README-04",
+          "EXP-README-05",
+          "EXP-README-06",
+          "EXP-README-07",
+          "EXP-README-08",
+          "EXP-README-09",
+          "EXP-README-10",
+          "EXP-README-11",
+          "EXP-README-12",
+          "EXP-README-13"
+        ],
+        "allowed_slot_states": [
+          "satisfied",
+          "not_applicable"
+        ],
+        "forward_references": false,
+        "runtime_required": true,
+        "observed_result_claims": false,
+        "required_binding_keys": [
+          "registry",
+          "topic_readme",
+          "config",
+          "config_source",
+          "source_snapshot",
+          "run_manifest",
+          "environment",
+          "resource_plan",
+          "gpu_allocation",
+          "terminal",
+          "artifact_manifest",
+          "result_readme",
+          "report",
+          "replacement"
+        ],
+        "predicate_id": "R5.KS.RESULT.SUPERSEDED",
+        "predicate_ids": [
+          "R5.KS.RESULT.SUPERSEDED",
+          "R5.TERM.TERMINAL_REQUIRED",
+          "R5.LOG.NONE",
+          "R5.PARTIAL.FORBIDDEN",
+          "R5.REPLACEMENT.REQUIRED",
+          "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+          "R5.RUNNER.SUPERSEDED_WITH_REPLACEMENT",
+          "R5.CLAIM.NO_OBSERVED",
+          "R5.FORWARD.NONE",
+          "R5.RUNTIME.REQUIRED",
+          "R5.REPLACEMENT.FORWARD_REQUIRED"
+        ],
+        "terminal_predicate_id": "R5.TERM.TERMINAL_REQUIRED",
+        "log_predicate_id": "R5.LOG.NONE",
+        "partial_predicate_id": "R5.PARTIAL.FORBIDDEN",
+        "replacement_predicate_id": "R5.REPLACEMENT.REQUIRED",
+        "dirty_source_predicate_id": "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+        "runner_status_predicate_id": "R5.RUNNER.SUPERSEDED_WITH_REPLACEMENT",
+        "observed_claim_predicate_id": "R5.CLAIM.NO_OBSERVED",
+        "forward_reference_predicate_id": "R5.FORWARD.NONE",
+        "runtime_flag_predicate_id": "R5.RUNTIME.REQUIRED",
+        "predicate": {
+          "terminal": "required",
+          "logs": "not_required",
+          "partial_partition": "forbidden",
+          "replacement": "required",
+          "dirty_source": "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+          "runner_status": "R5.RUNNER.SUPERSEDED_WITH_REPLACEMENT",
+          "observed_claims": "R5.CLAIM.NO_OBSERVED",
+          "forward_references": "R5.FORWARD.NONE",
+          "runtime_required": true,
+          "runtime_flag": "R5.RUNTIME.REQUIRED"
+        },
+        "replacement_pointer_predicate_id": "R5.REPLACEMENT.FORWARD_REQUIRED",
+        "replacement_pointer_direction": "forward_required"
+      }
+    },
+    "report": {
+      "draft": {
+        "reader_question_id": "interpret_bound_run",
+        "required_slot_ids": [
+          "EXP-README-01",
+          "EXP-README-02",
+          "EXP-README-03",
+          "EXP-README-04",
+          "EXP-README-05",
+          "EXP-README-06",
+          "EXP-README-07",
+          "EXP-README-08",
+          "EXP-README-09",
+          "EXP-README-10",
+          "EXP-README-11",
+          "EXP-README-12",
+          "EXP-README-13"
+        ],
+        "allowed_slot_states": [
+          "satisfied",
+          "planned",
+          "not_applicable"
+        ],
+        "forward_references": true,
+        "runtime_required": false,
+        "observed_result_claims": false,
+        "required_binding_keys": [
+          "registry",
+          "topic_readme",
+          "report"
+        ],
+        "predicate_id": "R5.KS.REPORT.DRAFT",
+        "predicate_ids": [
+          "R5.KS.REPORT.DRAFT",
+          "R5.TERM.NONE",
+          "R5.LOG.NONE",
+          "R5.PARTIAL.FORBIDDEN",
+          "R5.REPLACEMENT.NONE",
+          "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+          "R5.RUNNER.NONE",
+          "R5.CLAIM.NO_OBSERVED",
+          "R5.FORWARD.PLANNED_OWNER_ORACLE",
+          "R5.RUNTIME.NOT_REQUIRED"
+        ],
+        "terminal_predicate_id": "R5.TERM.NONE",
+        "log_predicate_id": "R5.LOG.NONE",
+        "partial_predicate_id": "R5.PARTIAL.FORBIDDEN",
+        "replacement_predicate_id": "R5.REPLACEMENT.NONE",
+        "dirty_source_predicate_id": "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+        "runner_status_predicate_id": "R5.RUNNER.NONE",
+        "observed_claim_predicate_id": "R5.CLAIM.NO_OBSERVED",
+        "forward_reference_predicate_id": "R5.FORWARD.PLANNED_OWNER_ORACLE",
+        "runtime_flag_predicate_id": "R5.RUNTIME.NOT_REQUIRED",
+        "predicate": {
+          "terminal": "forbidden_or_not_applicable",
+          "logs": "not_required",
+          "partial_partition": "forbidden",
+          "replacement": "not_required",
+          "dirty_source": "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+          "runner_status": "R5.RUNNER.NONE",
+          "observed_claims": "R5.CLAIM.NO_OBSERVED",
+          "forward_references": "R5.FORWARD.PLANNED_OWNER_ORACLE",
+          "runtime_required": false,
+          "runtime_flag": "R5.RUNTIME.NOT_REQUIRED"
+        },
+        "replacement_pointer_predicate_id": "R5.REPLACEMENT.NONE",
+        "replacement_pointer_direction": "none"
+      },
+      "complete": {
+        "reader_question_id": "interpret_bound_run",
+        "required_slot_ids": [
+          "EXP-README-01",
+          "EXP-README-02",
+          "EXP-README-03",
+          "EXP-README-04",
+          "EXP-README-05",
+          "EXP-README-06",
+          "EXP-README-07",
+          "EXP-README-08",
+          "EXP-README-09",
+          "EXP-README-10",
+          "EXP-README-11",
+          "EXP-README-12",
+          "EXP-README-13"
+        ],
+        "allowed_slot_states": [
+          "satisfied",
+          "not_applicable"
+        ],
+        "forward_references": false,
+        "runtime_required": true,
+        "observed_result_claims": true,
+        "required_binding_keys": [
+          "registry",
+          "topic_readme",
+          "run_manifest",
+          "config",
+          "source_snapshot",
+          "environment",
+          "resource_plan",
+          "gpu_allocation",
+          "terminal",
+          "artifact_manifest",
+          "result_readme",
+          "report"
+        ],
+        "predicate_id": "R5.KS.REPORT.COMPLETE",
+        "predicate_ids": [
+          "R5.KS.REPORT.COMPLETE",
+          "R5.TERM.TERMINAL_REQUIRED",
+          "R5.LOG.NONE",
+          "R5.PARTIAL.FORBIDDEN",
+          "R5.REPLACEMENT.NONE",
+          "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+          "R5.RUNNER.COMPLETED_TO_COMPLETE",
+          "R5.CLAIM.OBSERVED_ALLOWED",
+          "R5.FORWARD.NONE",
+          "R5.RUNTIME.REQUIRED"
+        ],
+        "terminal_predicate_id": "R5.TERM.TERMINAL_REQUIRED",
+        "log_predicate_id": "R5.LOG.NONE",
+        "partial_predicate_id": "R5.PARTIAL.FORBIDDEN",
+        "replacement_predicate_id": "R5.REPLACEMENT.NONE",
+        "dirty_source_predicate_id": "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+        "runner_status_predicate_id": "R5.RUNNER.COMPLETED_TO_COMPLETE",
+        "observed_claim_predicate_id": "R5.CLAIM.OBSERVED_ALLOWED",
+        "forward_reference_predicate_id": "R5.FORWARD.NONE",
+        "runtime_flag_predicate_id": "R5.RUNTIME.REQUIRED",
+        "predicate": {
+          "terminal": "required",
+          "logs": "not_required",
+          "partial_partition": "forbidden",
+          "replacement": "not_required",
+          "dirty_source": "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+          "runner_status": "R5.RUNNER.COMPLETED_TO_COMPLETE",
+          "observed_claims": "R5.CLAIM.OBSERVED_ALLOWED",
+          "forward_references": "R5.FORWARD.NONE",
+          "runtime_required": true,
+          "runtime_flag": "R5.RUNTIME.REQUIRED"
+        },
+        "replacement_pointer_predicate_id": "R5.REPLACEMENT.NONE",
+        "replacement_pointer_direction": "none"
+      },
+      "failed": {
+        "reader_question_id": "interpret_bound_run",
+        "required_slot_ids": [
+          "EXP-README-01",
+          "EXP-README-02",
+          "EXP-README-03",
+          "EXP-README-04",
+          "EXP-README-05",
+          "EXP-README-06",
+          "EXP-README-07",
+          "EXP-README-08",
+          "EXP-README-09",
+          "EXP-README-10",
+          "EXP-README-11",
+          "EXP-README-12",
+          "EXP-README-13"
+        ],
+        "allowed_slot_states": [
+          "satisfied",
+          "not_applicable"
+        ],
+        "forward_references": false,
+        "runtime_required": true,
+        "observed_result_claims": false,
+        "required_binding_keys": [
+          "registry",
+          "topic_readme",
+          "run_manifest",
+          "config",
+          "source_snapshot",
+          "environment",
+          "resource_plan",
+          "gpu_allocation",
+          "terminal",
+          "artifact_manifest",
+          "result_readme",
+          "report",
+          "logs"
+        ],
+        "predicate_id": "R5.KS.REPORT.FAILED",
+        "predicate_ids": [
+          "R5.KS.REPORT.FAILED",
+          "R5.TERM.FAILURE_REQUIRED",
+          "R5.LOG.FAILURE_REQUIRED",
+          "R5.PARTIAL.FORBIDDEN",
+          "R5.REPLACEMENT.NONE",
+          "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+          "R5.RUNNER.FAILED_EXACT",
+          "R5.CLAIM.NO_OBSERVED",
+          "R5.FORWARD.NONE",
+          "R5.RUNTIME.REQUIRED"
+        ],
+        "terminal_predicate_id": "R5.TERM.FAILURE_REQUIRED",
+        "log_predicate_id": "R5.LOG.FAILURE_REQUIRED",
+        "partial_predicate_id": "R5.PARTIAL.FORBIDDEN",
+        "replacement_predicate_id": "R5.REPLACEMENT.NONE",
+        "dirty_source_predicate_id": "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+        "runner_status_predicate_id": "R5.RUNNER.FAILED_EXACT",
+        "observed_claim_predicate_id": "R5.CLAIM.NO_OBSERVED",
+        "forward_reference_predicate_id": "R5.FORWARD.NONE",
+        "runtime_flag_predicate_id": "R5.RUNTIME.REQUIRED",
+        "predicate": {
+          "terminal": "required",
+          "logs": "required",
+          "partial_partition": "forbidden",
+          "replacement": "not_required",
+          "dirty_source": "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+          "runner_status": "R5.RUNNER.FAILED_EXACT",
+          "observed_claims": "R5.CLAIM.NO_OBSERVED",
+          "forward_references": "R5.FORWARD.NONE",
+          "runtime_required": true,
+          "runtime_flag": "R5.RUNTIME.REQUIRED"
+        },
+        "replacement_pointer_predicate_id": "R5.REPLACEMENT.NONE",
+        "replacement_pointer_direction": "none"
+      },
+      "partial": {
+        "reader_question_id": "interpret_bound_run",
+        "required_slot_ids": [
+          "EXP-README-01",
+          "EXP-README-02",
+          "EXP-README-03",
+          "EXP-README-04",
+          "EXP-README-05",
+          "EXP-README-06",
+          "EXP-README-07",
+          "EXP-README-08",
+          "EXP-README-09",
+          "EXP-README-10",
+          "EXP-README-11",
+          "EXP-README-12",
+          "EXP-README-13"
+        ],
+        "allowed_slot_states": [
+          "satisfied",
+          "not_applicable"
+        ],
+        "forward_references": false,
+        "runtime_required": true,
+        "observed_result_claims": false,
+        "required_binding_keys": [
+          "registry",
+          "topic_readme",
+          "run_manifest",
+          "config",
+          "source_snapshot",
+          "environment",
+          "resource_plan",
+          "gpu_allocation",
+          "terminal",
+          "partial",
+          "artifact_manifest",
+          "result_readme",
+          "report",
+          "logs"
+        ],
+        "predicate_id": "R5.KS.REPORT.PARTIAL",
+        "predicate_ids": [
+          "R5.KS.REPORT.PARTIAL",
+          "R5.TERM.PARTIAL_REQUIRED",
+          "R5.LOG.PARTIAL_REQUIRED",
+          "R5.PARTIAL.PARTITION_REQUIRED",
+          "R5.REPLACEMENT.NONE",
+          "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+          "R5.RUNNER.PARTIAL_EVIDENCE_REQUIRED",
+          "R5.CLAIM.NO_OBSERVED",
+          "R5.FORWARD.NONE",
+          "R5.RUNTIME.REQUIRED"
+        ],
+        "terminal_predicate_id": "R5.TERM.PARTIAL_REQUIRED",
+        "log_predicate_id": "R5.LOG.PARTIAL_REQUIRED",
+        "partial_predicate_id": "R5.PARTIAL.PARTITION_REQUIRED",
+        "replacement_predicate_id": "R5.REPLACEMENT.NONE",
+        "dirty_source_predicate_id": "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+        "runner_status_predicate_id": "R5.RUNNER.PARTIAL_EVIDENCE_REQUIRED",
+        "observed_claim_predicate_id": "R5.CLAIM.NO_OBSERVED",
+        "forward_reference_predicate_id": "R5.FORWARD.NONE",
+        "runtime_flag_predicate_id": "R5.RUNTIME.REQUIRED",
+        "predicate": {
+          "terminal": "required",
+          "logs": "required",
+          "partial_partition": "required",
+          "replacement": "not_required",
+          "dirty_source": "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+          "runner_status": "R5.RUNNER.PARTIAL_EVIDENCE_REQUIRED",
+          "observed_claims": "R5.CLAIM.NO_OBSERVED",
+          "forward_references": "R5.FORWARD.NONE",
+          "runtime_required": true,
+          "runtime_flag": "R5.RUNTIME.REQUIRED"
+        },
+        "replacement_pointer_predicate_id": "R5.REPLACEMENT.NONE",
+        "replacement_pointer_direction": "none"
+      },
+      "superseded": {
+        "reader_question_id": "interpret_bound_run",
+        "required_slot_ids": [
+          "EXP-README-01",
+          "EXP-README-02",
+          "EXP-README-03",
+          "EXP-README-04",
+          "EXP-README-05",
+          "EXP-README-06",
+          "EXP-README-07",
+          "EXP-README-08",
+          "EXP-README-09",
+          "EXP-README-10",
+          "EXP-README-11",
+          "EXP-README-12",
+          "EXP-README-13"
+        ],
+        "allowed_slot_states": [
+          "satisfied",
+          "not_applicable"
+        ],
+        "forward_references": false,
+        "runtime_required": true,
+        "observed_result_claims": false,
+        "required_binding_keys": [
+          "registry",
+          "topic_readme",
+          "run_manifest",
+          "config",
+          "source_snapshot",
+          "environment",
+          "resource_plan",
+          "gpu_allocation",
+          "terminal",
+          "artifact_manifest",
+          "result_readme",
+          "report",
+          "replacement"
+        ],
+        "predicate_id": "R5.KS.REPORT.SUPERSEDED",
+        "predicate_ids": [
+          "R5.KS.REPORT.SUPERSEDED",
+          "R5.TERM.TERMINAL_REQUIRED",
+          "R5.LOG.NONE",
+          "R5.PARTIAL.FORBIDDEN",
+          "R5.REPLACEMENT.REQUIRED",
+          "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+          "R5.RUNNER.SUPERSEDED_WITH_REPLACEMENT",
+          "R5.CLAIM.NO_OBSERVED",
+          "R5.FORWARD.NONE",
+          "R5.RUNTIME.REQUIRED",
+          "R5.REPLACEMENT.FORWARD_REQUIRED"
+        ],
+        "terminal_predicate_id": "R5.TERM.TERMINAL_REQUIRED",
+        "log_predicate_id": "R5.LOG.NONE",
+        "partial_predicate_id": "R5.PARTIAL.FORBIDDEN",
+        "replacement_predicate_id": "R5.REPLACEMENT.REQUIRED",
+        "dirty_source_predicate_id": "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+        "runner_status_predicate_id": "R5.RUNNER.SUPERSEDED_WITH_REPLACEMENT",
+        "observed_claim_predicate_id": "R5.CLAIM.NO_OBSERVED",
+        "forward_reference_predicate_id": "R5.FORWARD.NONE",
+        "runtime_flag_predicate_id": "R5.RUNTIME.REQUIRED",
+        "predicate": {
+          "terminal": "required",
+          "logs": "not_required",
+          "partial_partition": "forbidden",
+          "replacement": "required",
+          "dirty_source": "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST",
+          "runner_status": "R5.RUNNER.SUPERSEDED_WITH_REPLACEMENT",
+          "observed_claims": "R5.CLAIM.NO_OBSERVED",
+          "forward_references": "R5.FORWARD.NONE",
+          "runtime_required": true,
+          "runtime_flag": "R5.RUNTIME.REQUIRED"
+        },
+        "replacement_pointer_predicate_id": "R5.REPLACEMENT.FORWARD_REQUIRED",
+        "replacement_pointer_direction": "forward_required"
+      }
+    }
+  },
+  "x_slot_contract": {
+    "EXP-README-01": {
+      "name": "objective_decision",
+      "minimum_evidence_classes": [
+        "prose_claim"
+      ],
+      "binding_keys": [
+        "registry",
+        "topic_readme"
+      ],
+      "runtime_bindings": []
+    },
+    "EXP-README-02": {
+      "name": "hypotheses_claims",
+      "minimum_evidence_classes": [
+        "prose_claim",
+        "oracle_ref"
+      ],
+      "binding_keys": [
+        "topic_readme"
+      ],
+      "runtime_bindings": []
+    },
+    "EXP-README-03": {
+      "name": "method_algorithm_contract",
+      "minimum_evidence_classes": [
+        "prose_claim",
+        "source_ref",
+        "entrypoint_ref"
+      ],
+      "binding_keys": [
+        "entrypoint",
+        "source_snapshot"
+      ],
+      "runtime_bindings": [
+        "source_snapshot",
+        "run_manifest"
+      ]
+    },
+    "EXP-README-04": {
+      "name": "variables_controls",
+      "minimum_evidence_classes": [
+        "prose_claim",
+        "config_ref"
+      ],
+      "binding_keys": [
+        "config",
+        "config_source"
+      ],
+      "runtime_bindings": [
+        "config"
+      ]
+    },
+    "EXP-README-05": {
+      "name": "datasets_inputs",
+      "minimum_evidence_classes": [
+        "prose_claim",
+        "config_ref"
+      ],
+      "binding_keys": [
+        "config",
+        "source_snapshot",
+        "artifact_manifest"
+      ],
+      "runtime_bindings": [
+        "config",
+        "source_snapshot",
+        "artifact_manifest"
+      ]
+    },
+    "EXP-README-06": {
+      "name": "environment_resources_gpu",
+      "minimum_evidence_classes": [
+        "prose_claim",
+        "environment_ref",
+        "resource_ref",
+        "gpu_allocation_ref"
+      ],
+      "binding_keys": [
+        "environment",
+        "resource_plan",
+        "gpu_allocation"
+      ],
+      "runtime_bindings": [
+        "environment",
+        "resource_plan",
+        "gpu_allocation"
+      ]
+    },
+    "EXP-README-07": {
+      "name": "run_matrix",
+      "minimum_evidence_classes": [
+        "prose_claim",
+        "matrix_ref"
+      ],
+      "binding_keys": [
+        "config"
+      ],
+      "runtime_bindings": [
+        "run_manifest"
+      ]
+    },
+    "EXP-README-08": {
+      "name": "command_entrypoint",
+      "minimum_evidence_classes": [
+        "command_ref",
+        "entrypoint_ref",
+        "registry_ref",
+        "config_ref"
+      ],
+      "binding_keys": [
+        "registry",
+        "entrypoint",
+        "config",
+        "run_manifest"
+      ],
+      "runtime_bindings": [
+        "run_manifest",
+        "config"
+      ]
+    },
+    "EXP-README-09": {
+      "name": "outputs_artifact_identity",
+      "minimum_evidence_classes": [
+        "artifact_ref"
+      ],
+      "binding_keys": [
+        "artifact_manifest",
+        "run_manifest"
+      ],
+      "runtime_bindings": [
+        "artifact_manifest",
+        "run_manifest"
+      ]
+    },
+    "EXP-README-10": {
+      "name": "failure_semantics",
+      "minimum_evidence_classes": [
+        "prose_claim",
+        "terminal_ref"
+      ],
+      "binding_keys": [
+        "terminal",
+        "logs"
+      ],
+      "runtime_bindings": [
+        "terminal",
+        "partial",
+        "logs"
+      ]
+    },
+    "EXP-README-11": {
+      "name": "analysis_oracles_exclusions",
+      "minimum_evidence_classes": [
+        "oracle_ref",
+        "exclusion_ref"
+      ],
+      "binding_keys": [
+        "terminal",
+        "artifact_manifest"
+      ],
+      "runtime_bindings": [
+        "terminal",
+        "artifact_manifest"
+      ]
+    },
+    "EXP-README-12": {
+      "name": "reproducibility",
+      "minimum_evidence_classes": [
+        "replay_ref",
+        "command_ref",
+        "config_ref",
+        "source_ref"
+      ],
+      "binding_keys": [
+        "run_manifest",
+        "command",
+        "config",
+        "config_source",
+        "source_snapshot",
+        "environment",
+        "artifact_manifest"
+      ],
+      "runtime_bindings": [
+        "run_manifest",
+        "source_snapshot",
+        "environment",
+        "artifact_manifest"
+      ]
+    },
+    "EXP-README-13": {
+      "name": "status_results_links",
+      "minimum_evidence_classes": [
+        "status_ref"
+      ],
+      "binding_keys": [
+        "registry",
+        "result_readme",
+        "report",
+        "replacement"
+      ],
+      "runtime_bindings": [
+        "run_manifest",
+        "result_readme",
+        "report"
+      ]
+    }
+  },
+  "x_reader_dependency_graph": [
+    [
+      "EXP-README-01",
+      "EXP-README-02"
+    ],
+    [
+      "EXP-README-02",
+      "EXP-README-03"
+    ],
+    [
+      "EXP-README-03",
+      "EXP-README-04"
+    ],
+    [
+      "EXP-README-04",
+      "EXP-README-05"
+    ],
+    [
+      "EXP-README-03",
+      "EXP-README-07"
+    ],
+    [
+      "EXP-README-04",
+      "EXP-README-07"
+    ],
+    [
+      "EXP-README-05",
+      "EXP-README-07"
+    ],
+    [
+      "EXP-README-03",
+      "EXP-README-06"
+    ],
+    [
+      "EXP-README-05",
+      "EXP-README-06"
+    ],
+    [
+      "EXP-README-07",
+      "EXP-README-08"
+    ],
+    [
+      "EXP-README-08",
+      "EXP-README-09"
+    ],
+    [
+      "EXP-README-09",
+      "EXP-README-10"
+    ],
+    [
+      "EXP-README-09",
+      "EXP-README-11"
+    ],
+    [
+      "EXP-README-10",
+      "EXP-README-11"
+    ],
+    [
+      "EXP-README-03",
+      "EXP-README-12"
+    ],
+    [
+      "EXP-README-08",
+      "EXP-README-12"
+    ],
+    [
+      "EXP-README-09",
+      "EXP-README-12"
+    ],
+    [
+      "EXP-README-12",
+      "EXP-README-13"
+    ]
+  ],
+  "x_checker_result_schema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "schema_version",
+      "passed",
+      "readme_kind",
+      "status",
+      "reader_question_id",
+      "slot_results",
+      "bindings",
+      "findings"
+    ],
+    "properties": {
+      "schema_version": {
+        "const": "experiment-readme-contract/v1"
+      },
+      "passed": {
+        "type": "boolean"
+      },
+      "readme_kind": {
+        "type": "string",
+        "enum": [
+          "plan",
+          "run",
+          "result",
+          "report"
+        ]
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "draft",
+          "planned",
+          "running",
+          "complete",
+          "failed",
+          "partial",
+          "superseded"
+        ]
+      },
+      "reader_question_id": {
+        "type": "string",
+        "enum": [
+          "approve_protocol",
+          "identify_execution",
+          "locate_evidence",
+          "interpret_bound_run"
+        ]
+      },
+      "slot_results": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "slot_id",
+            "required",
+            "declared_state",
+            "passed",
+            "evidence_ids",
+            "missing_classes",
+            "reason"
+          ],
+          "properties": {
+            "slot_id": {
+              "$ref": "#/$defs/slot_id"
+            },
+            "required": {
+              "type": "boolean"
+            },
+            "declared_state": {
+              "type": "string",
+              "enum": [
+                "satisfied",
+                "planned",
+                "not_applicable"
+              ]
+            },
+            "passed": {
+              "type": "boolean"
+            },
+            "evidence_ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "missing_classes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "reason": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "bindings": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "binding_key",
+            "declared_path",
+            "resolved_path",
+            "resolved",
+            "json_pointer",
+            "digest_checked",
+            "digest_equal",
+            "runtime_required"
+          ],
+          "properties": {
+            "binding_key": {
+              "type": "string"
+            },
+            "declared_path": {
+              "type": "string"
+            },
+            "resolved_path": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "resolved": {
+              "type": "boolean"
+            },
+            "json_pointer": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "digest_checked": {
+              "type": "boolean"
+            },
+            "digest_equal": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "runtime_required": {
+              "type": "boolean"
+            }
+          }
+        }
+      },
+      "findings": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "code",
+            "severity",
+            "path",
+            "slot_ids",
+            "evidence_ids",
+            "message"
+          ],
+          "properties": {
+            "code": {
+              "type": "string",
+              "pattern": "^ERD-[0-9]{3}$"
+            },
+            "severity": {
+              "enum": [
+                "error",
+                "warning"
+              ]
+            },
+            "path": {
+              "type": "string"
+            },
+            "slot_ids": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/slot_id"
+              }
+            },
+            "evidence_ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "message": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    }
+  },
+  "x_cli": {
+    "command": "python3 tools/ci/check_experiment_readme.py --repo-root ROOT --path README [--kind KIND] [--status STATUS] [--registry REGISTRY] [--run-dir RUN_DIR] [--schema documents/experiment-readme-contract-r9.json] [--require-runtime] [--json]",
+    "api": "ReadmeCheckResult check_readme(readme_path, *, repo_root, kind=None, status=None, registry_path=None, run_dir=None, schema_path=None, require_runtime=false)",
+    "metadata_inference": "Use metadata readme_kind/status only when corresponding CLI argument is omitted; supplied values must match.",
+    "path_resolution": "Resolve --path relative to --repo-root; resolve each relative binding path relative to --run-dir when provided, otherwise relative to the README directory; resolve registry relative to --repo-root.",
+    "schema": "Omitted --schema loads documents/experiment-readme-contract-r9.json. Supplied --schema must resolve exactly to <repo-root>/documents/experiment-readme-contract-r9.json; packet-local validation is not a worker alternate.",
+    "registry_delegation": "Invoke tools/ci/check_experiment_registry.py exactly once when registry_path is supplied or matrix requires registry; propagate structured failure as ERD-015 and do not duplicate registry predicates.",
+    "json_output": "With --json emit exactly one ReadmeCheckResult object with no log lines; without --json emit human findings but preserve the same result object and exit.",
+    "exit_precedence": [
+      "2:usage_schema_path_metadata_or_unknown",
+      "4:unexpected_exception",
+      "3:required_runtime_unavailable_or_digest_failure",
+      "1:semantic_failure",
+      "0:pass"
+    ],
+    "exit_meaning": {
+      "0": "passed=true",
+      "1": "semantic finding(s) with all required runtime inputs available",
+      "2": "usage, metadata block, schema, path, unknown-key, argument/metadata, or registry-delegation error",
+      "3": "required runtime binding unavailable or required digest/equality check cannot be established",
+      "4": "unexpected checker exception"
+    },
+    "runner_publication_failure": {
+      "constant": "EVIDENCE_PUBLICATION_FAILURE_EXIT_CODE",
+      "value": 2,
+      "caller": "run_cli returns 2 from aggregate; main propagates 2; stderr carries aggregate/per-artifact reason codes; no manifest status is fabricated."
+    }
+  },
+  "x_error_codes": [
+    "ERD-001",
+    "ERD-002",
+    "ERD-003",
+    "ERD-004",
+    "ERD-005",
+    "ERD-006",
+    "ERD-007",
+    "ERD-008",
+    "ERD-009",
+    "ERD-010",
+    "ERD-011",
+    "ERD-012",
+    "ERD-013",
+    "ERD-014",
+    "ERD-015",
+    "ERD-016",
+    "ERD-017",
+    "ERD-018",
+    "ERD-019",
+    "ERD-020",
+    "ERD-021",
+    "ERD-022",
+    "ERD-023",
+    "ERD-024",
+    "ERD-025",
+    "ERD-026",
+    "ERD-027",
+    "ERD-028",
+    "ERD-029"
+  ],
+  "x_status_predicate_definitions": {
+    "R5.TERM.NONE": "No runtime terminal certificate is permitted or required.",
+    "R5.TERM.TERMINAL_REQUIRED": "A resolved terminal_evidence.json binding is required and its terminal event must agree with the declared status.",
+    "R5.TERM.FAILURE_REQUIRED": "A resolved terminal_evidence.json binding is required; it must record the failed terminal event and exit/failure identity.",
+    "R5.TERM.PARTIAL_REQUIRED": "A resolved terminal_evidence.json binding is required; it must record the stopping event that produced the partial partition.",
+    "R5.LOG.NONE": "No runtime log binding is required.",
+    "R5.LOG.FAILURE_REQUIRED": "A resolved logs binding is required and must identify the failed command and terminal event.",
+    "R5.LOG.PARTIAL_REQUIRED": "A resolved logs binding is required and must cover the stop event and every partition disposition.",
+    "R5.PARTIAL.FORBIDDEN": "partial_evidence.json must not be bound or claimed.",
+    "R5.PARTIAL.PARTITION_REQUIRED": "A resolved partial_evidence.json binding is required; completed, failed, in-flight, and unstarted partitions must be explicit and mutually exclusive.",
+    "R5.REPLACEMENT.NONE": "No replacement link is required.",
+    "R5.REPLACEMENT.REQUIRED": "A resolved replacement binding and replacement_link evidence are required; the superseded item cannot be accepted without its replacement identity.",
+    "R5.DIRTY.PLANNED": "A planned README may bind a dirty or not-yet-materialized source; it must mark the state planned and may use a declared digest.",
+    "R5.DIRTY.RUNTIME_CLEAN_OR_DIGEST": "A runtime README must bind source_snapshot as clean, or declare dirty_state=dirty with a matching observed sha256 digest and explicit dirty-source classification; unknown dirty state fails.",
+    "R5.RUNNER.NONE": "No Runner terminal status is used for this plan/report-draft predicate.",
+    "R5.RUNNER.RUNNING_EXACT": "run_manifest.status must be running.",
+    "R5.RUNNER.COMPLETED_TO_COMPLETE": "run_manifest.status=completed maps exactly to README status=complete; no other spelling is accepted.",
+    "R5.RUNNER.FAILED_EXACT": "run_manifest.status must be failed and must agree with the failure terminal/log evidence.",
+    "R5.RUNNER.PARTIAL_EVIDENCE_REQUIRED": "README status=partial is accepted only with partial_evidence.json; Runner completed/failed alone cannot infer partial.",
+    "R5.RUNNER.SUPERSEDED_WITH_REPLACEMENT": "Superseded requires terminal evidence plus the replacement link; Runner status alone cannot establish superseded.",
+    "R5.CLAIM.NO_OBSERVED": "Observed result claims are forbidden; planned references may point forward to a future run/result.",
+    "R5.CLAIM.OBSERVED_ALLOWED": "Observed claims are permitted only when all matrix-required runtime bindings and evidence agree.",
+    "R5.FORWARD.NONE": "No ordinary forward runtime or observed-result references are accepted. A superseded row may still use its separately named replacement pointer predicate.",
+    "R5.FORWARD.PLANNED_OWNER_ORACLE": "Forward references may name a planned owner/config/oracle transition only.",
+    "R5.FORWARD.REPLACEMENT_ONLY": "Only the required replacement reference may point forward.",
+    "R5.RUNTIME.NOT_REQUIRED": "Runtime evidence is not required by this pair.",
+    "R5.RUNTIME.REQUIRED": "All matrix-required runtime bindings must resolve and pass equality/digest checks.",
+    "R5.REPLACEMENT.FORWARD_REQUIRED": "The required replacement binding may point forward to the newer run/result/report that supersedes this README; this exception does not permit ordinary future runtime claims."
+  },
+  "x_kind_status_matrix_notes": "Every allowed pair has one predicate_id and direct predicate-id/object fields. The matrix is the sole lookup authority; Markdown cannot add or relax a predicate. forward_references describes ordinary future claims; replacement_pointer_direction separately describes the required supersession link.",
+  "x_semantic_checker_oracle": {
+    "evidence_classes": "A slot passes only when every matrix-required minimum evidence class for that slot has at least one non-empty, non-placeholder, resolved evidence record in an allowed state; one evidence record may satisfy multiple slot_ids explicitly listed on that record, but no unstated slot is inferred.",
+    "kind_status": "Select exactly one matrix row from readme_kind and status. Reject unsupported pairs and any slot state not listed by that row.",
+    "forward_references": "Accept only the row's forward_reference_predicate_id for ordinary future claims. Planned/owner/oracle references are allowed only for plan draft/planned and report draft. Superseded rows set forward_references=false; their separately named replacement pointer may point forward, and no other runtime claim may do so.",
+    "multi_slot_satisfaction": "Evidence is reusable across its declared slot_ids; every required slot independently needs its complete class set, and duplicate slot IDs or duplicate metadata blocks fail.",
+    "command_equality": "The normalized command in command binding, registry entry, entrypoint/config declaration, and run_manifest command must be byte-for-byte equal after JSON string decoding; normalization does not reorder or rewrite command tokens.",
+    "config_equality": "config.json and the config/config_source pointers named by README must resolve to the same canonical JSON value as run_manifest.config_digest/config identity; absent required config equality is an error.",
+    "artifact_equality": "Every README output identity must occur exactly once in artifact_manifest; path, size, and optional digest agree when present. Extra artifacts are allowed only when artifact_manifest marks them as auxiliary.",
+    "digest_semantics": "Missing optional_digest or null means not checked. A declared digest is checked against the resolved file; an observed digest is checked against the runtime-produced digest. Any required equality mismatch is ERD-016.",
+    "dirty_source_semantics": "For planned rows, dirty_state may be dirty/unknown with dirty_policy=allowed_planned and planned evidence. For runtime rows, dirty_state=clean passes without a digest; dirty requires dirty_policy=allow_with_digest, an observed matching sha256 digest, and explicit classification; unknown fails with ERD-010.",
+    "terminal_partial_semantics": "failed requires terminal and logs; partial requires terminal, logs, and mutually exclusive partition evidence; complete requires terminal for runtime rows and forbids a partial claim; superseded requires terminal plus replacement with replacement_pointer_direction=forward_required.",
+    "status_mapping": "Runner completed maps to README complete, Runner failed maps to failed, Runner running maps to running; partial and superseded require their matrix evidence and are never inferred from completed/failed.",
+    "report_draft": "report:draft permits planned references only and forbids observed result claims; all runtime bindings become required when the report status changes to complete/failed/partial/superseded.",
+    "run_manifest_evidence": "Resolve run_manifest.json:/evidence/terminal_evidence and /evidence/partial_evidence. Each object must contain the exact relative path, schema_version, and present boolean defined by x_run_manifest_evidence_contract; present must equal filesystem existence and the file schema_version must match."
+  },
+  "x_binding_equality_rules": {
+    "command": {
+      "sources": [
+        "registry.entrypoint.command",
+        "entrypoint.command",
+        "config.command",
+        "run_manifest.command"
+      ],
+      "comparison": "exact_decoded_string"
+    },
+    "config": {
+      "sources": [
+        "config.json",
+        "config_source.json",
+        "run_manifest.config_identity"
+      ],
+      "comparison": "canonical_json_value_and_digest_when_declared"
+    },
+    "artifact": {
+      "sources": [
+        "README output evidence",
+        "artifact_manifest.artifacts"
+      ],
+      "comparison": "path_size_and_declared_digest"
+    },
+    "source_snapshot": {
+      "sources": [
+        "source_snapshot.json",
+        "run_manifest.source_snapshot"
+      ],
+      "comparison": "identity_and_optional_digest"
+    },
+    "environment_resource_gpu": {
+      "sources": [
+        "environment.json",
+        "resource_plan.json",
+        "gpu_allocation.json",
+        "run_manifest"
+      ],
+      "comparison": "declared identity and allocation equality; no matrix dependency"
+    },
+    "terminal_partial_manifest": {
+      "sources": [
+        "run_manifest.json:/evidence/terminal_evidence",
+        "run_manifest.json:/evidence/partial_evidence",
+        "terminal_evidence.json",
+        "partial_evidence.json"
+      ],
+      "comparison": "exact relative path, schema version, present boolean, and filesystem existence"
+    }
+  },
+  "x_runner_status_mapping": {
+    "mapping": {
+      "running": "running",
+      "completed": "complete",
+      "failed": "failed",
+      "partial": "partial",
+      "superseded": "superseded"
+    },
+    "completed_normalization": "Runner status completed is the sole spelling normalized to README status complete; terminal evidence status uses complete.",
+    "preflight_mapping": {
+      "runner_status": "failed",
+      "readme_status": "failed",
+      "terminal_evidence_status": "failed",
+      "failure_code": "missing_source_config",
+      "failure_stage": "source_config_preflight"
+    },
+    "unmapped_statuses": [],
+    "unmapped_rule": "No status is inferred from an unrelated status; partial and superseded require explicit lifecycle outcomes and their matrix evidence.",
+    "producer": "tools/experiments/run_managed_experiment.py",
+    "manifest_write_point": "finalize_run_manifest emits evidence first, binds /evidence, then writes run_manifest.json and artifact_manifest.json",
+    "mismatch_error": "ERD-019",
+    "outcome_type": "RunnerEvidenceOutcome",
+    "exit_code_rule": "exit_code==0 -> outcome complete -> run_manifest.status=completed -> README status=complete; exit_code!=0 -> outcome failed with command_exit_nonzero/managed_command; source_config_error -> named missing_source_config/source_config_preflight factory; partial/superseded only explicit factories",
+    "destination_owner": "run_managed_experiment.py:emit_runner_evidence derives destinations from context.paths.result_dir; no caller destination argument"
+  },
+  "x_terminal_partial_production": {
+    "canonical_producer": "tools/experiments/run_managed_experiment.py",
+    "owner_operation": "finalize_run_manifest -> finalize_partial_evidence -> emit_runner_evidence",
+    "mode": "direct_emission",
+    "canonical_destination": "experiments/<topic>/result/<run_name>/",
+    "resource_planner_role": "tools/experiments/execution_resource_plan.py writes result witnesses below result/<run_name>/resource_plan/ and preserves existing resource/certificate writes below separate runtime_root; it never writes canonical sibling files.",
+    "terminal_filename": "terminal_evidence.json",
+    "partial_filename": "partial_evidence.json",
+    "terminal_schema_version": "terminal-evidence/v1",
+    "partial_schema_version": "partial-evidence/v1",
+    "payload_schema_refs": {
+      "terminal": "x_evidence_payload_schemas.terminal_evidence",
+      "partial": "x_evidence_payload_schemas.partial_evidence",
+      "provenance": "x_evidence_payload_schemas.provenance_schema",
+      "partition": "x_evidence_payload_schemas.partition_schema"
+    },
+    "terminal_payload": {
+      "required": [
+        "schema_version",
+        "terminal_event_id",
+        "status",
+        "terminal_timestamp",
+        "exit_code",
+        "failure_code",
+        "failure_stage",
+        "stop_reason",
+        "partition",
+        "replacement_run_name",
+        "topic",
+        "run_name",
+        "run_manifest_relative_path",
+        "provenance"
+      ],
+      "status_values": [
+        "complete",
+        "failed",
+        "partial",
+        "superseded"
+      ],
+      "complete_failure_code": null,
+      "complete_failure_stage": null,
+      "superseded_failure_code": "superseded_replacement",
+      "superseded_failure_stage": "supersession",
+      "failure_pairs": {
+        "missing_source_config": "source_config_preflight",
+        "command_exit_nonzero": "managed_command",
+        "timeout": "managed_command",
+        "resource_planner_failure": "resource_planner",
+        "runner_failure": "runner_finalization"
+      },
+      "non_failed_terminal_pairs": {
+        "partial_stop": "partial_finalization",
+        "superseded_replacement": "supersession"
+      },
+      "producer_failure_results": {
+        "evidence_materialization_collision": "RunnerEvidencePublication.outcome=collision; no terminal_evidence payload is emitted",
+        "evidence_materialization_io": "RunnerEvidencePublication.outcome=io; no terminal_evidence payload is emitted"
+      }
+    },
+    "partial_payload": {
+      "required": [
+        "schema_version",
+        "terminal_event_id",
+        "status",
+        "terminal_timestamp",
+        "exit_code",
+        "failure_code",
+        "failure_stage",
+        "partial_is_completion",
+        "stop_reason",
+        "partition",
+        "topic",
+        "run_name",
+        "run_manifest_relative_path",
+        "provenance"
+      ],
+      "status_const": "partial",
+      "partial_is_completion_const": false,
+      "partition_keys": [
+        "universe",
+        "completed",
+        "failed",
+        "in_flight",
+        "unstarted"
+      ],
+      "partition_invariants_ref": "x_evidence_payload_schemas.partition_invariants"
+    },
+    "pre_resource_planner_failure": {
+      "trigger": "source_config_error(source_config) including missing experiments/<topic>/config.yaml",
+      "producer": "tools/experiments/run_managed_experiment.py:finalize_run_manifest",
+      "terminal_status": "failed",
+      "failure_code": "missing_source_config",
+      "failure_stage": "source_config_preflight",
+      "partial_present": false,
+      "resource_planner_entered": false
+    },
+    "write_order": "For outcome.status=partial, publish partial_evidence.json first, then attempt terminal_evidence.json; update run_manifest.json only after both results are published or idempotent_existing. On terminal collision/io retain admitted partial evidence, return aggregate status=partial_admitted_terminal_failure and process code 2, and do not finalize/update the manifest.",
+    "status_evidence_equality": "run_manifest.status=completed maps to README status=complete and terminal.status=complete; failed maps to failed; partial and superseded are explicit outcomes and are not inferred from exit codes.",
+    "checker": "tools/ci/check_experiment_readme.py via exact run_manifest:/evidence pointers, payload schema, and SHA-256 recomputation",
+    "focused_reachable_validation": "Future focused boundaries cover missing-source-config, partial ordering, planner output-root exclusion, and concurrent same/different payload publication; no implementation test is created by this audit.",
+    "partial_aggregate_ref": "x_partial_finalization_aggregate",
+    "failure_behavior": "If partial publication is collision/io, terminal publication is not attempted; return partial_publication_failure and process code 2. If partial is admitted and terminal fails, retain partial evidence with retained_orphan_marker; never delete admitted evidence.",
+    "retry_behavior": "Retry uses identical canonical bytes and per-artifact no-replace publication; equal admitted bytes become idempotent_existing, no admitted destination is deleted or replaced, and each retry recomputes the aggregate.",
+    "process_return_code": "2 for either aggregate publication-failure status; successful aggregate returns outcome.exit_code when non-null, otherwise 0.",
+    "caller_mapping": "run_cli returns the aggregate process_return_code; main propagates it; expected collision/io remain typed publication results and are not converted into RunnerEvidenceOutcome."
+  },
+  "x_metadata_inference": {
+    "metadata_block": "Exactly one <!-- experiment-readme-contract ... --> block is required.",
+    "argument_fields": {
+      "kind": "optional",
+      "status": "optional"
+    },
+    "omission": "If omitted, kind/status are inferred only from the metadata object's readme_kind/status fields. Neither is inferred from headings, filename, path, registry, run_manifest, or prose.",
+    "partial_omission": "If exactly one CLI argument is supplied, infer only the other field from metadata.",
+    "mismatch": "A supplied --kind or --status must equal metadata; mismatch emits ERD-020.",
+    "unresolved": "If metadata is absent, duplicated, or lacks either field needed for inference, emit ERD-022 (or ERD-001/ERD-014 for block count) and exit 2."
+  },
+  "x_schema_argument_policy": {
+    "canonical_path": "documents/experiment-readme-contract-r9.json",
+    "default": "Load canonical_path when --schema is omitted.",
+    "supplied": "A supplied --schema must resolve exactly to canonical_path under --repo-root; all alternate paths are rejected with ERD-021 and exit 2.",
+    "audit_packet": "The packet-local JSON has the same basename for immutable audit validation; this does not create an alternate worker CLI schema."
+  },
+  "x_result_readme_owner": {
+    "path": "experiments/<topic>/result/<run_name>/README.md",
+    "content_owner": "agents/skills/result-artifact-writeout.md",
+    "pointer_producer": "tools/experiments/update_latest_result.py",
+    "pointer_edit_owner": "tools/experiments/update_latest_result.py",
+    "latest_file": "experiments/<topic>/result/LATEST.json",
+    "latest_pointer_object": "/result_readme",
+    "latest_pointer_shape": {
+      "path": "string",
+      "kind": "result",
+      "status": "running|complete|failed|partial|superseded",
+      "run_name": "string",
+      "path_semantics": "Absolute string equal to result_dir/README.md, matching existing latest_result/result_manifest path style."
+    },
+    "status_source": "Read the exactly-one metadata block from the selected result README; result_readme.status must be one of running|complete|failed|partial|superseded, equal metadata.status, and result_readme.kind must equal result.",
+    "implementation_change": "Extend _latest_payload and _latest_markdown to emit /result_readme with absolute README path, kind=result, metadata status, and run_name, while preserving existing latest_result/latest_result_name/result_manifest/summary_json/visual_report_html keys.",
+    "boundary_test": "tests/tools/test_update_latest_result.py: assert LATEST.json:/result_readme path, kind, status and existing pointer fields.",
+    "semantic_checker": "tools/ci/check_experiment_readme.py",
+    "report_boundary": "experiments/report/<run_name>.md remains report-writing owned"
+  },
+  "x_error_code_definitions": {
+    "ERD-001": "missing_metadata_block",
+    "ERD-002": "missing_required_slot",
+    "ERD-003": "duplicate_slot_id",
+    "ERD-004": "empty_or_placeholder_evidence",
+    "ERD-005": "unresolved_reference",
+    "ERD-006": "dependency_violation",
+    "ERD-007": "command_mismatch",
+    "ERD-008": "config_mismatch",
+    "ERD-009": "artifact_mismatch",
+    "ERD-010": "dirty_source_unclassified",
+    "ERD-011": "partial_state_unclassified",
+    "ERD-012": "unsupported_kind_status",
+    "ERD-013": "unknown_metadata_key",
+    "ERD-014": "duplicate_metadata_block",
+    "ERD-015": "registry_delegation_error",
+    "ERD-016": "digest_or_required_equality_mismatch",
+    "ERD-017": "runtime_binding_unavailable",
+    "ERD-018": "runtime_flag_required",
+    "ERD-019": "runner_status_mismatch",
+    "ERD-020": "argument_metadata_mismatch",
+    "ERD-021": "noncanonical_schema_argument",
+    "ERD-022": "kind_status_omission_unresolved",
+    "ERD-023": "terminal_or_log_required",
+    "ERD-024": "partial_partition_required",
+    "ERD-025": "replacement_link_required",
+    "ERD-026": "dirty_source_policy_required",
+    "ERD-027": "evidence_materialization_collision",
+    "ERD-028": "evidence_materialization_io_or_digest_failure",
+    "ERD-029": "pre_resource_planner_terminal_evidence_missing"
+  },
+  "x_replacement_pointer_contract": {
+    "ordinary_forward_references": false,
+    "superseded_required": true,
+    "pointer_binding_key": "replacement",
+    "pointer_evidence_class": "replacement_link",
+    "pointer_direction_field": "replacement_pointer_direction",
+    "required_value": "forward_required",
+    "ordinary_runtime_claims": "forbidden",
+    "status_scope": [
+      "run:superseded",
+      "result:superseded",
+      "report:superseded",
+      "plan:superseded"
+    ]
+  },
+  "x_run_manifest_evidence_contract": {
+    "manifest": "run_manifest.json",
+    "evidence_object_pointer": "/evidence",
+    "path_resolution": "Each evidence.path is a relative filename resolved against the parent directory of run_manifest.json; absolute paths, alternate filenames, and symlink targets fail.",
+    "terminal_evidence": {
+      "object_pointer": "/evidence/terminal_evidence",
+      "path_pointer": "/evidence/terminal_evidence/path",
+      "schema_version_pointer": "/evidence/terminal_evidence/schema_version",
+      "present_pointer": "/evidence/terminal_evidence/present",
+      "sha256_pointer": "/evidence/terminal_evidence/sha256",
+      "exact_path": "terminal_evidence.json",
+      "schema_version": "terminal-evidence/v1",
+      "required_for": [
+        "run:complete",
+        "run:failed",
+        "run:partial",
+        "run:superseded",
+        "result:complete",
+        "result:failed",
+        "result:partial",
+        "result:superseded",
+        "report:complete",
+        "report:failed",
+        "report:partial",
+        "report:superseded"
+      ],
+      "forbidden_for": [
+        "plan:draft",
+        "plan:planned",
+        "plan:complete",
+        "plan:superseded",
+        "run:running",
+        "result:running",
+        "report:draft"
+      ]
+    },
+    "partial_evidence": {
+      "object_pointer": "/evidence/partial_evidence",
+      "path_pointer": "/evidence/partial_evidence/path",
+      "schema_version_pointer": "/evidence/partial_evidence/schema_version",
+      "present_pointer": "/evidence/partial_evidence/present",
+      "sha256_pointer": "/evidence/partial_evidence/sha256",
+      "exact_path": "partial_evidence.json",
+      "schema_version": "partial-evidence/v1",
+      "required_for": [
+        "run:partial",
+        "result:partial",
+        "report:partial"
+      ],
+      "forbidden_for": [
+        "plan:draft",
+        "plan:planned",
+        "plan:complete",
+        "plan:superseded",
+        "run:running",
+        "run:complete",
+        "run:failed",
+        "run:superseded",
+        "result:running",
+        "result:complete",
+        "result:failed",
+        "result:superseded",
+        "report:draft",
+        "report:complete",
+        "report:failed",
+        "report:superseded"
+      ]
+    },
+    "producer": {
+      "path": "tools/experiments/run_managed_experiment.py",
+      "owner": "Runner-owned direct evidence producer",
+      "operation": "direct_emission",
+      "source_path": null,
+      "source_shape": "An in-memory RunnerEvidenceOutcome is the only canonical source; resource-plan files are never copied into canonical siblings.",
+      "destination_directory": "experiments/<topic>/result/<run_name>/",
+      "destination_paths": {
+        "terminal": "experiments/<topic>/result/<run_name>/terminal_evidence.json",
+        "partial": "experiments/<topic>/result/<run_name>/partial_evidence.json"
+      },
+      "resource_plan_noncanonical_paths": {
+        "terminal": "experiments/<topic>/result/<run_name>/resource_plan/terminal_evidence.json",
+        "partial": "experiments/<topic>/result/<run_name>/resource_plan/partial_evidence.json"
+      },
+      "canonical_bytes": "UTF-8 JSON with sort_keys=true, ensure_ascii=true, separators=(comma,colon), followed by exactly one LF; digest is SHA-256 of the complete bytes written to the destination.",
+      "canonical_digest_binding": "run_manifest.json:/evidence/<name>/sha256 equals SHA-256 of the destination bytes; checker recomputes it. Evidence payload does not self-embed its digest.",
+      "atomicity": "Use the atomicity_protocol object; no check-then-replace and no symlink fallback.",
+      "collision_behavior": "Authentication occurs only after atomic os.link returns EEXIST; exact bytes and digest are required for idempotent success, otherwise ERD-027/ERD-028; no destination replacement.",
+      "status_equality": "The evidence status, finalized run_manifest.status mapping, and bound README status must be equal after Runner completed->complete normalization.",
+      "pre_resource_planner": "The same producer is called on every terminal path, including source-config preflight, before any resource planner entry; missing source config emits terminal-evidence/v1 with status=failed, failure_code=missing_source_config, failure_stage=source_config_preflight, and no partial file.",
+      "timestamp_inputs": [
+        "RunContext.created_at",
+        "utc_now() at emission",
+        "manifest.finished_at_utc after emission"
+      ],
+      "provenance_inputs": [
+        "topic",
+        "run_name",
+        "variant",
+        "repo_root",
+        "result_dir",
+        "command argv/source",
+        "config path and snapshot status/digest when available",
+        "source_snapshot path and git identity when available",
+        "environment manifest path when available",
+        "resource planner entry/readback only when reached",
+        "preflight or process-exit failure code/stage"
+      ],
+      "atomicity_protocol": {
+        "temp_creation": "Open a unique name in the destination directory with os.open(temp_name, O_WRONLY|O_CREAT|O_EXCL|O_NOFOLLOW|O_CLOEXEC, 0644, dir_fd=dir_fd); callers own the temp name.",
+        "write_and_sync": "Write all canonical bytes, fsync the temp file descriptor, and close it before publication.",
+        "publication_primitive": "Publish with os.link(temp_name, destination_name, src_dir_fd=dir_fd, dst_dir_fd=dir_fd, follow_symlinks=false); link is atomic no-replace and os.replace/rename-over-destination is forbidden.",
+        "directory_sync": "After successful link and after temp unlink, fsync the destination directory descriptor.",
+        "collision_authentication": "On FileExistsError, open destination with O_RDONLY|O_NOFOLLOW|O_CLOEXEC using the same directory descriptor; require a regular file, fstat before and after reading, unchanged file identity/size, and exact byte plus SHA-256 equality.",
+        "concurrent_outcomes": "For equal payloads exactly one link succeeds and all losing callers return idempotent_existing after authentication. For unequal payloads exactly one link succeeds and every loser returns ERD-027 without modifying the winner. Symlink/non-regular or changing destination authentication returns ERD-027 or ERD-028; no caller replaces it.",
+        "cleanup_owner": "The emit_runner_evidence invocation that created a temp owns unlink cleanup on every failure and after successful link; cleanup failure is ERD-028 and is reported without deleting a destination it did not create.",
+        "no_check_then_replace": true,
+        "focused_concurrency_oracle": "Two reachable concurrent emit_runner_evidence calls for one destination: equal canonical payloads yield one published and one idempotent_existing with no temp files; unequal payloads yield one published and one ERD-027, winner bytes/digest remain unchanged, and no temp files remain."
+      }
+    },
+    "consumer": {
+      "path": "tools/experiments/run_managed_experiment.py",
+      "shape": "The Runner finalizer calls the producer, binds exact relative path/schema/present/sha256 objects under /evidence, then writes run_manifest.json; the checker follows these pointers.",
+      "manifest_pointer_shape": {
+        "terminal": {
+          "path": "terminal_evidence.json",
+          "schema_version": "terminal-evidence/v1",
+          "present": "boolean equal to destination existence",
+          "sha256": "lowercase 64-hex SHA-256 of exact destination bytes"
+        },
+        "partial": {
+          "path": "partial_evidence.json",
+          "schema_version": "partial-evidence/v1",
+          "present": "boolean equal to destination existence",
+          "sha256": "lowercase 64-hex SHA-256 when present, null when absent"
+        }
+      }
+    },
+    "lifecycle_write_point": {
+      "owner": "tools/experiments/run_managed_experiment.py:finalize_run_manifest",
+      "ordering": [
+        "construct one validated RunnerEvidenceOutcome",
+        "if outcome.status=partial, call finalize_partial_evidence and publish partial_evidence.json first",
+        "attempt terminal_evidence.json only after partial result is published or idempotent_existing",
+        "if both admitted, compute destination digests and bind /evidence objects",
+        "write run_manifest.json",
+        "write artifact_manifest.json"
+      ],
+      "preflight": "run_cli source_config_error branch calls finalize_run_manifest with failure_code=missing_source_config; finalize_run_manifest emits terminal evidence before the manifest write and before resource planner entry (which never occurs).",
+      "failure_atomicity": "For partial_publication_failure or partial_admitted_terminal_failure, do not finalize/update run_manifest.json. Retain any admitted partial evidence; only publisher-owned temp files may be cleaned. Return process code 2.",
+      "partial_aggregate": "finalize_partial_evidence publishes partial then terminal and returns RunnerEvidencePublicationAggregate; both per-artifact results, aggregate status, retained marker, retry, cleanup, and process code are authoritative.",
+      "return_shape": "finalize_run_manifest returns RunnerEvidencePublication for non-partial outcomes and RunnerEvidencePublicationAggregate for partial outcomes; expected publication failures never raise."
+    },
+    "checker_validation": [
+      "require exact /evidence objects and exact paths/schema versions for the selected finalized status",
+      "require present equals filesystem existence and reject symlinks/non-regular files",
+      "recompute SHA-256 over exact canonical bytes and compare /evidence/<name>/sha256",
+      "parse terminal-evidence/v1 or partial-evidence/v1 and compare status, failure code/stage, partition, and provenance to run_manifest",
+      "apply the selected lookup-authoritative kind/status predicate without reproducing resource/GPU certificate logic"
+    ],
+    "availability_rule": "A finalized run_manifest contains both evidence objects with exact path/schema/present fields; terminal statuses require terminal present=true, partial status additionally requires partial present=true, and non-partial statuses require partial present=false and sha256=null. A pre-finalization run:running manifest may omit /evidence."
+  },
+  "x_worker_return_authority": {
+    "schema_path": "fresh-worker-return-schema.json",
+    "contract_revision": "r9",
+    "validation_route": "experiment-readme-contract-r9",
+    "current_authority": true
+  },
+  "x_evidence_payload_schemas": {
+    "encoding": {
+      "json": "UTF-8 without BOM; JSON strings contain no NUL; canonical bytes use sort_keys=true, ensure_ascii=true, separators=(comma,colon), and exactly one final LF.",
+      "paths": "Every provenance path is a UTF-8 JSON string using forward slash, relative to the repository root, with no leading slash, no drive prefix, and no path segment equal to ..; run_manifest_relative_path is separately relative to result_dir and is exactly run_manifest.json.",
+      "normalization": "Normalize paths to POSIX separators and remove a leading ./; normalize UTC timestamps to second precision with Z; normalize identifier strings by preserving case and rejecting surrounding whitespace, NUL, CR, and LF; canonicalize arrays in lexicographic order before serialization.",
+      "nullability": "Null is permitted only where the field schema below says null; unavailable preflight paths/digests are null, never omitted."
+    },
+    "provenance_schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "producer",
+        "producer_operation",
+        "repo_root",
+        "result_dir",
+        "run_manifest_path",
+        "topic",
+        "run_name",
+        "variant",
+        "command",
+        "command_source",
+        "config_source_path",
+        "config_snapshot_path",
+        "config_status",
+        "source_snapshot_path",
+        "environment_manifest_path",
+        "resource_plan_entered",
+        "resource_plan_path",
+        "git_commit",
+        "git_branch",
+        "git_dirty",
+        "created_at_utc",
+        "emitted_at_utc",
+        "preflight_stage",
+        "source_config_sha256",
+        "source_snapshot_sha256",
+        "failure_message"
+      ],
+      "properties": {
+        "producer": {
+          "type": "string",
+          "const": "tools/experiments/run_managed_experiment.py"
+        },
+        "producer_operation": {
+          "type": "string",
+          "const": "emit_runner_evidence"
+        },
+        "repo_root": {
+          "type": "string",
+          "const": "."
+        },
+        "result_dir": {
+          "type": "string",
+          "path_relative": true
+        },
+        "run_manifest_path": {
+          "type": "string",
+          "path_relative": true
+        },
+        "topic": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+        },
+        "run_name": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+        },
+        "variant": {
+          "type": "string",
+          "minLength": 1
+        },
+        "command": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
+        },
+        "command_source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "config_source_path": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "nullable": true,
+          "path_relative": true
+        },
+        "config_snapshot_path": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "nullable": true,
+          "path_relative": true
+        },
+        "config_status": {
+          "type": "string",
+          "enum": [
+            "copied",
+            "missing",
+            "not_available"
+          ]
+        },
+        "source_snapshot_path": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "nullable": true,
+          "path_relative": true
+        },
+        "environment_manifest_path": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "nullable": true,
+          "path_relative": true
+        },
+        "resource_plan_entered": {
+          "type": "boolean"
+        },
+        "resource_plan_path": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "nullable": true,
+          "path_relative": true
+        },
+        "git_commit": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "nullable": true,
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "git_branch": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "nullable": true
+        },
+        "git_dirty": {
+          "type": "boolean"
+        },
+        "created_at_utc": {
+          "type": "string",
+          "timestamp": "UTC-second-Z"
+        },
+        "emitted_at_utc": {
+          "type": "string",
+          "timestamp": "UTC-second-Z"
+        },
+        "preflight_stage": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "nullable": true,
+          "enum": [
+            "source_config_preflight",
+            "managed_command",
+            "resource_planner",
+            "runner_finalization",
+            "supersession",
+            null
+          ]
+        },
+        "source_config_sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "nullable": true,
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "source_snapshot_sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "nullable": true,
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "failure_message": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "nullable": true,
+          "single_line_utf8": true
+        }
+      }
+    },
+    "partition_schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "universe",
+        "completed",
+        "failed",
+        "in_flight",
+        "unstarted"
+      ],
+      "properties": {
+        "universe": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+          }
+        },
+        "completed": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+          }
+        },
+        "failed": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+          }
+        },
+        "in_flight": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+          }
+        },
+        "unstarted": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:/-]*$"
+          }
+        }
+      }
+    },
+    "terminal_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "terminal_event_id",
+        "status",
+        "terminal_timestamp",
+        "exit_code",
+        "failure_code",
+        "failure_stage",
+        "stop_reason",
+        "partition",
+        "replacement_run_name",
+        "topic",
+        "run_name",
+        "run_manifest_relative_path",
+        "provenance"
+      ],
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "terminal-evidence/v1"
+        },
+        "terminal_event_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "complete",
+            "failed",
+            "partial",
+            "superseded"
+          ]
+        },
+        "terminal_timestamp": {
+          "type": "string",
+          "timestamp": "UTC-second-Z"
+        },
+        "exit_code": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "nullable": true
+        },
+        "failure_code": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "nullable": true,
+          "enum": [
+            "missing_source_config",
+            "command_exit_nonzero",
+            "timeout",
+            "resource_planner_failure",
+            "runner_failure",
+            "partial_stop",
+            "superseded_replacement",
+            null
+          ]
+        },
+        "failure_stage": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "nullable": true,
+          "enum": [
+            "source_config_preflight",
+            "managed_command",
+            "resource_planner",
+            "runner_finalization",
+            "partial_finalization",
+            "evidence_publication",
+            "supersession",
+            null
+          ]
+        },
+        "stop_reason": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "nullable": true,
+          "enum": [
+            "user_interrupt",
+            "timeout",
+            "resource_planner_failure",
+            "command_failure",
+            "runner_failure",
+            null
+          ]
+        },
+        "partition": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "nullable": true,
+          "$ref": "#/x_evidence_payload_schemas/partition_schema"
+        },
+        "replacement_run_name": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "nullable": true,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+        },
+        "topic": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+        },
+        "run_name": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+        },
+        "run_manifest_relative_path": {
+          "type": "string",
+          "const": "run_manifest.json"
+        },
+        "provenance": {
+          "$ref": "#/x_evidence_payload_schemas/provenance_schema"
+        }
+      },
+      "literal_invariants": [
+        "status=complete => exit_code=0, failure_code=null, failure_stage=null, stop_reason=null, partition=null, replacement_run_name=null",
+        "status=failed => failure_code and failure_stage are one of the paired values declared by RunnerEvidenceOutcome; replacement_run_name=null and partition=null",
+        "status=partial => failure_code=partial_stop, failure_stage=partial_finalization, stop_reason is non-null, partition is non-null, replacement_run_name=null",
+        "status=superseded => failure_code=superseded_replacement, failure_stage=supersession, replacement_run_name is non-null, exit_code=null, stop_reason=null, partition=null"
+      ]
+    },
+    "partial_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "terminal_event_id",
+        "status",
+        "terminal_timestamp",
+        "exit_code",
+        "failure_code",
+        "failure_stage",
+        "partial_is_completion",
+        "stop_reason",
+        "partition",
+        "topic",
+        "run_name",
+        "run_manifest_relative_path",
+        "provenance"
+      ],
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "partial-evidence/v1"
+        },
+        "terminal_event_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+        },
+        "status": {
+          "type": "string",
+          "const": "partial"
+        },
+        "terminal_timestamp": {
+          "type": "string",
+          "timestamp": "UTC-second-Z"
+        },
+        "exit_code": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "nullable": true
+        },
+        "failure_code": {
+          "type": "string",
+          "const": "partial_stop"
+        },
+        "failure_stage": {
+          "type": "string",
+          "const": "partial_finalization"
+        },
+        "partial_is_completion": {
+          "type": "boolean",
+          "const": false
+        },
+        "stop_reason": {
+          "type": "string",
+          "enum": [
+            "user_interrupt",
+            "timeout",
+            "resource_planner_failure",
+            "command_failure",
+            "runner_failure"
+          ]
+        },
+        "partition": {
+          "$ref": "#/x_evidence_payload_schemas/partition_schema"
+        },
+        "topic": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+        },
+        "run_name": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+        },
+        "run_manifest_relative_path": {
+          "type": "string",
+          "const": "run_manifest.json"
+        },
+        "provenance": {
+          "$ref": "#/x_evidence_payload_schemas/provenance_schema"
+        }
+      },
+      "literal_invariants": [
+        "partition.universe is the complete expected case-id set",
+        "the four arrays are pairwise disjoint",
+        "the union of completed, failed, in_flight, and unstarted equals universe",
+        "all arrays are lexicographically sorted",
+        "partial_is_completion is false"
+      ]
+    },
+    "partition_invariants": [
+      "universe contains every expected case exactly once",
+      "each case_id occurs in exactly one of completed, failed, in_flight, or unstarted",
+      "no partition array contains a value outside universe",
+      "the four partition arrays are sorted lexicographically",
+      "empty partitions are represented as [] rather than null or omission"
+    ]
+  },
+  "x_runner_evidence_outcome": {
+    "type_name": "RunnerEvidenceOutcome",
+    "representation": "frozen typed record/dataclass with a closed constructor algebra; only the named factories below can construct it. failure_code/failure_stage are not caller-supplied tuple fields.",
+    "fields": {
+      "status": {
+        "type": "Literal",
+        "values": [
+          "complete",
+          "failed",
+          "partial",
+          "superseded"
+        ]
+      },
+      "exit_code": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "nullable": true
+      },
+      "terminal_event_id": {
+        "type": "string"
+      },
+      "terminal_timestamp": {
+        "type": "string",
+        "timestamp": "UTC-second-Z"
+      },
+      "failure_code": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "nullable": true
+      },
+      "failure_stage": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "nullable": true
+      },
+      "stop_reason": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "nullable": true
+      },
+      "partition": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "nullable": true
+      },
+      "replacement_run_name": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "nullable": true
+      },
+      "provenance": {
+        "type": "RunnerEvidenceProvenance"
+      }
+    },
+    "signatures": {
+      "from_process_exit": "build_runner_evidence_outcome(context: RunContext, *, exit_code: int) -> RunnerEvidenceOutcome",
+      "from_preflight": "build_missing_source_config_outcome(context: RunContext, *, exit_code: int, message: str) -> RunnerEvidenceOutcome",
+      "partial": "RunnerEvidenceOutcome.partial(context: RunContext, *, stop_reason: Literal[user_interrupt|timeout|resource_planner_failure|command_failure|runner_failure], partition: PartialPartition, exit_code: int|null) -> RunnerEvidenceOutcome",
+      "superseded": "RunnerEvidenceOutcome.superseded(context: RunContext, *, replacement_run_name: str) -> RunnerEvidenceOutcome",
+      "emit": "emit_runner_evidence(context: RunContext, outcome: RunnerEvidenceOutcome) -> RunnerEvidencePublication (typed result; expected publication failures do not raise)",
+      "finalize": "finalize_run_manifest(context: RunContext, manifest: dict[str, object], start_monotonic: float, outcome: RunnerEvidenceOutcome, patterns: EvalArtifactPatterns) -> RunnerEvidencePublication | RunnerEvidencePublicationAggregate; outcome.status=partial returns the aggregate.",
+      "from_timeout": "build_timeout_outcome(context: RunContext, *, exit_code: int | None, timeout_seconds: float, message: str) -> RunnerEvidenceOutcome",
+      "from_resource_planner_failure": "build_resource_planner_failure_outcome(context: RunContext, *, planner_error: ResourcePlannerFailure, resource_plan_path: Path | None) -> RunnerEvidenceOutcome",
+      "from_runner_failure": "build_runner_failure_outcome(context: RunContext, *, error: RunnerFailure) -> RunnerEvidenceOutcome",
+      "finalize_partial": "finalize_partial_evidence(context: RunContext, outcome: RunnerEvidenceOutcome, manifest: dict[str, object], start_monotonic: float, patterns: EvalArtifactPatterns) -> RunnerEvidencePublicationAggregate"
+    },
+    "constructors": {
+      "complete": {
+        "status": "complete",
+        "exit_code": 0,
+        "failure_code": null,
+        "failure_stage": null,
+        "stop_reason": null,
+        "partition": null,
+        "replacement_run_name": null
+      },
+      "missing_source_config": {
+        "status": "failed",
+        "exit_code": "PREFLIGHT_FAILURE_EXIT_CODE",
+        "failure_code": "missing_source_config",
+        "failure_stage": "source_config_preflight",
+        "stop_reason": null,
+        "partition": null,
+        "replacement_run_name": null,
+        "factory": "build_missing_source_config_outcome",
+        "construction_site": "run_cli source_config_error branch before resource planner",
+        "arbitrary_tuple_rejected": true
+      },
+      "process_exit_zero": {
+        "status": "complete",
+        "exit_code": 0,
+        "failure_code": null,
+        "failure_stage": null
+      },
+      "process_exit_nonzero": {
+        "status": "failed",
+        "exit_code": "the exact managed command exit_code",
+        "failure_code": "command_exit_nonzero",
+        "failure_stage": "managed_command",
+        "stop_reason": null,
+        "partition": null,
+        "replacement_run_name": null,
+        "factory": "build_runner_evidence_outcome",
+        "construction_site": "managed-command completion branch after exact nonzero exit",
+        "arbitrary_tuple_rejected": true
+      },
+      "partial": {
+        "status": "partial",
+        "exit_code": "caller-provided int or null",
+        "failure_code": "partial_stop",
+        "failure_stage": "partial_finalization",
+        "stop_reason": "one declared partial stop reason",
+        "partition": "one validated PartialPartition",
+        "replacement_run_name": null
+      },
+      "superseded": {
+        "status": "superseded",
+        "exit_code": null,
+        "failure_code": "superseded_replacement",
+        "failure_stage": "supersession",
+        "stop_reason": null,
+        "partition": null,
+        "replacement_run_name": "required replacement run_name"
+      },
+      "timeout": {
+        "factory": "build_timeout_outcome",
+        "construction_site": "tools/experiments/run_managed_experiment.py:managed-command timeout adapter",
+        "status": "failed",
+        "failure_code": "timeout",
+        "failure_stage": "managed_command",
+        "exit_code": "exact process exit code if available, otherwise null",
+        "available_fields": [
+          "command",
+          "timeout_seconds",
+          "timeout signal/deadline",
+          "captured terminal/log paths",
+          "config/source/environment bindings"
+        ],
+        "provenance": [
+          "producer",
+          "producer_operation",
+          "command",
+          "timeout_seconds",
+          "created_at",
+          "emitted_at",
+          "source/config/environment paths and digests",
+          "failure_message"
+        ],
+        "manifest": "finalize_run_manifest binds terminal evidence and writes run_manifest.status=failed only after successful evidence publication",
+        "validation_owner": "tests/tools/test_run_managed_experiment.py::test_timeout_factory_and_manifest_binding"
+      },
+      "resource_planner_failure": {
+        "factory": "build_resource_planner_failure_outcome",
+        "construction_site": "tools/experiments/run_managed_experiment.py:resource-plan invocation adapter catch",
+        "status": "failed",
+        "failure_code": "resource_planner_failure",
+        "failure_stage": "resource_planner",
+        "exit_code": "planner-provided exit code if available, otherwise null",
+        "available_fields": [
+          "typed planner error code/message",
+          "resource_plan_path or null",
+          "result_witness_root",
+          "runtime_root",
+          "resource_plan_entered=true",
+          "command/config/source/environment bindings"
+        ],
+        "provenance": [
+          "producer",
+          "producer_operation",
+          "resource_plan_entered",
+          "resource_plan_path",
+          "runtime_root",
+          "created_at",
+          "emitted_at",
+          "failure_message"
+        ],
+        "manifest": "finalize_run_manifest binds terminal evidence and writes run_manifest.status=failed only after successful evidence publication; planner runtime side effects remain separately attributed",
+        "validation_owner": "tests/tools/test_run_managed_experiment.py::test_resource_planner_failure_factory_and_manifest_binding"
+      },
+      "runner_failure": {
+        "factory": "build_runner_failure_outcome",
+        "construction_site": "tools/experiments/run_managed_experiment.py:RunnerFailure boundary in run_cli/finalization",
+        "status": "failed",
+        "failure_code": "runner_failure",
+        "failure_stage": "runner_finalization",
+        "exit_code": "exact known exit code or null",
+        "available_fields": [
+          "typed RunnerFailure code",
+          "sanitized exception class/message",
+          "lifecycle stage",
+          "command/config/source/environment bindings"
+        ],
+        "provenance": [
+          "producer",
+          "producer_operation",
+          "created_at",
+          "emitted_at",
+          "preflight_stage",
+          "failure_message",
+          "source/config/environment paths and digests"
+        ],
+        "manifest": "finalize_run_manifest binds terminal evidence and writes run_manifest.status=failed only if canonical evidence publication succeeds",
+        "validation_owner": "tests/tools/test_run_managed_experiment.py::test_runner_failure_factory_and_manifest_binding"
+      },
+      "publication_failure_not_runner_outcome": {
+        "factory": null,
+        "construction_site": "tools/experiments/run_managed_experiment.py:emit_runner_evidence typed publication result",
+        "status": "no RunnerEvidenceOutcome; outcome is RunnerEvidencePublication collision or io",
+        "failure_code": [
+          "evidence_materialization_collision",
+          "evidence_materialization_io"
+        ],
+        "available_fields": [
+          "destination_path",
+          "content_sha256",
+          "existing_sha256",
+          "cleanup_status",
+          "errno",
+          "reason",
+          "exception_type"
+        ],
+        "provenance": "publication result only; no terminal evidence payload and no finalized run_manifest is written",
+        "manifest": "run_cli returns publication failure through the existing process error channel; it does not fabricate a terminal failure pair",
+        "validation_owner": "tests/tools/test_run_managed_experiment.py::test_publication_result_mapping"
+      }
+    },
+    "existing_exit_code_rule": "run_cli maps exit_code==0 to the complete factory and nonzero process exit to command_exit_nonzero/managed_command; timeout, planner, and RunnerFailure require their named typed boundary factories. Source-config preflight uses the named preflight factory. Partial and superseded are never inferred from exit codes.",
+    "runner_manifest_status": {
+      "complete": "completed",
+      "failed": "failed",
+      "partial": "partial",
+      "superseded": "superseded"
+    },
+    "no_worker_invention": "Unknown failure_code/failure_stage pairs, publication failure codes, arbitrary status strings, unsorted partitions, and caller-supplied destination paths are unconstructible and rejected before serialization.",
+    "failure_pairs": {
+      "missing_source_config": "source_config_preflight",
+      "command_exit_nonzero": "managed_command",
+      "timeout": "managed_command",
+      "resource_planner_failure": "resource_planner",
+      "runner_failure": "runner_finalization"
+    },
+    "non_failed_outcomes": {
+      "partial_stop": "partial/partial_finalization",
+      "superseded_replacement": "superseded/supersession"
+    },
+    "producer_exception_classification": {
+      "evidence_materialization_collision": {
+        "code": "ERD-027",
+        "representation": "RunnerEvidencePublication outcome=collision",
+        "constructible_as_runner_evidence_outcome": false,
+        "exception_policy": "expected FileExistsError is caught and encoded; no exception escapes emit_runner_evidence"
+      },
+      "evidence_materialization_io": {
+        "code": "ERD-028",
+        "representation": "RunnerEvidencePublication outcome=io",
+        "constructible_as_runner_evidence_outcome": false,
+        "exception_policy": "expected OSError/ValueError/UnicodeError is caught and encoded; no exception escapes emit_runner_evidence"
+      },
+      "unexpected_nonpublication_exception": {
+        "representation": "RunnerFailure input to build_runner_failure_outcome",
+        "constructible_as_runner_evidence_outcome": true,
+        "exception_policy": "caught only at the Runner boundary after sanitization"
+      }
+    },
+    "publication_type": {
+      "type_name": "RunnerEvidencePublication",
+      "representation": "frozen typed record/dataclass returned by emit_runner_evidence and finalize_run_manifest",
+      "fields": {
+        "outcome": {
+          "type": "Literal",
+          "values": [
+            "published",
+            "idempotent_existing",
+            "collision",
+            "io"
+          ]
+        },
+        "destination_path": {
+          "type": "string",
+          "encoding": "repo-root-relative POSIX path",
+          "pattern": "experiments/<topic>/result/<run_name>/(terminal_evidence.json|partial_evidence.json)"
+        },
+        "content_sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "nullable": true,
+          "format": "lowercase 64-hex SHA-256 of attempted canonical bytes; non-null after serialization"
+        },
+        "existing_sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "nullable": true,
+          "format": "lowercase 64-hex digest of authenticated existing regular destination; otherwise null"
+        },
+        "cleanup_status": {
+          "type": "Literal",
+          "values": [
+            "not_needed",
+            "cleaned",
+            "cleanup_failed"
+          ]
+        },
+        "errno": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "nullable": true
+        },
+        "reason_code": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "nullable": true,
+          "values": [
+            null,
+            "already_exists_equal",
+            "destination_exists_different",
+            "destination_symlink",
+            "destination_non_regular",
+            "serializer_error",
+            "temp_open_error",
+            "write_error",
+            "fsync_error",
+            "link_error",
+            "directory_fsync_error",
+            "cleanup_error",
+            "destination_changed_during_authentication"
+          ]
+        },
+        "reason": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "nullable": true,
+          "encoding": "single-line UTF-8"
+        },
+        "exception_type": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "nullable": true,
+          "values": [
+            null,
+            "FileExistsError",
+            "OSError",
+            "ValueError",
+            "UnicodeError"
+          ]
+        },
+        "temp_path": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "nullable": true,
+          "encoding": "repo-root-relative POSIX path; null when no temp was created"
+        },
+        "serializer": {
+          "const": "canonical_json_v1"
+        },
+        "publication_method": {
+          "const": "temp_create_fsync_link_no_replace"
+        }
+      },
+      "result_invariants": [
+        "published: destination did not exist, canonical bytes were linked into place, content_sha256 is non-null, existing_sha256=null, cleanup_status=cleaned",
+        "idempotent_existing: authenticated existing regular bytes equal content_sha256, no destination mutation, existing_sha256=content_sha256, cleanup_status=cleaned or not_needed",
+        "collision: destination is different, symlink, non-regular, or changed during authentication; destination is not mutated, existing_sha256 is set only when authenticated, cleanup_status=cleaned or cleanup_failed",
+        "io: serialization or expected filesystem operation failed; destination is not replaced, errno/reason/exception_type identify the boundary, cleanup_status records temp cleanup"
+      ],
+      "exception_result_mapping": {
+        "serializer_ValueError_or_UnicodeError": "io, reason_code=serializer_error, exception_type=ValueError or UnicodeError, no exception escapes",
+        "temp_or_write_or_fsync_or_link_OSError": "io except EEXIST; reason_code identifies operation, errno copied, no exception escapes",
+        "link_EEXIST": "authenticate destination; equal regular bytes -> idempotent_existing, otherwise collision; FileExistsError is encoded, not raised",
+        "unexpected_BaseException": "not a publication result; propagates to the RunnerFailure boundary and is not silently converted"
+      },
+      "caller_behavior": "finalize_run_manifest returns the typed result. published/idempotent_existing permits exact evidence bindings and manifest publication; collision/io returns to run_cli, which writes no finalized run_manifest and returns the existing publication-failure process code. No caller fabricates a RunnerEvidenceOutcome from collision/io."
+    },
+    "failed_pair_algebra": [
+      {
+        "pair": "missing_source_config/source_config_preflight",
+        "factory": "build_missing_source_config_outcome(context, *, exit_code, message)",
+        "construction_site": "tools/experiments/run_managed_experiment.py:run_cli source_config_error branch before resource planner entry",
+        "available_fields": [
+          "PREFLIGHT_FAILURE_EXIT_CODE",
+          "missing source/config path and status",
+          "command/config/source/environment bindings",
+          "message",
+          "created_at",
+          "emitted_at"
+        ],
+        "provenance_fields": [
+          "producer",
+          "producer_operation",
+          "repo_root",
+          "result_dir",
+          "run_manifest_path",
+          "topic",
+          "run_name",
+          "config_status=missing",
+          "resource_plan_entered=false",
+          "preflight_stage=source_config_preflight",
+          "failure_message"
+        ],
+        "manifest_status": "publish terminal_evidence with status=failed, failure_code=missing_source_config, failure_stage=source_config_preflight; bind /evidence and write run_manifest.status=failed; partial absent",
+        "validation_owner": "tests/tools/test_run_managed_experiment.py::test_missing_source_config_factory_and_manifest_binding"
+      },
+      {
+        "pair": "command_exit_nonzero/managed_command",
+        "factory": "build_runner_evidence_outcome(context, *, exit_code) after the managed process returns",
+        "construction_site": "tools/experiments/run_managed_experiment.py:managed-command completion branch for exact nonzero exit",
+        "available_fields": [
+          "exact process exit_code",
+          "command argv",
+          "captured log paths",
+          "config/source/environment bindings",
+          "created_at",
+          "emitted_at"
+        ],
+        "provenance_fields": [
+          "producer",
+          "producer_operation",
+          "command",
+          "config/source/environment paths and digests",
+          "failure_message",
+          "timestamps"
+        ],
+        "manifest_status": "publish terminal_evidence with status=failed, failure_code=command_exit_nonzero, failure_stage=managed_command; bind /evidence and write run_manifest.status=failed",
+        "validation_owner": "tests/tools/test_run_managed_experiment.py::test_nonzero_exit_factory_and_manifest_binding"
+      },
+      {
+        "pair": "timeout/managed_command",
+        "factory": "build_timeout_outcome(context, *, exit_code, timeout_seconds, message)",
+        "construction_site": "tools/experiments/run_managed_experiment.py:managed-command timeout adapter",
+        "available_fields": [
+          "timeout_seconds",
+          "deadline/signal",
+          "known process exit_code or null",
+          "command argv",
+          "captured logs",
+          "config/source/environment bindings",
+          "timestamps"
+        ],
+        "provenance_fields": [
+          "producer",
+          "producer_operation",
+          "command",
+          "timeout_seconds",
+          "config/source/environment paths and digests",
+          "failure_message",
+          "timestamps"
+        ],
+        "manifest_status": "publish terminal_evidence with status=failed, failure_code=timeout, failure_stage=managed_command; bind /evidence and write run_manifest.status=failed",
+        "validation_owner": "tests/tools/test_run_managed_experiment.py::test_timeout_factory_and_manifest_binding"
+      },
+      {
+        "pair": "resource_planner_failure/resource_planner",
+        "factory": "build_resource_planner_failure_outcome(context, *, planner_error, resource_plan_path)",
+        "construction_site": "tools/experiments/run_managed_experiment.py:resource-plan invocation adapter catch after planner entry",
+        "available_fields": [
+          "typed planner error code/message",
+          "planner exit_code or null",
+          "resource_plan_path or null",
+          "result_witness_root",
+          "runtime_root",
+          "resource_plan_entered=true",
+          "bindings",
+          "timestamps"
+        ],
+        "provenance_fields": [
+          "producer",
+          "producer_operation",
+          "resource_plan_entered=true",
+          "resource_plan_path",
+          "runtime_root",
+          "config/source/environment paths and digests",
+          "failure_message",
+          "timestamps"
+        ],
+        "manifest_status": "publish terminal_evidence with status=failed, failure_code=resource_planner_failure, failure_stage=resource_planner; bind /evidence and write run_manifest.status=failed; planner runtime-root writes remain attributed to planner",
+        "validation_owner": "tests/tools/test_run_managed_experiment.py::test_resource_planner_failure_factory_and_manifest_binding"
+      },
+      {
+        "pair": "runner_failure/runner_finalization",
+        "factory": "build_runner_failure_outcome(context, *, error: RunnerFailure)",
+        "construction_site": "tools/experiments/run_managed_experiment.py:typed RunnerFailure catch at run_cli/finalization boundary for non-publication failures",
+        "available_fields": [
+          "sanitized RunnerFailure code/class/message",
+          "lifecycle stage",
+          "known exit_code or null",
+          "bindings",
+          "timestamps"
+        ],
+        "provenance_fields": [
+          "producer",
+          "producer_operation",
+          "preflight_stage",
+          "config/source/environment paths and digests",
+          "failure_message",
+          "timestamps"
+        ],
+        "manifest_status": "publish terminal_evidence with status=failed, failure_code=runner_failure, failure_stage=runner_finalization; bind /evidence and write run_manifest.status=failed only if publication succeeds",
+        "validation_owner": "tests/tools/test_run_managed_experiment.py::test_runner_failure_factory_and_manifest_binding"
+      }
+    ],
+    "publication_aggregate_ref": "x_partial_finalization_aggregate"
+  },
+  "x_resource_planner_output_contract": {
+    "result_dir_input": "Runner passes context.paths.result_dir, the selected directory containing run_manifest.json; it is required and resolved before planner entry.",
+    "runtime_root_input": "Runner derives a local runtime_root at execute_managed_run from AGENT_CANON_SHARED_RUNTIME_SOURCE, validates the exact shared runtime directory, and passes it explicitly; RunContext is not expanded.",
+    "root_derivation": {
+      "function": "derive_resource_plan_roots(result_dir: Path, runtime_root: Path) -> ResourcePlanRoots",
+      "result_witness_root": "result_dir / resource_plan",
+      "runtime_persistence_root": "runtime_root",
+      "canonical_siblings": [
+        "result_dir/terminal_evidence.json",
+        "result_dir/partial_evidence.json"
+      ],
+      "boundary": "witness paths must resolve below result_witness_root; resource/certificate persistence paths may resolve below runtime_root; canonical siblings are outside both planner write sets and owned by Runner."
+    },
+    "run_function": "run_resource_plan(plan: ResourcePlan, *, result_dir: Path, runtime_root: Path) -> ResourcePlanResult; both roots are validated by derive_resource_plan_roots and no evidence destination argument is accepted.",
+    "cli": "python3 tools/experiments/execution_resource_plan.py --plan PLAN_JSON --result-dir experiments/<topic>/result/<run_name> --runtime-root RUNTIME_ROOT",
+    "allowed_write_roots": {
+      "result_witnesses": {
+        "root": "result_dir/resource_plan",
+        "owner": "tools/experiments/execution_resource_plan.py",
+        "allowed": "execution_resource_plan.json and planner result witnesses/certificates below this root"
+      },
+      "runtime_persistence": {
+        "root": "runtime_root",
+        "owner": "existing resource/certificate persistence in tools/experiments/execution_resource_plan.py",
+        "allowed": "existing runtime-root resource and certificate outputs below this root; this is not a README evidence sibling"
+      },
+      "canonical_evidence": {
+        "root": "result_dir",
+        "owner": "tools/experiments/run_managed_experiment.py:emit_runner_evidence",
+        "allowed": "terminal_evidence.json and partial_evidence.json only through the Runner publisher; planner has no write permission"
+      }
+    },
+    "output_paths": {
+      "plan": "result_dir/resource_plan/execution_resource_plan.json",
+      "witnesses": "result_dir/resource_plan/<planner-witness>.json",
+      "runtime_certificates": "runtime_root/<existing-resource-or-certificate-path>"
+    },
+    "canonical_sibling_rule": "The planner must never open, link, rename, replace, or emit result_dir/terminal_evidence.json or result_dir/partial_evidence.json. This rule does not forbid its existing writes below runtime_root.",
+    "runner_call": "Inside execute_managed_run after frozen_plan construction and before StandardRunner construction: run_resource_plan(frozen_plan, result_dir=context.paths.result_dir, runtime_root=runtime_root)",
+    "focused_assertion": "A reachable execute_managed_run test captures the exact planner call and local runtime_root; the planner-root test records result witnesses under result_dir/resource_plan, preserves existing runtime-root resource/certificate writes, and proves canonical siblings remain untouched.",
+    "validation_owner": "tests/tools/test_run_managed_experiment.py::test_execute_managed_run_resolves_local_runtime_root_and_calls_planner; tests/tools/test_execution_resource_plan.py::test_derive_resource_plan_roots_validates_absolute_separate_directories"
+  },
+  "x_failure_algebra": {
+    "authority": "x_runner_evidence_outcome.failure_pairs and this object; Markdown only explains them.",
+    "allowed_failed_pairs": [
+      "missing_source_config/source_config_preflight",
+      "command_exit_nonzero/managed_command",
+      "timeout/managed_command",
+      "resource_planner_failure/resource_planner",
+      "runner_failure/runner_finalization"
+    ],
+    "excluded_pairs": [
+      "partial_stop/partial_finalization (partial outcome)",
+      "superseded_replacement/supersession (superseded outcome)",
+      "evidence_materialization_collision/evidence_publication (RunnerEvidencePublication collision)",
+      "evidence_materialization_io/evidence_publication (RunnerEvidencePublication io)"
+    ],
+    "arbitrary_tuple_rule": "No public constructor accepts failure_code and failure_stage independently; each allowed pair is produced only by its named factory and every other pair is statically unconstructible.",
+    "failed_pair_algebra_ref": "x_runner_evidence_outcome.failed_pair_algebra",
+    "producer_exception_rule": "evidence_materialization_collision/evidence_publication and evidence_materialization_io/evidence_publication are publication-result classifications only; no factory constructs them as RunnerEvidenceOutcome."
+  },
+  "x_revision_authority": {
+    "revision": "r9",
+    "canonical_json": "experiment-readme-contract-r9.json",
+    "canonical_markdown": "experiment-readme-contract-r9.md",
+    "historical_nonoperative": [
+      "r2",
+      "r3",
+      "r4",
+      "r5",
+      "r6",
+      "r7",
+      "r8"
+    ],
+    "worker_route": "r9"
+  },
+  "x_partial_finalization_aggregate": {
+    "type_name": "RunnerEvidencePublicationAggregate",
+    "kind_const": "partial_finalization",
+    "additional_properties": false,
+    "required_fields": [
+      "kind",
+      "status",
+      "partial_result",
+      "terminal_result",
+      "partial_admitted",
+      "terminal_admitted",
+      "admitted",
+      "attempt_order",
+      "retained_orphan_marker",
+      "retry",
+      "cleanup",
+      "manifest_update",
+      "process_return_code",
+      "caller_mapping"
+    ],
+    "representation": "frozen typed record/dataclass returned by finalize_partial_evidence and by finalize_run_manifest when outcome.status=partial; it contains the independent publication result for each canonical artifact and never replaces or deletes an admitted destination.",
+    "fields": {
+      "kind": {
+        "const": "partial_finalization"
+      },
+      "status": {
+        "type": "Literal",
+        "values": [
+          "success_published",
+          "success_idempotent_existing",
+          "success_mixed",
+          "partial_admitted_terminal_failure",
+          "partial_publication_failure"
+        ]
+      },
+      "partial_result": {
+        "type": "RunnerEvidencePublication",
+        "required": true
+      },
+      "terminal_result": {
+        "type": [
+          "RunnerEvidencePublication",
+          "null"
+        ],
+        "nullable": true
+      },
+      "partial_admitted": {
+        "type": "boolean"
+      },
+      "terminal_admitted": {
+        "type": "boolean"
+      },
+      "admitted": {
+        "type": "boolean",
+        "meaning": "partial_admitted and terminal_admitted"
+      },
+      "attempt_order": {
+        "type": "array",
+        "items": {
+          "type": "Literal",
+          "values": [
+            "partial_evidence.json",
+            "terminal_evidence.json"
+          ]
+        },
+        "const": [
+          "partial_evidence.json",
+          "terminal_evidence.json"
+        ]
+      },
+      "retained_orphan_marker": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "nullable": true
+      },
+      "retry": {
+        "type": "RunnerEvidencePublicationRetry"
+      },
+      "cleanup": {
+        "type": "RunnerEvidenceAggregateCleanup"
+      },
+      "manifest_update": {
+        "type": "RunnerEvidenceManifestUpdate"
+      },
+      "process_return_code": {
+        "type": "integer"
+      },
+    "caller_mapping": {
+      "type": "object",
+      "additional_properties": false,
+      "required": [
+        "run_cli_return",
+        "main_return",
+        "success_return_rule",
+        "publication_failure_return",
+        "stderr",
+        "outcome_conversion"
+      ],
+      "properties": {
+        "run_cli_return": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "main_return": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "success_return_rule": {
+          "const": "outcome.exit_code when it is an integer in 0..255, otherwise 0"
+        },
+        "publication_failure_return": {
+          "const": 2
+        },
+        "stderr": {
+          "const": "typed aggregate status and per-artifact reason codes"
+        },
+        "outcome_conversion": {
+          "const": "collision/io remain RunnerEvidencePublication results; no RunnerEvidenceOutcome is fabricated"
+        }
+      }
+    }
+  },
+    "status_predicates": {
+      "success_published": "partial_result.outcome=published and terminal_result.outcome=published; partial_admitted=true; terminal_admitted=true; admitted=true; retained_orphan_marker=null; process_return_code=outcome.exit_code when non-null else 0",
+      "success_idempotent_existing": "partial_result.outcome=idempotent_existing and terminal_result.outcome=idempotent_existing; both admitted; retained_orphan_marker=null; process_return_code=outcome.exit_code when non-null else 0",
+      "success_mixed": "one result is published and the other is idempotent_existing; both admitted; retained_orphan_marker=null; process_return_code=outcome.exit_code when non-null else 0",
+      "partial_admitted_terminal_failure": "partial_result.outcome in [published,idempotent_existing], partial_admitted=true, terminal_result.outcome in [collision,io], terminal_admitted=false, admitted=false; partial evidence is retained and terminal evidence is not admitted; process_return_code=2",
+      "partial_publication_failure": "partial_result.outcome in [collision,io], partial_admitted=false, terminal_result=null, terminal_admitted=false, admitted=false; terminal is not attempted; process_return_code=2"
+    },
+    "ordering": "For outcome.status=partial, publish partial_evidence.json first. Attempt terminal_evidence.json only after partial_result is published or idempotent_existing. Never publish terminal first and never update run_manifest.json between the two attempts.",
+    "retained_orphan_marker_schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "path",
+        "sha256",
+        "terminal_path",
+        "terminal_present",
+        "manifest_published",
+        "deletion"
+      ],
+      "properties": {
+        "kind": {
+          "const": "retained_partial_evidence_without_terminal"
+        },
+        "path": {
+          "const": "partial_evidence.json"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "terminal_path": {
+          "const": "terminal_evidence.json"
+        },
+        "terminal_present": {
+          "const": false
+        },
+        "manifest_published": {
+          "const": false
+        },
+        "deletion": {
+          "const": "forbidden"
+        }
+      }
+    },
+    "retained_orphan_marker_rule": "Required exactly for status=partial_admitted_terminal_failure; null for all success and partial_publication_failure statuses. It is a diagnostic marker in the returned aggregate, not a file that permits deletion or replacement.",
+    "retry": {
+      "type_name": "RunnerEvidencePublicationRetry",
+      "fields": {
+        "allowed": {
+          "type": "boolean",
+          "const": true
+        },
+        "same_payload_bytes_required": {
+          "type": "boolean",
+          "const": true
+        },
+        "partial_retry": "If partial evidence is already admitted with equal bytes, return idempotent_existing; never delete or replace it.",
+        "terminal_retry": "Retry only terminal publication with the same canonical bytes; equal existing bytes return idempotent_existing; differing/symlink/non-regular destination remains collision and is never replaced.",
+        "aggregate_recompute": "Each retry returns a new aggregate from the two per-artifact results; previous admitted evidence remains valid.",
+        "retry_owner": "tools/experiments/run_managed_experiment.py:run_cli/finalize_run_manifest"
+      }
+    },
+    "cleanup": {
+      "type_name": "RunnerEvidenceAggregateCleanup",
+      "fields": {
+        "owner": {
+          "const": "emit_runner_evidence"
+        },
+        "temp_files": "Each per-artifact publisher removes only its own unadmitted temp file after success or expected failure.",
+        "admitted_destinations": "Deletion, replacement, unlink, and rollback of an admitted partial_evidence.json or terminal_evidence.json are forbidden.",
+        "cleanup_failure": "cleanup_status=cleanup_failed remains in the relevant per-artifact result and aggregate process_return_code=2; no admitted destination is deleted.",
+        "orphan_cleanup": "The caller may remove only an unadmitted temp path recorded by the publisher; it may not remove the retained partial evidence."
+      }
+    },
+    "manifest_update": {
+      "type_name": "RunnerEvidenceManifestUpdate",
+      "fields": {
+        "success": "Write /evidence/partial_evidence and /evidence/terminal_evidence exact path/schema/present/sha256 bindings, then write the finalized run_manifest.json and artifact_manifest.json.",
+        "partial_admitted_terminal_failure": "Do not update or finalize run_manifest.json status/evidence pointers; retain the existing running/pre-finalization manifest and return the aggregate.",
+        "partial_publication_failure": "Do not attempt terminal publication and do not update/finalize run_manifest.json.",
+        "ordering": "Manifest update occurs only after both per-artifact results are admitted and their digests are verified."
+      }
+    },
+    "process_return_code": {
+      "success": "outcome.exit_code when it is an integer, otherwise 0",
+      "publication_failure": {
+        "const": 2,
+        "name": "EVIDENCE_PUBLICATION_FAILURE_EXIT_CODE"
+      },
+      "caller": "run_cli returns aggregate.process_return_code; main propagates it. It prints the typed publication reason to stderr and does not convert collision/io into a RunnerEvidenceOutcome.",
+      "no_vague_code": true
+    },
+    "focused_reachable_validation": "tests/tools/test_run_managed_experiment.py::test_partial_finalization_aggregate_order_failure_retention_retry_and_return_code covers partial published/idempotent then terminal collision/io, partial-first ordering, retained marker, no deletion, no manifest update, retry idempotence, and exact return code 2. It does not duplicate static slot or matrix predicates."
+  },
+  "x_runner_runtime_root_contract": {
+    "owner": "tools/experiments/run_managed_experiment.py:execute_managed_run",
+    "run_context_change": {
+      "allowed": false,
+      "rule": "Do not add runtime_root to RunContext; bind it as a local at execute_managed_run and rebind the ResourceRequest with dataclasses.replace."
+    },
+    "execute_signature": "execute_managed_run(context: RunContext, run_config: Mapping[str, object]) -> ExecutionResult",
+    "environment_resolution": {
+      "function": "resolve_managed_runtime_root(environment: Mapping[str, str]) -> Path",
+      "source_key": "AGENT_CANON_SHARED_RUNTIME_SOURCE",
+      "default": "/var/lib/agent-canon/runtime",
+      "required_value": "The key is absent or its value is exactly /var/lib/agent-canon/runtime; any other value constructs TypedPreflightFailure(runtime_identity_path_mismatch).",
+      "validation": [
+        "value must be a string",
+        "Path(value) must be absolute",
+        "Path(value).resolve(strict=True) must equal Path(/var/lib/agent-canon/runtime).resolve(strict=True)",
+        "resolved path must be an existing directory",
+        "symlink/relative/non-directory values are rejected"
+      ],
+      "environment_payload": "build_run_environment(context) remains the source of the run environment; the runtime-root key is resolved from os.environ at execute_managed_run and is not silently copied into RunContext."
+    },
+    "local_binding_order": [
+      "request = _resource_request_for_managed_run(context, run_config); this keeps the existing environment resolution and request construction.",
+      "runtime_root = resolve_managed_runtime_root(os.environ).",
+      "request = replace(request, runtime_root=runtime_root); no RunContext field is added.",
+      "derive_resource_plan_roots(context.paths.result_dir, runtime_root) before planner entry.",
+      "pass request.environment unchanged to NvidiaSMIResourceProbe.discover and the GpuRunRequest.",
+      "invoke run_resource_plan at the frozen-plan boundary before StandardRunner.run."
+    ],
+    "planner_call_site": "Inside execute_managed_run, after frozen_plan is complete and before build_admitted_environment/StandardRunner construction: planner_result = run_resource_plan(frozen_plan, result_dir=context.paths.result_dir, runtime_root=runtime_root).",
+    "path_api": "derive_resource_plan_roots(result_dir: Path, runtime_root: Path) -> ResourcePlanRoots",
+    "planner_api": "run_resource_plan(plan: ResourcePlan, *, result_dir: Path, runtime_root: Path) -> ResourcePlanResult",
+    "path_validation": "Both inputs are resolved absolute existing directories; result_dir is the selected run directory containing run_manifest.json; runtime_root resolves to /var/lib/agent-canon/runtime, is distinct from result_dir, and is not inside result_dir; result_witness_root=result_dir/resource_plan.",
+    "tests": [
+      "tests/tools/test_run_managed_experiment.py::test_execute_managed_run_resolves_local_runtime_root_and_calls_planner",
+      "tests/tools/test_run_managed_experiment.py::test_runtime_root_env_mismatch_is_typed_preflight_failure",
+      "tests/tools/test_execution_resource_plan.py::test_derive_resource_plan_roots_validates_absolute_separate_directories"
+    ],
+    "no_source_edit_in_audit": true
+  }
+}
