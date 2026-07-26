@@ -55,6 +55,9 @@ goal.md
 # Generated devcontainer runtime file
 .devcontainer/docker-compose.generated.yml
 
+# ローカル生成の VS Code ワークスペース投影設定（コミット対象外）
+/.vscode/module-sources.code-workspace
+
 # Reusable local C++ artifacts
 .state/cpp-install/
 .state/agent-eval-runs/
