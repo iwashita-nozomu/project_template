@@ -4,8 +4,10 @@
 # upstream design AGENTS.md parent repository runtime entrypoint
 # upstream design vendor/agent-canon/documents/responsibility-scope-management.md responsibility scope policy
 # upstream design vendor/agent-canon/documents/templates/responsibility-scope.template.toml starter manifest for template-derived repositories
+# upstream design vendor/agent-canon/documents/rule/dependency-module-changes.md generated module workspace projection ownership
 # downstream implementation tools/agent_tools/responsibility_scope.py validates this manifest
 # downstream implementation tools/sync_agent_canon.sh repairs AgentCanon root views
+# downstream implementation vendor/agent-canon/tools/agent_tools/dependency_module_change.py generates module workspace projection
 # @dependency-end
 
 catalog_kind = "agent_canon_responsibility_scope"
@@ -83,7 +85,6 @@ paths = [
   "README.md",
   "QUICK_START.md",
   "responsibility-scope.toml",
-  ".vscode/module-sources.code-workspace",
   "documents/**",
   "docker/**",
   "scripts/**",
