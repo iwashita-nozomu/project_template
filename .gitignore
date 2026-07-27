@@ -33,6 +33,9 @@ tests/logs/
 # Local git worktrees
 .worktrees/
 
+# Dependency source-edit topic roots
+workspace/
+
 # New experiment run artifact layout
 experiments/**/result/*
 !experiments/**/result/.gitkeep
