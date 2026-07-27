@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # @dependency-start
 # contract environment
-# responsibility Builds and smoke-tests the template Docker image with submodule-aware AgentCanon devcontainer smoke.
+# responsibility Builds and smoke-tests the base image and validates the projected devcontainer wrappers.
 # upstream environment Dockerfile canonical container image definition
 # upstream environment packs/default.toml default runtime pack metadata
 # upstream environment ../.dockerignore excludes AgentCanon from image build context
@@ -102,26 +102,25 @@ if [ "$mount_docker_sock" = "1" ]; then
 python3 --version
 docker version'
 else
-  smoke_script='set -euo pipefail
+smoke_script='set -euo pipefail
 python3 --version
 python3 -m pip --version
 cmake --version
 ninja --version
-test -f .devcontainer/post-create.sh || {
-  printf "missing shared devcontainer post-create; checkout vendor/agent-canon before Docker smoke\n" >&2
-  exit 2
-}
-bash .devcontainer/post-create.sh /workspace
-node --version
-npm --version
-codex --version
-gh --version
-jupyter --version
-jupyter lab --version
 ssh -V
 docker --version
 dot -V
-python3 -c "import jax; print(jax.__version__)"
+for script in \
+  .devcontainer/bootstrap-shared-runtime.sh \
+  .devcontainer/finalize-shared-runtime.sh \
+  .devcontainer/generate-runtime-compose.sh \
+  .devcontainer/post-attach.sh \
+  .devcontainer/post-create.sh \
+  .devcontainer/post-create-parent.sh; do
+  bash -n "$script"
+done
+test -x vendor/agent-canon/.devcontainer/finalize-shared-runtime.sh
+printf "devcontainer lifecycle smoke deferred to managed compose and fresh-clone checks\n"
 cmake -S . -B build/cpp/docker-smoke
 cmake --build build/cpp/docker-smoke
 ctest --test-dir build/cpp/docker-smoke --output-on-failure
