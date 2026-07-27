@@ -7,7 +7,7 @@ upstream design AGENTS.md agent runtime entrypoint
 upstream design LICENSE repository license text
 upstream design vendor/agent-canon/CONTAINER_OPERATIONS.md AgentCanon container and devcontainer operation rulebook
 downstream design QUICK_START.md quick-start reader path
-downstream design documents/licensing-policy.md repository license boundary
+downstream design documents/contracts/licensing-policy.md repository license boundary
 @dependency-end
 -->
 
@@ -33,9 +33,9 @@ runtime hub を探すための次の入口です。
 - `テンプレート構造` と `基本方針` で repo 全体の責務を確認し、clone、初期手順、実験、Docker、詳細入口は目的別 section を読みます。
 - 新規 clone、派生 repo の立ち上げ、どの正本文書へ進むかを決めるときに最初に読みます。
 
-## テンプレート構造
+## テンプレート構造の例
 
-この repo は、project 固有の実装、実験、文書、開発環境、agent runtime を同じ root から扱えるように分けています。
+この repo は、project 固有の実装、実験、文書、開発環境、agent runtime を同じ root から扱えるように分けています。以下は利用可能な surface の例であり、親レポに要求する十分条件や完全な tree ではありません。必要条件は AgentCanon の shared surface manifest と親レポの owner document だけで確認します。
 clone 直後にまず見る入口はこの README、Codex repo instruction chain の最上位入口は `AGENTS.md`、agent workflow / skill の hub は `agents/README.md`、実際の初期化入口は `scripts/start_repository.sh` です。
 
 ```text
@@ -54,10 +54,12 @@ clone 直後にまず見る入口はこの README、Codex repo instruction chain
 ├── agents/                           # agent runtime profile の root view。vendor への symlink
 ├── .agents/, .codex/                 # Codex / shared agent runtime view
 ├── vendor/agent-canon/               # shared agent canon の Git submodule pin
-├── tools/                            # shared automation view。vendor への symlink
+├── tools/agent-canon/                            # shared automation view。vendor への symlink
 ├── scripts/                          # repo-local bootstrap 専用 script
 ├── docker/                           # Docker runtime profile の元設定
-├── .devcontainer/                    # devcontainer profile の entrypoint
+├── .devcontainer/                    # 親固有 source と linked devcontainer.json
+│   ├── devcontainer.json -> ../vendor/agent-canon/.devcontainer/devcontainer.json
+│   └── post-create-parent.sh
 ├── .github/                          # GitHub automation profile の workflow と PR template
 ├── experiments/                      # experiment profile の topic、artifact、report
 ├── cmake/                            # C++ profile の helper module
@@ -70,11 +72,11 @@ clone 直後にまず見る入口はこの README、Codex repo instruction chain
 
 この template は surface を最初から持ちますが、全 surface が常時必須ではありません。
 profile と validation の正本は
-[Runtime Profiles And Check Matrix](vendor/agent-canon/documents/runtime-profiles-and-check-matrix.md)
+[Runtime Profiles And Check Matrix](vendor/agent-canon/documents/runtime/runtime-profiles-and-check-matrix.md)
 です。
 
 - Base project: README、QUICK_START、documents index、project code/tests。
-- Agent runtime: `AGENTS.md`、`agents/`、`.agents/`、`.codex/`、shared `tools/`。
+- Agent runtime: `AGENTS.md`、`agents/`、`.agents/`、`.codex/`、shared `tools/agent-canon/`。
 - Environment: `docker/`、`.devcontainer/`、runtime packs、Jupyter。
 - GitHub automation: `.github/`、Actions、PR templates。
 - Experiment / research: `experiments/`、`references/`、managed run artifacts。
@@ -92,10 +94,10 @@ profile と validation の正本は
 - `agents/`
   - エージェントチーム定義、運用ルール、workflow canon の正本です。
   - root の `agents/` は `vendor/agent-canon/agents` への symlink です。shared workflow を直すときは `vendor/agent-canon/` 側を正本として扱います。
-- `tools/`
+- `tools/agent-canon/`
   - shared automation、agent helper、CI/check、container runner の入口です。
   - agent helper、CI / review / validation、container runner、experiment helper、Markdown helper の実装はここに置きます。
-  - root の `tools/` は `vendor/agent-canon/tools` への symlink です。project 固有の slug 置換や bare remote 初期化はここに置きません。
+  - root の `tools/agent-canon/` は `vendor/agent-canon/tools` への symlink です。project 固有の slug 置換や bare remote 初期化はここに置きません。
 - `scripts/`
   - repo-local bootstrap の入口です。
   - template 固有の slug 置換、display name 置換、bare remote 初期化だけをここに置きます。
@@ -145,9 +147,9 @@ profile と validation の正本は
 - 実験は 1 回の run を fresh 実行として扱い、途中停止 run を正式結果として継ぎ足しません。
 - Python の静的解析とテスト、Markdown の体裁とリンク確認は、該当 path を変更した時の日常 check に含めます。
 - `psutil`、`pipdeptree`、`deptry`、`snakeviz` は observability / dependency / performance profile の tool です。全 repo の baseline requirement としては扱いません。
-- repo-local `.venv` は template default では host に作らず、container 内だけ `python3 tools/ci/python_env_policy.py --create` で `.venv` を許可します。派生 repo が host venv を採用する場合は project-local environment policy で明示します。
+- repo-local `.venv` は template default では host に作らず、container 内だけ `python3 tools/agent-canon/ci/python_env_policy.py --create` で `.venv` を許可します。派生 repo が host venv を採用する場合は project-local environment policy で明示します。
 
-shared agent canon は `vendor/agent-canon/` の Git submodule pin として参照します。clone 時は submodule も取得し、root の symlink / copy surface はその pin を runtime view として参照します。ownership と surface 種別は [SHARED_RUNTIME_SURFACES.md](vendor/agent-canon/documents/SHARED_RUNTIME_SURFACES.md) を正本にし、`.github/workflows/agent-coordination.yml` と `.github/PULL_REQUEST_TEMPLATE/agent_canon.md` は symlink ではなく vendor 正本から同期する root copy として扱います。
+shared agent canon は `vendor/agent-canon/` の Git submodule pin として参照します。clone 時は submodule も取得し、root の symlink / copy surface はその pin を runtime view として参照します。ownership と surface 種別は [SHARED_RUNTIME_SURFACES.md](vendor/agent-canon/documents/runtime/SHARED_RUNTIME_SURFACES.md) を正本にし、`.github/workflows/agent-coordination.yml` と `.github/PULL_REQUEST_TEMPLATE/agent_canon.md` は symlink ではなく vendor 正本から同期する root copy として扱います。
 
 ## Clone And AgentCanon Update
 
@@ -163,28 +165,28 @@ submodule なしで clone した場合、または `vendor/agent-canon/` が空�
 ```bash
 git submodule sync vendor/agent-canon
 git submodule update --init --recursive vendor/agent-canon
-bash tools/sync_agent_canon.sh check
+bash tools/agent-canon/sync_agent_canon.sh check
 ```
 
-AgentCanon の URL や branch 情報が `.gitmodules` と submodule config でずれた場合は `git submodule sync vendor/agent-canon` を先に実行します。submodule worktree が stale / detached / local-only commit を含む場合は、親 repo の tree diff ではなく `vendor/agent-canon/` の branch / status を確認します。local commit がある branch は `bash tools/update_agent_canon.sh merge-main-into-current` で GitHub `main` を取り込んでから GitHub へ push し、AgentCanon PR にします。
+AgentCanon の URL や branch 情報が `.gitmodules` と submodule config でずれた場合は `git submodule sync vendor/agent-canon` を先に実行します。submodule worktree が stale / detached / local-only commit を含む場合は、親 repo の tree diff ではなく `vendor/agent-canon/` の branch / status を確認します。local commit がある branch は `bash tools/agent-canon/update_agent_canon.sh merge-main-into-current` で GitHub `main` を取り込んでから GitHub へ push し、AgentCanon PR にします。
 
-AgentCanon の更新順序は、AgentCanon repo を更新して push / PR merge、template の `vendor/agent-canon` pin 更新、`bash tools/sync_agent_canon.sh link-root`、validation、template commit / push です。`.gitmodules` は template runtime contract の一部なので、AgentCanon URL や branch に関わる PR では必ず確認します。AgentCanon GitHub `main`、template GitHub `origin/main`、submodule pin SHA を PR や closeout で混同しません。
+AgentCanon の更新順序は、AgentCanon repo を更新して push / PR merge、template の `vendor/agent-canon` pin 更新、`bash tools/agent-canon/sync_agent_canon.sh link-root`、validation、template commit / push です。`.gitmodules` は template runtime contract の一部なので、AgentCanon URL や branch に関わる PR では必ず確認します。AgentCanon GitHub `main`、template GitHub `origin/main`、submodule pin SHA を PR や closeout で混同しません。
 
 ## まず読むもの
 
 - `QUICK_START.md`
 - Codex runtime instruction を確認する場合は `AGENTS.md`
 - `documents/README.md`
-- `vendor/agent-canon/documents/runtime-profiles-and-check-matrix.md`
-- clone/bootstrap を触る場合は `documents/template-bootstrap.md`
+- `vendor/agent-canon/documents/runtime/runtime-profiles-and-check-matrix.md`
+- clone/bootstrap を触る場合は `documents/contracts/template-bootstrap.md`
 - agent workflow / skill を確認する場合は `agents/README.md` と `agents/workflows/README.md`
-- Python を触る場合は `vendor/agent-canon/documents/coding-conventions-python.md`
-- C++ を触る場合は `vendor/agent-canon/documents/cpp-build-layout.md`
+- Python を触る場合は `vendor/agent-canon/documents/conventions/coding-conventions-python.md`
+- C++ を触る場合は `vendor/agent-canon/documents/design/cpp-build-layout.md`
 - 開発環境を触る場合は `docker/` と `vendor/agent-canon/CONTAINER_OPERATIONS.md`
-- host 前提を確認する場合は `documents/linux-wsl-host-requirements.md`
+- host 前提を確認する場合は `documents/contracts/linux-wsl-host-requirements.md`
 - 実験を行う場合は `agents/workflows/experiment-workflow.md`
 - 実験 topic を作る場合は `experiments/README.md`
-- topic registry を触る場合は `vendor/agent-canon/documents/experiment-registry.md`
+- topic registry を触る場合は `vendor/agent-canon/documents/experiments/experiment-registry.md`
 
 ## 日常の進め方
 
@@ -205,7 +207,7 @@ bash scripts/start_repository.sh --validate-only
 
 初期化時の AgentCanon 正本は GitHub submodule です。shared canon の差分は `vendor/agent-canon/` 内の GitHub branch に commit し、AgentCanon PR で戻します。
 
-最短 runbook は `documents/template-bootstrap.md`、notes を育てる方針は `vendor/agent-canon/documents/notes-lifecycle.md` を見ます。
+最短 runbook は `documents/contracts/template-bootstrap.md`、notes を育てる方針は `vendor/agent-canon/documents/operations/notes-lifecycle.md` を見ます。
 
 ## 実験を含むプロジェクトでの使い方
 
@@ -230,7 +232,7 @@ experiments/
 
 実験方法論そのものは `agents/workflows/experiment-workflow.md` と `agents/workflows/research-workflow.md` を正本にします。
 agent に実験つき改造 loop を回させる場合は `agents/skills/adaptive-improvement-loop.md` を outer loop、`agents/skills/experiment-lifecycle.md` を run 単位の分岐に使います。
-server で回す実験コードの実体テンプレは `experiments/_template/`、topic 正本は `experiments/registry.toml`、topic scaffold は `tools/experiments/create_experiment_topic.py`、run metadata を残す入口は `tools/experiments/run_managed_experiment.py` です。
+server で回す実験コードの実体テンプレは `experiments/_template/`、topic 正本は `experiments/registry.toml`、topic scaffold は `tools/agent-canon/experiments/create_experiment_topic.py`、run metadata を残す入口は `tools/agent-canon/experiments/run_managed_experiment.py` です。
 
 ## よく使うコマンド
 
@@ -261,7 +263,7 @@ host mount などの agent ergonomics を持ちます。template 固有の実装
 Jupyter notebook runtime は notebook profile です。host browser から使う場合は `make docker-jupyter` を実行し、runner が `docker/install_python_dependencies.sh` を通してから JupyterLab を起動します。既定 token は local development 用の例で、shared host では `JUPYTER_TOKEN` を明示してください。host 側では template default として repo-local `.venv` を作らず、devcontainer や nested Codex など container 内でだけ `make python-env-status` と `make python-env-prepare` を使って `.venv` を用意します。
 
 Dockerfile、requirements、Python installer、runtime pack のいずれかを変えたら
-`bash tools/docker_dependency_validator.sh` を先に通します。image build や pack smoke に
+`bash tools/agent-canon/docker_dependency_validator.sh` を先に通します。image build や pack smoke に
 影響する変更では `make docker-build-check` も通します。ローカルに `docker` / `podman` が
 ない場合は、GitHub Actions の `Docker Build` workflow を使います。
 
@@ -274,7 +276,7 @@ auth reuse、post-create、attach status の詳細は `CONTAINER_OPERATIONS.md` 
 `docker/README.md` に寄せます。
 
 container 内では `PYTHONPATH=/workspace/python` を前提にします。
-C++ を使うときの canonical entrypoint は root [CMakeLists.txt](CMakeLists.txt) です。helper module は [cmake/README.md](cmake/README.md)、layout と artifact reuse policy は [cpp-build-layout.md](vendor/agent-canon/documents/cpp-build-layout.md) を見ます。
+C++ を使うときの canonical entrypoint は root [CMakeLists.txt](CMakeLists.txt) です。helper module は [cmake/README.md](cmake/README.md)、layout と artifact reuse policy は [cpp-build-layout.md](vendor/agent-canon/documents/design/cpp-build-layout.md) を見ます。
 
 ```bash
 docker build -t project-template -f docker/Dockerfile .
@@ -282,7 +284,7 @@ docker run --rm -it \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v $(pwd):/workspace -w /workspace \
   project-template bash
-bash .devcontainer/post-create.sh /workspace
+bash vendor/agent-canon/.devcontainer/post-create.sh /workspace
 codex --version
 gh --version
 docker --version
@@ -299,8 +301,8 @@ make server-check
 cmake -S . -B build/cpp/dev
 cmake --build build/cpp/dev
 ctest --test-dir build/cpp/dev --output-on-failure
-python3 tools/ci/run_container_pack.py --pack docker/packs/default.toml --print-only
-python3 tools/ci/run_codex_in_repo_container.py --print-only
+python3 tools/agent-canon/ci/run_container_pack.py --pack docker/packs/default.toml --print-only
+python3 tools/agent-canon/ci/run_codex_in_repo_container.py --print-only
 ```
 
 ## 詳細入口
@@ -308,13 +310,13 @@ python3 tools/ci/run_codex_in_repo_container.py --print-only
 - 規約と運用: `documents/README.md`
 - 補助メモ: `notes/README.md`
 - エージェント運用: `agents/README.md`
-- shared automation: `tools/README.md`
+- shared automation: `tools/agent-canon/README.md`
 - repo-local bootstrap: `scripts/README.md`
 
 ## License
 
 This template repository is licensed under Apache License 2.0. See
-[LICENSE](LICENSE) and [documents/licensing-policy.md](documents/licensing-policy.md).
+[LICENSE](LICENSE) and [documents/contracts/licensing-policy.md](documents/contracts/licensing-policy.md).
 
 Derived repositories may choose their own project license by replacing the root
 `LICENSE` and package metadata. The AgentCanon submodule remains licensed by its

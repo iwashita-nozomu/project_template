@@ -1,18 +1,18 @@
 # @dependency-start
 # contract configuration
 # responsibility Defines template make targets for validation, setup, and agent workflow automation.
-# upstream implementation tools/agent_tools/evaluate_agent_run.py exposes agent-evaluate target
-# upstream implementation tools/agent_tools/task_close.py enforces closeout gates
-# upstream implementation tools/agent_tools/run_repo_dependency_review.sh exposes repo-wide dependency review
-# upstream implementation tools/agent_tools/review_backlog_scan.sh exposes integrated review backlog scans
+# upstream implementation tools/agent-canon/agent_tools/evaluate_agent_run.py exposes agent-evaluate target
+# upstream implementation tools/agent-canon/agent_tools/task_close.py enforces closeout gates
+# upstream implementation tools/agent-canon/agent_tools/run_repo_dependency_review.sh exposes repo-wide dependency review
+# upstream implementation tools/agent-canon/agent_tools/review_backlog_scan.sh exposes integrated review backlog scans
 # @dependency-end
 
 PYTHON ?= python3
 
-AGENT_TOOLS := tools/agent_tools
-CI_TOOLS := tools/ci
-AGENT_CANON_SYNC := bash tools/sync_agent_canon.sh
-AGENT_CANON_UPDATE := bash tools/update_agent_canon.sh
+AGENT_TOOLS := tools/agent-canon/agent_tools
+CI_TOOLS := tools/agent-canon/ci
+AGENT_CANON_SYNC := bash tools/agent-canon/sync_agent_canon.sh
+AGENT_CANON_UPDATE := bash tools/agent-canon/update_agent_canon.sh
 
 DOCKER_DEFAULT_PACK ?= docker/packs/default.toml
 DOCKER_HOST_PACK ?= docker/packs/default-host-docker.toml
@@ -38,11 +38,11 @@ REPO_WIDE_REVIEW_QUERY ?= repo-wide review runtime surface stale path check
 # Full confidence gate: agent/runtime, docs, Rust, container, pytest, pyright,
 # pydocstyle, and ruff. Use check-matrix for targeted day-to-day validation.
 ci:
-	bash tools/ci/run_all_checks.sh
+	bash tools/agent-canon/ci/run_all_checks.sh
 
 # Broad gate with ruff skipped; still runs the other full-confidence surfaces.
 ci-quick:
-	bash tools/ci/run_all_checks.sh --quick
+	bash tools/agent-canon/ci/run_all_checks.sh --quick
 
 # changed-path / profile based check selector
 check-matrix:
@@ -59,7 +59,7 @@ check-matrix:
 
 # template fresh clone acceptance
 fresh-clone-check:
-	bash tools/ci/check_fresh_clone.sh
+	bash tools/agent-canon/ci/check_fresh_clone.sh
 
 # Agent workflow targets
 # clone-time repository bootstrap
@@ -133,7 +133,7 @@ user-preference-log:
 # Documentation and generated artifacts
 # repo-wide Markdown lint / link checks
 docs-check:
-	tools/bin/agent-canon docs check
+	tools/agent-canon/bin/agent-canon docs check
 
 # remove generated, ignored artifacts that make the template workspace noisy
 clean-generated:
@@ -144,7 +144,7 @@ clean-generated:
 		logs \
 		reports \
 		tests/logs \
-		.devcontainer/docker-compose.generated.yml
+		.agent-canon/docker-compose.generated.yml
 
 # GitHub and agent-runtime targets
 # GitHub Actions / PR template convention checks
@@ -156,7 +156,7 @@ agent-checks:
 	$(MAKE) agent-surface-checks
 
 agent-surface-checks:
-	bash tools/ci/check_agent_canon_latest.sh
+	bash tools/agent-canon/ci/check_agent_canon_latest.sh
 	$(AGENT_CANON_SYNC) check
 	$(PYTHON) $(AGENT_TOOLS)/check_agent_runtime_alignment.py
 	$(PYTHON) $(AGENT_TOOLS)/smoke_test_research_perspective_pack.py
@@ -164,7 +164,7 @@ agent-surface-checks:
 # AgentCanon sync/update targets
 # read-only gate for upstream agent-canon freshness
 agent-canon-latest-check:
-	bash tools/ci/check_agent_canon_latest.sh
+	bash tools/agent-canon/ci/check_agent_canon_latest.sh
 
 # shared surface drift only
 agent-canon-check:
@@ -193,12 +193,12 @@ agent-canon-merge-main:
 
 # shared canon 専用の PR gate
 agent-canon-pr-check:
-	bash tools/ci/check_agent_canon_pr.sh
+	bash tools/agent-canon/ci/check_agent_canon_pr.sh
 
 # Docker and runtime targets
 # Dockerfile と requirements の整合
 docker-check:
-	bash tools/docker_dependency_validator.sh
+	bash tools/agent-canon/docker_dependency_validator.sh
 
 # 現在の runtime で repo-local .venv が許可されるかを表示
 python-env-status:
@@ -222,7 +222,8 @@ docker-run:
 
 # devcontainer compose を canonical pack から生成
 devcontainer-render:
-	bash .devcontainer/generate-runtime-compose.sh
+	AGENT_CANON_DEVCONTAINER_REPO_ROOT=. AGENT_CANON_DOCKER_COMPOSE_OUTPUT=.agent-canon/docker-compose.generated.yml \
+	bash vendor/agent-canon/.devcontainer/generate-runtime-compose.sh
 
 # main server host readiness
 server-check:
@@ -251,7 +252,7 @@ docker-codex-host-docker:
 # Help targets
 # 開発開始の確認
 dev-setup:
-	@echo "Template clone is ready. Read documents/template-bootstrap.md, then run: make fresh-clone-check"
+	@echo "Template clone is ready. Read documents/contracts/template-bootstrap.md, then run: make fresh-clone-check"
 
 # ツール情報表示
 tools-help:

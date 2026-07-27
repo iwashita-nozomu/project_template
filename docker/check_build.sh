@@ -111,11 +111,11 @@ ssh -V
 docker --version
 dot -V
 for script in \
-  .devcontainer/bootstrap-shared-runtime.sh \
-  .devcontainer/finalize-shared-runtime.sh \
-  .devcontainer/generate-runtime-compose.sh \
-  .devcontainer/post-attach.sh \
-  .devcontainer/post-create.sh \
+  vendor/agent-canon/.devcontainer/bootstrap-shared-runtime.sh \
+  vendor/agent-canon/.devcontainer/finalize-shared-runtime.sh \
+  vendor/agent-canon/.devcontainer/generate-runtime-compose.sh \
+  vendor/agent-canon/.devcontainer/post-attach.sh \
+  vendor/agent-canon/.devcontainer/post-create.sh \
   .devcontainer/post-create-parent.sh; do
   bash -n "$script"
 done

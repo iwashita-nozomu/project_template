@@ -3,10 +3,10 @@
 contract policy
 responsibility Provides a Japanese repository audit checklist for this template.
 upstream design ../AGENTS.md defines runtime and closeout gates.
-upstream design ../vendor/agent-canon/documents/REVIEW_PROCESS.md defines review evidence and merge gates.
-upstream design ../vendor/agent-canon/documents/agent-canon-github-remote.md defines AgentCanon remote policy.
-upstream design template-github-remote.md defines Template remote policy.
-upstream design ../vendor/agent-canon/documents/FILE_CHECKLIST_OPERATIONS.md defines routine operation checks.
+upstream design ../vendor/agent-canon/documents/conventions/REVIEW_PROCESS.md defines review evidence and merge gates.
+upstream design ../vendor/agent-canon/documents/agent-canon/agent-canon-github-remote.md defines AgentCanon remote policy.
+upstream design contracts/template-github-remote.md defines Template remote policy.
+upstream design ../vendor/agent-canon/documents/operations/FILE_CHECKLIST_OPERATIONS.md defines routine operation checks.
 @dependency-end
 -->
 
@@ -58,7 +58,7 @@ git rev-parse origin/main
 - [ ] GitHub 操作の protocol が `gh auth status` と矛盾していない
 - [ ] SSH 利用時は `github.com` の host key と GitHub auth が通る
 - [ ] HTTPS 利用時は非対話 fetch が credential error で止まらない
-- [ ] shared root surface drift がある場合は `bash tools/sync_agent_canon.sh link-root` で修復済み
+- [ ] shared root surface drift がある場合は `bash tools/agent-canon/sync_agent_canon.sh link-root` で修復済み
 
 確認コマンド:
 
@@ -83,7 +83,7 @@ git -C vendor/agent-canon ls-remote origin main
 確認コマンド:
 
 ```bash
-python3 tools/agent_tools/surface_manifest.py removed-legacy-paths
+python3 tools/agent-canon/agent_tools/surface_manifest.py removed-legacy-paths
 test ! -e mcp
 git status --short --branch --untracked-files=all
 ```
@@ -92,7 +92,7 @@ git status --short --branch --untracked-files=all
 
 - [ ] root `agents/` は `vendor/agent-canon/agents` の runtime view として整合している
 - [ ] root `.agents/` は `vendor/agent-canon/.agents` と整合している
-- [ ] root `tools/` は `vendor/agent-canon/tools` と整合している
+- [ ] root `tools/agent-canon/` は `vendor/agent-canon/tools` と整合している
 - [ ] removed legacy surface `mcp` は root view として扱われていない
 - [ ] `AGENTS.md` は thin entrypoint として保たれている
 - [ ] shared surface の変更は `vendor/agent-canon/` 側を正本としている
@@ -101,7 +101,7 @@ git status --short --branch --untracked-files=all
 確認コマンド:
 
 ```bash
-bash tools/sync_agent_canon.sh check
+bash tools/agent-canon/sync_agent_canon.sh check
 find AGENTS.md agents .agents tools .codex -maxdepth 1 -type l -ls
 git diff -- .agents .codex AGENTS.md agents tools
 ```
@@ -120,10 +120,10 @@ git diff -- .agents .codex AGENTS.md agents tools
 確認コマンド:
 
 ```bash
-bash tools/agent_tools/run_repo_dependency_review.sh --fail-missing
-python3 tools/agent_tools/check_dependency_headers.py
-bash tools/agent_tools/check_dependency_header_format.sh --require-header
-bash tools/agent_tools/check_dependency_graph.sh --print-edges
+bash tools/agent-canon/agent_tools/run_repo_dependency_review.sh --fail-missing
+python3 tools/agent-canon/agent_tools/check_dependency_headers.py
+bash tools/agent-canon/agent_tools/check_dependency_header_format.sh --require-header
+bash tools/agent-canon/agent_tools/check_dependency_graph.sh --print-edges
 ```
 
 ## 6. 文書と README 導線
@@ -140,8 +140,8 @@ bash tools/agent_tools/check_dependency_graph.sh --print-edges
 
 ```bash
 make docs-check
-python3 tools/docs/check_markdown_lint.py --check documents/repository-audit-checklist.md
-python3 tools/docs/check_markdown_math.py documents/repository-audit-checklist.md
+python3 tools/agent-canon/docs/check_markdown_lint.py --check documents/repository-audit-checklist.md
+python3 tools/agent-canon/docs/check_markdown_math.py documents/repository-audit-checklist.md
 git grep -n -E "TODO|FIXME|old|legacy|subtree" -- README.md documents agents tools || true
 ```
 
@@ -159,9 +159,9 @@ git grep -n -E "TODO|FIXME|old|legacy|subtree" -- README.md documents agents too
 確認コマンド:
 
 ```bash
-python3 tools/agent_tools/evaluate_skill_workflow_prompts.py --help
-python3 tools/agent_tools/goal_loop.py --help
-python3 tools/agent_tools/check_convention_compliance.py
+python3 tools/agent-canon/agent_tools/evaluate_skill_workflow_prompts.py --help
+python3 tools/agent-canon/agent_tools/goal_loop.py --help
+python3 tools/agent-canon/agent_tools/check_convention_compliance.py
 git grep -n -E "agent-orchestration|adaptive-improvement-loop|goal|eval|subagent_lifecycle" -- agents documents tools AGENTS.md || true
 ```
 
@@ -184,12 +184,12 @@ make ci
 python3 -m pyright
 python3 -m ruff check python tests --select D,E,F,I,UP
 python3 -m pytest tests/ -q --tb=short
-python3 tools/agent_tools/vector_search.py --query "dependency review" --limit 5
+python3 tools/agent-canon/agent_tools/vector_search.py --query "dependency review" --limit 5
 ```
 
 ## 9. Docker、Dev Container、Jupyter
 
-- [ ] `gh` CLI は Docker image に焼かれず、shared `.devcontainer/post-create.sh` が workspace mount 後に導入している
+- [ ] `gh` CLI は Docker image に焼かれず、`vendor/agent-canon/.devcontainer/post-create.sh` が workspace mount 後に導入している
 - [ ] `docker/Dockerfile` に Codex CLI、GitHub CLI、Node/npm など agent convenience tooling が入っていない
 - [ ] 初回 GitHub auth は user が実行する前提になっている
 - [ ] 初回 Codex auth は host 側で `codex login` し、container / devcontainer は host `~/.codex` mount を再利用している
@@ -206,10 +206,10 @@ python3 tools/agent_tools/vector_search.py --query "dependency review" --limit 5
 確認コマンド:
 
 ```bash
-bash tools/docker_dependency_validator.sh
-python3 tools/ci/container_config.py
+bash tools/agent-canon/docker_dependency_validator.sh
+python3 tools/agent-canon/ci/container_config.py
 make docker-build-check
-python3 tools/ci/run_container_pack.py --pack docker/packs/default.toml --print-only
+python3 tools/agent-canon/ci/run_container_pack.py --pack docker/packs/default.toml --print-only
 ```
 
 ## 10. 再利用、OOP、数理と実装境界
@@ -226,10 +226,10 @@ python3 tools/ci/run_container_pack.py --pack docker/packs/default.toml --print-
 確認コマンド:
 
 ```bash
-python3 tools/agent_tools/check_static_any.py --help
-python3 tools/agent_tools/check_hardcoded_numbers.py --help
-python3 tools/oop/python/readability.py --help
-python3 tools/agent_tools/oop_rule_inventory.py --help
+python3 tools/agent-canon/agent_tools/check_static_any.py --help
+python3 tools/agent-canon/agent_tools/check_hardcoded_numbers.py --help
+python3 tools/agent-canon/oop/python/readability.py --help
+python3 tools/agent-canon/agent_tools/oop_rule_inventory.py --help
 git grep -n -E "Any|None|TODO|FIXME|_log|hardcoded" -- python tests tools || true
 ```
 
@@ -257,7 +257,7 @@ git grep -n -E "status=pass|user_completion_report=unlocked|eval|feedback|monito
 - [ ] 派生 repo 固有の AgentCanon 差分がある場合、dedicated GitHub branch と AgentCanon PR に分離されている
 - [ ] Template 由来 repo では root surface が Template と構造的に一致している
 - [ ] repo 固有の差分は `documents/`、project code、config に限定され、shared canon に混入していない
-- [ ] `make agent-canon-ensure-latest` と `bash tools/sync_agent_canon.sh check` が派生 repo でも pass している
+- [ ] `make agent-canon-ensure-latest` と `bash tools/agent-canon/sync_agent_canon.sh check` が派生 repo でも pass している
 
 確認コマンド:
 

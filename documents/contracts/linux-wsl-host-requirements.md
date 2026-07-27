@@ -2,8 +2,8 @@
 @dependency-start
 contract policy
 responsibility Documents Linux / WSL Host Requirements for this repository.
-upstream design ../vendor/agent-canon/documents/SHARED_RUNTIME_SURFACES.md shared documents ownership policy
-upstream design ../vendor/agent-canon/CONTAINER_OPERATIONS.md container and devcontainer ownership boundary
+upstream design ../../vendor/agent-canon/documents/runtime/SHARED_RUNTIME_SURFACES.md shared documents ownership policy
+upstream design ../../vendor/agent-canon/CONTAINER_OPERATIONS.md container and devcontainer ownership boundary
 @dependency-end
 -->
 
@@ -107,8 +107,8 @@ GPU が無いこと自体を failure 条件にしません。
 ## 8. Codex / Agent Requirement
 
 - `codex` は host に入っていることを推奨します
-- container 内の Codex CLI は shared `.devcontainer/post-create.sh` が workspace mount 後に導入します
-- `gh` は host に入っていることを推奨します。container 内の GitHub CLI も shared `.devcontainer/post-create.sh` が導入します
+- container 内の Codex CLI は `vendor/agent-canon/.devcontainer/post-create.sh` が workspace mount 後に導入します
+- `gh` は host に入っていることを推奨します。container 内の GitHub CLI も `vendor/agent-canon/.devcontainer/post-create.sh` が導入します
 - 初回 `gh auth login` は host 側で行い、container は mounted `~/.config/gh` を使います
 - `~/.ssh` は read-only mount 前提なので、key 追加や GitHub host key 登録は host 側で行います
 - GitHub canonical remote と AgentCanon submodule を使う前提なので、host から GitHub へ到達できることを確認します
@@ -144,7 +144,7 @@ docker context ls
 ## Related
 
 - [README.md](../README.md)
-- [QUICK_START.md](../QUICK_START.md)
-- [docker/README.md](../docker/README.md)
+- [QUICK_START.md](../../QUICK_START.md)
+- [docker/README.md](../../docker/README.md)
 - [server-host-contract.md](server-host-contract.md)
-- [TROUBLESHOOTING.md](../vendor/agent-canon/documents/TROUBLESHOOTING.md)
+- [TROUBLESHOOTING.md](../../vendor/agent-canon/documents/operations/TROUBLESHOOTING.md)

@@ -3,13 +3,13 @@
 @dependency-start
 contract design
 responsibility Documents scripts for this repository.
-upstream design ../documents/template-bootstrap.md bootstrap contract
+upstream design ../documents/contracts/template-bootstrap.md bootstrap contract
 downstream implementation start_repository.sh repository start wrapper
 @dependency-end
 -->
 
 `scripts/` は repo-local bootstrap の置き場です。
-shared automation は `tools/` を使います。
+shared automation は `tools/agent-canon/` を使います。
 
 ## ここに置くもの
 
@@ -26,7 +26,7 @@ shared automation は `tools/` を使います。
 - experiment helper
 - Markdown 整備
 
-それらは `tools/` に置きます。
+それらは `tools/agent-canon/` に置きます。
 
 ## 現在の入口
 
@@ -40,6 +40,6 @@ shared automation は `tools/` を使います。
 
 ## 参照先
 
-- [tools/README.md](../tools/README.md)
+- [tools/agent-canon/README.md](../tools/agent-canon/README.md)
 - [documents/tools/README.md](../vendor/agent-canon/documents/tools/README.md)
-- [documents/SHARED_RUNTIME_SURFACES.md](../vendor/agent-canon/documents/SHARED_RUNTIME_SURFACES.md)
+- [documents/SHARED_RUNTIME_SURFACES.md](../vendor/agent-canon/documents/runtime/SHARED_RUNTIME_SURFACES.md)

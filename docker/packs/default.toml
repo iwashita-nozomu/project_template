@@ -17,7 +17,7 @@ commands = [
   "python3 -m pip --version",
   "cmake --version",
   "ninja --version",
-  "bash .devcontainer/post-create.sh /workspace",
+  "bash vendor/agent-canon/.devcontainer/post-create.sh /workspace",
   "node --version",
   "npm --version",
   "codex --version",

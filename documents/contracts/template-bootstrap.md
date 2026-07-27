@@ -2,8 +2,8 @@
 @dependency-start
 contract template
 responsibility Documents Template Bootstrap for this repository.
-upstream design ../vendor/agent-canon/documents/SHARED_RUNTIME_SURFACES.md shared documents ownership policy
-upstream design ../vendor/agent-canon/documents/agent-canon-github-remote.md GitHub canonical remote policy
+upstream design ../../vendor/agent-canon/documents/runtime/SHARED_RUNTIME_SURFACES.md shared documents ownership policy
+upstream design ../../vendor/agent-canon/documents/agent-canon/agent-canon-github-remote.md GitHub canonical remote policy
 upstream design ./template-github-remote.md template GitHub canonical remote policy
 @dependency-end
 -->
@@ -96,7 +96,7 @@ bash scripts/start_repository.sh --validate-only
 ## 4. 開発環境
 
 - host 前提:
-  - `documents/linux-wsl-host-requirements.md`
+  - `documents/contracts/linux-wsl-host-requirements.md`
 - container:
   - `docker/README.md`
 - VS Code devcontainer:

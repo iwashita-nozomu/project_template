@@ -3,8 +3,8 @@
 # responsibility Defines the canonical development container image.
 # upstream environment README.md docker runtime guidance
 # downstream implementation install_python_dependencies.sh installs Python modules after workspace mount
-# downstream implementation ../tools/ci/check_fresh_clone.sh uses rsync for workspace overlay
-# downstream implementation ../tools/docker_dependency_validator.sh validates canonical image tools
+# downstream implementation ../tools/agent-canon/ci/check_fresh_clone.sh uses rsync for workspace overlay
+# downstream implementation ../tools/agent-canon/docker_dependency_validator.sh validates canonical image tools
 # @dependency-end
 FROM nvidia/cuda:12.2.0-devel-ubuntu22.04
 ENV DEBIAN_FRONTEND=noninteractive

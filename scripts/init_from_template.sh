@@ -136,12 +136,6 @@ replacements: dict[str, list[tuple[str, str]]] = {
     "docker/README.md": [
         ("python -m ipykernel install --user --name project-template", f"python -m ipykernel install --user --name {project_slug}"),
     ],
-    ".devcontainer/devcontainer.json": [
-        ('"name": "project-template"', f'"name": "{project_slug}"'),
-    ],
-    ".devcontainer/post-attach.sh": [
-        ('echo "project-template devcontainer"', f'echo "{project_slug} devcontainer"'),
-    ],
     "docker/Dockerfile": [
         ('"${TEMPLATE_BARE_GIT_ROOT}/template.git"', f'"${{TEMPLATE_BARE_GIT_ROOT}}/{bare_repo}"'),
     ],
@@ -152,7 +146,7 @@ replacements: dict[str, list[tuple[str, str]]] = {
     "docker/packs/default-host-docker.toml": [
         ('image_tag = "project-template:default-runtime-pack-host-docker"', f'image_tag = "{project_slug}:default-runtime-pack-host-docker"'),
     ],
-    "documents/linux-wsl-host-requirements.md": [
+    "documents/contracts/linux-wsl-host-requirements.md": [
         ("/mnt/git/template.git", f"/mnt/git/{bare_repo}"),
     ],
 }

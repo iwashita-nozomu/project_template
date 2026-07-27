@@ -1,8 +1,8 @@
 # @dependency-start
 # contract test
 # responsibility Tests test audit and fix links behavior.
-# upstream implementation ../../tools/docs/audit_and_fix_links.py link audit helper under test
-# upstream design ../../vendor/agent-canon/documents/TROUBLESHOOTING.md documentation maintenance guidance
+# upstream implementation ../../tools/agent-canon/docs/audit_and_fix_links.py link audit helper under test
+# upstream design ../../vendor/agent-canon/documents/operations/TROUBLESHOOTING.md documentation maintenance guidance
 # @dependency-end
 """Tests for the markdown link audit helper."""
 
@@ -15,7 +15,7 @@ import unittest
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-SCRIPT_PATH = PROJECT_ROOT / "tools" / "docs" / "audit_and_fix_links.py"
+SCRIPT_PATH = PROJECT_ROOT / "tools" / "agent-canon" / "docs" / "audit_and_fix_links.py"
 
 
 class AuditAndFixLinksTest(unittest.TestCase):

@@ -2,7 +2,7 @@
 @dependency-start
 contract policy
 responsibility Documents Remote Execution Repo Contract for this repository.
-upstream design ../vendor/agent-canon/documents/SHARED_RUNTIME_SURFACES.md shared documents ownership policy
+upstream design ../../vendor/agent-canon/documents/runtime/SHARED_RUNTIME_SURFACES.md shared documents ownership policy
 @dependency-end
 -->
 

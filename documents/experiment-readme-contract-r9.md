@@ -3,8 +3,8 @@
 contract design
 responsibility Defines the canonical r9 experiment README metadata contract and its rationale.
 upstream design ../AGENTS.md repository scope, ownership, design-integrity, and documentation contract.
-upstream design ../vendor/agent-canon/documents/dependency-manifest-design.md dependency-header contract.
-upstream design ../vendor/agent-canon/documents/SHARED_RUNTIME_SURFACES.md shared document ownership policy.
+upstream design ../vendor/agent-canon/documents/design/dependency-manifest-design.md dependency-header contract.
+upstream design ../vendor/agent-canon/documents/runtime/SHARED_RUNTIME_SURFACES.md shared document ownership policy.
 downstream implementation ./experiment-readme-contract-r9.json normative schema lookup authority.
 downstream design ../README.md project documentation entrypoint.
 @dependency-end
@@ -192,7 +192,7 @@ checker verifies only the declared binding and equality.
 
 ## 5. Checker API, CLI, JSON result, and errors
 
-The sole semantic owner is `tools/ci/check_experiment_readme.py`. Its public API
+The sole semantic owner is `tools/agent-canon/ci/check_experiment_readme.py`. Its public API
 is:
 
 ```python
@@ -212,7 +212,7 @@ ReadmeCheckResult check_readme(
 The CLI is:
 
 ```text
-python3 tools/ci/check_experiment_readme.py --repo-root ROOT --path README [--kind KIND] [--status STATUS] [--registry REGISTRY] [--run-dir RUN_DIR] [--schema SCHEMA] [--require-runtime] [--json]
+python3 tools/agent-canon/ci/check_experiment_readme.py --repo-root ROOT --path README [--kind KIND] [--status STATUS] [--registry REGISTRY] [--run-dir RUN_DIR] [--schema SCHEMA] [--require-runtime] [--json]
 ```
 
 `--kind` and `--status` are independently optional. An omitted value is
@@ -286,12 +286,12 @@ may implement a second slot oracle.
 | `agents/workflows/experiment-workflow.md` | Preparation prompts and report/result order | convert | r9 slots plus workflow stages | Stages remain; heading order is not a gate. |
 | `agents/workflows/long-form-writing-workflow.md` | Reader-order drafting rule | convert | r9 graph plus writing adapter | Reader order can be any graph-compatible projection. |
 | `documents/experiment-registry.md` | `topic_readme` content and command/config list | retain + delegate | Registry for identity; r9 for semantics | Path/command/config checks remain single-owned. |
-| `tools/ci/check_experiment_registry.py` | Topic path/command/config checks | retain + delegate | Registry structural checker | Exactly one r9 invocation; no copied slot checks. |
+| `tools/agent-canon/ci/check_experiment_registry.py` | Topic path/command/config checks | retain + delegate | Registry structural checker | Exactly one r9 invocation; no copied slot checks. |
 | `documents/coding-conventions-experiments.md` | README/run/artifact conventions | retain + delegate | Convention doc for operational conventions; r9 for semantic fields | Direct-debug and managed-run boundary remains. |
 | `documents/experiment_runner.md` | README must list runner facts | convert | ExperimentRunner for runtime facts; r9 for binding | ExecutionResult/resource ownership remains. |
 | `documents/experiment-runner-ff97-lifecycle.md` | Lifecycle/status completion facts | retain | Runner lifecycle | Terminal state stays runtime-owned. |
-| `tools/experiments/run_managed_experiment.py` | Fixed generated report headings | convert | Runner for manifest generation; r9 for README | Manifest paths/digests remain valid; heading list is not canonical. |
-| `tools/experiments/execution_resource_plan.py` | Resource/GPU certificates and noncanonical terminal/partial witnesses | convert | Resource planner for resource facts; Runner for canonical sibling evidence | Canonical sibling files cannot be written by the planner. |
+| `tools/agent-canon/experiments/run_managed_experiment.py` | Fixed generated report headings | convert | Runner for manifest generation; r9 for README | Manifest paths/digests remain valid; heading list is not canonical. |
+| `tools/agent-canon/experiments/execution_resource_plan.py` | Resource/GPU certificates and noncanonical terminal/partial witnesses | convert | Resource planner for resource facts; Runner for canonical sibling evidence | Canonical sibling files cannot be written by the planner. |
 | `agents/skills/experiment-review.md` | README readiness and runtime checklist | delegate + retain | r9 for README; review for direct/GPU/notebook checks | Review reports checker findings once. |
 | `.agents/skills/experiment-review/SKILL.md` | Public review copy | delegate | Source review skill | Projection alignment. |
 | `agents/skills/structure-planning.md` | Linear `ordered_structure` and OOP pre-order | convert | r9 semantic graph; structure skill for optional projection | Reordered complete README passes; no OOP proxy. |
@@ -308,11 +308,11 @@ may implement a second slot oracle.
 | parent `experiments/_template/README.md` | Parent fixed headings | deferred projection | Parent after source integration | Parent has no independent semantics. |
 | `agents/templates/experiment_report.md` | Fixed report order | convert | Report-writing plus r9 mode | Reader-specific order remains free. |
 | `documents/experiment-report-style.md` | IMRaD+ report list | retain + delegate | Report style for narrative | Report style does not check plan slots. |
-| `tools/agent_tools/evaluate_report_quality.py` | Regex section/quality targets | retain | Generic report evaluator | No README semantic target. |
+| `tools/agent-canon/agent_tools/evaluate_report_quality.py` | Regex section/quality targets | retain | Generic report evaluator | No README semantic target. |
 | `evidence/agent-evals/report_quality_eval.toml` | Report target manifest | retain | Report eval manifest | Targets stay report/skill surfaces. |
 | `agents/canonical/ARTIFACT_PLACEMENT.md` | Run/durable placement | retain | Artifact placement | Placement remains canonical. |
-| `tools/experiments/publish_result_branch.py` | Published result identity | retain | Result publisher | Result branch identity remains exact. |
-| `tools/experiments/update_latest_result.py` | Latest result pointer | retain | Latest-result tool | Pointer remains exact. |
+| `tools/agent-canon/experiments/publish_result_branch.py` | Published result identity | retain | Result publisher | Result branch identity remains exact. |
+| `tools/agent-canon/experiments/update_latest_result.py` | Latest result pointer | retain | Latest-result tool | Pointer remains exact. |
 | `documents/result-log-retention-and-visualization.md` | Retention/report paths | retain | Retention document | Retention policy remains. |
 | `.agents` public SKILL views generally | Duplicated source prose | delegate | Canonical source plus sync | No direct view edits. |
 | parent hub/readme views | Navigation and local template copy | deferred projection | Parent integration owner | Parent follows pin/root sync. |
@@ -339,7 +339,7 @@ manifest; all terminal statuses then require the exact fields below.
 | /evidence/partial_evidence/present | boolean equal to filesystem existence | Partial runtime status. |
 | /evidence/partial_evidence/sha256 | lowercase SHA-256 of exact canonical bytes, or null when absent | Every finalized runtime status. |
 
-`tools/experiments/run_managed_experiment.py` is the one canonical producer.
+`tools/agent-canon/experiments/run_managed_experiment.py` is the one canonical producer.
 It directly emits the in-memory Runner outcome to
 `experiments/<topic>/result/<run_name>/terminal_evidence.json` and, only for a
 partial outcome, `partial_evidence.json`; there is no filesystem source and no
@@ -477,7 +477,7 @@ routes human reports to `experiments/report/<run_name>.md`. The r9 contract
 places the artifact-local result README at
 `experiments/<topic>/result/<run_name>/README.md`. Its content/placement owner
 is agents/skills/result-artifact-writeout.md; its latest-result pointer and
-status producer/edit owner is tools/experiments/update_latest_result.py.
+status producer/edit owner is tools/agent-canon/experiments/update_latest_result.py.
 That tool must add /result_readme/{path,kind,status,run_name} to LATEST.json.
 The path is the absolute result_dir/README.md string, kind is result, status is
 one of running|complete|failed|partial|superseded read from the exactly-one
@@ -489,8 +489,8 @@ report remains owned by report-writing.
 ## 9. Integration and non-goals
 
 AgentCanon canonical source is edited first and reviewed. The parent then owns
-the submodule pin and runs `bash tools/sync_agent_canon.sh link-root` followed
-by `bash tools/sync_agent_canon.sh check`; parent templates/hubs are edited only
+the submodule pin and runs `bash tools/agent-canon/sync_agent_canon.sh link-root` followed
+by `bash tools/agent-canon/sync_agent_canon.sh check`; parent templates/hubs are edited only
 after that integration. Public `.agents` views are generated projections.
 
 This audit packet does not edit source, create implementation tests, run an

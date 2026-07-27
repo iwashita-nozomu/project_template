@@ -3,7 +3,7 @@
 # responsibility Excludes non-build inputs from the template Docker build context.
 # upstream environment docker/Dockerfile canonical container image definition
 # upstream environment docker/packs/default.toml uses repository root build context
-# downstream implementation tools/ci/container_config.py validates AgentCanon submodule exclusion
+# downstream implementation tools/agent-canon/ci/container_config.py validates AgentCanon submodule exclusion
 # @dependency-end
 
 .git
@@ -19,7 +19,7 @@ model-*.bin
 build
 logs
 reports
-.devcontainer/docker-compose.generated.yml
+.agent-canon/docker-compose.generated.yml
 vendor/agent-canon
 vendor/local-llm-server/llama-cpp/cache
 vendor/local-llm-server/llama-cpp/models

@@ -4,7 +4,7 @@
 contract design
 responsibility Documents Experiment Reports for this repository.
 upstream design ../README.md experiments hub guidance
-upstream design ../../vendor/agent-canon/documents/experiment-report-style.md report style contract
+upstream design ../../vendor/agent-canon/documents/experiments/experiment-report-style.md report style contract
 @dependency-end
 -->
 
