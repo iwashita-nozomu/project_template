@@ -189,7 +189,7 @@ python3 tools/agent-canon/agent_tools/vector_search.py --query "dependency revie
 
 ## 9. Docker、Dev Container、Jupyter
 
-- [ ] `gh` CLI は Docker image に焼かれず、shared `.devcontainer/post-create.sh` が workspace mount 後に導入している
+- [ ] `gh` CLI は Docker image に焼かれず、`vendor/agent-canon/.devcontainer/post-create.sh` が workspace mount 後に導入している
 - [ ] `docker/Dockerfile` に Codex CLI、GitHub CLI、Node/npm など agent convenience tooling が入っていない
 - [ ] 初回 GitHub auth は user が実行する前提になっている
 - [ ] 初回 Codex auth は host 側で `codex login` し、container / devcontainer は host `~/.codex` mount を再利用している

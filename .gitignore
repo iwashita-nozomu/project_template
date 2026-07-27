@@ -56,7 +56,7 @@ reports/*.patch
 goal.md
 
 # Generated devcontainer runtime file
-.devcontainer/docker-compose.generated.yml
+.agent-canon/docker-compose.generated.yml
 
 # Reusable local C++ artifacts
 .state/cpp-install/

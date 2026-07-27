@@ -144,7 +144,7 @@ clean-generated:
 		logs \
 		reports \
 		tests/logs \
-		.devcontainer/docker-compose.generated.yml
+		.agent-canon/docker-compose.generated.yml
 
 # GitHub and agent-runtime targets
 # GitHub Actions / PR template convention checks
@@ -222,7 +222,8 @@ docker-run:
 
 # devcontainer compose を canonical pack から生成
 devcontainer-render:
-	bash .devcontainer/generate-runtime-compose.sh
+	AGENT_CANON_DEVCONTAINER_REPO_ROOT=. AGENT_CANON_DOCKER_COMPOSE_OUTPUT=.agent-canon/docker-compose.generated.yml \
+	bash vendor/agent-canon/.devcontainer/generate-runtime-compose.sh
 
 # main server host readiness
 server-check:

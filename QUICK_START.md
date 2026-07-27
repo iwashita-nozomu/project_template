@@ -146,7 +146,7 @@ docker run --rm -it \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v $(pwd):/workspace -w /workspace \
   project-template bash
-bash .devcontainer/post-create.sh /workspace
+bash vendor/agent-canon/.devcontainer/post-create.sh /workspace
 codex --version
 gh --version
 docker --version

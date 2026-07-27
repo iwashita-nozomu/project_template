@@ -19,7 +19,7 @@ model-*.bin
 build
 logs
 reports
-.devcontainer/docker-compose.generated.yml
+.agent-canon/docker-compose.generated.yml
 vendor/agent-canon
 vendor/local-llm-server/llama-cpp/cache
 vendor/local-llm-server/llama-cpp/models

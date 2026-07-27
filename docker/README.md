@@ -66,7 +66,7 @@ runtime pack には次を 1 つの spec としてまとめます。
 - `python3 tools/agent-canon/ci/run_container_pack.py`
   - pack 定義から build と smoke を実行します。
 - `bash docker/check_build.sh`
-  - GitHub Docker Build workflow と `make docker-build-check` が使う submodule-aware build gate です。root `.dockerignore` は image build context から `vendor/agent-canon` を除外しますが、runtime smoke は checkout 済み `vendor/agent-canon` から shared `.devcontainer/post-create.sh` を使います。
+  - GitHub Docker Build workflow と `make docker-build-check` が使う submodule-aware build gate です。root `.dockerignore` は image build context から `vendor/agent-canon` を除外しますが、runtime smoke は checkout 済み `vendor/agent-canon/.devcontainer/post-create.sh` を使います。
 - `python3 tools/agent-canon/ci/run_in_repo_container.py`
   - pack 定義から repo workspace を mount した container command を実行します。
 - `python3 tools/agent-canon/ci/run_repo_program.py`
@@ -75,7 +75,7 @@ runtime pack には次を 1 つの spec としてまとめます。
   - Python file path と rule に基づいて適切な pack で実行します。
 - `python3 tools/agent-canon/ci/run_codex_in_repo_container.py`
   - repo を mount した canonical container 内で nested Codex を起動します。
-- `bash .devcontainer/generate-runtime-compose.sh`
+- `AGENT_CANON_DEVCONTAINER_REPO_ROOT=. AGENT_CANON_DOCKER_COMPOSE_OUTPUT=.agent-canon/docker-compose.generated.yml bash vendor/agent-canon/.devcontainer/generate-runtime-compose.sh`
   - devcontainer 用の compose を canonical pack から root-local に生成します。template / derived repo では `.devcontainer/` が AgentCanon-owned root view なので、実行前に AgentCanon submodule checkout が必要です。
 
 ## Nested Codex
@@ -84,7 +84,7 @@ runtime pack には次を 1 つの spec としてまとめます。
 実行 profile の正本は `docker/codex-container-profiles.toml` です。
 project-scoped Codex config の正本は `.codex/config.toml` で、template 既定では `approval_policy = "never"` と `sandbox_mode = "danger-full-access"` を使います。つまり container 内で起動した Codex も、`jax_solver_util` と同じく最初から full access 前提です。
 Codex 認証は host-local state を正本にします。host 側で `codex login` または API key login を済ませ、container は host `~/.codex` の mount または `OPENAI_API_KEY` forward を使います。container 内で別の永続 auth state を作る運用は避けます。
-Codex CLI、Codex 用 Node/npm、GitHub CLI は Docker image へ焼かず、workspace mount 後に shared `.devcontainer/post-create.sh` で導入します。nested Codex runner は setup だけ root で行い、Codex 起動前に host `uid:gid` へ落とします。
+Codex CLI、Codex 用 Node/npm、GitHub CLI は Docker image へ焼かず、workspace mount 後に `vendor/agent-canon/.devcontainer/post-create.sh` で導入します。nested Codex runner は setup だけ root で行い、Codex 起動前に host `uid:gid` へ落とします。
 
 既定の挙動は次です。
 
@@ -155,7 +155,7 @@ repo-local `.venv` は host runtime では作らず、container runtime でだ�
 
 Python module install は Docker image build では実行しません。Template の Docker build は
 `vendor/agent-canon` submodule や workspace Python package に依存しない OS / project runtime layer
-までを作り、Python module は `.devcontainer/post-create.sh` から
+までを作り、Python module は `vendor/agent-canon/.devcontainer/post-create.sh` から
 `docker/install_python_dependencies.sh` を呼んで導入します。default runtime pack の smoke も
 同じ post-create entrypoint を先に実行するため、devcontainer と pack smoke の依存導入経路は
 1 本だけです。
@@ -184,7 +184,7 @@ python3 tools/agent-canon/ci/python_env_policy.py --create
 ## Jupyter Notebook
 
 notebook runtime package は `docker/requirements.txt` を正本にし、
-`.devcontainer/post-create.sh` が container 作成後に導入します。VS Code では `ms-toolsai.jupyter` を推奨拡張として配布済みです。
+`vendor/agent-canon/.devcontainer/post-create.sh` が container 作成後に導入します。VS Code では `ms-toolsai.jupyter` を推奨拡張として配布済みです。
 
 host browser から container 内 JupyterLab を開く既定入口:
 
@@ -263,7 +263,7 @@ repo-defined container runner でも、host `~/.codex` が存在するときは 
 
 ## VS Code Dev Container
 
-`.devcontainer/devcontainer.json` は 1 枚の generated Docker Compose file を使います。起動前に `.devcontainer/generate-runtime-compose.sh` を走らせます。template / derived repo ではこの script 自体が AgentCanon-owned root view なので、AgentCanon submodule checkout 後に実行します。script は repo-local `docker/packs/default.toml` を読み、host を見て次を自動切替します。
+`.devcontainer/devcontainer.json` は 1 枚の generated Docker Compose file を使います。起動前に `vendor/agent-canon/.devcontainer/generate-runtime-compose.sh` を走らせます。script は repo-local `docker/packs/default.toml` を読み、host を見て次を自動切替します。
 
 生成 compose には repo path 由来の unique project name を入れます。共有
 `.devcontainer/devcontainer.json` の display name は
@@ -300,7 +300,7 @@ subnet / gateway / IPAM は固定せず、Docker Compose の default network 自
 
 そのため、template を clone したディレクトリでも、GPU なし環境で dev container が落ちにくくなります。
 
-VS Code で attach した直後には `.devcontainer/post-attach.sh` を実行し、少なくとも次を banner で表示します。
+VS Code で attach した直後には `vendor/agent-canon/.devcontainer/post-attach.sh` を実行し、少なくとも次を banner で表示します。
 
 - GPU の有無
 - `/mnt/git` mount の有無
@@ -316,7 +316,7 @@ VS Code で attach した直後には `.devcontainer/post-attach.sh` を実行�
 
 ## GitHub CLI / SSH Sharing
 
-GitHub CLI は canonical Docker image に同梱せず、shared `.devcontainer/post-create.sh` が workspace mount 後に導入します。初回認証は host で人間が行います。
+GitHub CLI は canonical Docker image に同梱せず、`vendor/agent-canon/.devcontainer/post-create.sh` が workspace mount 後に導入します。初回認証は host で人間が行います。
 
 ```bash
 gh auth login

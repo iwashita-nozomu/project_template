@@ -33,9 +33,9 @@ runtime hub を探すための次の入口です。
 - `テンプレート構造` と `基本方針` で repo 全体の責務を確認し、clone、初期手順、実験、Docker、詳細入口は目的別 section を読みます。
 - 新規 clone、派生 repo の立ち上げ、どの正本文書へ進むかを決めるときに最初に読みます。
 
-## テンプレート構造
+## テンプレート構造の例
 
-この repo は、project 固有の実装、実験、文書、開発環境、agent runtime を同じ root から扱えるように分けています。
+この repo は、project 固有の実装、実験、文書、開発環境、agent runtime を同じ root から扱えるように分けています。以下は利用可能な surface の例であり、親レポに要求する十分条件や完全な tree ではありません。必要条件は AgentCanon の shared surface manifest と親レポの owner document だけで確認します。
 clone 直後にまず見る入口はこの README、Codex repo instruction chain の最上位入口は `AGENTS.md`、agent workflow / skill の hub は `agents/README.md`、実際の初期化入口は `scripts/start_repository.sh` です。
 
 ```text
@@ -57,7 +57,9 @@ clone 直後にまず見る入口はこの README、Codex repo instruction chain
 ├── tools/agent-canon/                            # shared automation view。vendor への symlink
 ├── scripts/                          # repo-local bootstrap 専用 script
 ├── docker/                           # Docker runtime profile の元設定
-├── .devcontainer/                    # devcontainer profile の entrypoint
+├── .devcontainer/                    # 親固有 source と linked devcontainer.json
+│   ├── devcontainer.json -> ../vendor/agent-canon/.devcontainer/devcontainer.json
+│   └── post-create-parent.sh
 ├── .github/                          # GitHub automation profile の workflow と PR template
 ├── experiments/                      # experiment profile の topic、artifact、report
 ├── cmake/                            # C++ profile の helper module
@@ -282,7 +284,7 @@ docker run --rm -it \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v $(pwd):/workspace -w /workspace \
   project-template bash
-bash .devcontainer/post-create.sh /workspace
+bash vendor/agent-canon/.devcontainer/post-create.sh /workspace
 codex --version
 gh --version
 docker --version

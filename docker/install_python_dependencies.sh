@@ -3,7 +3,7 @@
 # contract environment
 # responsibility Installs repo Python dependencies after the workspace is mounted.
 # upstream environment requirements.txt canonical Python dependency list
-# upstream environment ../.devcontainer/post-create.sh devcontainer post-create entrypoint
+# upstream environment ../vendor/agent-canon/.devcontainer/post-create.sh devcontainer post-create entrypoint
 # downstream environment ../.github/workflows/ci.yml installs CI Python dependencies through this script
 # downstream environment packs/default.toml smoke-runs this installer before Python-dependent checks
 # @dependency-end
