@@ -4,7 +4,7 @@
 # upstream design ../../agents/workflows/agent-canon-pr-workflow.md agent-canon PR workflow
 # @dependency-end
 
-# Synced to /.github/workflows/agent-coordination.yml by tools/sync_agent_canon.sh link-root.
+# Synced to /.github/workflows/agent-coordination.yml by tools/agent-canon/sync_agent_canon.sh link-root.
 # Edit vendor/agent-canon/.github/workflows/agent-coordination.yml, not the root copy.
 name: Agent Coordination
 
@@ -65,7 +65,7 @@ jobs:
           if [ -f .github/scripts/checkout_agent_canon_submodule.sh ]; then
             bash .github/scripts/checkout_agent_canon_submodule.sh
           else
-            bash tools/ci/checkout_agent_canon_submodule.sh
+            bash tools/agent-canon/ci/checkout_agent_canon_submodule.sh
           fi
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -101,7 +101,7 @@ jobs:
               esac
             done
           fi
-          python3 tools/agent_tools/bootstrap_agent_run.py \
+          python3 tools/agent-canon/agent_tools/bootstrap_agent_run.py \
             --task "${AGENT_COORDINATION_TASK}" \
             --owner "${AGENT_COORDINATION_OWNER}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
@@ -133,7 +133,7 @@ jobs:
           if [ -f .github/scripts/checkout_agent_canon_submodule.sh ]; then
             bash .github/scripts/checkout_agent_canon_submodule.sh
           else
-            bash tools/ci/checkout_agent_canon_submodule.sh
+            bash tools/agent-canon/ci/checkout_agent_canon_submodule.sh
           fi
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -148,7 +148,7 @@ jobs:
         run: |
           report_snapshot="${RUNNER_TEMP}/manager-report-before.json"
           workspace_snapshot="${RUNNER_TEMP}/manager-workspace-before.json"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
             --report-snapshot-out "${report_snapshot}" \
@@ -157,7 +157,7 @@ jobs:
             echo ""
             echo "- github_actions_manager: intake confirmed for always-on spine"
           } >> "${{ needs.bootstrap.outputs.report_dir }}/intent_brief.md"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --role manager \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
@@ -186,7 +186,7 @@ jobs:
           if [ -f .github/scripts/checkout_agent_canon_submodule.sh ]; then
             bash .github/scripts/checkout_agent_canon_submodule.sh
           else
-            bash tools/ci/checkout_agent_canon_submodule.sh
+            bash tools/agent-canon/ci/checkout_agent_canon_submodule.sh
           fi
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -201,7 +201,7 @@ jobs:
         run: |
           report_snapshot="${RUNNER_TEMP}/manager-review-report-before.json"
           workspace_snapshot="${RUNNER_TEMP}/manager-review-workspace-before.json"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
             --report-snapshot-out "${report_snapshot}" \
@@ -210,7 +210,7 @@ jobs:
             echo ""
             echo "- approve: GitHub Actions keeps the always-on artifact spine explicit in CI."
           } >> "${{ needs.bootstrap.outputs.report_dir }}/management_review.md"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --role manager_reviewer \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
@@ -239,7 +239,7 @@ jobs:
           if [ -f .github/scripts/checkout_agent_canon_submodule.sh ]; then
             bash .github/scripts/checkout_agent_canon_submodule.sh
           else
-            bash tools/ci/checkout_agent_canon_submodule.sh
+            bash tools/agent-canon/ci/checkout_agent_canon_submodule.sh
           fi
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -254,7 +254,7 @@ jobs:
         run: |
           report_snapshot="${RUNNER_TEMP}/manager-response-report-before.json"
           workspace_snapshot="${RUNNER_TEMP}/manager-response-workspace-before.json"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
             --report-snapshot-out "${report_snapshot}" \
@@ -263,7 +263,7 @@ jobs:
             echo ""
             echo "| $(date -u '+%Y-%m-%dT%H:%M:%SZ') | manager | Resolve management review | GitHub Actions manager re-entered after review. | management_review.md |"
           } >> "${{ needs.bootstrap.outputs.report_dir }}/decision_log.md"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --role manager \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
@@ -292,7 +292,7 @@ jobs:
           if [ -f .github/scripts/checkout_agent_canon_submodule.sh ]; then
             bash .github/scripts/checkout_agent_canon_submodule.sh
           else
-            bash tools/ci/checkout_agent_canon_submodule.sh
+            bash tools/agent-canon/ci/checkout_agent_canon_submodule.sh
           fi
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -314,7 +314,7 @@ jobs:
           fi
           report_snapshot="${RUNNER_TEMP}/research-report-before.json"
           workspace_snapshot="${RUNNER_TEMP}/research-workspace-before.json"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
             --report-snapshot-out "${report_snapshot}" \
@@ -323,7 +323,7 @@ jobs:
             echo ""
             echo "- github_actions_researcher: specialist inputs collected for this run."
           } >> "${{ needs.bootstrap.outputs.report_dir }}/research_notes.md"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --role researcher \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
@@ -352,7 +352,7 @@ jobs:
           if [ -f .github/scripts/checkout_agent_canon_submodule.sh ]; then
             bash .github/scripts/checkout_agent_canon_submodule.sh
           else
-            bash tools/ci/checkout_agent_canon_submodule.sh
+            bash tools/agent-canon/ci/checkout_agent_canon_submodule.sh
           fi
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -374,7 +374,7 @@ jobs:
           fi
           report_snapshot="${RUNNER_TEMP}/research-review-report-before.json"
           workspace_snapshot="${RUNNER_TEMP}/research-review-workspace-before.json"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
             --report-snapshot-out "${report_snapshot}" \
@@ -383,7 +383,7 @@ jobs:
             echo ""
             echo "- approve: research notes are ready for manager aggregation."
           } >> "${{ needs.bootstrap.outputs.report_dir }}/research_review.md"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --role research_reviewer \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
@@ -412,7 +412,7 @@ jobs:
           if [ -f .github/scripts/checkout_agent_canon_submodule.sh ]; then
             bash .github/scripts/checkout_agent_canon_submodule.sh
           else
-            bash tools/ci/checkout_agent_canon_submodule.sh
+            bash tools/agent-canon/ci/checkout_agent_canon_submodule.sh
           fi
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -434,7 +434,7 @@ jobs:
           fi
           report_snapshot="${RUNNER_TEMP}/research-response-report-before.json"
           workspace_snapshot="${RUNNER_TEMP}/research-response-workspace-before.json"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
             --report-snapshot-out "${report_snapshot}" \
@@ -443,7 +443,7 @@ jobs:
             echo ""
             echo "- github_actions_researcher_response: resolved research review feedback."
           } >> "${{ needs.bootstrap.outputs.report_dir }}/research_notes.md"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --role researcher \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
@@ -472,7 +472,7 @@ jobs:
           if [ -f .github/scripts/checkout_agent_canon_submodule.sh ]; then
             bash .github/scripts/checkout_agent_canon_submodule.sh
           else
-            bash tools/ci/checkout_agent_canon_submodule.sh
+            bash tools/agent-canon/ci/checkout_agent_canon_submodule.sh
           fi
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -494,7 +494,7 @@ jobs:
           fi
           report_snapshot="${RUNNER_TEMP}/schedule-report-before.json"
           workspace_snapshot="${RUNNER_TEMP}/schedule-workspace-before.json"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
             --report-snapshot-out "${report_snapshot}" \
@@ -503,7 +503,7 @@ jobs:
             echo ""
             echo "| specialists | specialist sequencing is attached before design | manager response | artifact-only | open |"
           } >> "${{ needs.bootstrap.outputs.report_dir }}/schedule.md"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --role scheduler \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
@@ -532,7 +532,7 @@ jobs:
           if [ -f .github/scripts/checkout_agent_canon_submodule.sh ]; then
             bash .github/scripts/checkout_agent_canon_submodule.sh
           else
-            bash tools/ci/checkout_agent_canon_submodule.sh
+            bash tools/agent-canon/ci/checkout_agent_canon_submodule.sh
           fi
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -554,7 +554,7 @@ jobs:
           fi
           report_snapshot="${RUNNER_TEMP}/schedule-review-report-before.json"
           workspace_snapshot="${RUNNER_TEMP}/schedule-review-workspace-before.json"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
             --report-snapshot-out "${report_snapshot}" \
@@ -563,7 +563,7 @@ jobs:
             echo ""
             echo "- approve: schedule is ready to hand back toward manager."
           } >> "${{ needs.bootstrap.outputs.report_dir }}/schedule_review.md"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --role schedule_reviewer \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
@@ -592,7 +592,7 @@ jobs:
           if [ -f .github/scripts/checkout_agent_canon_submodule.sh ]; then
             bash .github/scripts/checkout_agent_canon_submodule.sh
           else
-            bash tools/ci/checkout_agent_canon_submodule.sh
+            bash tools/agent-canon/ci/checkout_agent_canon_submodule.sh
           fi
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -614,7 +614,7 @@ jobs:
           fi
           report_snapshot="${RUNNER_TEMP}/schedule-response-report-before.json"
           workspace_snapshot="${RUNNER_TEMP}/schedule-response-workspace-before.json"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
             --report-snapshot-out "${report_snapshot}" \
@@ -623,7 +623,7 @@ jobs:
             echo ""
             echo "- github_actions_scheduler_response: resolved schedule review feedback."
           } >> "${{ needs.bootstrap.outputs.report_dir }}/schedule.md"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --role scheduler \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
@@ -652,7 +652,7 @@ jobs:
           if [ -f .github/scripts/checkout_agent_canon_submodule.sh ]; then
             bash .github/scripts/checkout_agent_canon_submodule.sh
           else
-            bash tools/ci/checkout_agent_canon_submodule.sh
+            bash tools/agent-canon/ci/checkout_agent_canon_submodule.sh
           fi
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -674,7 +674,7 @@ jobs:
           fi
           report_snapshot="${RUNNER_TEMP}/infra-report-before.json"
           workspace_snapshot="${RUNNER_TEMP}/infra-workspace-before.json"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
             --report-snapshot-out "${report_snapshot}" \
@@ -683,7 +683,7 @@ jobs:
             echo ""
             echo "- github_actions_infra_steward: infra constraints and rollout notes attached."
           } >> "${{ needs.bootstrap.outputs.report_dir }}/infra_notes.md"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --role infra_steward \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
@@ -712,7 +712,7 @@ jobs:
           if [ -f .github/scripts/checkout_agent_canon_submodule.sh ]; then
             bash .github/scripts/checkout_agent_canon_submodule.sh
           else
-            bash tools/ci/checkout_agent_canon_submodule.sh
+            bash tools/agent-canon/ci/checkout_agent_canon_submodule.sh
           fi
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -734,7 +734,7 @@ jobs:
           fi
           report_snapshot="${RUNNER_TEMP}/infra-review-report-before.json"
           workspace_snapshot="${RUNNER_TEMP}/infra-review-workspace-before.json"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
             --report-snapshot-out "${report_snapshot}" \
@@ -743,7 +743,7 @@ jobs:
             echo ""
             echo "- approve: infra notes are ready to hand back toward manager."
           } >> "${{ needs.bootstrap.outputs.report_dir }}/infra_review.md"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --role infra_reviewer \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
@@ -772,7 +772,7 @@ jobs:
           if [ -f .github/scripts/checkout_agent_canon_submodule.sh ]; then
             bash .github/scripts/checkout_agent_canon_submodule.sh
           else
-            bash tools/ci/checkout_agent_canon_submodule.sh
+            bash tools/agent-canon/ci/checkout_agent_canon_submodule.sh
           fi
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -794,7 +794,7 @@ jobs:
           fi
           report_snapshot="${RUNNER_TEMP}/infra-response-report-before.json"
           workspace_snapshot="${RUNNER_TEMP}/infra-response-workspace-before.json"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
             --report-snapshot-out "${report_snapshot}" \
@@ -803,7 +803,7 @@ jobs:
             echo ""
             echo "- github_actions_infra_response: resolved infra review feedback."
           } >> "${{ needs.bootstrap.outputs.report_dir }}/infra_notes.md"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --role infra_steward \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
@@ -832,7 +832,7 @@ jobs:
           if [ -f .github/scripts/checkout_agent_canon_submodule.sh ]; then
             bash .github/scripts/checkout_agent_canon_submodule.sh
           else
-            bash tools/ci/checkout_agent_canon_submodule.sh
+            bash tools/agent-canon/ci/checkout_agent_canon_submodule.sh
           fi
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -854,7 +854,7 @@ jobs:
           fi
           report_snapshot="${RUNNER_TEMP}/manager-specialist-report-before.json"
           workspace_snapshot="${RUNNER_TEMP}/manager-specialist-workspace-before.json"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
             --report-snapshot-out "${report_snapshot}" \
@@ -863,7 +863,7 @@ jobs:
             echo ""
             echo "| $(date -u '+%Y-%m-%dT%H:%M:%SZ') | manager | Aggregate specialist outputs | Activated specialists: ${activated}. | report bundle |"
           } >> "${{ needs.bootstrap.outputs.report_dir }}/decision_log.md"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --role manager \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
@@ -892,7 +892,7 @@ jobs:
           if [ -f .github/scripts/checkout_agent_canon_submodule.sh ]; then
             bash .github/scripts/checkout_agent_canon_submodule.sh
           else
-            bash tools/ci/checkout_agent_canon_submodule.sh
+            bash tools/agent-canon/ci/checkout_agent_canon_submodule.sh
           fi
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -907,7 +907,7 @@ jobs:
         run: |
           report_snapshot="${RUNNER_TEMP}/design-report-before.json"
           workspace_snapshot="${RUNNER_TEMP}/design-workspace-before.json"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
             --report-snapshot-out "${report_snapshot}" \
@@ -916,7 +916,7 @@ jobs:
             echo ""
             echo "- github_actions_designer: CI workflow models the always-on handoff spine before verification"
           } >> "${{ needs.bootstrap.outputs.report_dir }}/design_brief.md"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --role designer \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
@@ -945,7 +945,7 @@ jobs:
           if [ -f .github/scripts/checkout_agent_canon_submodule.sh ]; then
             bash .github/scripts/checkout_agent_canon_submodule.sh
           else
-            bash tools/ci/checkout_agent_canon_submodule.sh
+            bash tools/agent-canon/ci/checkout_agent_canon_submodule.sh
           fi
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -960,7 +960,7 @@ jobs:
         run: |
           report_snapshot="${RUNNER_TEMP}/design-review-report-before.json"
           workspace_snapshot="${RUNNER_TEMP}/design-review-workspace-before.json"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
             --report-snapshot-out "${report_snapshot}" \
@@ -969,7 +969,7 @@ jobs:
             echo ""
             echo "| workflow | always-on roles stay explicit before verification | medium | open |"
           } >> "${{ needs.bootstrap.outputs.report_dir }}/design_review.md"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --role design_reviewer \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
@@ -998,7 +998,7 @@ jobs:
           if [ -f .github/scripts/checkout_agent_canon_submodule.sh ]; then
             bash .github/scripts/checkout_agent_canon_submodule.sh
           else
-            bash tools/ci/checkout_agent_canon_submodule.sh
+            bash tools/agent-canon/ci/checkout_agent_canon_submodule.sh
           fi
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -1013,7 +1013,7 @@ jobs:
         run: |
           report_snapshot="${RUNNER_TEMP}/design-response-report-before.json"
           workspace_snapshot="${RUNNER_TEMP}/design-response-workspace-before.json"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
             --report-snapshot-out "${report_snapshot}" \
@@ -1022,7 +1022,7 @@ jobs:
             echo ""
             echo "- github_actions_designer_response: resolved design review feedback."
           } >> "${{ needs.bootstrap.outputs.report_dir }}/design_brief.md"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --role designer \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
@@ -1051,7 +1051,7 @@ jobs:
           if [ -f .github/scripts/checkout_agent_canon_submodule.sh ]; then
             bash .github/scripts/checkout_agent_canon_submodule.sh
           else
-            bash tools/ci/checkout_agent_canon_submodule.sh
+            bash tools/agent-canon/ci/checkout_agent_canon_submodule.sh
           fi
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -1066,7 +1066,7 @@ jobs:
         run: |
           report_snapshot="${RUNNER_TEMP}/implementer-report-before.json"
           workspace_snapshot="${RUNNER_TEMP}/implementer-workspace-before.json"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
             --report-snapshot-out "${report_snapshot}" \
@@ -1075,7 +1075,7 @@ jobs:
             echo ""
             echo "| $(date -u '+%Y-%m-%dT%H:%M:%SZ') | implementer | Advance the always-on CI handoff | No repo edit is applied in the GitHub Actions placeholder stage. | .github/workflows/agent-coordination.yml |"
           } >> "${{ needs.bootstrap.outputs.report_dir }}/decision_log.md"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --role implementer \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
@@ -1104,7 +1104,7 @@ jobs:
           if [ -f .github/scripts/checkout_agent_canon_submodule.sh ]; then
             bash .github/scripts/checkout_agent_canon_submodule.sh
           else
-            bash tools/ci/checkout_agent_canon_submodule.sh
+            bash tools/agent-canon/ci/checkout_agent_canon_submodule.sh
           fi
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -1119,7 +1119,7 @@ jobs:
         run: |
           report_snapshot="${RUNNER_TEMP}/change-review-report-before.json"
           workspace_snapshot="${RUNNER_TEMP}/change-review-workspace-before.json"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
             --report-snapshot-out "${report_snapshot}" \
@@ -1128,7 +1128,7 @@ jobs:
             echo ""
             echo "| ci-placeholder | decision_log and artifact chain stay in sync | low | open |"
           } >> "${{ needs.bootstrap.outputs.report_dir }}/change_review.md"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --role change_reviewer \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
@@ -1157,7 +1157,7 @@ jobs:
           if [ -f .github/scripts/checkout_agent_canon_submodule.sh ]; then
             bash .github/scripts/checkout_agent_canon_submodule.sh
           else
-            bash tools/ci/checkout_agent_canon_submodule.sh
+            bash tools/agent-canon/ci/checkout_agent_canon_submodule.sh
           fi
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -1172,7 +1172,7 @@ jobs:
         run: |
           report_snapshot="${RUNNER_TEMP}/implementer-change-response-report-before.json"
           workspace_snapshot="${RUNNER_TEMP}/implementer-change-response-workspace-before.json"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
             --report-snapshot-out "${report_snapshot}" \
@@ -1181,7 +1181,7 @@ jobs:
             echo ""
             echo "| $(date -u '+%Y-%m-%dT%H:%M:%SZ') | implementer | Resolve change review | Implementer re-entered after chunk review. | change_review.md |"
           } >> "${{ needs.bootstrap.outputs.report_dir }}/decision_log.md"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --role implementer \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
@@ -1210,7 +1210,7 @@ jobs:
           if [ -f .github/scripts/checkout_agent_canon_submodule.sh ]; then
             bash .github/scripts/checkout_agent_canon_submodule.sh
           else
-            bash tools/ci/checkout_agent_canon_submodule.sh
+            bash tools/agent-canon/ci/checkout_agent_canon_submodule.sh
           fi
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -1225,7 +1225,7 @@ jobs:
         run: |
           report_snapshot="${RUNNER_TEMP}/final-review-report-before.json"
           workspace_snapshot="${RUNNER_TEMP}/final-review-workspace-before.json"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
             --report-snapshot-out "${report_snapshot}" \
@@ -1234,7 +1234,7 @@ jobs:
             echo ""
             echo "| verifier runs only after the final review artifact exists | medium | open |"
           } >> "${{ needs.bootstrap.outputs.report_dir }}/final_review.md"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --role final_reviewer \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
@@ -1263,7 +1263,7 @@ jobs:
           if [ -f .github/scripts/checkout_agent_canon_submodule.sh ]; then
             bash .github/scripts/checkout_agent_canon_submodule.sh
           else
-            bash tools/ci/checkout_agent_canon_submodule.sh
+            bash tools/agent-canon/ci/checkout_agent_canon_submodule.sh
           fi
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -1278,7 +1278,7 @@ jobs:
         run: |
           report_snapshot="${RUNNER_TEMP}/implementer-final-response-report-before.json"
           workspace_snapshot="${RUNNER_TEMP}/implementer-final-response-workspace-before.json"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
             --report-snapshot-out "${report_snapshot}" \
@@ -1287,7 +1287,7 @@ jobs:
             echo ""
             echo "| $(date -u '+%Y-%m-%dT%H:%M:%SZ') | implementer | Resolve final review | Implementer re-entered before verification. | final_review.md |"
           } >> "${{ needs.bootstrap.outputs.report_dir }}/decision_log.md"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --role implementer \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
@@ -1316,7 +1316,7 @@ jobs:
           if [ -f .github/scripts/checkout_agent_canon_submodule.sh ]; then
             bash .github/scripts/checkout_agent_canon_submodule.sh
           else
-            bash tools/ci/checkout_agent_canon_submodule.sh
+            bash tools/agent-canon/ci/checkout_agent_canon_submodule.sh
           fi
       - name: Install Python and deps
         uses: actions/setup-python@v5
@@ -1337,7 +1337,7 @@ jobs:
           export AGENT_REPORT_DIR="${{ needs.bootstrap.outputs.report_dir }}"
           export AGENT_ROLE="verifier"
           export AGENT_ENFORCE_WRITE_SCOPE="1"
-          bash tools/ci/pre_review.sh
+          bash tools/agent-canon/ci/pre_review.sh
       - name: Upload verification bundle
         uses: actions/upload-artifact@v4
         with:
@@ -1361,7 +1361,7 @@ jobs:
           if [ -f .github/scripts/checkout_agent_canon_submodule.sh ]; then
             bash .github/scripts/checkout_agent_canon_submodule.sh
           else
-            bash tools/ci/checkout_agent_canon_submodule.sh
+            bash tools/agent-canon/ci/checkout_agent_canon_submodule.sh
           fi
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -1376,7 +1376,7 @@ jobs:
         run: |
           report_snapshot="${RUNNER_TEMP}/audit-report-before.json"
           workspace_snapshot="${RUNNER_TEMP}/audit-workspace-before.json"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
             --report-snapshot-out "${report_snapshot}" \
@@ -1385,7 +1385,7 @@ jobs:
             echo ""
             echo "- audit_note: always-on and specialist handoff artifacts collected in GitHub Actions"
           } >> "${{ needs.bootstrap.outputs.report_dir }}/retrospective.md"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --role auditor \
             --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
             --workspace-root "${GITHUB_WORKSPACE}" \

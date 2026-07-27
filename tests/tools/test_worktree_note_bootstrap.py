@@ -1,9 +1,9 @@
 # @dependency-start
 # contract test
 # responsibility Tests worktree note bootstrap and current-checkout work-log behavior.
-# upstream implementation ../../tools/agent_tools/bootstrap_worktree_notes.py bootstrap helper
-# upstream implementation ../../tools/agent_tools/work_log.py run-local work-log helper
-# upstream design ../../vendor/agent-canon/documents/worktree-lifecycle.md worktree lifecycle contract
+# upstream implementation ../../tools/agent-canon/agent_tools/bootstrap_worktree_notes.py bootstrap helper
+# upstream implementation ../../tools/agent-canon/agent_tools/work_log.py run-local work-log helper
+# upstream design ../../vendor/agent-canon/documents/operations/worktree-lifecycle.md worktree lifecycle contract
 # @dependency-end
 """Tests for worktree note bootstrap and append helpers."""
 

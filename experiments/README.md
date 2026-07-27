@@ -3,7 +3,7 @@
 @dependency-start
 contract design
 responsibility Documents Experiments Hub for this repository.
-upstream design ../vendor/agent-canon/documents/experiment-registry.md experiment registry contract
+upstream design ../vendor/agent-canon/documents/experiments/experiment-registry.md experiment registry contract
 downstream environment registry.toml template-local registry
 @dependency-end
 -->
@@ -46,11 +46,11 @@ experiments/
   - topic、entrypoint、formal run command、active branch の集中管理ファイルです。
 - `report/README.md`
   - run report の置き方です。
-- `tools/experiments/create_experiment_topic.py`
+- `tools/agent-canon/experiments/create_experiment_topic.py`
   - `_template/` から新しい topic を作り、registry entry も追加します。
-- `tools/experiments/sync_experiment_registry_context.py`
+- `tools/agent-canon/experiments/sync_experiment_registry_context.py`
   - current branch / worktree / scope file を registry に同期します。
-- `tools/experiments/run_managed_experiment.py`
+- `tools/agent-canon/experiments/run_managed_experiment.py`
   - `run_manifest.json`、`eval_manifest.json`、`artifact_manifest.json`、`command.json`、`environment.json`、`source_snapshot.json`、`config.json`、`config_source.yaml`、`run.log`、run ごとの `logs/` を残しながら実験を実行する入口です。
 
 ## server 実行の既定
@@ -79,7 +79,7 @@ experiments/
 ## topic の作り始め
 
 ```bash
-python3 tools/experiments/create_experiment_topic.py <topic>
+python3 tools/agent-canon/experiments/create_experiment_topic.py <topic>
 ```
 
 コピーしたら、少なくとも次をその topic に合わせて書き換えます。
@@ -99,7 +99,7 @@ python3 tools/experiments/create_experiment_topic.py <topic>
 ## 実行例
 
 ```bash
-python3 tools/experiments/run_managed_experiment.py \
+python3 tools/agent-canon/experiments/run_managed_experiment.py \
   --topic _template \
   --use-registered-command smoke
 ```
@@ -111,7 +111,7 @@ python3 tools/experiments/run_managed_experiment.py \
 ## Registry Check
 
 ```bash
-python3 tools/ci/check_experiment_registry.py
+python3 tools/agent-canon/ci/check_experiment_registry.py
 make experiment-check
 ```
 
@@ -120,7 +120,7 @@ make experiment-check
 branch / worktree を使う場合は、scope 更新後に次で registry metadata を合わせます。
 
 ```bash
-python3 tools/experiments/sync_experiment_registry_context.py \
+python3 tools/agent-canon/experiments/sync_experiment_registry_context.py \
   --topic <topic> \
   --branch work/<topic>-YYYYMMDD \
   --workspace-root .worktrees/<branch-name>

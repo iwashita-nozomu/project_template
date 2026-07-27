@@ -2439,12 +2439,12 @@
     }
   },
   "x_cli": {
-    "command": "python3 tools/ci/check_experiment_readme.py --repo-root ROOT --path README [--kind KIND] [--status STATUS] [--registry REGISTRY] [--run-dir RUN_DIR] [--schema documents/experiment-readme-contract-r9.json] [--require-runtime] [--json]",
+    "command": "python3 tools/agent-canon/ci/check_experiment_readme.py --repo-root ROOT --path README [--kind KIND] [--status STATUS] [--registry REGISTRY] [--run-dir RUN_DIR] [--schema documents/experiment-readme-contract-r9.json] [--require-runtime] [--json]",
     "api": "ReadmeCheckResult check_readme(readme_path, *, repo_root, kind=None, status=None, registry_path=None, run_dir=None, schema_path=None, require_runtime=false)",
     "metadata_inference": "Use metadata readme_kind/status only when corresponding CLI argument is omitted; supplied values must match.",
     "path_resolution": "Resolve --path relative to --repo-root; resolve each relative binding path relative to --run-dir when provided, otherwise relative to the README directory; resolve registry relative to --repo-root.",
     "schema": "Omitted --schema loads documents/experiment-readme-contract-r9.json. Supplied --schema must resolve exactly to <repo-root>/documents/experiment-readme-contract-r9.json; packet-local validation is not a worker alternate.",
-    "registry_delegation": "Invoke tools/ci/check_experiment_registry.py exactly once when registry_path is supplied or matrix requires registry; propagate structured failure as ERD-015 and do not duplicate registry predicates.",
+    "registry_delegation": "Invoke tools/agent-canon/ci/check_experiment_registry.py exactly once when registry_path is supplied or matrix requires registry; propagate structured failure as ERD-015 and do not duplicate registry predicates.",
     "json_output": "With --json emit exactly one ReadmeCheckResult object with no log lines; without --json emit human findings but preserve the same result object and exit.",
     "exit_precedence": [
       "2:usage_schema_path_metadata_or_unknown",
@@ -2611,7 +2611,7 @@
     },
     "unmapped_statuses": [],
     "unmapped_rule": "No status is inferred from an unrelated status; partial and superseded require explicit lifecycle outcomes and their matrix evidence.",
-    "producer": "tools/experiments/run_managed_experiment.py",
+    "producer": "tools/agent-canon/experiments/run_managed_experiment.py",
     "manifest_write_point": "finalize_run_manifest emits evidence first, binds /evidence, then writes run_manifest.json and artifact_manifest.json",
     "mismatch_error": "ERD-019",
     "outcome_type": "RunnerEvidenceOutcome",
@@ -2619,11 +2619,11 @@
     "destination_owner": "run_managed_experiment.py:emit_runner_evidence derives destinations from context.paths.result_dir; no caller destination argument"
   },
   "x_terminal_partial_production": {
-    "canonical_producer": "tools/experiments/run_managed_experiment.py",
+    "canonical_producer": "tools/agent-canon/experiments/run_managed_experiment.py",
     "owner_operation": "finalize_run_manifest -> finalize_partial_evidence -> emit_runner_evidence",
     "mode": "direct_emission",
     "canonical_destination": "experiments/<topic>/result/<run_name>/",
-    "resource_planner_role": "tools/experiments/execution_resource_plan.py writes result witnesses below result/<run_name>/resource_plan/ and preserves existing resource/certificate writes below separate runtime_root; it never writes canonical sibling files.",
+    "resource_planner_role": "tools/agent-canon/experiments/execution_resource_plan.py writes result witnesses below result/<run_name>/resource_plan/ and preserves existing resource/certificate writes below separate runtime_root; it never writes canonical sibling files.",
     "terminal_filename": "terminal_evidence.json",
     "partial_filename": "partial_evidence.json",
     "terminal_schema_version": "terminal-evidence/v1",
@@ -2707,7 +2707,7 @@
     },
     "pre_resource_planner_failure": {
       "trigger": "source_config_error(source_config) including missing experiments/<topic>/config.yaml",
-      "producer": "tools/experiments/run_managed_experiment.py:finalize_run_manifest",
+      "producer": "tools/agent-canon/experiments/run_managed_experiment.py:finalize_run_manifest",
       "terminal_status": "failed",
       "failure_code": "missing_source_config",
       "failure_stage": "source_config_preflight",
@@ -2716,7 +2716,7 @@
     },
     "write_order": "For outcome.status=partial, publish partial_evidence.json first, then attempt terminal_evidence.json; update run_manifest.json only after both results are published or idempotent_existing. On terminal collision/io retain admitted partial evidence, return aggregate status=partial_admitted_terminal_failure and process code 2, and do not finalize/update the manifest.",
     "status_evidence_equality": "run_manifest.status=completed maps to README status=complete and terminal.status=complete; failed maps to failed; partial and superseded are explicit outcomes and are not inferred from exit codes.",
-    "checker": "tools/ci/check_experiment_readme.py via exact run_manifest:/evidence pointers, payload schema, and SHA-256 recomputation",
+    "checker": "tools/agent-canon/ci/check_experiment_readme.py via exact run_manifest:/evidence pointers, payload schema, and SHA-256 recomputation",
     "focused_reachable_validation": "Future focused boundaries cover missing-source-config, partial ordering, planner output-root exclusion, and concurrent same/different payload publication; no implementation test is created by this audit.",
     "partial_aggregate_ref": "x_partial_finalization_aggregate",
     "failure_behavior": "If partial publication is collision/io, terminal publication is not attempted; return partial_publication_failure and process code 2. If partial is admitted and terminal fails, retain partial evidence with retained_orphan_marker; never delete admitted evidence.",
@@ -2744,8 +2744,8 @@
   "x_result_readme_owner": {
     "path": "experiments/<topic>/result/<run_name>/README.md",
     "content_owner": "agents/skills/result-artifact-writeout.md",
-    "pointer_producer": "tools/experiments/update_latest_result.py",
-    "pointer_edit_owner": "tools/experiments/update_latest_result.py",
+    "pointer_producer": "tools/agent-canon/experiments/update_latest_result.py",
+    "pointer_edit_owner": "tools/agent-canon/experiments/update_latest_result.py",
     "latest_file": "experiments/<topic>/result/LATEST.json",
     "latest_pointer_object": "/result_readme",
     "latest_pointer_shape": {
@@ -2758,7 +2758,7 @@
     "status_source": "Read the exactly-one metadata block from the selected result README; result_readme.status must be one of running|complete|failed|partial|superseded, equal metadata.status, and result_readme.kind must equal result.",
     "implementation_change": "Extend _latest_payload and _latest_markdown to emit /result_readme with absolute README path, kind=result, metadata status, and run_name, while preserving existing latest_result/latest_result_name/result_manifest/summary_json/visual_report_html keys.",
     "boundary_test": "tests/tools/test_update_latest_result.py: assert LATEST.json:/result_readme path, kind, status and existing pointer fields.",
-    "semantic_checker": "tools/ci/check_experiment_readme.py",
+    "semantic_checker": "tools/agent-canon/ci/check_experiment_readme.py",
     "report_boundary": "experiments/report/<run_name>.md remains report-writing owned"
   },
   "x_error_code_definitions": {
@@ -2876,7 +2876,7 @@
       ]
     },
     "producer": {
-      "path": "tools/experiments/run_managed_experiment.py",
+      "path": "tools/agent-canon/experiments/run_managed_experiment.py",
       "owner": "Runner-owned direct evidence producer",
       "operation": "direct_emission",
       "source_path": null,
@@ -2927,7 +2927,7 @@
       }
     },
     "consumer": {
-      "path": "tools/experiments/run_managed_experiment.py",
+      "path": "tools/agent-canon/experiments/run_managed_experiment.py",
       "shape": "The Runner finalizer calls the producer, binds exact relative path/schema/present/sha256 objects under /evidence, then writes run_manifest.json; the checker follows these pointers.",
       "manifest_pointer_shape": {
         "terminal": {
@@ -2945,7 +2945,7 @@
       }
     },
     "lifecycle_write_point": {
-      "owner": "tools/experiments/run_managed_experiment.py:finalize_run_manifest",
+      "owner": "tools/agent-canon/experiments/run_managed_experiment.py:finalize_run_manifest",
       "ordering": [
         "construct one validated RunnerEvidenceOutcome",
         "if outcome.status=partial, call finalize_partial_evidence and publish partial_evidence.json first",
@@ -3015,7 +3015,7 @@
       "properties": {
         "producer": {
           "type": "string",
-          "const": "tools/experiments/run_managed_experiment.py"
+          "const": "tools/agent-canon/experiments/run_managed_experiment.py"
         },
         "producer_operation": {
           "type": "string",
@@ -3602,7 +3602,7 @@
       },
       "timeout": {
         "factory": "build_timeout_outcome",
-        "construction_site": "tools/experiments/run_managed_experiment.py:managed-command timeout adapter",
+        "construction_site": "tools/agent-canon/experiments/run_managed_experiment.py:managed-command timeout adapter",
         "status": "failed",
         "failure_code": "timeout",
         "failure_stage": "managed_command",
@@ -3629,7 +3629,7 @@
       },
       "resource_planner_failure": {
         "factory": "build_resource_planner_failure_outcome",
-        "construction_site": "tools/experiments/run_managed_experiment.py:resource-plan invocation adapter catch",
+        "construction_site": "tools/agent-canon/experiments/run_managed_experiment.py:resource-plan invocation adapter catch",
         "status": "failed",
         "failure_code": "resource_planner_failure",
         "failure_stage": "resource_planner",
@@ -3657,7 +3657,7 @@
       },
       "runner_failure": {
         "factory": "build_runner_failure_outcome",
-        "construction_site": "tools/experiments/run_managed_experiment.py:RunnerFailure boundary in run_cli/finalization",
+        "construction_site": "tools/agent-canon/experiments/run_managed_experiment.py:RunnerFailure boundary in run_cli/finalization",
         "status": "failed",
         "failure_code": "runner_failure",
         "failure_stage": "runner_finalization",
@@ -3682,7 +3682,7 @@
       },
       "publication_failure_not_runner_outcome": {
         "factory": null,
-        "construction_site": "tools/experiments/run_managed_experiment.py:emit_runner_evidence typed publication result",
+        "construction_site": "tools/agent-canon/experiments/run_managed_experiment.py:emit_runner_evidence typed publication result",
         "status": "no RunnerEvidenceOutcome; outcome is RunnerEvidencePublication collision or io",
         "failure_code": [
           "evidence_materialization_collision",
@@ -3866,7 +3866,7 @@
       {
         "pair": "missing_source_config/source_config_preflight",
         "factory": "build_missing_source_config_outcome(context, *, exit_code, message)",
-        "construction_site": "tools/experiments/run_managed_experiment.py:run_cli source_config_error branch before resource planner entry",
+        "construction_site": "tools/agent-canon/experiments/run_managed_experiment.py:run_cli source_config_error branch before resource planner entry",
         "available_fields": [
           "PREFLIGHT_FAILURE_EXIT_CODE",
           "missing source/config path and status",
@@ -3894,7 +3894,7 @@
       {
         "pair": "command_exit_nonzero/managed_command",
         "factory": "build_runner_evidence_outcome(context, *, exit_code) after the managed process returns",
-        "construction_site": "tools/experiments/run_managed_experiment.py:managed-command completion branch for exact nonzero exit",
+        "construction_site": "tools/agent-canon/experiments/run_managed_experiment.py:managed-command completion branch for exact nonzero exit",
         "available_fields": [
           "exact process exit_code",
           "command argv",
@@ -3917,7 +3917,7 @@
       {
         "pair": "timeout/managed_command",
         "factory": "build_timeout_outcome(context, *, exit_code, timeout_seconds, message)",
-        "construction_site": "tools/experiments/run_managed_experiment.py:managed-command timeout adapter",
+        "construction_site": "tools/agent-canon/experiments/run_managed_experiment.py:managed-command timeout adapter",
         "available_fields": [
           "timeout_seconds",
           "deadline/signal",
@@ -3942,7 +3942,7 @@
       {
         "pair": "resource_planner_failure/resource_planner",
         "factory": "build_resource_planner_failure_outcome(context, *, planner_error, resource_plan_path)",
-        "construction_site": "tools/experiments/run_managed_experiment.py:resource-plan invocation adapter catch after planner entry",
+        "construction_site": "tools/agent-canon/experiments/run_managed_experiment.py:resource-plan invocation adapter catch after planner entry",
         "available_fields": [
           "typed planner error code/message",
           "planner exit_code or null",
@@ -3969,7 +3969,7 @@
       {
         "pair": "runner_failure/runner_finalization",
         "factory": "build_runner_failure_outcome(context, *, error: RunnerFailure)",
-        "construction_site": "tools/experiments/run_managed_experiment.py:typed RunnerFailure catch at run_cli/finalization boundary for non-publication failures",
+        "construction_site": "tools/agent-canon/experiments/run_managed_experiment.py:typed RunnerFailure catch at run_cli/finalization boundary for non-publication failures",
         "available_fields": [
           "sanitized RunnerFailure code/class/message",
           "lifecycle stage",
@@ -4005,21 +4005,21 @@
       "boundary": "witness paths must resolve below result_witness_root; resource/certificate persistence paths may resolve below runtime_root; canonical siblings are outside both planner write sets and owned by Runner."
     },
     "run_function": "run_resource_plan(plan: ResourcePlan, *, result_dir: Path, runtime_root: Path) -> ResourcePlanResult; both roots are validated by derive_resource_plan_roots and no evidence destination argument is accepted.",
-    "cli": "python3 tools/experiments/execution_resource_plan.py --plan PLAN_JSON --result-dir experiments/<topic>/result/<run_name> --runtime-root RUNTIME_ROOT",
+    "cli": "python3 tools/agent-canon/experiments/execution_resource_plan.py --plan PLAN_JSON --result-dir experiments/<topic>/result/<run_name> --runtime-root RUNTIME_ROOT",
     "allowed_write_roots": {
       "result_witnesses": {
         "root": "result_dir/resource_plan",
-        "owner": "tools/experiments/execution_resource_plan.py",
+        "owner": "tools/agent-canon/experiments/execution_resource_plan.py",
         "allowed": "execution_resource_plan.json and planner result witnesses/certificates below this root"
       },
       "runtime_persistence": {
         "root": "runtime_root",
-        "owner": "existing resource/certificate persistence in tools/experiments/execution_resource_plan.py",
+        "owner": "existing resource/certificate persistence in tools/agent-canon/experiments/execution_resource_plan.py",
         "allowed": "existing runtime-root resource and certificate outputs below this root; this is not a README evidence sibling"
       },
       "canonical_evidence": {
         "root": "result_dir",
-        "owner": "tools/experiments/run_managed_experiment.py:emit_runner_evidence",
+        "owner": "tools/agent-canon/experiments/run_managed_experiment.py:emit_runner_evidence",
         "allowed": "terminal_evidence.json and partial_evidence.json only through the Runner publisher; planner has no write permission"
       }
     },
@@ -4253,7 +4253,7 @@
         "partial_retry": "If partial evidence is already admitted with equal bytes, return idempotent_existing; never delete or replace it.",
         "terminal_retry": "Retry only terminal publication with the same canonical bytes; equal existing bytes return idempotent_existing; differing/symlink/non-regular destination remains collision and is never replaced.",
         "aggregate_recompute": "Each retry returns a new aggregate from the two per-artifact results; previous admitted evidence remains valid.",
-        "retry_owner": "tools/experiments/run_managed_experiment.py:run_cli/finalize_run_manifest"
+        "retry_owner": "tools/agent-canon/experiments/run_managed_experiment.py:run_cli/finalize_run_manifest"
       }
     },
     "cleanup": {
@@ -4289,7 +4289,7 @@
     "focused_reachable_validation": "tests/tools/test_run_managed_experiment.py::test_partial_finalization_aggregate_order_failure_retention_retry_and_return_code covers partial published/idempotent then terminal collision/io, partial-first ordering, retained marker, no deletion, no manifest update, retry idempotence, and exact return code 2. It does not duplicate static slot or matrix predicates."
   },
   "x_runner_runtime_root_contract": {
-    "owner": "tools/experiments/run_managed_experiment.py:execute_managed_run",
+    "owner": "tools/agent-canon/experiments/run_managed_experiment.py:execute_managed_run",
     "run_context_change": {
       "allowed": false,
       "rule": "Do not add runtime_root to RunContext; bind it as a local at execute_managed_run and rebind the ResourceRequest with dataclasses.replace."

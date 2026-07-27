@@ -3,7 +3,7 @@
 @dependency-start
 contract environment
 responsibility Documents Docker Runtime for this repository.
-upstream design ../documents/linux-wsl-host-requirements.md host runtime requirements
+upstream design ../documents/contracts/linux-wsl-host-requirements.md host runtime requirements
 upstream design ../vendor/agent-canon/CONTAINER_OPERATIONS.md AgentCanon container and devcontainer operation rulebook
 downstream environment packs/default.toml default container pack
 downstream environment packs/default-host-docker.toml host-docker container pack
@@ -13,7 +13,7 @@ downstream environment packs/default-host-docker.toml host-docker container pack
 `docker/` は、この template の共通開発環境と container runtime 運用の正本です。
 単に `docker build` を置くだけでなく、build / smoke / workspace mount / nested Codex を pack と profile で再利用できる形にします。
 
-host 側の前提は [linux-wsl-host-requirements.md](../documents/linux-wsl-host-requirements.md) を正本にします。
+host 側の前提は [linux-wsl-host-requirements.md](../documents/contracts/linux-wsl-host-requirements.md) を正本にします。
 
 Container / devcontainer の責務境界は
 [CONTAINER_OPERATIONS.md](../vendor/agent-canon/CONTAINER_OPERATIONS.md) が正本です。
@@ -63,17 +63,17 @@ runtime pack には次を 1 つの spec としてまとめます。
 
 主な入口:
 
-- `python3 tools/ci/run_container_pack.py`
+- `python3 tools/agent-canon/ci/run_container_pack.py`
   - pack 定義から build と smoke を実行します。
 - `bash docker/check_build.sh`
   - GitHub Docker Build workflow と `make docker-build-check` が使う submodule-aware build gate です。root `.dockerignore` は image build context から `vendor/agent-canon` を除外しますが、runtime smoke は checkout 済み `vendor/agent-canon` から shared `.devcontainer/post-create.sh` を使います。
-- `python3 tools/ci/run_in_repo_container.py`
+- `python3 tools/agent-canon/ci/run_in_repo_container.py`
   - pack 定義から repo workspace を mount した container command を実行します。
-- `python3 tools/ci/run_repo_program.py`
+- `python3 tools/agent-canon/ci/run_repo_program.py`
   - Python file、shell script、workspace binary、plain command を 1 つの入口で container 実行し、先に environment check も流します。
-- `python3 tools/ci/run_python_in_dockerfile.py`
+- `python3 tools/agent-canon/ci/run_python_in_dockerfile.py`
   - Python file path と rule に基づいて適切な pack で実行します。
-- `python3 tools/ci/run_codex_in_repo_container.py`
+- `python3 tools/agent-canon/ci/run_codex_in_repo_container.py`
   - repo を mount した canonical container 内で nested Codex を起動します。
 - `bash .devcontainer/generate-runtime-compose.sh`
   - devcontainer 用の compose を canonical pack から root-local に生成します。template / derived repo では `.devcontainer/` が AgentCanon-owned root view なので、実行前に AgentCanon submodule checkout が必要です。
@@ -99,12 +99,12 @@ Codex CLI、Codex 用 Node/npm、GitHub CLI は Docker image へ焼かず、work
 よく使う例:
 
 ```bash
-python3 tools/ci/run_codex_in_repo_container.py --list-profiles
-python3 tools/ci/run_codex_in_repo_container.py --print-only
-python3 tools/ci/run_codex_in_repo_container.py
-python3 tools/ci/run_codex_in_repo_container.py --profile host-docker
-python3 tools/ci/run_codex_in_repo_container.py --share-host-codex-home
-python3 tools/ci/run_codex_in_repo_container.py --no-seed-host-codex --forward-env OPENAI_API_KEY
+python3 tools/agent-canon/ci/run_codex_in_repo_container.py --list-profiles
+python3 tools/agent-canon/ci/run_codex_in_repo_container.py --print-only
+python3 tools/agent-canon/ci/run_codex_in_repo_container.py
+python3 tools/agent-canon/ci/run_codex_in_repo_container.py --profile host-docker
+python3 tools/agent-canon/ci/run_codex_in_repo_container.py --share-host-codex-home
+python3 tools/agent-canon/ci/run_codex_in_repo_container.py --no-seed-host-codex --forward-env OPENAI_API_KEY
 ```
 
 ## Repo Program Runner
@@ -123,9 +123,9 @@ python3 tools/ci/run_codex_in_repo_container.py --no-seed-host-codex --forward-e
 よく使う例:
 
 ```bash
-python3 tools/ci/run_repo_program.py docker/check_build.sh -- --pack docker/packs/default.toml
-python3 tools/ci/run_repo_program.py python3 -- --version
-python3 tools/ci/run_repo_program.py --skip-env-check --print-only cmake -- --version
+python3 tools/agent-canon/ci/run_repo_program.py docker/check_build.sh -- --pack docker/packs/default.toml
+python3 tools/agent-canon/ci/run_repo_program.py python3 -- --version
+python3 tools/agent-canon/ci/run_repo_program.py --skip-env-check --print-only cmake -- --version
 ```
 
 ## Python File Runner
@@ -144,8 +144,8 @@ python3 tools/ci/run_repo_program.py --skip-env-check --print-only cmake -- --ve
 よく使う例:
 
 ```bash
-bash tools/docker_dependency_validator.sh
-python3 tools/ci/run_python_in_dockerfile.py docker/Dockerfile tools/docs/check_markdown_math.py -- README.md
+bash tools/agent-canon/docker_dependency_validator.sh
+python3 tools/agent-canon/ci/run_python_in_dockerfile.py docker/Dockerfile tools/agent-canon/docs/check_markdown_math.py -- README.md
 ```
 
 ## Python Environment Rule
@@ -162,7 +162,7 @@ Python module install は Docker image build では実行しません。Template
 
 許可事項:
 
-- container 内で `python3 tools/ci/python_env_policy.py --create` を使って `.venv` を作る
+- container 内で `python3 tools/agent-canon/ci/python_env_policy.py --create` を使って `.venv` を作る
 - notebook kernel や補助 package を `.venv` に追加したい場合も `.venv` だけを使う
 
 禁止事項:
@@ -174,9 +174,9 @@ Python module install は Docker image build では実行しません。Template
 環境 drift check は Python に依存しない次の入口を使います。
 
 ```bash
-bash tools/docker_dependency_validator.sh
-python3 tools/ci/python_env_policy.py
-python3 tools/ci/python_env_policy.py --create
+bash tools/agent-canon/docker_dependency_validator.sh
+python3 tools/agent-canon/ci/python_env_policy.py
+python3 tools/agent-canon/ci/python_env_policy.py --create
 ```
 
 `.venv` 作成時は `--system-site-packages` を使い、post-create / runner setup 後に container runtime へ入った Jupyter / analysis / test package をそのまま見せます。
@@ -219,20 +219,20 @@ VS Code で notebook を開く場合は、container 内の `.venv/bin/python` �
 ## Result Logs And Visualization
 
 結果ログの保持、summary、可視化 artifact の正本ルールは
-[result-log-retention-and-visualization.md](../vendor/agent-canon/documents/result-log-retention-and-visualization.md)
+[result-log-retention-and-visualization.md](../vendor/agent-canon/documents/experiments/result-log-retention-and-visualization.md)
 です。canonical runtime では次を標準で使えるようにします。
 
 - `graphviz` / `dot` for dependency and structural graph rendering
 - JupyterLab / notebook / ipykernel for interactive result inspection
 - `pydeps` and `snakeviz` for dependency and profiling visualization
-- `tools/data/jsonl_to_md.py` for JSONL-to-Markdown summaries
-- `tools/hlo/summarize_hlo_jsonl.py` for HLO summary JSON
+- `tools/agent-canon/data/jsonl_to_md.py` for JSONL-to-Markdown summaries
+- `tools/agent-canon/hlo/summarize_hlo_jsonl.py` for HLO summary JSON
 
 既定 pack の smoke は `dot -V` と Python runtime import を確認します。result helper 自体は workspace mount 後の normal CI / docs check 側で確認し、Docker image build の入力にはしません。
 Dockerfile、requirements、Python installer、runtime pack のいずれかを変えたら、まず境界検査を通します。Docker image または pack smoke に影響する変更では build check も通します。
 
 ```bash
-bash tools/docker_dependency_validator.sh
+bash tools/agent-canon/docker_dependency_validator.sh
 bash docker/check_build.sh --pack docker/packs/default.toml
 ```
 
@@ -244,22 +244,22 @@ container 内から `docker build` / `docker run` を行う場合は、host の 
 host socket 前提の pack は `docker/packs/default-host-docker.toml` です。
 
 ```bash
-python3 tools/ci/run_container_pack.py --pack docker/packs/default-host-docker.toml
-python3 tools/ci/run_codex_in_repo_container.py --profile host-docker
+python3 tools/agent-canon/ci/run_container_pack.py --pack docker/packs/default-host-docker.toml
+python3 tools/agent-canon/ci/run_codex_in_repo_container.py --profile host-docker
 ```
 
-`safe.directory` は `docker/Dockerfile` から `docker/register_safe_directories.sh` を呼んで `git config --global` に登録します。build 時は `/workspace` だけを登録し、devcontainer 作成時や smoke test では mount 済み workspace の `vendor/*` を列挙して `/workspace/vendor/<name>` を動的に登録します。Template / AgentCanon 固有の GitHub remote や local mirror 名は Dockerfile に焼かず、[Template GitHub Remote](../documents/template-github-remote.md) と [AgentCanon GitHub Remote](../vendor/agent-canon/documents/agent-canon-github-remote.md) を正本にします。
+`safe.directory` は `docker/Dockerfile` から `docker/register_safe_directories.sh` を呼んで `git config --global` に登録します。build 時は `/workspace` だけを登録し、devcontainer 作成時や smoke test では mount 済み workspace の `vendor/*` を列挙して `/workspace/vendor/<name>` を動的に登録します。Template / AgentCanon 固有の GitHub remote や local mirror 名は Dockerfile に焼かず、[Template GitHub Remote](../documents/contracts/template-github-remote.md) と [AgentCanon GitHub Remote](../vendor/agent-canon/documents/agent-canon/agent-canon-github-remote.md) を正本にします。
 
 Template の Docker build context は root `.dockerignore` で `vendor/agent-canon` を除外します。shared canon を読む必要がある validation は workspace mount 後に実行し、image build の入力にはしません。
 
 repo-defined container runner でも、host `~/.codex` が存在するときは `/root/.codex` へ自動 mount します。対象は少なくとも次です。
 
-- `python3 tools/ci/run_in_repo_container.py`
-- `python3 tools/ci/run_repo_program.py`
-- `python3 tools/ci/run_container_pack.py`
-- `python3 tools/ci/run_python_in_dockerfile.py`
+- `python3 tools/agent-canon/ci/run_in_repo_container.py`
+- `python3 tools/agent-canon/ci/run_repo_program.py`
+- `python3 tools/agent-canon/ci/run_container_pack.py`
+- `python3 tools/agent-canon/ci/run_python_in_dockerfile.py`
 
-つまり、dev container に入らず `make docker-run ARGS='...'` や `python3 tools/ci/run_repo_program.py ...` を使う場合でも、container 内の `~/.codex` は host state をそのまま使います。
+つまり、dev container に入らず `make docker-run ARGS='...'` や `python3 tools/agent-canon/ci/run_repo_program.py ...` を使う場合でも、container 内の `~/.codex` は host state をそのまま使います。
 
 ## VS Code Dev Container
 
@@ -350,7 +350,7 @@ runtime 側の C/C++ 基本 tool は、すでに `docker/Dockerfile` に入っ�
 repo maintenance helper が前提にする host-compatible tool も canonical image に同梱します。
 
 - `rsync`
-  - `tools/ci/check_fresh_clone.sh` の workspace overlay で使います。
+  - `tools/agent-canon/ci/check_fresh_clone.sh` の workspace overlay で使います。
   - host に `rsync` が無い場合でも script は `tar` fallback で動きますが、canonical container では Dockerfile 側で `rsync` を提供します。
 
 C++ を使う派生 repo に備えて、canonical image には次を同梱します。
@@ -364,7 +364,7 @@ template 既定では `CMAKE_GENERATOR=Ninja` を image 側で固定します。
 JAX export、IREE、XLA FFI header などの重い runtime は template default には含めません。
 必要な project だけ `docker/requirements.txt`、`docker/Dockerfile`、project-local CMake module、smoke target を同じ変更で足します。
 
-canonical CMake layout と build artifact の再利用方針は [cpp-build-layout.md](../vendor/agent-canon/documents/cpp-build-layout.md) を見ます。要点は次です。
+canonical CMake layout と build artifact の再利用方針は [cpp-build-layout.md](../vendor/agent-canon/documents/design/cpp-build-layout.md) を見ます。要点は次です。
 
 - root `CMakeLists.txt`
   - canonical entrypoint
@@ -376,7 +376,7 @@ canonical CMake layout と build artifact の再利用方針は [cpp-build-layou
   - reusable local install tree
 host に `docker` group が設定されていても、現在の shell がその group をまだ持っていない場合があります。`getent group docker` にユーザー名が出ても `id` に `docker` が無いときは、新しい login shell を開いてから `make docker-build-check` を実行します。一時確認だけなら `sg docker -c 'docker version'` で daemon 到達性を切り分けられます。
 
-Linux / WSL2 host の前提、`/mnt/git` の扱い、workspace の置き場所は `documents/linux-wsl-host-requirements.md` を見ます。
+Linux / WSL2 host の前提、`/mnt/git` の扱い、workspace の置き場所は `documents/contracts/linux-wsl-host-requirements.md` を見ます。
 
 ## Standard Commands
 
@@ -390,9 +390,9 @@ make docker-codex-host-docker
 cmake -S . -B build/cpp/dev
 cmake --build build/cpp/dev
 ctest --test-dir build/cpp/dev --output-on-failure
-python3 tools/ci/run_container_pack.py --pack docker/packs/default.toml --print-only
-python3 tools/ci/run_repo_program.py --print-only python3 -- --version
-python3 tools/ci/run_in_repo_container.py --pack docker/packs/default.toml --shell-session --tty
+python3 tools/agent-canon/ci/run_container_pack.py --pack docker/packs/default.toml --print-only
+python3 tools/agent-canon/ci/run_repo_program.py --print-only python3 -- --version
+python3 tools/agent-canon/ci/run_in_repo_container.py --pack docker/packs/default.toml --shell-session --tty
 ```
 
 ## Update Rule
@@ -401,7 +401,7 @@ python3 tools/ci/run_in_repo_container.py --pack docker/packs/default.toml --she
 
 - `README.md`
 - `QUICK_START.md`
-- `vendor/agent-canon/documents/coding-conventions-project.md`
+- `vendor/agent-canon/documents/conventions/coding-conventions-project.md`
 - この `docker/README.md`
 
 必要なら `agents/templates/environment_change_proposal.md` に triggering code requirement、blocked command、影響範囲、validation、rollback を残します。

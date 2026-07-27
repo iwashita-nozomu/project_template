@@ -2,8 +2,8 @@
 @dependency-start
 contract policy
 responsibility Documents Linux / WSL Host Requirements for this repository.
-upstream design ../vendor/agent-canon/documents/SHARED_RUNTIME_SURFACES.md shared documents ownership policy
-upstream design ../vendor/agent-canon/CONTAINER_OPERATIONS.md container and devcontainer ownership boundary
+upstream design ../../vendor/agent-canon/documents/runtime/SHARED_RUNTIME_SURFACES.md shared documents ownership policy
+upstream design ../../vendor/agent-canon/CONTAINER_OPERATIONS.md container and devcontainer ownership boundary
 @dependency-end
 -->
 
@@ -144,7 +144,7 @@ docker context ls
 ## Related
 
 - [README.md](../README.md)
-- [QUICK_START.md](../QUICK_START.md)
-- [docker/README.md](../docker/README.md)
+- [QUICK_START.md](../../QUICK_START.md)
+- [docker/README.md](../../docker/README.md)
 - [server-host-contract.md](server-host-contract.md)
-- [TROUBLESHOOTING.md](../vendor/agent-canon/documents/TROUBLESHOOTING.md)
+- [TROUBLESHOOTING.md](../../vendor/agent-canon/documents/operations/TROUBLESHOOTING.md)

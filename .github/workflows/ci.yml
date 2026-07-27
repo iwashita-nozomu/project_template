@@ -1,7 +1,7 @@
 # @dependency-start
 # contract workflow
 # responsibility Defines ci YAML configuration.
-# upstream implementation ../../tools/ci/run_all_checks.sh repository CI entrypoint
+# upstream implementation ../../tools/agent-canon/ci/run_all_checks.sh repository CI entrypoint
 # upstream implementation ../../Makefile ci target contract
 # upstream environment ../../docker/install_python_dependencies.sh central Python dependency installer
 # upstream implementation ../scripts/checkout_agent_canon_submodule.sh private AgentCanon checkout gate

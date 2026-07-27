@@ -2,8 +2,8 @@
 # contract configuration
 # responsibility Defines Python packaging, dependency, and tool configuration.
 # upstream design LICENSE repository license text
-# upstream design documents/licensing-policy.md repository license ownership
-# upstream design vendor/agent-canon/documents/coding-conventions-python.md Python convention contract
+# upstream design documents/contracts/licensing-policy.md repository license ownership
+# upstream design vendor/agent-canon/documents/conventions/coding-conventions-python.md Python convention contract
 # downstream implementation tests/tools/test_python_env_policy.py validates Python environment policy
 # downstream implementation tests/tools/test_update_latest_result.py imports shared tools in pyright
 # @dependency-end
@@ -78,7 +78,7 @@ exclude = [
 
 # ローカルパッケージと shared tool surface 解決のため、python、repo root、
 # AgentCanon submodule root、root shared tool view を追加します。
-extraPaths = ["./python", ".", "./vendor/agent-canon", "./tools/agent_tools"]
+extraPaths = ["./python", ".", "./vendor/agent-canon", "./tools/agent-canon/agent_tools"]
 stubPath = "./python/typings"
 
 

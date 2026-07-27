@@ -152,7 +152,7 @@ replacements: dict[str, list[tuple[str, str]]] = {
     "docker/packs/default-host-docker.toml": [
         ('image_tag = "project-template:default-runtime-pack-host-docker"', f'image_tag = "{project_slug}:default-runtime-pack-host-docker"'),
     ],
-    "documents/linux-wsl-host-requirements.md": [
+    "documents/contracts/linux-wsl-host-requirements.md": [
         ("/mnt/git/template.git", f"/mnt/git/{bare_repo}"),
     ],
 }

@@ -45,7 +45,7 @@ log も `logs/` 配下へ置きます。
 smoke:
 
 ```bash
-python3 tools/experiments/run_managed_experiment.py \
+python3 tools/agent-canon/experiments/run_managed_experiment.py \
   --topic <topic> \
   --use-registered-command smoke
 ```
@@ -53,7 +53,7 @@ python3 tools/experiments/run_managed_experiment.py \
 formal run:
 
 ```bash
-python3 tools/experiments/run_managed_experiment.py \
+python3 tools/agent-canon/experiments/run_managed_experiment.py \
   --topic <topic> \
   --use-registered-command formal
 ```

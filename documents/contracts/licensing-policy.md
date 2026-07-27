@@ -4,9 +4,9 @@
 contract policy
 responsibility Documents template and derived repository licensing ownership.
 upstream design ../README.md repository ownership overview
-upstream design ../LICENSE repository license text
-upstream design ../vendor/agent-canon/documents/agent-canon-licensing-policy.md AgentCanon licensing boundary
-downstream implementation ../pyproject.toml publishes Python package license metadata
+upstream design ../../LICENSE repository license text
+upstream design ../../vendor/agent-canon/documents/agent-canon/agent-canon-licensing-policy.md AgentCanon licensing boundary
+downstream implementation ../../pyproject.toml publishes Python package license metadata
 @dependency-end
 -->
 
