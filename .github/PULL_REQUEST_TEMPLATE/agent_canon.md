@@ -3,17 +3,19 @@
 contract reference
 responsibility Upstream sync note:.
 upstream design ../../agents/workflows/agent-canon-pr-workflow.md agent-canon PR workflow
-upstream design ../../issues/README.md durable operational issue storage
-upstream design ../../tools/catalog.yaml structured tool catalog
-downstream implementation ../../tools/ci/check_github_workflows.py validates PR checklist and workflow conventions
-downstream implementation ../../tools/agent_tools/tool_drift.py validates PR/tool trace contracts
-downstream implementation ../../tools/agent_tools/issue_sync.py validates local/GitHub issue sync state
-downstream implementation ../../tools/agent_tools/check_convention_compliance.py validates PR Essence checklist wiring
+upstream design ../../vendor/agent-canon/issues/README.md durable operational issue storage
+upstream design ../../tools/agent-canon/catalog.yaml structured tool catalog
+downstream implementation ../../tools/agent-canon/ci/check_github_workflows.py validates PR checklist and workflow conventions
+downstream implementation ../../tools/agent-canon/agent_tools/tool_drift.py validates PR/tool trace contracts
+downstream implementation ../../tools/agent-canon/agent_tools/issue_sync.py validates local/GitHub issue sync state
+downstream implementation ../../tools/agent-canon/agent_tools/check_convention_compliance.py validates PR Essence checklist wiring
+upstream design ../../vendor/agent-canon/documents/templates/README.md canonical template owner and projection boundary
+upstream design ../../vendor/agent-canon/documents/operations/issue-label-taxonomy.md issue/eval routing taxonomy
+upstream design ../AGENTS.md GitHub subtree instructions
 @dependency-end
 -->
 
-<!-- Synced to /.github/PULL_REQUEST_TEMPLATE/agent_canon.md by tools/agent-canon/sync_agent_canon.sh link-root. -->
-<!-- Edit vendor/agent-canon/.github/PULL_REQUEST_TEMPLATE/agent_canon.md, not the root copy. -->
+<!-- Canonical source: documents/templates/github/pull-request/agent_canon.md. Generated projections target .github/PULL_REQUEST_TEMPLATE/agent_canon.md; edit this source only. -->
 
 ## Reader Map
 
@@ -28,6 +30,27 @@ downstream implementation ../../tools/agent_tools/check_convention_compliance.py
 - Canonical owner:
 - Behavior or contract delta:
 - Evidence route:
+- Replaceable responsibility unit:
+- Public/API/schema impact:
+- Explicit non-goals:
+
+## Dependency Closure
+
+- upstream design / contract:
+- implementation owner and source path:
+- downstream consumers:
+- changed dependency edges and why they are closed:
+- intentionally unchanged adjacent surfaces:
+
+## Candidate Commit And Publication Identity
+
+- `origin/main` merge-base:
+- candidate commit:
+- local HEAD:
+- pushed branch:
+- PR head:
+- local = push = PR head evidence:
+- submodule / generated projection identity:
 
 ## Summary
 
@@ -90,6 +113,15 @@ Plan / exception:
 
 Orchestration evidence:
 
+## Review Adjudication
+
+- reviewer roles / identities:
+- review findings:
+- adjudication for each finding: accepted / rejected / deferred:
+- rejected rationale and governing contract:
+- unresolved blocker and owner:
+- final review decision: pass / revise / escalate:
+
 ## Operational Findings / Issues
 
 - [ ] `vendor/agent-canon/issues//README.md` was reviewed.
@@ -145,6 +177,16 @@ Validation output:
 paste the key pass lines here
 ```
 
+## Validation Trust Boundary And Format
+
+- validation command:
+- what the command proves:
+- what it cannot prove:
+- production behavior versus test-only evidence:
+- format / lint / parse result:
+- artifact path, producer, digest, and readback:
+- validation failure semantics and escalation:
+
 ## Shared Surface Changes
 
 - new surfaces:
@@ -152,6 +194,8 @@ paste the key pass lines here
 - root copy surfaces touched:
 - link spec changes:
 - `.gitmodules` changed / reviewed:
+- generated copy/form producer:
+- generated paths read back:
 
 ## Integration
 
@@ -172,6 +216,14 @@ Integration notes:
 - [ ] Any upstream sync blocker is recorded below; deferred sync is not PR completion evidence for AgentCanon source/pin/root-view changes.
 
 Upstream sync note:
+
+## Artifact And Clone Cleanup
+
+- temporary clone/worktree paths:
+- run-local reports and raw logs:
+- generated artifacts retained:
+- cleanup command and owner:
+- cleanup result / explicit preservation reason:
 
 ## Submodule Pin Change
 
