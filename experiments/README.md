@@ -100,7 +100,7 @@ python3 tools/agent-canon/experiments/create_experiment_topic.py <topic>
 
 ```bash
 python3 tools/agent-canon/experiments/run_managed_experiment.py \
-  --topic _template \
+  --topic <topic> \
   --use-registered-command smoke
 ```
 
