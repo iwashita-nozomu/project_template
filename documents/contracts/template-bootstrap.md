@@ -116,7 +116,7 @@ bash scripts/start_repository.sh --validate-only
 worktree を使う場合は kickoff 後に継続ログを残します。
 
 ```bash
-python3 tools/agent_tools/work_log.py \
+python3 tools/agent-canon/agent_tools/work_log.py \
   --kind kickoff \
   --message "references and scope confirmed" \
   --next "start implementation"

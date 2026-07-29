@@ -304,9 +304,8 @@ may implement a second slot oracle.
 | `.agents/skills/result-artifact-writeout/SKILL.md` | Public result placement copy | delegate | Source result skill | Projection alignment. |
 | `agents/skills/save-experiment-results.md` | Result retention/publish boundary | retain | Save-results skill | Branch-safe retention remains. |
 | `.agents/skills/save-experiment-results/SKILL.md` | Public retention copy | delegate | Source save skill | Projection alignment. |
-| `experiments/_template/README.md` | Fixed plan headings | convert | r9 contract | One-heading/thin scaffold fails; reordered complete passes. |
-| parent `experiments/_template/README.md` | Parent fixed headings | deferred projection | Parent after source integration | Parent has no independent semantics. |
-| `agents/templates/experiment_report.md` | Fixed report order | convert | Report-writing plus r9 mode | Reader-specific order remains free. |
+| `templates/documents/experiment/README.template.md` | Fixed plan headings | convert | r9 contract | One-heading/thin scaffold fails; reordered complete passes. |
+| `templates/agents/experiment_report.md` | Fixed report order | convert | Report-writing plus r9 mode | Reader-specific order remains free. |
 | `documents/experiment-report-style.md` | IMRaD+ report list | retain + delegate | Report style for narrative | Report style does not check plan slots. |
 | `tools/agent-canon/agent_tools/evaluate_report_quality.py` | Regex section/quality targets | retain | Generic report evaluator | No README semantic target. |
 | `evidence/agent-evals/report_quality_eval.toml` | Report target manifest | retain | Report eval manifest | Targets stay report/skill surfaces. |

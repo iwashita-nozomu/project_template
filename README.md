@@ -108,7 +108,7 @@ profile と validation の正本は
   - Docker を使わない repo では supported runtime の一つとして扱い、日常 validation からは外して構いません。
 - `experiments/`
   - experiment profile の実験コード、run ごとの生成物、report を置く場所です。使わないプロジェクトでは空でも構いません。
-  - topic 一覧は `experiments/registry.toml`、topic template は `experiments/_template/`、run report は `experiments/report/` に置きます。
+  - topic 一覧は `experiments/registry.toml`、topic template source は `templates/experiments/_template/`、run report は `experiments/report/` に置きます。
 - `python/`
   - 実装本体、共通 runtime、テスト対象コードの主置き場です。
 - `tests/`
@@ -232,7 +232,7 @@ experiments/
 
 実験方法論そのものは `agents/workflows/experiment-workflow.md` と `agents/workflows/research-workflow.md` を正本にします。
 agent に実験つき改造 loop を回させる場合は `agents/skills/adaptive-improvement-loop.md` を outer loop、`agents/skills/experiment-lifecycle.md` を run 単位の分岐に使います。
-server で回す実験コードの実体テンプレは `experiments/_template/`、topic 正本は `experiments/registry.toml`、topic scaffold は `tools/agent-canon/experiments/create_experiment_topic.py`、run metadata を残す入口は `tools/agent-canon/experiments/run_managed_experiment.py` です。
+server で回す実験コードの実体テンプレ source は `templates/experiments/_template/`、topic 正本は `experiments/registry.toml`、topic scaffold は `tools/agent-canon/experiments/create_experiment_topic.py`、run metadata を残す入口は `tools/agent-canon/experiments/run_managed_experiment.py` です。
 
 ## よく使うコマンド
 
@@ -267,7 +267,7 @@ Dockerfile、requirements、Python installer、runtime pack のいずれかを�
 影響する変更では `make docker-build-check` も通します。ローカルに `docker` / `podman` が
 ない場合は、GitHub Actions の `Docker Build` workflow を使います。
 
-repo-wide な tool 導入案や Docker 変更では `agents/templates/environment_change_proposal.md` に triggering code requirement、blocked command、Docker 影響、validation、rollback を残します。
+repo-wide な tool 導入案や Docker 変更では `templates/agents/environment_change_proposal.md` に triggering code requirement、blocked command、Docker 影響、validation、rollback を残します。
 
 project-scoped Codex config の正本は `.codex/config.toml` です。template 既定では `approval_policy = "never"` と `sandbox_mode = "danger-full-access"` を入れているので、container 内で起動した Codex も最初から full access 前提です。
 

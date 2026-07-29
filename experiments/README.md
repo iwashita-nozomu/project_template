@@ -10,7 +10,7 @@ downstream environment registry.toml template-local registry
 
 `experiments/` は、server 上で回す実験コード、run ごとの生成物、1 run ごとの report をまとめる場所です。
 この template では、topic ごとの実験コードと run artifact を同じ tree に寄せます。
-shared canon では、このうち topic 共通の scaffold と report 導線だけを保持し、派生 repo ごとの `registry.toml` と `experiments/<topic>/` は root 側の正本に残します。
+shared canon では、このうち topic 共通の scaffold と report 導線だけを `templates/` に保持し、派生 repo ごとの `registry.toml` と `experiments/<topic>/` は root 側の正本に残します。
 
 ## この文書の読み方
 
@@ -40,14 +40,14 @@ experiments/
 
 ## まず使うもの
 
-- `_template/`
-  - 新しい topic を始めるときの最小雛形です。
+- `templates/experiments/_template/`
+  - 新しい topic を始めるときの AgentCanon-owned 最小雛形 source です。親 root には scaffold のコピーを置きません。
 - `registry.toml`
   - topic、entrypoint、formal run command、active branch の集中管理ファイルです。
 - `report/README.md`
   - run report の置き方です。
 - `tools/agent-canon/experiments/create_experiment_topic.py`
-  - `_template/` から新しい topic を作り、registry entry も追加します。
+  - `templates/experiments/_template/` から新しい topic を作り、registry entry も追加します。
 - `tools/agent-canon/experiments/sync_experiment_registry_context.py`
   - current branch / worktree / scope file を registry に同期します。
 - `tools/agent-canon/experiments/run_managed_experiment.py`

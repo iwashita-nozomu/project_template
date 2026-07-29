@@ -1,0 +1,15 @@
+# @dependency-start
+# contract environment
+# responsibility Declares parent-owned mounted developer and agent tool records.
+# upstream design ../vendor/agent-canon/documents/design/devcontainer/parent-dependency-manifest-followup.md parent-first merge and follow-up contract
+# upstream design ../vendor/agent-canon/CONTAINER_OPERATIONS.md product image and mounted tool ownership boundary
+# downstream implementation ../vendor/agent-canon/tools/agent_tools/devcontainer_dependencies.py typed parser and executor
+# downstream implementation ../vendor/agent-canon/.devcontainer/post-create.sh reads this parent layer before the vendor layer
+# @dependency-end
+
+schema = "agent-canon.devcontainer-dependencies"
+schema_version = 2
+
+# This parent has no derived developer/agent tool records. Shared records are
+# declared once by vendor/agent-canon/.devcontainer/dependencies.toml.
+records = []

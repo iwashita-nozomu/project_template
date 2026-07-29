@@ -16,7 +16,7 @@ AGENT_CANON_UPDATE := bash tools/agent-canon/update_agent_canon.sh
 
 DOCKER_DEFAULT_PACK ?= docker/packs/default.toml
 DOCKER_HOST_PACK ?= docker/packs/default-host-docker.toml
-SERVER_LAYOUT ?= vendor/agent-canon/documents/templates/server_runtime_layout.template.toml
+SERVER_LAYOUT ?= templates/documents/server_runtime_layout.template.toml
 REPO_WIDE_REVIEW_REPORT_DIR ?= reports/agents/repo-wide-review-check
 REPO_WIDE_REVIEW_QUERY ?= repo-wide review runtime surface stale path check
 

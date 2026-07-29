@@ -20,6 +20,14 @@ Container / devcontainer の責務境界は
 この file は template repo の `docker/` 実装 runbook であり、AgentCanon policy を再定義しません。
 矛盾した場合は `CONTAINER_OPERATIONS.md` を直し、その後でこの runbook と validator を追従させます。
 
+## Product image と mounted AgentCanon tools の ownership
+
+`docker/Dockerfile` は product image の owner です。OS package、project runtime、build tool、Docker CLI など、project の実行に必要な image 層を定義します。`docker/requirements.txt` と workspace mount 後の `docker/install_python_dependencies.sh` は project Python package の owner であり、image build へ移しません。
+
+mounted AgentCanon developer/agent tools は shared `.devcontainer/` の owner です。`vendor/agent-canon/.devcontainer/dependencies.toml` が共有 tool の宣言的 source で、shared `post-create.sh` が parent manifest を先に読み、vendor manifest を次に merge して導入・検証します。親固有の developer/agent record がないため、root `.devcontainer/dependencies.toml` は schema v2 の empty parent layer を保持し、vendor record を複製しません。
+
+この責務分離により、Codex、GitHub CLI、Rust、TeX、Playwright などの AgentCanon convenience tool を product image に追加しません。親の `.devcontainer/devcontainer.json` は AgentCanon の shared entrypoint への symlink、`.devcontainer/post-create-parent.sh` は shared post-create の最後に一度だけ実行する親固有の final hook として残します。
+
 ## この文書の読み方
 
 - この runbook は、template repo の `docker/` 実装、runtime pack、container 実行入口を扱います。
@@ -404,4 +412,4 @@ python3 tools/agent-canon/ci/run_in_repo_container.py --pack docker/packs/defaul
 - `vendor/agent-canon/documents/conventions/coding-conventions-project.md`
 - この `docker/README.md`
 
-必要なら `agents/templates/environment_change_proposal.md` に triggering code requirement、blocked command、影響範囲、validation、rollback を残します。
+必要なら `templates/agents/environment_change_proposal.md` に triggering code requirement、blocked command、影響範囲、validation、rollback を残します。

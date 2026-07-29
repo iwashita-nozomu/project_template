@@ -3,7 +3,7 @@
 # responsibility Defines top-level responsibility scopes and protecting tools for this repository.
 # upstream design AGENTS.md parent repository runtime entrypoint
 # upstream design vendor/agent-canon/documents/design/responsibility-scope-management.md responsibility scope policy
-# upstream design vendor/agent-canon/documents/templates/responsibility-scope.template.toml starter manifest for template-derived repositories
+# upstream design templates/documents/responsibility-scope.template.toml starter manifest for template-derived repositories
 # downstream implementation tools/agent-canon/agent_tools/responsibility_scope.py validates this manifest
 # downstream implementation tools/agent-canon/sync_agent_canon.sh repairs AgentCanon root views
 # @dependency-end
