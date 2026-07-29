@@ -1,15 +1,3 @@
-<!--
-@dependency-start
-contract design
-responsibility Defines the canonical r9 experiment README metadata contract and its rationale.
-upstream design ../AGENTS.md repository scope, ownership, design-integrity, and documentation contract.
-upstream design ../vendor/agent-canon/documents/dependency-manifest-design.md dependency-header contract.
-upstream design ../vendor/agent-canon/documents/SHARED_RUNTIME_SURFACES.md shared document ownership policy.
-downstream implementation ./experiment-readme-contract-r9.json normative schema lookup authority.
-downstream design ../README.md project documentation entrypoint.
-@dependency-end
--->
-
 # Experiment README contract — r9 canonical design
 
 Status: normative design packet for the future implementation. This file and
