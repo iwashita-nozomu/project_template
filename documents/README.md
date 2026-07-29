@@ -101,8 +101,8 @@ These files are regular files in the template or derived repo under
 - [Remote Execution Repo Contract](./contracts/remote-execution-repo-contract.md)
 - [Repository Audit Checklist](./repository-audit-checklist.md)
 
-AgentCanon provides reusable contract templates under
-[templates/](../vendor/agent-canon/documents/templates/),
+AgentCanon provides reusable contract templates under the managed root view
+[`templates/`](../templates/),
 but the active contract for a derived repo belongs to that repo.
 
 ## Tooling And Artifact References
