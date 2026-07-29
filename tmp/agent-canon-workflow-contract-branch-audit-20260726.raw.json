@@ -1,0 +1,348 @@
+{
+  "schema": "agent_canon.workflow_contract_branch_audit.v1",
+  "metadata": {
+    "artifact_id": "agent-canon-workflow-contract-branch-audit-20260726",
+    "generated_at": "2026-07-26T18:10:27+09:00",
+    "cwd": "/mnt/l/workspace/project_template",
+    "branch": "main",
+    "current_commit": "d293928efd24d65523f94b4ccd5fbf645d40f670",
+    "requested_scope": "AgentCanon workflow audit: contract-worthy branch normalization, environment-dependent branches, and a common user-confirmation path.",
+    "scope_exception": "user explicitly requested workflow surfaces",
+    "omitted_surfaces": [
+      "documents/** except the two requested style references",
+      "reports/**",
+      "experiments/**",
+      "notes/**",
+      "implementation tools source",
+      "unlisted AgentCanon documents and generated runtime views"
+    ],
+    "commands_read_methods": [
+      "rg -n on the explicitly cited workflow files",
+      "nl -ba with bounded sed slices on the explicitly cited workflow files",
+      "sed on vendor/agent-canon/agents/internal-routines/subagent-startup.md",
+      "sed on vendor/agent-canon/documents/coding-conventions-project.md",
+      "sed on vendor/agent-canon/documents/conventions/common/05_docs.md",
+      "git branch --show-current",
+      "git rev-parse HEAD",
+      "date --iso-8601=seconds",
+      "git status --short --untracked-files=all"
+    ],
+    "source_result": "read-only AgentCanon workflow audit",
+    "counts": {
+      "findings_total": 12,
+      "priority": {
+        "P0": 2,
+        "P1": 6,
+        "P2": 4
+      },
+      "category": {
+        "contract_set_drift": 1,
+        "registry_contract_leak": 1,
+        "environment_normalization": 2,
+        "user_confirmation_normalization": 4,
+        "evidence_projection_normalization": 4
+      },
+      "confidence": {
+        "high": 7,
+        "medium-high": 1,
+        "medium": 4
+      }
+    },
+    "priority_policy": "P0 は複数の正本が workflow family / registry の集合を異なる形で宣言し、実行 route またはユーザー判断を変える契約ドリフト。P1 は環境・backend・確認経路が surface ごとに分岐し、同一の typed state と user-facing decision を投影できない欠落。P2 は既存の typed contract が部分的に成立し、共通 envelope または readback の残差だけが review を要するもの。",
+    "overwrite_policy": "unique-file",
+    "missing_file_triage": "task_local_new: ./tmp was explicitly requested by the user; it is noncanonical, untracked report/raw output and not a root-view or AgentCanon source surface.",
+    "preflight_warning_disposition": "accepted_with_reason: dependency_review and responsibility_scope warn for task-local tmp outputs, and Markdown style checking is still run; no canonical dependency header is added."
+  },
+  "findings": [
+    {
+      "id": "F1",
+      "priority": "P0",
+      "category": "contract_set_drift",
+      "classification": "shared_skill_or_workflow_gap",
+      "source_refs": [
+        {"path": "vendor/agent-canon/agents/canonical/CODEX_WORKFLOW.md", "line_start": 363, "line_end": 383},
+        {"path": "vendor/agent-canon/agents/TASK_WORKFLOWS.md", "line_start": 93, "line_end": 103},
+        {"path": "vendor/agent-canon/agents/task_catalog.yaml", "line_start": 169, "line_end": 175}
+      ],
+      "observation": "CODEX_WORKFLOW の Task Classification は 6 family を列挙する一方、TASK_WORKFLOWS と task_catalog は Owner-Bounded Change を含む 7 family を登録している。",
+      "inference": "分類を読む surface によって owner_bounded_change が消えるか、Scoped Change に吸収されるため、同じ入力が別の workflow_id と次 gate を選ぶ。",
+      "fixed_contract": "closed な workflow family set を task_catalog に一本化し、classification projection は workflow_id、rationale、next_gate、user_confirmation の同一 schema を返す。",
+      "adapter_boundary": "WorkflowFamilyAdapter が catalog を内部 registry として読み、canonical family set を CODEX_WORKFLOW、TASK_WORKFLOWS、task-start packet に投影する。",
+      "typed_state_preserved": "family_unknown、family_ambiguous、catalog_stale は typed failure として残し、Scoped Change への暗黙 fallback はしない。",
+      "user_flow": "分類結果（family 名、理由、次 gate、確認が必要な action）を日本語で一度提示し、同じ確認 record を CLI、run bundle、closeout が再利用する。",
+      "confidence": "high",
+      "counterargument": "CODEX_WORKFLOW は簡易な reader-facing summary であり、TASK_WORKFLOWS が実行正本なので実害はないという見方がある。しかし summary が 6 と断定しており、入口での route selection を変えるため残差は契約問題である。",
+      "recommended_owner": "agents/task_catalog.yaml を family registry owner とし、CODEX_WORKFLOW と TASK_WORKFLOWS は生成的 reader projection に整理する。"
+    },
+    {
+      "id": "F2",
+      "priority": "P0",
+      "category": "registry_contract_leak",
+      "classification": "shared_skill_or_workflow_gap",
+      "source_refs": [
+        {"path": "vendor/agent-canon/agents/task_catalog.yaml", "line_start": 210, "line_end": 220},
+        {"path": "vendor/agent-canon/agents/canonical/CODEX_SUBAGENTS.md", "line_start": 711, "line_end": 721},
+        {"path": "vendor/agent-canon/agents/task_catalog.yaml", "line_start": 538, "line_end": 567},
+        {"path": "vendor/agent-canon/agents/task_catalog.yaml", "line_start": 698, "line_end": 702}
+      ],
+      "observation": "複数の task_catalog workflow prose が mini roles を bounded exploration、execution、skill evaluation に置く一方、CODEX_SUBAGENTS の model policy は mini/medium を明示 T14 skill_evaluator に限定し、T14 は evaluator-only である。",
+      "inference": "family prose が closed model/profile registry より広い mini scope を許すように読め、worker と evaluator の選択・capacity を route ごとに変え得る。",
+      "fixed_contract": "model/profile registry を唯一の closed contract とし、skill_evaluation/T14 以外の family prose は mini scope を拡張しない。各 projection は role_id、agent_type、model_profile、activation_reason を同じ schema で返す。",
+      "adapter_boundary": "ModelProfileAdapter が registry の closed bindings を読み、task_catalog の descriptive prose を検証する projection-only boundary を持つ。",
+      "typed_state_preserved": "profile_missing、profile_mismatch、activation_not_authorized は typed state として返し、mini への自動降格はしない。",
+      "user_flow": "実行前に選択された role/model、理由、mini 制限、確認要否を一つの日本語確認行にまとめ、実行・再開・closeout で同じ record を読み返す。",
+      "confidence": "high",
+      "counterargument": "task_catalog の文言は候補 role の説明であり、CODEX_SUBAGENTS の explicit rule が優先するとも読める。しかし prompt packet は候補説明を実行者が直接読むため、registry leak を放置すると判断が分岐する。",
+      "recommended_owner": "agents/model_profiles.toml と task_catalog の registry projection checker。CODEX_SUBAGENTS は policy reader として閉じた registry を参照する。"
+    },
+    {
+      "id": "F3",
+      "priority": "P1",
+      "category": "user_confirmation_normalization",
+      "classification": "shared_skill_or_workflow_gap",
+      "source_refs": [
+        {"path": "vendor/agent-canon/agents/canonical/CLI_ENTRYPOINTS.md", "line_start": 46, "line_end": 57},
+        {"path": "vendor/agent-canon/agents/canonical/CODEX_SUBAGENTS.md", "line_start": 524, "line_end": 535}
+      ],
+      "observation": "runtime が /agent を提供する場合と、提供しないため .codex/agents/*.toml を直接読む場合で、inventory の入口が別 branch になっている。",
+      "inference": "利用可能性の環境差が role inventory の readback とユーザー確認の形式に漏れ、同じ task でも確認対象が変わる。",
+      "fixed_contract": "SubagentInventoryAdapter の一つの user command/schema で inventory を返す。backend は /agent または TOML だが、role_id、agent_type、availability、freshness、activation_reason は共通化する。",
+      "adapter_boundary": "CLI/TOML backend を adapter 内に閉じ、ユーザー向け surface は inventory readback と confirmation record の一つに限定する。",
+      "typed_state_preserved": "inventory_unavailable、inventory_stale、role_missing、permission_denied を typed state として保持する。",
+      "user_flow": "最初に『inventory source／状態／選択候補／次 action』を日本語で提示し、backend に関係なく同じ confirm/retry/escalate 動線にする。",
+      "confidence": "high",
+      "counterargument": "CLI の補足は単なる実行者向け手順で、backend を隠す必要はないという見方がある。ただし /agent の有無が action の選択を変えるので user confirmation normalization の対象である。",
+      "recommended_owner": "CLI_ENTRYPOINTS と CODEX_SUBAGENTS の command-surface owner が SubagentInventoryAdapter の projection contract を共同所有する。"
+    },
+    {
+      "id": "F4",
+      "priority": "P1",
+      "category": "user_confirmation_normalization",
+      "classification": "shared_skill_or_workflow_gap",
+      "source_refs": [
+        {"path": "vendor/agent-canon/agents/canonical/CODEX_WORKFLOW.md", "line_start": 242, "line_end": 262},
+        {"path": "vendor/agent-canon/agents/workflows/codex-goals-workflow.md", "line_start": 27, "line_end": 43},
+        {"path": "vendor/agent-canon/agents/workflows/codex-goals-workflow.md", "line_start": 68, "line_end": 100},
+        {"path": "vendor/agent-canon/agents/workflows/codex-goals-workflow.md", "line_start": 149, "line_end": 175}
+      ],
+      "observation": "goal.md、Codex goals UI、goal_loop.py の関係は定義されるが、goals feature/UI の有無や /goal の user confirmation 前後で intake、mirror、plan、status の branch が分かれる。",
+      "inference": "goal の durable state、session view、機械 gate の不一致時に、確認の責務と次 action が環境別に分かれ、実装開始条件の user flow が同一にならない。",
+      "fixed_contract": "GoalSurfaceAdapter が goal.md を parse/draft し、共通 ConfirmationRecord（objective、exit criteria、mirror state、status、next action）を生成してから mirror/status gate を実行する。",
+      "adapter_boundary": "Codex UI、goal_loop.py、repo-local goal.md の backend 差を adapter 内に閉じ、実装 route は ConfirmationRecord と typed state だけを消費する。",
+      "typed_state_preserved": "available、unavailable、needs_confirmation、failed、desynchronized を区別し、unmirrored goal から実装を開始しない。",
+      "user_flow": "goal draft→同一確認 record→mirror/queue→plan/status→implementation gate の順を固定し、UI が無い環境は同じ record の readback と確認待ちで継続する。",
+      "confidence": "high",
+      "counterargument": "既存文書は既に goal.md を正本にしており、UI 分岐は明示されているため十分という見方がある。残る問題は仕様欠落ではなく、各 backend の確認記録が同一 envelope になっていない点である。",
+      "recommended_owner": "codex-goals-workflow.md の Role Split/Plan-Mode owner と goal_loop の readback contract。"
+    },
+    {
+      "id": "F5",
+      "priority": "P1",
+      "category": "environment_normalization",
+      "classification": "shared_skill_or_workflow_gap",
+      "source_refs": [
+        {"path": "vendor/agent-canon/agents/workflows/experiment-workflow.md", "line_start": 89, "line_end": 96},
+        {"path": "vendor/agent-canon/agents/workflows/experiment-workflow.md", "line_start": 182, "line_end": 230},
+        {"path": "vendor/agent-canon/agents/workflows/experiment-workflow.md", "line_start": 297, "line_end": 320}
+      ],
+      "observation": "formal run の managed runner と固定 artifact envelope は main server host の場合に明示され、一般の experiment_runner/local backend では入口・生成物の説明が分かれる。",
+      "inference": "local、managed、別 host の backend 差が provenance artifact の最低集合と user-facing completion の判断に漏れる。",
+      "fixed_contract": "FormalRunAdapter が local/managed backend を問わず command、environment、source snapshot、config snapshot、run/eval/artifact manifest、logs、failure state の最小 provenance 集合を保証する。",
+      "adapter_boundary": "runner backend と host/admission 差を adapter 内に閉じ、topic script は task/cases/context の薄い研究層だけを実装する。",
+      "typed_state_preserved": "backend_unavailable、admission_denied、timeout、child_failure、artifact_incomplete は typed failure として保存し、local を managed 成功に見せない。",
+      "user_flow": "開始前に backend、artifact plan、確認要否を同じ形式で提示し、終了時は manifest readback と次 action（rerun、追加検証、report rewrite、close）を同じ日本語表にする。",
+      "confidence": "medium-high",
+      "counterargument": "main server host だけを formal と定義するなら managed-only artifact は意図的である。しかし local/verified backend でも formal 相当の再現性を主張する場合の境界が未固定で、契約としてレビューが必要である。",
+      "recommended_owner": "experiment-workflow.md の runner/lifecycle owner と experiment registry の formal command/artifact plan。"
+    },
+    {
+      "id": "F6",
+      "priority": "P1",
+      "category": "user_confirmation_normalization",
+      "classification": "shared_skill_or_workflow_gap",
+      "source_refs": [
+        {"path": "vendor/agent-canon/agents/canonical/CODEX_SUBAGENTS.md", "line_start": 537, "line_end": 555},
+        {"path": "vendor/agent-canon/agents/canonical/CODEX_SUBAGENTS.md", "line_start": 698, "line_end": 721},
+        {"path": "vendor/agent-canon/agents/canonical/CLI_ENTRYPOINTS.md", "line_start": 101, "line_end": 108}
+      ],
+      "observation": "implementer は worker が既定で spark_worker は bounded slice の選択時だけ、experimenter は experiment_runner が既定で scoped runtime-output handling の worker は例外、と role mapping が backend/role ごとに分岐する。",
+      "inference": "handoff と確認が論理的な implementer/experimenter responsibility ではなく物理 agent type に引きずられ、blocked candidate の再選択や write authority の説明が不統一になる。",
+      "fixed_contract": "Logical ImplementerRole と共通 HandoffRecord（owner、write authority、backend、review gate、validation、user confirmation）を固定し、worker/spark_worker/runner は内部 backend projection にする。",
+      "adapter_boundary": "agent type と execution backend を HandoffAdapter 内に閉じ、親の確認・統合・レビューは logical role schema だけを見る。",
+      "typed_state_preserved": "candidate_blocked、write_scope_conflict、selection_missing、handoff_authorization_required を保持し、別 backend への暗黙 fallback はしない。",
+      "user_flow": "選択した logical role、実 backend、write scope、review gate、確認待ち/blocked 理由を一度提示し、候補変更時は同じ record を改訂して再確認する。",
+      "confidence": "high",
+      "counterargument": "既存 mapping は worker/spark_worker の選択条件と blocked evidence を既に厳密に書いている。したがって新規 defect というより、logical/user envelope を共通化する残差である。",
+      "recommended_owner": "CODEX_SUBAGENTS の Permanent Team Mapping と CLI_ENTRYPOINTS の implementer candidate readback。"
+    },
+    {
+      "id": "F7",
+      "priority": "P1",
+      "category": "user_confirmation_normalization",
+      "classification": "shared_skill_or_workflow_gap",
+      "source_refs": [
+        {"path": "vendor/agent-canon/agents/canonical/CODEX_WORKFLOW.md", "line_start": 179, "line_end": 190},
+        {"path": "vendor/agent-canon/agents/canonical/CODEX_WORKFLOW.md", "line_start": 91, "line_end": 102}
+      ],
+      "observation": "普通の相談、GitHub-only read inspection、local repo state/file edit/validation/PR mutation は別 boundary として分類され、mutation と branch/worktree protected state に別の説明がある。",
+      "inference": "conversation→inspection→local mutation の遷移で、いつ user-facing update と authority summary を再確認するかが一つの typed transition schema に閉じていない。",
+      "fixed_contract": "TaskBoundary transition を conversation、github_read、repository_read、repository_mutation、publication に閉じた typed state とし、mutation へ遷移する全 backend で同じ authority/confirmation record を要求する。",
+      "adapter_boundary": "GitHub/local/CLI mutation adapters は境界判定と authority readback を内部実装し、user-facing flow は TaskBoundary と ConfirmationRecord を受け取る。",
+      "typed_state_preserved": "read_only、needs_authorization、mutation_blocked、collision、published を区別し、read route を mutation 成功へ昇格しない。",
+      "user_flow": "境界遷移ごとに日本語 update→対象 path/action→authority→確認待ち/次 gate を一度提示し、特に mutation 入口では同じ確認動線を必須にする。",
+      "confidence": "high",
+      "counterargument": "CODEX_WORKFLOW は既に切り替えを user update で明示せよと書いている。しかし transition-specific machine record がないため、CLI/GitHub/local の実装が同じ動線を保証する根拠が弱い。",
+      "recommended_owner": "CODEX_WORKFLOW の Repository Task Boundary と branch/worktree authority owner。"
+    },
+    {
+      "id": "F8",
+      "priority": "P1",
+      "category": "evidence_projection_normalization",
+      "classification": "review_required",
+      "source_refs": [
+        {"path": "vendor/agent-canon/agents/canonical/CODEX_SUBAGENTS.md", "line_start": 105, "line_end": 126},
+        {"path": "vendor/agent-canon/agents/workflows/implementation-waterfall-workflow.md", "line_start": 205, "line_end": 226}
+      ],
+      "observation": "spawn budget、explicit user request 条件、capacity handshake、SUBAGENT_AUTHORIZATION=required は既に部分的に正規化されているが、各 handoff/queue/readback の payload は複数箇所に分散している。",
+      "inference": "同じ spawn authorization 状態が runtime、waterfall、goal route で異なる key/確認表現に投影される残差がある。",
+      "fixed_contract": "SpawnAuthorizationAdapter と SpawnAuthorizationRecord（requested、authorized、capacity、payload、next gate、user confirmation）を一つにし、現行 typed authorization を projection する。",
+      "adapter_boundary": "runtime/developer policy、capacity handshake、workflow handoff の差を adapter 内に閉じ、実 spawn caller は record だけを消費する。",
+      "typed_state_preserved": "required、pending_user、authorized、granted、denied、queued、capacity_blocked、stale_packet を保持する。",
+      "user_flow": "authorized/granted は spawn、required/pending_user は同じ確認 record を提示して待機、capacity_blocked/queued は capacity 理由の場合だけ queue、denied は fail-closed で escalation/revised authority、stale_packet は再生成/readback 後に確認する。",
+      "confidence": "high",
+      "counterargument": "これは新規 defect ではなく現行 docs が既に `PRE_GOAL_SUBAGENT_AUTHORIZATION` と `SUBAGENT_AUTHORIZATION` を要求しているため、実装時の projection gap を検証する review item とする。",
+      "recommended_owner": "CODEX_SUBAGENTS の Activation Capacity Projection と implementation-waterfall Gate 0。"
+    },
+    {
+      "id": "F9",
+      "priority": "P2",
+      "category": "evidence_projection_normalization",
+      "classification": "review_required",
+      "source_refs": [
+        {"path": "vendor/agent-canon/agents/canonical/CODEX_WORKFLOW.md", "line_start": 166, "line_end": 177}
+      ],
+      "observation": "missing file/path は template/canon/root-view を確認した後、`missing_file_triage` の分類と次 action を記録する契約になっている。",
+      "inference": "分類自体は有用だが、create/sync/delete/ignore の owner、path、action、user confirmation を一つに束ねる envelope が見えず、実装面ごとに確認が分かれ得る。",
+      "fixed_contract": "MissingPathAdapter の共通 record（owner、path、disposition、next action、authority、confirmation）を固定し、既存の typed dispositions をそのまま投影する。",
+      "adapter_boundary": "template、canon、root-view、task-local の確認を adapter 内に閉じ、作成や同期の caller は disposition record のみを消費する。",
+      "typed_state_preserved": "canon_owned、template_owned、task_local_new、intended_absence、ambiguous、blocked を維持する。",
+      "user_flow": "欠落 path の分類結果と作成/同期/保留の action を一度提示し、破壊的 action は既存 authority gate と同じ確認へ接続する。",
+      "confidence": "medium",
+      "counterargument": "現行 triage は next action まで記録するため十分とも言える。残る提案は path creation の caller 間で user confirmation を機械的に同一化する review scope に限定する。",
+      "recommended_owner": "CODEX_WORKFLOW Missing File Or Path Triage と root-view synchronization owner。"
+    },
+    {
+      "id": "F10",
+      "priority": "P2",
+      "category": "evidence_projection_normalization",
+      "classification": "review_required",
+      "source_refs": [
+        {"path": "vendor/agent-canon/agents/canonical/CODEX_WORKFLOW.md", "line_start": 253, "line_end": 262},
+        {"path": "vendor/agent-canon/agents/workflows/implementation-waterfall-workflow.md", "line_start": 205, "line_end": 216},
+        {"path": "vendor/agent-canon/agents/canonical/CODEX_SUBAGENTS.md", "line_start": 524, "line_end": 535}
+      ],
+      "observation": "semantic handoff を優先し、coordination/resumption または selected lifecycle route の場合だけ run bundle を materialize する契約が複数箇所にある。",
+      "inference": "bundle が optional storage projection であることと、user-facing closeout の semantic completion predicate が同じ envelope に束ねられていない。",
+      "fixed_contract": "LifecycleSemanticAdapter が owner、replaceable unit、mechanism、validation、next gate、close predicate を一つの semantic envelope にし、run bundle はその storage projection と明記する。",
+      "adapter_boundary": "structured handoff/tool result と run-bundle files の差を adapter 内に閉じる。",
+      "typed_state_preserved": "handoff_only、bundle_required、resumption_required、closeout_blocked、delivered を区別する。",
+      "user_flow": "開始時と closeout 時に同じ semantic envelope を readback し、bundle の有無に関係なくユーザー確認と完了条件を同じ日本語で提示する。",
+      "confidence": "medium",
+      "counterargument": "Decision Sufficiency と Gate 0 が既に owner/mechanism/validation を要求するので、大部分は契約化済みである。新規作業は bundle projection と close predicate の同一 schema 化に限る。",
+      "recommended_owner": "implementation-waterfall Gate 0 と CODEX_WORKFLOW の selected lifecycle/closeout owner。"
+    },
+    {
+      "id": "F11",
+      "priority": "P2",
+      "category": "environment_normalization",
+      "classification": "shared_skill_or_workflow_gap",
+      "source_refs": [
+        {"path": "vendor/agent-canon/agents/workflows/implementation-waterfall-workflow.md", "line_start": 844, "line_end": 850}
+      ],
+      "observation": "Docker validation で `make docker-build-check-host-docker` が『必要なら』とされ、host Docker capability の有無に応じた入口が user-facing schema になっていない。",
+      "inference": "同じ Platform And Environment task でも host capability の差が validation 実行、skip、理由説明の動線を分ける。",
+      "fixed_contract": "DockerValidationAdapter の一つの user-facing entrypoint/readback schema を固定し、capability が inner check を実行するか typed skip を返す。",
+      "adapter_boundary": "host Docker socket/CLI capability と canonical inner checks の差を adapter 内に閉じ、task plan は一つの validation record を読む。",
+      "typed_state_preserved": "capability_available、capability_unavailable、validation_passed、validation_failed、validation_skipped_with_reason を保持する。",
+      "user_flow": "開始前に capability probe と実行/skip 理由を提示し、結果を同じ日本語 validation table に readback する。",
+      "confidence": "medium",
+      "counterargument": "『必要なら』は環境依存性を正しく示す任意条件であり、現行 route を誤りとは断定できない。問題は任意条件を共通 record に投影する不足である。",
+      "recommended_owner": "implementation-waterfall Platform And Environment family と Docker validation command owner。"
+    },
+    {
+      "id": "F12",
+      "priority": "P2",
+      "category": "evidence_projection_normalization",
+      "classification": "review_required",
+      "source_refs": [
+        {"path": "vendor/agent-canon/agents/canonical/CODEX_SUBAGENTS.md", "line_start": 105, "line_end": 126},
+        {"path": "vendor/agent-canon/agents/canonical/CODEX_SUBAGENTS.md", "line_start": 791, "line_end": 802}
+      ],
+      "observation": "requested/configured/platform-effective/workflow-demand/write-cap/nested-reserved/available の capacity terms、queue、restart_required、reservation lifecycle は既にかなり typed である。",
+      "inference": "残る差は runtime handshake、workflow packet、user status の queue/blocked/granted projection が同一 schema になっているかの review である。",
+      "fixed_contract": "CapacityStatusAdapter の共通 status（requested、effective、queue_reason、blocked_by、granted_scope、capacity_event_kind、next action、confirmation）を固定する。",
+      "adapter_boundary": "config readback、platform-effective handshake、workflow demand、reservation release の差を adapter 内に閉じる。",
+      "typed_state_preserved": "available、granted、queued、blocked、restart_required、model_capacity_event、thread_saturation、reservation_leak、missing_descendant、missing_handback を区別する。",
+      "user_flow": "granted は proceed、queued は capacity 理由の場合だけ queue、restart_required は restart/readback gate、reservation_leak/missing_descendant/missing_handback は closeout fail-closed と repair、model_capacity_event は thread_saturation と別状態として表示する。",
+      "confidence": "medium",
+      "counterargument": "Capacity And Lifecycle は既に用語と closeout failure を閉じているため、fresh defect ではない。共通 user status projection の review_required として扱う。",
+      "recommended_owner": "CODEX_SUBAGENTS Capacity And Lifecycle と capacity handshake の generated projection owner。"
+    }
+  ],
+  "rejected_dynamic_branches": [
+    {
+      "id": "R-DYN-1",
+      "branch": "research_review_decision_state",
+      "source_refs": [{"path": "vendor/agent-canon/agents/workflows/research-workflow.md", "line_start": 56, "line_end": 84}],
+      "why_legitimate": "report_rewrite_required、extra_validation_required、rerun_required、approved は研究 evidence の結果であり、契約集合の drift ではない。"
+    },
+    {
+      "id": "R-DYN-2",
+      "branch": "SkipController_pre_launch_skip",
+      "source_refs": [{"path": "vendor/agent-canon/agents/workflows/experiment-workflow.md", "line_start": 182, "line_end": 196}],
+      "why_legitimate": "case/resource predicate に基づく起動前 skip は experiment runner の typed behavior であり、確認経路の環境差ではない。"
+    },
+    {
+      "id": "R-DYN-3",
+      "branch": "running_writer_timeout_preserve_semantics",
+      "source_refs": [{"path": "vendor/agent-canon/agents/canonical/CODEX_SUBAGENTS.md", "line_start": 135, "line_end": 135}],
+      "why_legitimate": "timeout、empty status、final response 未着で preserve_running_instance とするのは write safety と lifecycle integrity を守る typed state であり、短絡的な確認統合対象ではない。"
+    },
+    {
+      "id": "R-DYN-4",
+      "branch": "branch_reuse_collision_protected_state",
+      "source_refs": [{"path": "vendor/agent-canon/agents/canonical/CODEX_WORKFLOW.md", "line_start": 91, "line_end": 102}],
+      "why_legitimate": "reuse、collision、protected Git mutation、explicit authority の分岐は checkout preservation と安全性を担保する正当な状態である。"
+    },
+    {
+      "id": "R-DYN-5",
+      "branch": "append_only_PR_lifecycle",
+      "source_refs": [{"path": "vendor/agent-canon/agents/workflows/agent-canon-pr-workflow.md", "line_start": 54, "line_end": 93}],
+      "why_legitimate": "rebind/freeze/review/CAS/PR/merge/readback の append-only predecessor と permission/conflict successor は publication safety の state machine であり、単一 action に潰せない。"
+    },
+    {
+      "id": "R-DYN-6",
+      "branch": "adaptive_backlog_loop",
+      "source_refs": [{"path": "vendor/agent-canon/agents/workflows/research-workflow.md", "line_start": 71, "line_end": 84}],
+      "why_legitimate": "研究レビュー decision に応じて backlog を次 iteration/pass へ戻す outer loop は、選択的な改善 cadence そのものなので固定一本道にしてはいけない。"
+    },
+    {
+      "id": "R-DYN-7",
+      "branch": "validation_failure_taxonomy",
+      "source_refs": [{"path": "vendor/agent-canon/agents/workflows/implementation-waterfall-workflow.md", "line_start": 673, "line_end": 679}],
+      "why_legitimate": "failing_contract、observation_level、cause_classification、intent_preservation を保持して implementation_bug と他原因を分けるのは、失敗意味論を守るための正当な分岐である。"
+    },
+    {
+      "id": "R-DYN-8",
+      "branch": "experiment_isolation_predicate",
+      "source_refs": [{"path": "vendor/agent-canon/agents/workflows/research-workflow.md", "line_start": 156, "line_end": 161}],
+      "why_legitimate": "通常は main、長時間/巨大生成物/破壊的試行だけ branch/worktree を許可する predicate は、実験の隔離安全性に必要な typed route である。"
+    },
+    {
+      "id": "R-DYN-9",
+      "branch": "freshness_status_actions_with_existing_four_field_gate",
+      "source_refs": [{"path": "vendor/agent-canon/agents/canonical/CODEX_WORKFLOW.md", "line_start": 69, "line_end": 102}],
+      "why_legitimate": "freshness の clean/deferred/dirty/diverged と、全 4 authority/reason field を伴う protected action は既に checkout-preserving safety contract として共通化されており、finding にはしない。"
+    }
+  ]
+}
