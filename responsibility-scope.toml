@@ -37,6 +37,7 @@ required_coverage = [
   ".agents",
   "documents",
   "docker",
+  "cpp",
   "evidence",
   "experiments",
   "python",
@@ -87,10 +88,7 @@ paths = [
   "docker/**",
   "scripts/**",
   "python/**",
-  "src/**",
-  "include/**",
-  "lib/**",
-  "cmake/**",
+  "cpp/**",
   "tests/**",
 ]
 protecting_tools = [

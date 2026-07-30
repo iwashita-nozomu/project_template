@@ -130,7 +130,8 @@ bash tools/agent-canon/run_comprehensive_review.sh
 - Jupyter notebook runtime は workspace mount 後の `docker/install_python_dependencies.sh` で導入します。
 - host browser から container 内 JupyterLab を使う場合は `make docker-jupyter` を実行し、`http://127.0.0.1:8888/lab?token=project-template` を開きます。port / token は `JUPYTER_HOST_PORT` と `JUPYTER_TOKEN` で変更できます。
 - repo-local `.venv` は host では作らず、container 内だけ `make python-env-status` と `make python-env-prepare` を使います。
-- C++ を使う場合の canonical CMake entrypoint は root `CMakeLists.txt` です。
+- C++ を使う場合の canonical CMake entrypoint は `cpp/CMakeLists.txt` です。
+- C++ source、test、native experiment target はそれぞれ `cpp/src/`、`cpp/tests/`、`cpp/experiments/` に置きます。親 root は language-neutral に保ちます。
 - out-of-source build tree は `build/cpp/<profile>/`、再利用する local install tree は `.state/cpp-install/<profile>/` に置きます。
 - Markdown の体裁ルールは `.markdownlint.json` と `vendor/agent-canon/documents/conventions/common/05_docs.md` を基準にします。
 - `pipdeptree` と `deptry` は dependency profile の tool です。dependency 変更時または scheduled audit で使います。
@@ -160,9 +161,9 @@ make python-env-prepare
 make docker-build-check
 make docker-build-check-host-docker
 make server-check
-cmake -S . -B build/cpp/dev
-cmake --build build/cpp/dev
-ctest --test-dir build/cpp/dev --output-on-failure
+make CPP_PROFILE=dev cpp-test
+make CPP_PROFILE=dev cpp-install
+make CPP_PROFILE=dev cpp-experiments
 python3 tools/agent-canon/ci/run_container_pack.py --pack docker/packs/default.toml --print-only
 python3 tools/agent-canon/ci/run_codex_in_repo_container.py --print-only
 ```

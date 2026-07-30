@@ -121,10 +121,13 @@ for script in \
 done
 test -x vendor/agent-canon/.devcontainer/finalize-shared-runtime.sh
 printf "devcontainer lifecycle smoke deferred to managed compose and fresh-clone checks\n"
-cmake -S . -B build/cpp/docker-smoke
-cmake --build build/cpp/docker-smoke
-ctest --test-dir build/cpp/docker-smoke --output-on-failure
-bash docker/register_safe_directories.sh /workspace'
+ROOT="$(pwd)"
+cmake -S "$ROOT/cpp" -B "$ROOT/build/cpp/docker-smoke" \
+  -DCMAKE_INSTALL_PREFIX="$ROOT/.state/cpp-install/docker-smoke"
+cmake --build "$ROOT/build/cpp/docker-smoke" --parallel
+ctest --test-dir "$ROOT/build/cpp/docker-smoke" --output-on-failure
+cmake --install "$ROOT/build/cpp/docker-smoke"
+bash docker/register_safe_directories.sh "$ROOT"'
 fi
 
 run_command=("$builder" run --rm -v "$PWD:/workspace" -w "$workdir")

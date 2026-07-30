@@ -45,7 +45,12 @@ clone 直後にまず見る入口はこの README、Codex repo instruction chain
 ├── AGENTS.md                         # Codex repo instruction view。AgentCanon submodule pin への symlink
 ├── Makefile                          # 日常 check / bootstrap / validation の短い入口
 ├── pyproject.toml                    # Python project metadata と tool 設定
-├── CMakeLists.txt                    # C++ profile を使う場合の root entrypoint
+├── cpp/                              # C++ profile の単一 project root
+│   ├── CMakeLists.txt                # C++ project entrypoint
+│   ├── include/                      # public header
+│   ├── src/                          # production source
+│   ├── tests/                        # CTest consumers
+│   └── experiments/                  # native experiment targets
 ├── python/                           # Python 実装本体
 ├── tests/                            # pytest と runtime/tooling のテスト
 ├── documents/                        # repo-local index, active contracts, and project docs
@@ -62,8 +67,6 @@ clone 直後にまず見る入口はこの README、Codex repo instruction chain
 │   └── post-create-parent.sh
 ├── .github/                          # GitHub automation profile の workflow と PR template
 ├── experiments/                      # experiment profile の topic、artifact、report
-├── cmake/                            # C++ profile の helper module
-├── src/, include/, lib/              # C / C++ profile の実装置き場
 ├── reports/                          # ignored runtime artifact / agent run bundle の生成先
 └── .vscode/                          # editor profile の補助設定
 ```
@@ -80,7 +83,7 @@ profile と validation の正本は
 - Environment: `docker/`、`.devcontainer/`、runtime packs、Jupyter。
 - GitHub automation: `.github/`、Actions、PR templates。
 - Experiment / research: `experiments/`、`references/`、managed run artifacts。
-- C++: `CMakeLists.txt`、`cmake/`、`src/`、`include/`、`lib/`。
+- C++: `cpp/CMakeLists.txt`、`cpp/cmake/`、`cpp/src/`、`cpp/include/`、`cpp/tests/`、`cpp/experiments/`。
 - Memory / notes: `memory/`、`notes/`、learning or durable feedback capture。
 
 ### Repo-Local と Shared Canon の境界
@@ -133,6 +136,7 @@ profile と validation の正本は
   - shared surface、skill mirror、agent runtime alignment、research perspective smoke を確認します。
 - `make ci-quick`
   - docs、experiment registry、pytest、pyright、pydocstyle を流します。通常の smoke 入口ですが、変更種別に応じた最小 check matrix を優先して構いません。
+- C++ の日常入口は `make CPP_PROFILE=dev cpp-test`（configure/build 後に CTest）と `make CPP_PROFILE=dev cpp-install`（configure/build 後に install）です。CMake graph の詳細は `cpp/README.md` を参照します。
 
 ## 基本方針
 
@@ -276,7 +280,7 @@ auth reuse、post-create、attach status の詳細は `CONTAINER_OPERATIONS.md` 
 `docker/README.md` に寄せます。
 
 container 内では `PYTHONPATH=/workspace/python` を前提にします。
-C++ を使うときの canonical entrypoint は root [CMakeLists.txt](CMakeLists.txt) です。helper module は [cmake/README.md](cmake/README.md)、layout と artifact reuse policy は [cpp-build-layout.md](vendor/agent-canon/documents/design/cpp-build-layout.md) を見ます。
+C++ を使うときの canonical entrypoint は [cpp/CMakeLists.txt](cpp/CMakeLists.txt) です。helper module は [cpp/cmake/README.md](cpp/cmake/README.md)、layout と artifact reuse policy は [cpp-build-layout.md](vendor/agent-canon/documents/design/cpp-build-layout.md) を見ます。
 
 ```bash
 docker build -t project-template -f docker/Dockerfile .
@@ -298,9 +302,11 @@ build 確認だけを行う場合は次です。
 make docker-build-check
 make docker-build-check-host-docker
 make server-check
-cmake -S . -B build/cpp/dev
-cmake --build build/cpp/dev
-ctest --test-dir build/cpp/dev --output-on-failure
+cmake -S "$PWD/cpp" -B "$PWD/build/cpp/dev" \
+  -DCMAKE_INSTALL_PREFIX="$PWD/.state/cpp-install/dev"
+cmake --build "$PWD/build/cpp/dev" --parallel
+ctest --test-dir "$PWD/build/cpp/dev" --output-on-failure
+cmake --install "$PWD/build/cpp/dev"
 python3 tools/agent-canon/ci/run_container_pack.py --pack docker/packs/default.toml --print-only
 python3 tools/agent-canon/ci/run_codex_in_repo_container.py --print-only
 ```
