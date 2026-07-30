@@ -1,0 +1,1 @@
+../../../vendor/agent-canon/rust/agent-canon/tests/python_algorithm_contract_cli.rs
