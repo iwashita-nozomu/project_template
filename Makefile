@@ -17,6 +17,9 @@ AGENT_CANON_UPDATE := bash tools/agent-canon/update_agent_canon.sh
 DOCKER_DEFAULT_PACK ?= docker/packs/default.toml
 DOCKER_HOST_PACK ?= docker/packs/default-host-docker.toml
 SERVER_LAYOUT ?= templates/documents/server_runtime_layout.template.toml
+CPP_PROFILE ?= dev
+CPP_BUILD_DIR ?= build/cpp/$(CPP_PROFILE)
+CPP_INSTALL_DIR ?= .state/cpp-install/$(CPP_PROFILE)
 REPO_WIDE_REVIEW_REPORT_DIR ?= reports/agents/repo-wide-review-check
 REPO_WIDE_REVIEW_QUERY ?= repo-wide review runtime surface stale path check
 
@@ -33,6 +36,7 @@ REPO_WIDE_REVIEW_QUERY ?= repo-wide review runtime surface stale path check
 .PHONY: docker-check python-env-status python-env-prepare
 .PHONY: docker-build-check docker-build-check-host-docker docker-run devcontainer-render
 .PHONY: server-check experiment-check docker-shell docker-jupyter docker-codex docker-codex-host-docker
+.PHONY: cpp-configure cpp-build cpp-test cpp-install cpp-experiments
 
 # Validation targets
 # Full confidence gate: agent/runtime, docs, Rust, container, pytest, pyright,
@@ -233,6 +237,22 @@ server-check:
 experiment-check:
 	$(PYTHON) $(CI_TOOLS)/check_experiment_registry.py
 
+# C++ project entrypoint and profile-scoped artifact commands
+cpp-configure:
+	cmake -S cpp -B "$(CPP_BUILD_DIR)" -DCMAKE_INSTALL_PREFIX="$(CPP_INSTALL_DIR)"
+
+cpp-build: cpp-configure
+	cmake --build "$(CPP_BUILD_DIR)" --parallel
+
+cpp-test: cpp-configure
+	ctest --test-dir "$(CPP_BUILD_DIR)" --output-on-failure
+
+cpp-install: cpp-build
+	cmake --install "$(CPP_BUILD_DIR)"
+
+cpp-experiments: cpp-configure
+	cmake --build "$(CPP_BUILD_DIR)" --target cpp-experiments --parallel
+
 # 既定 pack の shell を起動
 docker-shell:
 	$(PYTHON) $(CI_TOOLS)/run_in_repo_container.py --pack $(DOCKER_DEFAULT_PACK) --shell-session --tty
@@ -262,6 +282,10 @@ tools-help:
 	@echo "  make docs-check          Run Markdown/document checks"
 	@echo "  make agent-checks        Check shared agent surfaces"
 	@echo "  make docker-check        Check Docker dependency boundaries"
+	@echo "  make cpp-build           Configure and build the C++ profile"
+	@echo "  make cpp-test            Run CTest for the C++ profile"
+	@echo "  make cpp-install         Install the C++ profile artifacts"
+	@echo "  make cpp-experiments     Build native experiment targets"
 	@echo ""
 	@echo "Detailed catalog:"
 	@echo "  $(PYTHON) $(AGENT_TOOLS)/tool_catalog.py --format markdown"
