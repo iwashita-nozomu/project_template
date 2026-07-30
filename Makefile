@@ -244,7 +244,7 @@ cpp-configure:
 cpp-build: cpp-configure
 	cmake --build "$(CPP_BUILD_DIR)" --parallel
 
-cpp-test: cpp-configure
+cpp-test: cpp-build
 	ctest --test-dir "$(CPP_BUILD_DIR)" --output-on-failure
 
 cpp-install: cpp-build
@@ -283,8 +283,8 @@ tools-help:
 	@echo "  make agent-checks        Check shared agent surfaces"
 	@echo "  make docker-check        Check Docker dependency boundaries"
 	@echo "  make cpp-build           Configure and build the C++ profile"
-	@echo "  make cpp-test            Run CTest for the C++ profile"
-	@echo "  make cpp-install         Install the C++ profile artifacts"
+	@echo "  make cpp-test            Configure/build, then run CTest"
+	@echo "  make cpp-install         Configure/build, then install artifacts"
 	@echo "  make cpp-experiments     Build native experiment targets"
 	@echo ""
 	@echo "Detailed catalog:"

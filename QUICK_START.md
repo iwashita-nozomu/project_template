@@ -161,12 +161,9 @@ make python-env-prepare
 make docker-build-check
 make docker-build-check-host-docker
 make server-check
-cmake -S "$PWD/cpp" -B "$PWD/build/cpp/dev" \
-  -DCMAKE_INSTALL_PREFIX="$PWD/.state/cpp-install/dev"
-cmake --build "$PWD/build/cpp/dev" --parallel
-ctest --test-dir "$PWD/build/cpp/dev" --output-on-failure
-cmake --install "$PWD/build/cpp/dev"
-cmake --build "$PWD/build/cpp/dev" --target cpp-experiments --parallel
+make CPP_PROFILE=dev cpp-test
+make CPP_PROFILE=dev cpp-install
+make CPP_PROFILE=dev cpp-experiments
 python3 tools/agent-canon/ci/run_container_pack.py --pack docker/packs/default.toml --print-only
 python3 tools/agent-canon/ci/run_codex_in_repo_container.py --print-only
 ```

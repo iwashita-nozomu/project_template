@@ -136,6 +136,7 @@ profile と validation の正本は
   - shared surface、skill mirror、agent runtime alignment、research perspective smoke を確認します。
 - `make ci-quick`
   - docs、experiment registry、pytest、pyright、pydocstyle を流します。通常の smoke 入口ですが、変更種別に応じた最小 check matrix を優先して構いません。
+- C++ の日常入口は `make CPP_PROFILE=dev cpp-test`（configure/build 後に CTest）と `make CPP_PROFILE=dev cpp-install`（configure/build 後に install）です。CMake graph の詳細は `cpp/README.md` を参照します。
 
 ## 基本方針
 
