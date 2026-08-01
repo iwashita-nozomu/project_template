@@ -6,6 +6,7 @@
 # upstream environment packs/default.toml default runtime pack metadata
 # upstream environment ../.dockerignore excludes AgentCanon from image build context
 # upstream design ../vendor/agent-canon/CONTAINER_OPERATIONS.md AgentCanon container and devcontainer operation rulebook
+# upstream design ../vendor/agent-canon/documents/design/devcontainer/parent-devcontainer-policy.md runtime shell process boundary
 # downstream implementation ../.github/workflows/docker-build.yml uses this submodule-aware build gate
 # @dependency-end
 
@@ -65,22 +66,25 @@ mapfile -t pack_values < <(
   python3 - "$pack" <<'PY'
 from __future__ import annotations
 
+import re
 import sys
-try:
-    import tomllib
-except ModuleNotFoundError:
-    import tomli as tomllib  # type: ignore[no-redef]
+import tomllib
 
 with open(sys.argv[1], "rb") as handle:
     data = tomllib.load(handle)
 pack = data["pack"]
+smoke = data.get("smoke", {})
 runtime = data.get("runtime", {})
 mounts = runtime.get("mounts", [])
+smoke_shell = smoke.get("shell", "/bin/bash")
+if not isinstance(smoke_shell, str) or re.fullmatch(r"/[A-Za-z0-9._/-]+", smoke_shell) is None:
+    raise SystemExit("smoke.shell must be one absolute executable path")
 print(pack["dockerfile"])
 print(pack["context"])
 print(pack["image_tag"])
 print(runtime.get("workdir", "/workspace"))
 print("1" if any("/var/run/docker.sock" in mount for mount in mounts) else "0")
+print(smoke_shell)
 PY
 )
 
@@ -89,6 +93,7 @@ context="${pack_values[1]}"
 default_tag="${pack_values[2]}"
 workdir="${pack_values[3]}"
 mount_docker_sock="${pack_values[4]}"
+smoke_shell="${pack_values[5]}"
 tag="${tag:-$default_tag}"
 
 build_command=("$builder" build -f "$dockerfile" -t "$tag")
@@ -137,7 +142,7 @@ fi
 if [ "$mount_docker_sock" = "1" ] && [ -S /var/run/docker.sock ]; then
   run_command+=(-v /var/run/docker.sock:/var/run/docker.sock)
 fi
-run_command+=("$tag" /bin/bash -lc "$smoke_script")
+run_command+=("$tag" "$smoke_shell" -lc "$smoke_script")
 
 printf 'build:\n'
 printf '%q ' "${build_command[@]}"
