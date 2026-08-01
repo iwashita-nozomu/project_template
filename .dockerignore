@@ -10,17 +10,8 @@
 .pytest_cache
 .ruff_cache
 .state
-.cache/huggingface
-.cache/llama.cpp
-*.gguf
-*.safetensors
-pytorch_model*.bin
-model-*.bin
 build
 logs
 reports
 .agent-canon/docker-compose.generated.yml
 vendor/agent-canon
-vendor/local-llm-server/llama-cpp/cache
-vendor/local-llm-server/llama-cpp/models
-vendor/local-llm-server/llama-cpp/runtime
