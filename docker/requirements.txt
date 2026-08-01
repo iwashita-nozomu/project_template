@@ -3,6 +3,7 @@
 # responsibility Pins Python packages installed in the container runtime.
 # upstream environment README.md docker runtime guidance
 # upstream environment Dockerfile installs Python dependencies
+# upstream design ../vendor/agent-canon/documents/parent-repository/CONTAINER_OPERATIONS.md parent-owned Python dependency boundary
 # @dependency-end
 # Core numerical computing
 jax
@@ -35,7 +36,6 @@ ipykernel
 mdformat
 mdformat-myst
 pyyaml>=6
-tomli>=2.0.1
 
 # Security & Audit
 jsonschema>=4.0.0

@@ -3,6 +3,7 @@
 # responsibility Defines the host Docker container pack configuration.
 # upstream environment ../README.md docker runtime guidance
 # upstream environment ../Dockerfile default runtime image
+# upstream design ../../vendor/agent-canon/documents/design/devcontainer/parent-devcontainer-policy.md runtime shell ownership
 # @dependency-end
 [pack]
 name = "default-host-docker"
@@ -18,7 +19,7 @@ commands = [
 ]
 
 [runtime]
-shell = "/bin/bash"
+shell = "/bin/zsh"
 workdir = "/workspace"
 workspace_mount = "/workspace"
 mounts = [
