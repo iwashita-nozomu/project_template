@@ -3,7 +3,8 @@
 # responsibility Defines the default container pack configuration.
 # upstream environment ../README.md docker runtime guidance
 # upstream environment ../Dockerfile default runtime image
-# upstream design ../../vendor/agent-canon/documents/design/devcontainer/parent-devcontainer-policy.md runtime shell ownership
+# upstream design ../../vendor/agent-canon/CONTAINER_OPERATIONS.md product image and managed devcontainer boundary
+# downstream implementation ../../tools/agent-canon/ci/run_container_pack.py canonical pack runner
 # @dependency-end
 [pack]
 name = "default"
@@ -18,13 +19,6 @@ commands = [
   "python3 -m pip --version",
   "cmake --version",
   "ninja --version",
-  "bash vendor/agent-canon/.devcontainer/post-create.sh /workspace",
-  "node --version",
-  "npm --version",
-  "codex --version",
-  "gh --version",
-  "jupyter --version",
-  "jupyter lab --version",
   "ssh -V",
   "docker --version",
   "dot -V",

@@ -2,7 +2,7 @@
 # contract workflow
 # responsibility Defines docker build YAML configuration.
 # upstream environment ../../docker/README.md docker runtime contract
-# upstream implementation ../../docker/check_build.sh submodule-aware docker build validation
+# upstream implementation ../../tools/agent-canon/ci/run_container_pack.py canonical Docker pack runner
 # upstream implementation ../scripts/checkout_agent_canon_submodule.sh private AgentCanon checkout gate
 # @dependency-end
 name: Docker Build
@@ -50,7 +50,7 @@ jobs:
         run: bash .github/scripts/checkout_agent_canon_submodule.sh
 
       - name: Run default Docker pack check
-        run: bash docker/check_build.sh --pack docker/packs/default.toml --pull --tag project-template:ci-default
+        run: python3 tools/agent-canon/ci/run_container_pack.py --pack docker/packs/default.toml --pull --tag project-template:ci-default
 
       - name: Run host-docker Docker pack check
-        run: bash docker/check_build.sh --pack docker/packs/default-host-docker.toml --pull --tag project-template:ci-host-docker
+        run: python3 tools/agent-canon/ci/run_container_pack.py --pack docker/packs/default-host-docker.toml --pull --tag project-template:ci-host-docker

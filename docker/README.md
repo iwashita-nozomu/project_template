@@ -25,7 +25,13 @@ Container / devcontainer の責務境界は
 
 `docker/Dockerfile` は product image の owner です。OS package、project runtime、build tool、Docker CLI など、project の実行に必要な image 層を定義します。zsh と image-owned `/etc/project-template/zsh/.zshenv` loader もここで提供し、Docker build の `SHELL` semantics は変更しません。`docker/requirements.txt` と workspace mount 後の `docker/install_python_dependencies.sh` は親の Python package の owner であり、image build へ移しません。
 
-mounted AgentCanon developer/agent tools は shared `.devcontainer/` の owner です。`vendor/agent-canon/.devcontainer/dependencies.toml` が共有 tool の宣言的 source で、shared `post-create.sh` が parent manifest を先に読み、vendor manifest を次に merge して導入・検証します。親固有の developer/agent record がないため、root `.devcontainer/dependencies.toml` は schema v2 の empty parent layer を保持し、vendor record を複製しません。
+managed devcontainer の shared developer/agent tools は AgentCanon の owner です。親の
+`.devcontainer/` は regular overlay として保持し、`devcontainer.json` だけを AgentCanon
+symlink view にします。`vendor/agent-canon/.devcontainer/dependencies.toml` が共有 tool の
+宣言的 source で、shared `post-create.sh` が parent manifest を先に読み、vendor manifest
+を次に merge して導入・検証します。親固有の developer/agent record がないため、root
+`.devcontainer/dependencies.toml` は schema v2 の empty parent layer を保持し、vendor record
+を複製しません。
 
 この責務分離により、Codex、GitHub CLI、Rust、TeX、Playwright などの AgentCanon convenience tool を product image に追加しません。親の `.devcontainer/devcontainer.json` は AgentCanon の shared entrypoint への symlink、`.devcontainer/post-create-parent.sh` は shared post-create の最後に一度だけ実行する親固有の final hook として残します。
 
@@ -76,8 +82,6 @@ runtime pack には次を 1 つの spec としてまとめます。
 
 - `python3 tools/agent-canon/ci/run_container_pack.py`
   - pack 定義から build と smoke を実行します。
-- `bash docker/check_build.sh`
-  - GitHub Docker Build workflow と `make docker-build-check` が使う submodule-aware build gate です。root `.dockerignore` は image build context から `vendor/agent-canon` を除外しますが、runtime smoke は checkout 済み `vendor/agent-canon/.devcontainer/post-create.sh` を使います。
 - `python3 tools/agent-canon/ci/run_in_repo_container.py`
   - pack 定義から repo workspace を mount した container command を実行します。
 - `python3 tools/agent-canon/ci/run_repo_program.py`
@@ -87,14 +91,18 @@ runtime pack には次を 1 つの spec としてまとめます。
 - `python3 tools/agent-canon/ci/run_codex_in_repo_container.py`
   - repo を mount した canonical container 内で nested Codex を起動します。
 - `AGENT_CANON_DEVCONTAINER_REPO_ROOT=. AGENT_CANON_DOCKER_COMPOSE_OUTPUT=.agent-canon/docker-compose.generated.yml bash vendor/agent-canon/.devcontainer/generate-runtime-compose.sh`
-  - devcontainer 用の compose を canonical pack から root-local に生成します。template / derived repo では `.devcontainer/` が AgentCanon-owned root view なので、実行前に AgentCanon submodule checkout が必要です。
+  - devcontainer 用の compose を canonical pack から root-local に生成します。template / derived repo では `.devcontainer/` は親所有の regular overlay で、`devcontainer.json` だけが AgentCanon symlink view です。実行前に AgentCanon submodule checkout が必要です。
 
 ## Nested Codex
 
 `run_codex_in_repo_container.py` は、repo の canonical runtime を build し、その中で `codex` を起動する入口です。
 実行 profile の正本は `docker/codex-container-profiles.toml` です。
 project-scoped Codex config の正本は `.codex/config.toml` で、template 既定では `approval_policy = "never"` と `sandbox_mode = "danger-full-access"` を使います。つまり container 内で起動した Codex も、`jax_solver_util` と同じく最初から full access 前提です。
-Codex 認証は host-local state を正本にします。host 側で `codex login` または API key login を済ませ、container は host `~/.codex` の mount または `OPENAI_API_KEY` forward を使います。container 内で別の永続 auth state を作る運用は避けます。
+Codex state は container-local を正本にします。nested Codex は
+ `HOME=/workspace/.state/nested-codex/<profile>` 以下に state を作り、host
+ `~/.codex` を mount / seed しません。API 認証が必要な場合は
+ `OPENAI_API_KEY` と `OPENAI_BASE_URL` を runner の明示的な environment forward
+ で渡します。
 Codex CLI、Codex 用 Node/npm、GitHub CLI は Docker image へ焼かず、workspace mount 後に `vendor/agent-canon/.devcontainer/post-create.sh` で導入します。nested Codex runner は setup だけ root で行い、Codex 起動前に host `uid:gid` へ落とします。
 
 既定の挙動は次です。
@@ -102,10 +110,11 @@ Codex CLI、Codex 用 Node/npm、GitHub CLI は Docker image へ焼かず、work
 - `default` profile を使う
 - setup 後に host の `uid:gid` で Codex を実行する
 - `HOME=/workspace/.state/nested-codex/<profile>` を使う
-- host の `~/.codex` を `"$HOME/.codex"` として直接 mount する
+- `"$HOME/.codex"` は container-local state として作る
 - repo の `.codex/config.toml` から full-access default を読む
 - host の `~/.gitconfig` と `~/.git-credentials` があれば持ち込む
 - `SSH_AUTH_SOCK` があれば forward する
+- `OPENAI_API_KEY` と `OPENAI_BASE_URL` は設定時だけ明示 forward する
 
 よく使う例:
 
@@ -114,8 +123,8 @@ python3 tools/agent-canon/ci/run_codex_in_repo_container.py --list-profiles
 python3 tools/agent-canon/ci/run_codex_in_repo_container.py --print-only
 python3 tools/agent-canon/ci/run_codex_in_repo_container.py
 python3 tools/agent-canon/ci/run_codex_in_repo_container.py --profile host-docker
-python3 tools/agent-canon/ci/run_codex_in_repo_container.py --share-host-codex-home
-python3 tools/agent-canon/ci/run_codex_in_repo_container.py --no-seed-host-codex --forward-env OPENAI_API_KEY
+python3 tools/agent-canon/ci/run_codex_in_repo_container.py \
+  --forward-env OPENAI_API_KEY --forward-env OPENAI_BASE_URL
 ```
 
 ## Repo Program Runner
@@ -134,7 +143,7 @@ python3 tools/agent-canon/ci/run_codex_in_repo_container.py --no-seed-host-codex
 よく使う例:
 
 ```bash
-python3 tools/agent-canon/ci/run_repo_program.py docker/check_build.sh -- --pack docker/packs/default.toml
+python3 tools/agent-canon/ci/run_container_pack.py --pack docker/packs/default.toml --print-only
 python3 tools/agent-canon/ci/run_repo_program.py python3 -- --version
 python3 tools/agent-canon/ci/run_repo_program.py --skip-env-check --print-only cmake -- --version
 ```
@@ -166,10 +175,9 @@ repo-local `.venv` は host runtime では作らず、container runtime でだ�
 
 Python module install は Docker image build では実行しません。Template の Docker build は
 `vendor/agent-canon` submodule や workspace Python package に依存しない OS / project runtime layer
-までを作り、Python module は `vendor/agent-canon/.devcontainer/post-create.sh` から
-`docker/install_python_dependencies.sh` を呼んで導入します。default runtime pack の smoke も
-同じ post-create entrypoint を先に実行するため、devcontainer と pack smoke の依存導入経路は
-1 本だけです。
+までを作ります。managed devcontainer の shared `post-create.sh` が workspace mount 後に
+`docker/install_python_dependencies.sh` を呼んで導入します。default runtime pack の smoke は
+product image の capability だけを確認し、AgentCanon の post-create / finalize を呼びません。
 
 許可事項:
 
@@ -244,7 +252,7 @@ Dockerfile、requirements、Python installer、runtime pack のいずれかを�
 
 ```bash
 bash tools/agent-canon/docker_dependency_validator.sh
-bash docker/check_build.sh --pack docker/packs/default.toml
+python3 tools/agent-canon/ci/run_container_pack.py --pack docker/packs/default.toml
 ```
 
 ## Docker In Docker
@@ -261,16 +269,16 @@ python3 tools/agent-canon/ci/run_codex_in_repo_container.py --profile host-docke
 
 `safe.directory` は `docker/Dockerfile` から `docker/register_safe_directories.sh` を呼んで `git config --global` に登録します。build 時は `/workspace` だけを登録し、devcontainer 作成時や smoke test では mount 済み workspace の `vendor/*` を列挙して `/workspace/vendor/<name>` を動的に登録します。Template / AgentCanon 固有の GitHub remote や local mirror 名は Dockerfile に焼かず、[Template GitHub Remote](../documents/contracts/template-github-remote.md) と [AgentCanon GitHub Remote](../vendor/agent-canon/documents/agent-canon/agent-canon-github-remote.md) を正本にします。
 
-Template の Docker build context は root `.dockerignore` で `vendor/agent-canon` を除外します。shared canon を読む必要がある validation は workspace mount 後に実行し、image build の入力にはしません。
+Template の Docker build context は root `.dockerignore` で `vendor/agent-canon` を除外します。shared canon を読む必要がある managed-devcontainer validation は workspace mount 後に実行し、image build の入力にはしません。
 
-repo-defined container runner でも、host `~/.codex` が存在するときは `/root/.codex` へ自動 mount します。対象は少なくとも次です。
+repo-defined container runner の Codex state は container-local です。host `~/.codex` を自動 mount / seed する入口はありません。Codex API 認証を使う nested runner では `OPENAI_API_KEY` と `OPENAI_BASE_URL` を明示的に forward します。対象は少なくとも次です。
 
 - `python3 tools/agent-canon/ci/run_in_repo_container.py`
 - `python3 tools/agent-canon/ci/run_repo_program.py`
 - `python3 tools/agent-canon/ci/run_container_pack.py`
 - `python3 tools/agent-canon/ci/run_python_in_dockerfile.py`
 
-つまり、dev container に入らず `make docker-run ARGS='...'` や `python3 tools/agent-canon/ci/run_repo_program.py ...` を使う場合でも、container 内の `~/.codex` は host state をそのまま使います。
+つまり、dev container に入らず `make docker-run ARGS='...'` や `python3 tools/agent-canon/ci/run_repo_program.py ...` を使う場合でも、host の Codex state は container に入りません。
 
 ## VS Code Dev Container
 
@@ -293,12 +301,10 @@ subnet / gateway / IPAM は固定せず、Docker Compose の default network 自
 - `/mnt/git` が無いとき:
   - mount しない
   - dev container 自体は CPU/GPU 判定だけでそのまま起動する
-- host `~/.codex` が存在するとき:
-  - `${HOME}/.codex:/root/.codex` を bind mount
-  - dev container 内の Codex auth / config は host と同じ state を使う
-  - attach banner の `codex-login` で `codex login status` の結果を確認する
-- host `~/.codex` が無いとき:
-  - mount しない
+- Codex state:
+  - host `~/.codex` は mount せず、container-local state を使う
+  - `OPENAI_API_KEY` と `OPENAI_BASE_URL` は nested runner の明示 forward で渡す
+  - attach banner の `codex-state` で host mount 禁止と login 状態を確認する
 - host `~/.config/gh` が存在するとき:
   - `${HOME}/.config/gh:/root/.config/gh` を bind mount
   - 初回 `gh auth login` は host 側で人間が行い、dev container はその認証 state を使う
@@ -315,7 +321,7 @@ VS Code で attach した直後には `vendor/agent-canon/.devcontainer/post-att
 
 - GPU の有無
 - `/mnt/git` mount の有無
-- host `~/.codex` mount の有無
+- Codex state が container-local であること
 - `codex login status` の結果
 - host `~/.config/gh` mount の有無
 - host `~/.ssh` mount の有無

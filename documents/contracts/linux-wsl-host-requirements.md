@@ -44,7 +44,7 @@ upstream design ../../vendor/agent-canon/CONTAINER_OPERATIONS.md container and d
 
 - WSL2 では repo workspace を ext4 側に置く
 - Docker state と build cache を Linux filesystem 側に置く
-- `~/.codex/` と `~/.ssh/` を Linux 側 home に持つ
+- `~/.ssh/` を Linux 側 home に持つ
 - GitHub CLI を host 側で認証し、`~/.config/gh/` を Linux 側 home に持つ
 - SSH agent を使う場合は `SSH_AUTH_SOCK` が現在の shell で有効な socket を指す
 - `git config user.name` と `git config user.email` を設定する
@@ -86,7 +86,7 @@ dev container は `.devcontainer/` を使います。起動時に generated comp
 
 - GPU があれば `gpus: all`
 - GPU がなければ CPU-only
-- `~/.codex`、`~/.config/gh`、`~/.ssh` があれば bind mount
+- `~/.config/gh`、`~/.ssh` があれば bind mount
 - `SSH_AUTH_SOCK` が有効なら agent socket を forward
 - subnet / gateway は固定せず、Docker Compose の default network 自動割当に任せる
 
@@ -108,6 +108,8 @@ GPU が無いこと自体を failure 条件にしません。
 
 - `codex` は host に入っていることを推奨します
 - container 内の Codex CLI は `vendor/agent-canon/.devcontainer/post-create.sh` が workspace mount 後に導入します
+- container 内の Codex state は container-local です。認証に使う
+  `OPENAI_API_KEY` と `OPENAI_BASE_URL` は runner の明示的な environment forward で渡します。
 - `gh` は host に入っていることを推奨します。container 内の GitHub CLI も `vendor/agent-canon/.devcontainer/post-create.sh` が導入します
 - 初回 `gh auth login` は host 側で行い、container は mounted `~/.config/gh` を使います
 - `~/.ssh` は read-only mount 前提なので、key 追加や GitHub host key 登録は host 側で行います

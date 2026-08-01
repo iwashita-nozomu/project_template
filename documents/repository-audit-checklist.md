@@ -192,8 +192,10 @@ python3 tools/agent-canon/agent_tools/vector_search.py --query "dependency revie
 - [ ] `gh` CLI は Docker image に焼かれず、`vendor/agent-canon/.devcontainer/post-create.sh` が workspace mount 後に導入している
 - [ ] `docker/Dockerfile` に Codex CLI、GitHub CLI、Node/npm など agent convenience tooling が入っていない
 - [ ] 初回 GitHub auth は user が実行する前提になっている
-- [ ] 初回 Codex auth は host 側で `codex login` し、container / devcontainer は host `~/.codex` mount を再利用している
-- [ ] devcontainer attach banner が `host-codex-home` と `codex-login` を表示している
+- [ ] Codex state は container-local で、host `~/.codex` を mount / seed せず、`OPENAI_API_KEY` と `OPENAI_BASE_URL` を明示 forward できる
+- [ ] devcontainer attach banner が `codex-state` と `codex-login` を表示している
+- [ ] `docker/packs/default.toml` の product smoke が AgentCanon の shared post-create / finalize を呼ばない
+- [ ] Makefile と Docker Build workflow が `tools/agent-canon/ci/run_container_pack.py` を直接呼ぶ
 - [ ] `~/.ssh` など host 側 SSH 設定の共有方針が devcontainer に反映されている
 - [ ] Jupyter Notebook が container 内で起動できる
 - [ ] `docker/register_safe_directories.sh /workspace` が `/workspace` と `vendor/*` 由来の `/workspace/vendor/<name>` を `safe.directory` に登録する

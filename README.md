@@ -107,7 +107,7 @@ profile と validation の正本は
   - `$start-repository` skill は `scripts/start_repository.sh` を呼び、その wrapper が clean clone では init 前の `make agent-canon-ensure-latest`、`scripts/init_from_template.sh`、必要な post-commit validation をまとめます。`--force` を init に渡すと wrapper preflight は block 扱いで skip し、dirty override を邪魔しません。
 - `docker/`
   - Docker runtime profile、runtime pack、notebook profile の定義です。
-  - Dockerfile、requirements、pack toml はここに集めます。Codex / GitHub CLI / auth / mount ergonomics は Dockerfile ではなく shared `.devcontainer/` に置きます。
+  - Dockerfile、requirements、pack toml はここに集めます。Codex / GitHub CLI / auth / mount ergonomics は Dockerfile ではなく managed devcontainer に置き、親の regular overlay と AgentCanon の linked config を分担させます。
   - Docker を使わない repo では supported runtime の一つとして扱い、日常 validation からは外して構いません。
 - `experiments/`
   - experiment profile の実験コード、run ごとの生成物、report を置く場所です。使わないプロジェクトでは空でも構いません。
@@ -260,8 +260,10 @@ make experiment-check
 
 AgentCanon を持つ repo の container / devcontainer 境界は
 [CONTAINER_OPERATIONS.md](vendor/agent-canon/CONTAINER_OPERATIONS.md) を先に見ます。
-`docker/Dockerfile` は project runtime、shared `.devcontainer/` は Codex / GitHub CLI /
-host mount などの agent ergonomics を持ちます。template 固有の実装 runbook は
+`docker/Dockerfile` は project runtime、親所有の `.devcontainer/` regular overlay と
+AgentCanon symlink の `devcontainer.json` は managed devcontainer の agent ergonomics を
+持ちます。Codex state は container-local とし、API 認証は `OPENAI_API_KEY` と
+`OPENAI_BASE_URL` の明示 forward で渡します。template 固有の実装 runbook は
 [docker/README.md](docker/README.md) です。
 
 Jupyter notebook runtime は notebook profile です。host browser から使う場合は `make docker-jupyter` を実行し、runner が `docker/install_python_dependencies.sh` を通してから JupyterLab を起動します。既定 token は local development 用の例で、shared host では `JUPYTER_TOKEN` を明示してください。host 側では template default として repo-local `.venv` を作らず、devcontainer や nested Codex など container 内でだけ `make python-env-status` と `make python-env-prepare` を使って `.venv` を用意します。
@@ -275,8 +277,8 @@ repo-wide な tool 導入案や Docker 変更では `templates/agents/environmen
 
 project-scoped Codex config の正本は `.codex/config.toml` です。template 既定では `approval_policy = "never"` と `sandbox_mode = "danger-full-access"` を入れているので、container 内で起動した Codex も最初から full access 前提です。
 
-VS Code の dev container は `.devcontainer/` から起動します。compose 生成、mount、
-auth reuse、post-create、attach status の詳細は `CONTAINER_OPERATIONS.md` と
+VS Code の dev container は `.devcontainer/` から起動します。compose 生成、GitHub / SSH
+mount、container-local Codex state、post-create、attach status の詳細は `CONTAINER_OPERATIONS.md` と
 `docker/README.md` に寄せます。
 
 container 内では `PYTHONPATH=/workspace/python` を前提にします。
@@ -287,10 +289,9 @@ docker build -t project-template -f docker/Dockerfile .
 docker run --rm -it \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v $(pwd):/workspace -w /workspace \
-  project-template bash
-bash vendor/agent-canon/.devcontainer/post-create.sh /workspace
-codex --version
-gh --version
+project-template bash
+python3 --version
+cmake --version
 docker --version
 ```
 
