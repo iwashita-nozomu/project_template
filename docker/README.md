@@ -5,6 +5,7 @@ contract environment
 responsibility Documents Docker Runtime for this repository.
 upstream design ../documents/contracts/linux-wsl-host-requirements.md host runtime requirements
 upstream design ../vendor/agent-canon/CONTAINER_OPERATIONS.md AgentCanon container and devcontainer operation rulebook
+upstream design ../vendor/agent-canon/documents/design/devcontainer/parent-devcontainer-policy.md parent zsh environment contract
 downstream environment packs/default.toml default container pack
 downstream environment packs/default-host-docker.toml host-docker container pack
 @dependency-end
@@ -22,7 +23,7 @@ Container / devcontainer の責務境界は
 
 ## Product image と mounted AgentCanon tools の ownership
 
-`docker/Dockerfile` は product image の owner です。OS package、project runtime、build tool、Docker CLI など、project の実行に必要な image 層を定義します。`docker/requirements.txt` と workspace mount 後の `docker/install_python_dependencies.sh` は project Python package の owner であり、image build へ移しません。
+`docker/Dockerfile` は product image の owner です。OS package、project runtime、build tool、Docker CLI など、project の実行に必要な image 層を定義します。zsh と image-owned `/etc/project-template/zsh/.zshenv` loader もここで提供し、Docker build の `SHELL` semantics は変更しません。`docker/requirements.txt` と workspace mount 後の `docker/install_python_dependencies.sh` は親の Python package の owner であり、image build へ移しません。
 
 mounted AgentCanon developer/agent tools は shared `.devcontainer/` の owner です。`vendor/agent-canon/.devcontainer/dependencies.toml` が共有 tool の宣言的 source で、shared `post-create.sh` が parent manifest を先に読み、vendor manifest を次に merge して導入・検証します。親固有の developer/agent record がないため、root `.devcontainer/dependencies.toml` は schema v2 の empty parent layer を保持し、vendor record を複製しません。
 
@@ -39,7 +40,7 @@ mounted AgentCanon developer/agent tools は shared `.devcontainer/` の owner �
 - `Dockerfile`
   - canonical container image 定義です。OS package、project runtime / build tool、Docker CLI までを入れ、Codex CLI、Codex 用 Node/npm、GitHub CLI は入れません。
 - `requirements.txt`
-  - repo-wide の Python 依存リストです。Jupyter、JSONL、Graphviz 周辺の結果可視化依存もここで管理します。
+  - 親 repo の Python 依存リストです。親の PyYAML を含む workspace package を管理し、AgentCanon の独立した依存 manifest は複製しません。
 - `install_python_dependencies.sh`
   - workspace mount 後に `requirements.txt` を導入する唯一の script です。devcontainer post-create と pack smoke が同じ入口を使います。
 - `packs/default.toml`
@@ -63,6 +64,8 @@ runtime pack には次を 1 つの spec としてまとめます。
 - 一時 image tag
 - smoke command 群
 - runtime env / mounts / workdir
+
+親 template の default runtime pack は `/bin/zsh` を process boundary とし、smoke shell と明示的な bash command は `/bin/bash` のままです。`.devcontainer/parent-environment.sh` が親環境値の唯一の source、`parent-environment.toml` が値を持たない ordered variable-name manifest です。親 layout の host `~/.zshrc`、parent script mount、`HOME`/`ZDOTDIR`、mapped-UID tmpfs、Compose の意味は AgentCanon の generator と validator が所有します。
 
 既定 pack:
 
