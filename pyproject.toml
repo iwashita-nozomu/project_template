@@ -6,6 +6,8 @@
 # upstream design vendor/agent-canon/documents/conventions/coding-conventions-python.md Python convention contract
 # downstream implementation tests/tools/test_python_env_policy.py validates Python environment policy
 # downstream implementation tests/tools/test_update_latest_result.py imports shared tools in pyright
+# downstream environment docker/requirements.txt is generated from these declarations
+# downstream implementation docker/install_python_dependencies.sh installs the generated lock and editable project
 # @dependency-end
 [build-system]
 requires = ["setuptools>=68", "wheel"]
@@ -21,7 +23,14 @@ requires-python = ">=3.11"
 classifiers = [
   "License :: OSI Approved :: Apache Software License",
 ]
-dependencies = []
+dependencies = [
+  "jax",
+  "jaxtyping",
+  "typeguard",
+  "equinox",
+  "optax",
+  "scipy",
+]
 
 [project.optional-dependencies]
 dev = [
@@ -30,6 +39,20 @@ dev = [
   "scipy-stubs",
   "pydocstyle>=6.3",
   "pyyaml>=6",
+  "pyright",
+  "pydeps",
+  "pipdeptree",
+  "deptry",
+  "snakeviz",
+  "psutil",
+  "jupyterlab",
+  "notebook",
+  "ipykernel",
+  "mdformat",
+  "mdformat-myst",
+  "jsonschema>=4.0.0",
+  "cryptography>=41.0.0",
+  "pydantic>=2.0.0",
 ]
 
 [tool.setuptools]
