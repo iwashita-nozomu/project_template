@@ -42,7 +42,7 @@ mounted AgentCanon developer/agent tools は shared `.devcontainer/` の owner �
 - `requirements.txt`
   - `pyproject.toml` から `pip-compile` で生成する親 repo の hash 付き lock です。直接依存の編集元ではなく、workspace mount 後の導入と CI cache の成果物です。AgentCanon の独立した依存 manifest は複製しません。
 - `install_python_dependencies.sh`
-  - workspace mount 後に generated lock を `--require-hashes` で導入し、lock 外の依存解決を禁止した editable project を追加する唯一の親 installer です。devcontainer post-create と pack smoke が同じ入口を使います。
+  - workspace mount 後に generated lock から依存を導入する唯一の親 installer です。既定の `full` profile は editable project まで導入し、`validation` profile は role write-scope validation に必要な hash-locked PyYAML block だけを導入します。devcontainer post-create と pack smoke は既定 profile を使います。
 - `packs/default.toml`
   - 既定 build / smoke pack です。
 - `packs/default-host-docker.toml`
@@ -216,12 +216,32 @@ lock に含めます。この生成 command は repository の唯一の lock too
 `pip-tools` を使います。`pip-tools` 自体は親 runtime/dev dependency ではないため、
 生成 lock には含めません。
 
-導入時は `docker/install_python_dependencies.sh` が lock を
-`--require-hashes` で先に導入し、lock 済み build backend を使う editable project を
-`--no-build-isolation --no-deps` で追加してから
-`pip check` を実行します。lock の missing、hash 不一致、editable install、または
-dependency consistency の失敗は成功扱いにしません。CI の pip cache はこの生成 lock
-を dependency path として使用します。
+既定の `full` profile は次の入口です。
+
+```bash
+bash docker/install_python_dependencies.sh "$PWD"
+```
+
+この profile は lock 全体を `--require-hashes` で導入し、lock 済み build backend を
+使う editable project を `--no-build-isolation --no-deps` で追加してから `pip check`
+を実行します。verifier / pre-review、repository CI、fresh-clone acceptance、
+devcontainer post-create、runtime pack はこの既定 profile を使います。
+
+role write-scope validation job は次の限定 profile を使います。
+
+```bash
+bash docker/install_python_dependencies.sh "$PWD" --profile validation
+```
+
+`validation` profile は同じ `docker/requirements.txt` を deterministic に走査し、
+PEP 503 normalized name が `pyyaml` の requirement block が正確に 1 件あり、hash を
+持つ場合だけ、その抽出 block を `--require-hashes --no-deps` で導入します。0 件、
+複数件、hash missing は pip 実行前に失敗し、editable project は導入しません。
+別の dependency source や validation 専用 lock は作りません。
+
+両 profile とも pip cache を無効化せず、GitHub Actions の `setup-python` cache は
+生成 lock を dependency path として使用します。lock missing、hash 不一致、editable
+install、または full profile の dependency consistency failure は成功扱いにしません。
 
 host browser から container 内 JupyterLab を開く既定入口:
 

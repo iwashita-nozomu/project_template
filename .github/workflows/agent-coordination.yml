@@ -144,7 +144,7 @@ jobs:
           cache: pip
           cache-dependency-path: docker/requirements.txt
       - name: Install Python dependencies
-        run: bash docker/install_python_dependencies.sh "$PWD"
+        run: bash docker/install_python_dependencies.sh "$PWD" --profile validation
       - name: Download bootstrap bundle
         uses: actions/download-artifact@v4
         with:
@@ -201,7 +201,7 @@ jobs:
           cache: pip
           cache-dependency-path: docker/requirements.txt
       - name: Install Python dependencies
-        run: bash docker/install_python_dependencies.sh "$PWD"
+        run: bash docker/install_python_dependencies.sh "$PWD" --profile validation
       - name: Download manager bundle
         uses: actions/download-artifact@v4
         with:
@@ -258,7 +258,7 @@ jobs:
           cache: pip
           cache-dependency-path: docker/requirements.txt
       - name: Install Python dependencies
-        run: bash docker/install_python_dependencies.sh "$PWD"
+        run: bash docker/install_python_dependencies.sh "$PWD" --profile validation
       - name: Download manager review bundle
         uses: actions/download-artifact@v4
         with:
@@ -315,7 +315,7 @@ jobs:
           cache: pip
           cache-dependency-path: docker/requirements.txt
       - name: Install Python dependencies
-        run: bash docker/install_python_dependencies.sh "$PWD"
+        run: bash docker/install_python_dependencies.sh "$PWD" --profile validation
       - name: Download manager response bundle
         uses: actions/download-artifact@v4
         with:
@@ -379,7 +379,7 @@ jobs:
           cache: pip
           cache-dependency-path: docker/requirements.txt
       - name: Install Python dependencies
-        run: bash docker/install_python_dependencies.sh "$PWD"
+        run: bash docker/install_python_dependencies.sh "$PWD" --profile validation
       - name: Download research bundle
         uses: actions/download-artifact@v4
         with:
@@ -443,7 +443,7 @@ jobs:
           cache: pip
           cache-dependency-path: docker/requirements.txt
       - name: Install Python dependencies
-        run: bash docker/install_python_dependencies.sh "$PWD"
+        run: bash docker/install_python_dependencies.sh "$PWD" --profile validation
       - name: Download research review bundle
         uses: actions/download-artifact@v4
         with:
@@ -507,7 +507,7 @@ jobs:
           cache: pip
           cache-dependency-path: docker/requirements.txt
       - name: Install Python dependencies
-        run: bash docker/install_python_dependencies.sh "$PWD"
+        run: bash docker/install_python_dependencies.sh "$PWD" --profile validation
       - name: Download research response bundle
         uses: actions/download-artifact@v4
         with:
@@ -571,7 +571,7 @@ jobs:
           cache: pip
           cache-dependency-path: docker/requirements.txt
       - name: Install Python dependencies
-        run: bash docker/install_python_dependencies.sh "$PWD"
+        run: bash docker/install_python_dependencies.sh "$PWD" --profile validation
       - name: Download schedule bundle
         uses: actions/download-artifact@v4
         with:
@@ -635,7 +635,7 @@ jobs:
           cache: pip
           cache-dependency-path: docker/requirements.txt
       - name: Install Python dependencies
-        run: bash docker/install_python_dependencies.sh "$PWD"
+        run: bash docker/install_python_dependencies.sh "$PWD" --profile validation
       - name: Download schedule review bundle
         uses: actions/download-artifact@v4
         with:
@@ -699,7 +699,7 @@ jobs:
           cache: pip
           cache-dependency-path: docker/requirements.txt
       - name: Install Python dependencies
-        run: bash docker/install_python_dependencies.sh "$PWD"
+        run: bash docker/install_python_dependencies.sh "$PWD" --profile validation
       - name: Download schedule response bundle
         uses: actions/download-artifact@v4
         with:
@@ -763,7 +763,7 @@ jobs:
           cache: pip
           cache-dependency-path: docker/requirements.txt
       - name: Install Python dependencies
-        run: bash docker/install_python_dependencies.sh "$PWD"
+        run: bash docker/install_python_dependencies.sh "$PWD" --profile validation
       - name: Download infra bundle
         uses: actions/download-artifact@v4
         with:
@@ -827,7 +827,7 @@ jobs:
           cache: pip
           cache-dependency-path: docker/requirements.txt
       - name: Install Python dependencies
-        run: bash docker/install_python_dependencies.sh "$PWD"
+        run: bash docker/install_python_dependencies.sh "$PWD" --profile validation
       - name: Download infra review bundle
         uses: actions/download-artifact@v4
         with:
@@ -891,7 +891,7 @@ jobs:
           cache: pip
           cache-dependency-path: docker/requirements.txt
       - name: Install Python dependencies
-        run: bash docker/install_python_dependencies.sh "$PWD"
+        run: bash docker/install_python_dependencies.sh "$PWD" --profile validation
       - name: Download infra response bundle
         uses: actions/download-artifact@v4
         with:
@@ -955,7 +955,7 @@ jobs:
           cache: pip
           cache-dependency-path: docker/requirements.txt
       - name: Install Python dependencies
-        run: bash docker/install_python_dependencies.sh "$PWD"
+        run: bash docker/install_python_dependencies.sh "$PWD" --profile validation
       - name: Download manager specialist response bundle
         uses: actions/download-artifact@v4
         with:
@@ -1012,7 +1012,7 @@ jobs:
           cache: pip
           cache-dependency-path: docker/requirements.txt
       - name: Install Python dependencies
-        run: bash docker/install_python_dependencies.sh "$PWD"
+        run: bash docker/install_python_dependencies.sh "$PWD" --profile validation
       - name: Download design bundle
         uses: actions/download-artifact@v4
         with:
@@ -1069,7 +1069,7 @@ jobs:
           cache: pip
           cache-dependency-path: docker/requirements.txt
       - name: Install Python dependencies
-        run: bash docker/install_python_dependencies.sh "$PWD"
+        run: bash docker/install_python_dependencies.sh "$PWD" --profile validation
       - name: Download design review bundle
         uses: actions/download-artifact@v4
         with:
@@ -1126,7 +1126,7 @@ jobs:
           cache: pip
           cache-dependency-path: docker/requirements.txt
       - name: Install Python dependencies
-        run: bash docker/install_python_dependencies.sh "$PWD"
+        run: bash docker/install_python_dependencies.sh "$PWD" --profile validation
       - name: Download design response bundle
         uses: actions/download-artifact@v4
         with:
@@ -1183,7 +1183,7 @@ jobs:
           cache: pip
           cache-dependency-path: docker/requirements.txt
       - name: Install Python dependencies
-        run: bash docker/install_python_dependencies.sh "$PWD"
+        run: bash docker/install_python_dependencies.sh "$PWD" --profile validation
       - name: Download implementer bundle
         uses: actions/download-artifact@v4
         with:
@@ -1240,7 +1240,7 @@ jobs:
           cache: pip
           cache-dependency-path: docker/requirements.txt
       - name: Install Python dependencies
-        run: bash docker/install_python_dependencies.sh "$PWD"
+        run: bash docker/install_python_dependencies.sh "$PWD" --profile validation
       - name: Download change review bundle
         uses: actions/download-artifact@v4
         with:
@@ -1297,7 +1297,7 @@ jobs:
           cache: pip
           cache-dependency-path: docker/requirements.txt
       - name: Install Python dependencies
-        run: bash docker/install_python_dependencies.sh "$PWD"
+        run: bash docker/install_python_dependencies.sh "$PWD" --profile validation
       - name: Download implementer change response bundle
         uses: actions/download-artifact@v4
         with:
@@ -1354,7 +1354,7 @@ jobs:
           cache: pip
           cache-dependency-path: docker/requirements.txt
       - name: Install Python dependencies
-        run: bash docker/install_python_dependencies.sh "$PWD"
+        run: bash docker/install_python_dependencies.sh "$PWD" --profile validation
       - name: Download final review bundle
         uses: actions/download-artifact@v4
         with:
@@ -1455,7 +1455,7 @@ jobs:
           cache: pip
           cache-dependency-path: docker/requirements.txt
       - name: Install Python dependencies
-        run: bash docker/install_python_dependencies.sh "$PWD"
+        run: bash docker/install_python_dependencies.sh "$PWD" --profile validation
       - name: Download verification bundle
         uses: actions/download-artifact@v4
         with:
