@@ -23,7 +23,7 @@ Container / devcontainer の責務境界は
 
 ## Product image と mounted AgentCanon tools の ownership
 
-`docker/Dockerfile` は product image の owner です。OS package、project runtime、build tool、Docker CLI など、project の実行に必要な image 層を定義します。zsh と image-owned `/etc/project-template/zsh/.zshenv` loader もここで提供し、Docker build の `SHELL` semantics は変更しません。`docker/requirements.txt` と workspace mount 後の `docker/install_python_dependencies.sh` は親の Python package の owner であり、image build へ移しません。
+`docker/Dockerfile` は product image の owner です。OS package、project runtime、build tool、Docker CLI など、project の実行に必要な image 層を定義します。zsh と image-owned `/etc/project-template/zsh/.zshenv` loader もここで提供し、Docker build の `SHELL` semantics は変更しません。親の直接依存は `pyproject.toml`、生成 lock は `docker/requirements.txt`、workspace mount 後の導入は `docker/install_python_dependencies.sh` が owner であり、Python module install を image build へ移しません。
 
 mounted AgentCanon developer/agent tools は shared `.devcontainer/` の owner です。`vendor/agent-canon/.devcontainer/dependencies.toml` が共有 tool の宣言的 source で、shared `post-create.sh` が parent manifest を先に読み、vendor manifest を次に merge して導入・検証します。親固有の developer/agent record がないため、root `.devcontainer/dependencies.toml` は schema v2 の empty parent layer を保持し、vendor record を複製しません。
 
@@ -40,9 +40,9 @@ mounted AgentCanon developer/agent tools は shared `.devcontainer/` の owner �
 - `Dockerfile`
   - canonical container image 定義です。OS package、project runtime / build tool、Docker CLI までを入れ、Codex CLI、Codex 用 Node/npm、GitHub CLI は入れません。
 - `requirements.txt`
-  - 親 repo の Python 依存リストです。親の PyYAML を含む workspace package を管理し、AgentCanon の独立した依存 manifest は複製しません。
+  - `pyproject.toml` から `pip-compile` で生成する親 repo の hash 付き lock です。直接依存の編集元ではなく、workspace mount 後の導入と CI cache の成果物です。AgentCanon の独立した依存 manifest は複製しません。
 - `install_python_dependencies.sh`
-  - workspace mount 後に `requirements.txt` を導入する唯一の script です。devcontainer post-create と pack smoke が同じ入口を使います。
+  - workspace mount 後に generated lock から依存を導入する唯一の親 installer です。既定の `full` profile は editable project まで導入し、`validation` profile は role write-scope validation に必要な hash-locked PyYAML block だけを導入します。devcontainer post-create と pack smoke は既定 profile を使います。
 - `packs/default.toml`
   - 既定 build / smoke pack です。
 - `packs/default-host-docker.toml`
@@ -161,7 +161,7 @@ python3 tools/agent-canon/ci/run_python_in_dockerfile.py docker/Dockerfile tools
 
 ## Python Environment Rule
 
-canonical environment は Docker image、`docker/requirements.txt`、および workspace mount 後に走る `docker/install_python_dependencies.sh` です。
+canonical environment は Docker image、`pyproject.toml` の直接宣言、そこから `pip-compile` で生成した `docker/requirements.txt`、および workspace mount 後に走る `docker/install_python_dependencies.sh` です。
 repo-local `.venv` は host runtime では作らず、container runtime でだけ canonical tool から許可します。
 
 Python module install は Docker image build では実行しません。Template の Docker build は
@@ -194,8 +194,54 @@ python3 tools/agent-canon/ci/python_env_policy.py --create
 
 ## Jupyter Notebook
 
-notebook runtime package は `docker/requirements.txt` を正本にし、
+notebook runtime package は `pyproject.toml` の `dev` extra から生成した `docker/requirements.txt` を lock として使い、
 `vendor/agent-canon/.devcontainer/post-create.sh` が container 作成後に導入します。VS Code では `ms-toolsai.jupyter` を推奨拡張として配布済みです。
+
+## Python Dependency Source And Lock
+
+親の直接依存は `pyproject.toml` の `[project].dependencies` と
+`[project.optional-dependencies].dev` だけに宣言します。`docker/requirements.txt`
+は手書きの依存 source ではなく、次の単一 `pip-tools` command で再生成する
+hash 付き lock です。
+
+Linux x86_64 上の CPython 3.11 と `pip-tools==7.6.0` を使い、次の command を
+repository root から実行します。
+
+```bash
+python3.11 -m piptools compile --build-deps-for editable --allow-unsafe --extra=dev --generate-hashes --output-file=docker/requirements.txt pyproject.toml
+```
+
+`--build-deps-for editable` は editable install に必要な build dependency だけを
+lock に含めます。この生成 command は repository の唯一の lock tool である
+`pip-tools` を使います。`pip-tools` 自体は親 runtime/dev dependency ではないため、
+生成 lock には含めません。
+
+既定の `full` profile は次の入口です。
+
+```bash
+bash docker/install_python_dependencies.sh "$PWD"
+```
+
+この profile は lock 全体を `--require-hashes` で導入し、lock 済み build backend を
+使う editable project を `--no-build-isolation --no-deps` で追加してから `pip check`
+を実行します。verifier / pre-review、repository CI、fresh-clone acceptance、
+devcontainer post-create、runtime pack はこの既定 profile を使います。
+
+role write-scope validation job は次の限定 profile を使います。
+
+```bash
+bash docker/install_python_dependencies.sh "$PWD" --profile validation
+```
+
+`validation` profile は同じ `docker/requirements.txt` を deterministic に走査し、
+PEP 503 normalized name が `pyyaml` の requirement block が正確に 1 件あり、hash を
+持つ場合だけ、その抽出 block を `--require-hashes --no-deps` で導入します。0 件、
+複数件、hash missing は pip 実行前に失敗し、editable project は導入しません。
+別の dependency source や validation 専用 lock は作りません。
+
+両 profile とも pip cache を無効化せず、GitHub Actions の `setup-python` cache は
+生成 lock を dependency path として使用します。lock missing、hash 不一致、editable
+install、または full profile の dependency consistency failure は成功扱いにしません。
 
 host browser から container 内 JupyterLab を開く既定入口:
 
@@ -373,7 +419,7 @@ C++ を使う派生 repo に備えて、canonical image には次を同梱しま
 
 template 既定では `CMAKE_GENERATOR=Ninja` を image 側で固定します。
 JAX export、IREE、XLA FFI header などの重い runtime は template default には含めません。
-必要な project だけ `docker/requirements.txt`、`docker/Dockerfile`、project-local CMake module、smoke target を同じ変更で足します。
+必要な project だけ `pyproject.toml` の直接宣言を更新して lock を再生成し、`docker/Dockerfile`、project-local CMake module、smoke target を同じ変更で足します。
 
 canonical CMake layout と build artifact の再利用方針は [cpp-build-layout.md](../vendor/agent-canon/documents/design/cpp-build-layout.md) を見ます。要点は次です。
 
@@ -413,7 +459,7 @@ python3 tools/agent-canon/ci/run_in_repo_container.py --pack docker/packs/defaul
 
 ## Update Rule
 
-`docker/Dockerfile` や `docker/requirements.txt` を更新した変更では、次も同じ変更で見直します。
+`pyproject.toml`、`docker/Dockerfile`、または生成された `docker/requirements.txt` を更新した変更では、次も同じ変更で見直します。
 
 - `README.md`
 - `QUICK_START.md`
