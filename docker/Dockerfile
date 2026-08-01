@@ -11,7 +11,7 @@
 # downstream implementation ../tools/agent-canon/docker_dependency_validator.sh validates canonical image tools
 # @dependency-end
 # Resolved with `docker buildx imagetools inspect` for the intended linux/amd64 platform.
-FROM nvidia/cuda:12.8.2-devel-ubuntu24.04@sha256:38ce689230907646c84d57c37653259f8a021ba8c1b1525fa2a0d9654cc895e0
+FROM nvidia/cuda:12.8.2-devel-ubuntu22.04@sha256:b212f94014ff078bf5aa96bc1ee43cace0ba95d0542ea8b52dbcf42264971054
 ENV DEBIAN_FRONTEND=noninteractive
 
 # AgentCanon の Ubuntu 24.04 bootstrap と同じ base capability apt records を使い、

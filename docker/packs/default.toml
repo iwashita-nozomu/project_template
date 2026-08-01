@@ -23,7 +23,6 @@ commands = [
   "ssh -V",
   "docker --version",
   "dot -V",
-  "python3 -c \"import jax; print(jax.__version__)\"",
   "ROOT=/workspace",
   "cmake -S \"$ROOT/cpp\" -B \"$ROOT/build/cpp/docker-smoke\" -DCMAKE_INSTALL_PREFIX=\"$ROOT/.state/cpp-install/docker-smoke\"",
   "cmake --build \"$ROOT/build/cpp/docker-smoke\" --parallel",
