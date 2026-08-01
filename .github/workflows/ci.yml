@@ -26,6 +26,8 @@ jobs:
   repository-ci:
     name: Repository CI
     runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: vendor/agent-canon
     strategy:
       matrix:
         python-version: ["3.11"]
