@@ -123,8 +123,8 @@ bash tools/agent-canon/run_comprehensive_review.sh
 - host 前提は `documents/contracts/linux-wsl-host-requirements.md` を正本にします。
 - container runtime の再利用 surface は `docker/packs/*.toml` と `tools/agent-canon/ci/run_container_pack.py` を基準にします。
 - container / devcontainer の責務境界は `vendor/agent-canon/CONTAINER_OPERATIONS.md` を正本にします。
-- Python 依存を追加する場合は `docker/requirements.txt` を更新し、導入は post-create / runtime setup の `docker/install_python_dependencies.sh` に集約します。
-- `docker/Dockerfile`、`docker/requirements.txt`、post-create、または runtime setup を更新したら `bash tools/agent-canon/docker_dependency_validator.sh` を先に流し、image / pack smoke に影響する変更では `make docker-build-check` も流します。
+- Python 依存を追加する場合は `pyproject.toml` の project dependency または `dev` extra だけを更新し、`pip-compile --all-build-deps --allow-unsafe --extra=dev --generate-hashes --output-file=docker/requirements.txt pyproject.toml` で lock を再生成します。導入は post-create / runtime setup の `docker/install_python_dependencies.sh` に集約します。
+- `pyproject.toml`、`docker/requirements.txt`、post-create、または runtime setup を更新したら、lock を再生成して `bash tools/agent-canon/docker_dependency_validator.sh` を先に流し、image / pack smoke に影響する変更では `make docker-build-check` も流します。
 - repo-wide な tool 導入案や Docker 変更では `templates/agents/environment_change_proposal.md` に triggering code requirement と blocked command を先に記録します。
 - container 内では `PYTHONPATH=/workspace/python` を前提にします。
 - Jupyter notebook runtime は workspace mount 後の `docker/install_python_dependencies.sh` で導入します。
