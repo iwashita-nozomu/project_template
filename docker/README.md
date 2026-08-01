@@ -204,12 +204,17 @@ notebook runtime package は `pyproject.toml` の `dev` extra から生成した
 は手書きの依存 source ではなく、次の単一 `pip-tools` command で再生成する
 hash 付き lock です。
 
+Linux x86_64 上の CPython 3.11 と `pip-tools==7.6.0` を使い、次の command を
+repository root から実行します。
+
 ```bash
-pip-compile --all-build-deps --allow-unsafe --extra=dev --generate-hashes --output-file=docker/requirements.txt pyproject.toml
+python3.11 -m piptools compile --build-deps-for editable --allow-unsafe --extra=dev --generate-hashes --output-file=docker/requirements.txt pyproject.toml
 ```
 
-この生成 command は repository の唯一の lock tool である `pip-tools` を使います。
-`pip-tools` 自体は親 runtime/dev dependency ではないため、生成 lock には含めません。
+`--build-deps-for editable` は editable install に必要な build dependency だけを
+lock に含めます。この生成 command は repository の唯一の lock tool である
+`pip-tools` を使います。`pip-tools` 自体は親 runtime/dev dependency ではないため、
+生成 lock には含めません。
 
 導入時は `docker/install_python_dependencies.sh` が lock を
 `--require-hashes` で先に導入し、lock 済み build backend を使う editable project を

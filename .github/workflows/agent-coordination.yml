@@ -2,6 +2,8 @@
 # contract configuration
 # responsibility Defines agent coordination YAML configuration.
 # upstream design ../../agents/workflows/agent-canon-pr-workflow.md agent-canon PR workflow
+# upstream environment ../../docker/requirements.txt generated Python dependency lock and cache key
+# upstream environment ../../docker/install_python_dependencies.sh central Python dependency installer
 # @dependency-end
 
 # Synced to /.github/workflows/agent-coordination.yml by tools/agent-canon/sync_agent_canon.sh link-root.
@@ -139,6 +141,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: pip
+          cache-dependency-path: docker/requirements.txt
+      - name: Install Python dependencies
+        run: bash docker/install_python_dependencies.sh "$PWD"
       - name: Download bootstrap bundle
         uses: actions/download-artifact@v4
         with:
@@ -192,6 +198,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: pip
+          cache-dependency-path: docker/requirements.txt
+      - name: Install Python dependencies
+        run: bash docker/install_python_dependencies.sh "$PWD"
       - name: Download manager bundle
         uses: actions/download-artifact@v4
         with:
@@ -245,6 +255,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: pip
+          cache-dependency-path: docker/requirements.txt
+      - name: Install Python dependencies
+        run: bash docker/install_python_dependencies.sh "$PWD"
       - name: Download manager review bundle
         uses: actions/download-artifact@v4
         with:
@@ -298,6 +312,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: pip
+          cache-dependency-path: docker/requirements.txt
+      - name: Install Python dependencies
+        run: bash docker/install_python_dependencies.sh "$PWD"
       - name: Download manager response bundle
         uses: actions/download-artifact@v4
         with:
@@ -358,6 +376,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: pip
+          cache-dependency-path: docker/requirements.txt
+      - name: Install Python dependencies
+        run: bash docker/install_python_dependencies.sh "$PWD"
       - name: Download research bundle
         uses: actions/download-artifact@v4
         with:
@@ -418,6 +440,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: pip
+          cache-dependency-path: docker/requirements.txt
+      - name: Install Python dependencies
+        run: bash docker/install_python_dependencies.sh "$PWD"
       - name: Download research review bundle
         uses: actions/download-artifact@v4
         with:
@@ -478,6 +504,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: pip
+          cache-dependency-path: docker/requirements.txt
+      - name: Install Python dependencies
+        run: bash docker/install_python_dependencies.sh "$PWD"
       - name: Download research response bundle
         uses: actions/download-artifact@v4
         with:
@@ -538,6 +568,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: pip
+          cache-dependency-path: docker/requirements.txt
+      - name: Install Python dependencies
+        run: bash docker/install_python_dependencies.sh "$PWD"
       - name: Download schedule bundle
         uses: actions/download-artifact@v4
         with:
@@ -598,6 +632,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: pip
+          cache-dependency-path: docker/requirements.txt
+      - name: Install Python dependencies
+        run: bash docker/install_python_dependencies.sh "$PWD"
       - name: Download schedule review bundle
         uses: actions/download-artifact@v4
         with:
@@ -658,6 +696,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: pip
+          cache-dependency-path: docker/requirements.txt
+      - name: Install Python dependencies
+        run: bash docker/install_python_dependencies.sh "$PWD"
       - name: Download schedule response bundle
         uses: actions/download-artifact@v4
         with:
@@ -718,6 +760,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: pip
+          cache-dependency-path: docker/requirements.txt
+      - name: Install Python dependencies
+        run: bash docker/install_python_dependencies.sh "$PWD"
       - name: Download infra bundle
         uses: actions/download-artifact@v4
         with:
@@ -778,6 +824,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: pip
+          cache-dependency-path: docker/requirements.txt
+      - name: Install Python dependencies
+        run: bash docker/install_python_dependencies.sh "$PWD"
       - name: Download infra review bundle
         uses: actions/download-artifact@v4
         with:
@@ -838,6 +888,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: pip
+          cache-dependency-path: docker/requirements.txt
+      - name: Install Python dependencies
+        run: bash docker/install_python_dependencies.sh "$PWD"
       - name: Download infra response bundle
         uses: actions/download-artifact@v4
         with:
@@ -898,6 +952,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: pip
+          cache-dependency-path: docker/requirements.txt
+      - name: Install Python dependencies
+        run: bash docker/install_python_dependencies.sh "$PWD"
       - name: Download manager specialist response bundle
         uses: actions/download-artifact@v4
         with:
@@ -951,6 +1009,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: pip
+          cache-dependency-path: docker/requirements.txt
+      - name: Install Python dependencies
+        run: bash docker/install_python_dependencies.sh "$PWD"
       - name: Download design bundle
         uses: actions/download-artifact@v4
         with:
@@ -1004,6 +1066,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: pip
+          cache-dependency-path: docker/requirements.txt
+      - name: Install Python dependencies
+        run: bash docker/install_python_dependencies.sh "$PWD"
       - name: Download design review bundle
         uses: actions/download-artifact@v4
         with:
@@ -1057,6 +1123,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: pip
+          cache-dependency-path: docker/requirements.txt
+      - name: Install Python dependencies
+        run: bash docker/install_python_dependencies.sh "$PWD"
       - name: Download design response bundle
         uses: actions/download-artifact@v4
         with:
@@ -1110,6 +1180,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: pip
+          cache-dependency-path: docker/requirements.txt
+      - name: Install Python dependencies
+        run: bash docker/install_python_dependencies.sh "$PWD"
       - name: Download implementer bundle
         uses: actions/download-artifact@v4
         with:
@@ -1163,6 +1237,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: pip
+          cache-dependency-path: docker/requirements.txt
+      - name: Install Python dependencies
+        run: bash docker/install_python_dependencies.sh "$PWD"
       - name: Download change review bundle
         uses: actions/download-artifact@v4
         with:
@@ -1216,6 +1294,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: pip
+          cache-dependency-path: docker/requirements.txt
+      - name: Install Python dependencies
+        run: bash docker/install_python_dependencies.sh "$PWD"
       - name: Download implementer change response bundle
         uses: actions/download-artifact@v4
         with:
@@ -1269,6 +1351,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: pip
+          cache-dependency-path: docker/requirements.txt
+      - name: Install Python dependencies
+        run: bash docker/install_python_dependencies.sh "$PWD"
       - name: Download final review bundle
         uses: actions/download-artifact@v4
         with:
@@ -1318,10 +1404,14 @@ jobs:
           else
             bash tools/agent-canon/ci/checkout_agent_canon_submodule.sh
           fi
-      - name: Install Python and deps
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: pip
+          cache-dependency-path: docker/requirements.txt
+      - name: Install Python dependencies
+        run: bash docker/install_python_dependencies.sh "$PWD"
       - name: Download implementer final response bundle
         uses: actions/download-artifact@v4
         with:
@@ -1362,6 +1452,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: pip
+          cache-dependency-path: docker/requirements.txt
+      - name: Install Python dependencies
+        run: bash docker/install_python_dependencies.sh "$PWD"
       - name: Download verification bundle
         uses: actions/download-artifact@v4
         with:
