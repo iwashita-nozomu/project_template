@@ -59,7 +59,7 @@ paths = [
   "agents",
   ".agents",
   ".codex/**",
-  ".devcontainer",
+  ".devcontainer/devcontainer.json",
   ".vscode/c_cpp_properties.json",
   ".vscode/extensions.json",
   ".vscode/settings.json",
@@ -86,10 +86,14 @@ paths = [
   "responsibility-scope.toml",
   "documents/**",
   "docker/**",
+  ".devcontainer/**",
   "scripts/**",
   "python/**",
   "cpp/**",
   "tests/**",
+]
+exclude_paths = [
+  ".devcontainer/devcontainer.json",
 ]
 protecting_tools = [
   "tools/agent-canon/agent_tools/responsibility_scope.py",

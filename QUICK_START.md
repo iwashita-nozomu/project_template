@@ -136,8 +136,10 @@ bash tools/agent-canon/run_comprehensive_review.sh
 - Markdown の体裁ルールは `.markdownlint.json` と `vendor/agent-canon/documents/conventions/common/05_docs.md` を基準にします。
 - `pipdeptree` と `deptry` は dependency profile の tool です。dependency 変更時または scheduled audit で使います。
 
-`docker/Dockerfile` は project runtime、shared `.devcontainer/` は Codex / GitHub CLI /
-host mount などの agent ergonomics を持ちます。詳細な境界、例外、validation は
+`docker/Dockerfile` は project runtime、親所有の `.devcontainer/` regular overlay と
+AgentCanon symlink の `devcontainer.json` は managed devcontainer の agent ergonomics を
+持ちます。Codex state は container-local とし、API 認証は `OPENAI_API_KEY` と
+`OPENAI_BASE_URL` の明示 forward で渡します。詳細な境界、例外、validation は
 `vendor/agent-canon/CONTAINER_OPERATIONS.md`、template 固有の実行手順は
 `docker/README.md` を見ます。
 
@@ -146,10 +148,9 @@ docker build -t project-template -f docker/Dockerfile .
 docker run --rm -it \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v $(pwd):/workspace -w /workspace \
-  project-template bash
-bash vendor/agent-canon/.devcontainer/post-create.sh /workspace
-codex --version
-gh --version
+project-template bash
+python3 --version
+cmake --version
 docker --version
 make python-env-status
 make python-env-prepare

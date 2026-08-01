@@ -5,6 +5,7 @@
 # upstream implementation tools/agent-canon/agent_tools/task_close.py enforces closeout gates
 # upstream implementation tools/agent-canon/agent_tools/run_repo_dependency_review.sh exposes repo-wide dependency review
 # upstream implementation tools/agent-canon/agent_tools/review_backlog_scan.sh exposes integrated review backlog scans
+# downstream implementation tools/agent-canon/ci/run_container_pack.py runs Docker runtime packs
 # @dependency-end
 
 PYTHON ?= python3
@@ -214,11 +215,11 @@ python-env-prepare:
 
 # Docker イメージ build / smoke 可否の確認
 docker-build-check:
-	bash docker/check_build.sh --pack $(DOCKER_DEFAULT_PACK)
+	$(PYTHON) $(CI_TOOLS)/run_container_pack.py --pack $(DOCKER_DEFAULT_PACK)
 
 # Docker socket を mount した build smoke check
 docker-build-check-host-docker:
-	bash docker/check_build.sh --pack $(DOCKER_HOST_PACK)
+	$(PYTHON) $(CI_TOOLS)/run_container_pack.py --pack $(DOCKER_HOST_PACK)
 
 # 任意 program を canonical container で実行
 docker-run:

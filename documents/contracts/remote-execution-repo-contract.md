@@ -25,7 +25,7 @@ target host のセットアップ自体は利用者責務にしつつ、repo 側
 
 - CPU 前提の default runtime pack を 1 つ持つ
 - GPU を要する場合だけ追加 pack を持つ
-- `python3 tools/ci/run_container_pack.py --pack ... --print-only` で preview できる
+- `python3 tools/agent-canon/ci/run_container_pack.py --pack ... --print-only` で preview できる
 - `README.md` か `docker/README.md` に runtime の役割が書かれている
 
 ## branch と commit の扱い
@@ -39,6 +39,9 @@ target host のセットアップ自体は利用者責務にしつつ、repo 側
 - remote execution は repo 定義の Docker pack をそのまま使います
 - server 固有の ad-hoc command 断片に依存しません
 - 必要な env や mount は pack か repo 内 script に寄せます
+- product pack は AgentCanon の managed devcontainer post-create / finalize を呼びません
+- nested Codex の state は container-local とし、API 認証は `OPENAI_API_KEY` と
+  `OPENAI_BASE_URL` の明示 forward で渡します
 
 ## artifact 契約
 

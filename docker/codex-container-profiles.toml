@@ -8,8 +8,6 @@
 container_home_root = "/workspace/.state/nested-codex"
 use_host_user = true
 tty = true
-share_host_codex_home = true
-seed_host_codex = false
 mount_host_gitconfig = true
 mount_host_git_credentials = true
 mount_host_ssh_dir = false

@@ -2,19 +2,24 @@
 # contract environment
 # responsibility Defines the canonical development container image.
 # upstream environment README.md docker runtime guidance
+# upstream design ../vendor/agent-canon/CONTAINER_OPERATIONS.md product image and managed devcontainer boundary
+# upstream implementation ../vendor/agent-canon/.devcontainer/bootstrap-dependencies.sh Ubuntu 24.04 base apt capability records
 # upstream design ../vendor/agent-canon/documents/design/devcontainer/parent-devcontainer-policy.md parent zsh image startup contract
+# downstream implementation ../vendor/agent-canon/tools/ci/run_container_pack.py builds and smokes product runtime packs
 # downstream implementation install_python_dependencies.sh installs Python modules after workspace mount
 # downstream implementation ../tools/agent-canon/ci/check_fresh_clone.sh uses rsync for workspace overlay
 # downstream implementation ../tools/agent-canon/docker_dependency_validator.sh validates canonical image tools
 # @dependency-end
-FROM nvidia/cuda:12.2.0-devel-ubuntu22.04
+# Resolved with `docker buildx imagetools inspect` for the intended linux/amd64 platform.
+FROM nvidia/cuda:12.8.2-devel-ubuntu22.04@sha256:b212f94014ff078bf5aa96bc1ee43cace0ba95d0542ea8b52dbcf42264971054
 ENV DEBIAN_FRONTEND=noninteractive
 
-# GCCやビルド系 + Python 3.11
+# AgentCanon の Ubuntu 24.04 bootstrap と同じ base capability apt records を使い、
+# project image 固有の build/runtime package を同じ install transaction に追加する。
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates curl git docker.io \
+    ca-certificates curl xz-utils git docker.io \
     build-essential pkg-config cmake ninja-build \
-    python3.11 python3.11-dev python3.11-venv python3-venv python3-pip \
+    python3.11 python3.11-dev python3.11-venv python3-venv python3-pip python3-packaging \
     openssh-client graphviz rsync zsh \
  && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 20 \
  && python3 --version | grep -E '^Python 3\.11\.' \
