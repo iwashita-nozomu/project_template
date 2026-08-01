@@ -10,6 +10,7 @@
 name = "default"
 dockerfile = "docker/Dockerfile"
 context = "."
+platform = "linux/amd64"
 image_tag = "project-template:default-runtime-pack"
 
 [smoke]
