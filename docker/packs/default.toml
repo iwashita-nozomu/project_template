@@ -29,6 +29,7 @@ commands = [
   "ctest --test-dir \"$ROOT/build/cpp/docker-smoke\" --output-on-failure",
   "cmake --install \"$ROOT/build/cpp/docker-smoke\"",
   "bash docker/register_safe_directories.sh /workspace",
+  "command -v pstree",
   "safe_dirs=\"$(git config --get-all safe.directory || true)\"",
   "printf '%s\\n' \"$safe_dirs\" | grep -Fx /workspace >/dev/null",
   "if [ -d vendor ]; then for vendor_dir in vendor/*; do [ -d \"$vendor_dir\" ] || continue; printf '%s\\n' \"$safe_dirs\" | grep -Fx \"/workspace/${vendor_dir}\" >/dev/null; done; fi",

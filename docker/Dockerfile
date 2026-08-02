@@ -19,6 +19,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates curl xz-utils git docker.io \
     build-essential pkg-config cmake ninja-build \
+    psmisc \
     python3.11 python3.11-dev python3.11-venv python3-venv python3-pip python3-packaging \
     openssh-client graphviz rsync zsh \
  && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 20 \
