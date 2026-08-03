@@ -67,8 +67,9 @@ file is a template-owned active contract, edit the root regular file.
   symlink/copy/regular behavior, and root-view repair rules.
 - [Shared Runtime Surface Manifest](../vendor/agent-canon/documents/runtime/shared-runtime-surfaces.toml):
   machine-readable surface ownership list.
-- [AgentCanon Parent Repository Latest-State Checklist](../vendor/agent-canon/documents/agent-canon/agent-canon-parent-repo-latest-checklist.md):
-  task-start checklist for repos that vendor AgentCanon.
+- [Parent Repository Audit Reader Route](./repository-audit-checklist.md):
+  parent-local reader route to the canonical AgentCanon audit units. It is not
+  an additional checklist source.
 - [Codex Configuration Reference](../vendor/agent-canon/documents/codex/codex-configuration-reference.md):
   Codex CLI / config schema / hooks / MCP / skills / subagents reference,
   including repository instructions, path-specific instructions, custom agents,
@@ -99,11 +100,12 @@ These files are regular files in the template or derived repo under
 - [Linux / WSL Host Requirements](./contracts/linux-wsl-host-requirements.md)
 - [Server Host Contract](./contracts/server-host-contract.md)
 - [Remote Execution Repo Contract](./contracts/remote-execution-repo-contract.md)
-- [Repository Audit Checklist](./repository-audit-checklist.md)
+- [Parent Repository Audit Reader Route](./repository-audit-checklist.md)
 
-AgentCanon provides reusable contract templates under
+AgentCanon source provides reusable contract templates under
 [`vendor/agent-canon/templates/`](../vendor/agent-canon/templates/),
-but the active contract for a derived repo belongs to that repo.
+and parent-owned templates remain valid under the parent repository's own
+contract paths. The active contract for a derived repo belongs to that repo.
 
 ## Tooling And Artifact References
 
