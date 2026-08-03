@@ -53,5 +53,5 @@ target host のセットアップ自体は利用者責務にしつつ、repo 側
 
 登録 template の正本は次です。
 
-- `vendor/agent-canon/templates/documents/remote_execution_repo.template.toml`
+- AgentCanon source template: `vendor/agent-canon/templates/documents/remote_execution_repo.template.toml`
 - `vendor/agent-canon/templates/documents/remote_execution_target.template.toml`

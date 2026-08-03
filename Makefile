@@ -17,6 +17,7 @@ AGENT_CANON_UPDATE := bash tools/agent-canon/update_agent_canon.sh
 
 DOCKER_DEFAULT_PACK ?= docker/packs/default.toml
 DOCKER_HOST_PACK ?= docker/packs/default-host-docker.toml
+# AgentCanon source template; a parent may override this variable explicitly.
 SERVER_LAYOUT ?= vendor/agent-canon/templates/documents/server_runtime_layout.template.toml
 CPP_PROFILE ?= dev
 CPP_BUILD_DIR ?= build/cpp/$(CPP_PROFILE)

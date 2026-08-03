@@ -125,7 +125,7 @@ bash tools/agent-canon/run_comprehensive_review.sh
 - container / devcontainer の責務境界は `vendor/agent-canon/CONTAINER_OPERATIONS.md` を正本にします。
 - Python 依存を追加する場合は `pyproject.toml` の project dependency または `dev` extra だけを更新し、Linux x86_64 上の CPython 3.11 と `pip-tools==7.6.0` で `python3.11 -m piptools compile --build-deps-for editable --allow-unsafe --extra=dev --generate-hashes --output-file=docker/requirements.txt pyproject.toml` を実行して lock を再生成します。導入は post-create / runtime setup の `docker/install_python_dependencies.sh` に集約します。
 - `pyproject.toml`、`docker/requirements.txt`、post-create、または runtime setup を更新したら、lock を再生成して `bash tools/agent-canon/docker_dependency_validator.sh` を先に流し、image / pack smoke に影響する変更では `make docker-build-check` も流します。
-- repo-wide な tool 導入案や Docker 変更では `vendor/agent-canon/templates/agents/environment_change_proposal.md` に triggering code requirement と blocked command を先に記録します。
+- repo-wide な tool 導入案や Docker 変更では AgentCanon source template `vendor/agent-canon/templates/agents/environment_change_proposal.md` に triggering code requirement と blocked command を先に記録します。
 - container 内では `PYTHONPATH=/workspace/python` を前提にします。
 - Jupyter notebook runtime は workspace mount 後の `docker/install_python_dependencies.sh` で導入します。
 - host browser から container 内 JupyterLab を使う場合は `make docker-jupyter` を実行し、`http://127.0.0.1:8888/lab?token=project-template` を開きます。port / token は `JUPYTER_HOST_PORT` と `JUPYTER_TOKEN` で変更できます。
