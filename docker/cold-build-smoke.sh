@@ -1,14 +1,17 @@
 #!/usr/bin/env bash
 # @dependency-start
-# contract validation
+# contract test
 # responsibility Performs the single cold parent-image build and single non-root runtime smoke.
 # upstream design ../documents/design/docker-zero-build-environment.md cold acceptance owner and runtime evidence
 # upstream environment ./Dockerfile direct Ubuntu 22.04 image and runtime identity
 # upstream implementation ../vendor/agent-canon/.devcontainer/post-create-entrypoint.sh shared-first lifecycle resolver
-# downstream artifact docker-cold-build-smoke.json stdout and CI log receipt
 # @dependency-end
 
 set -euo pipefail
+
+# Output contract: build and smoke diagnostics remain on stdout, followed by one
+# JSON pass receipt containing status, uid, gid, home, and workspace. CI consumes
+# this stdout receipt; it is not a checked-in source dependency or artifact path.
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 image_tag="project-template:zero-build-cold-smoke"

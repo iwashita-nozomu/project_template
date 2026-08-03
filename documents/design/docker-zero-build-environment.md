@@ -1,13 +1,14 @@
 <!--
 @dependency-start
-design
+contract design
 responsibility Defines the parent Docker zero-build runtime, identity, CUDA/JAX, and audit synchronization contract.
-upstream design ../vendor/agent-canon/CONTAINER_OPERATIONS.md AgentCanon/product image ownership boundary
-upstream design ../vendor/agent-canon/documents/design/devcontainer/parent-devcontainer-policy.md parent devcontainer mount and lifecycle contract
-upstream implementation ../docker/Dockerfile product image and runtime capability owner
-upstream implementation ../docker/install_python_dependencies.sh parent Python lock installer
-downstream implementation ../docker/cold-build-smoke.sh single cold build/smoke evidence executor
-downstream implementation ../docker/check_zero_build_contract.sh static zero-build contract checker
+upstream design ../../vendor/agent-canon/CONTAINER_OPERATIONS.md AgentCanon/product image ownership boundary
+upstream design ../../vendor/agent-canon/documents/design/devcontainer/parent-devcontainer-policy.md parent devcontainer mount and lifecycle contract
+upstream implementation ../../docker/Dockerfile product image and runtime capability owner
+upstream implementation ../../docker/requirements.txt parent Python lock manifest
+upstream implementation ../../docker/install_python_dependencies.sh installs the parent Python lock
+downstream implementation ../../docker/cold-build-smoke.sh single cold build/smoke evidence executor
+downstream implementation ../../docker/check_zero_build_contract.sh static zero-build contract checker
 @dependency-end
 -->
 

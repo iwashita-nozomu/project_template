@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # @dependency-start
-# contract validation
+# contract tool
 # responsibility Performs static/readback validation of the parent zero-build ownership and host-mount contract.
 # upstream design ../documents/design/docker-zero-build-environment.md runtime order, ownership, and audit packet
 # upstream environment ./Dockerfile product image construction
 # upstream environment ./packs/default.toml default isolated runtime pack
-# downstream validation ./cold-build-smoke.sh executes the one runtime acceptance witness
+# downstream implementation ./cold-build-smoke.sh executes the one runtime acceptance witness
 # @dependency-end
 
 set -euo pipefail
