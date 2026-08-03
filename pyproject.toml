@@ -24,7 +24,7 @@ classifiers = [
   "License :: OSI Approved :: Apache Software License",
 ]
 dependencies = [
-  "jax",
+  "jax[cuda12-local]",
   "jaxtyping",
   "typeguard",
   "equinox",

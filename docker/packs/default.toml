@@ -39,3 +39,4 @@ commands = [
 shell = "/bin/zsh"
 workdir = "/workspace"
 workspace_mount = "/workspace"
+dependency_profile = "full"

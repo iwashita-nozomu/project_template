@@ -23,7 +23,7 @@ Container / devcontainer の責務境界は
 
 ## Product image と mounted AgentCanon tools の ownership
 
-`docker/Dockerfile` は product image の owner です。OS package、project runtime、build tool、Docker CLI など、project の実行に必要な image 層を定義します。zsh と image-owned `/etc/project-template/zsh/.zshenv` loader もここで提供し、Docker build の `SHELL` semantics は変更しません。親の直接依存は `pyproject.toml`、生成 lock は `docker/requirements.txt`、workspace mount 後の導入は `docker/install_python_dependencies.sh` が owner であり、Python module install を image build へ移しません。
+`docker/Dockerfile` は direct Ubuntu 22.04 digest、OS fundamentals、Python 3.11、NVIDIA toolkit/runtime、canonical non-root identity の product image owner です。zsh は image-owned `/home/project/.zshrc` だけを使い、`.zshenv`、`ZDOTDIR`、parent environment の shell source は提供しません。親の直接依存は `pyproject.toml`、生成 lock は `docker/requirements.txt`、workspace mount 後の導入は `docker/install_python_dependencies.sh` が owner であり、Python module install を image build へ移しません。
 
 managed devcontainer の shared developer/agent tools は AgentCanon の owner です。親の
 `.devcontainer/` は regular overlay として保持し、`devcontainer.json` だけを AgentCanon
@@ -44,7 +44,7 @@ symlink view にします。`vendor/agent-canon/.devcontainer/dependencies.toml`
 ## Primary Files
 
 - `Dockerfile`
-  - canonical container image 定義です。OS package、project runtime / build tool、Docker CLI までを入れ、Codex CLI、Codex 用 Node/npm、GitHub CLI は入れません。
+  - canonical container image 定義です。Ubuntu 22.04、Python 3.11、CUDA toolkit/runtime、OS fundamentals、Docker CLI、zsh、sudo、canonical `project` user を入れます。Node/npm、Ninja、tree、Codex CLI、GitHub CLI は AgentCanon bootstrap/manifest owner です。
 - `requirements.txt`
   - `pyproject.toml` から `pip-compile` で生成する親 repo の hash 付き lock です。直接依存の編集元ではなく、workspace mount 後の導入と CI cache の成果物です。AgentCanon の独立した依存 manifest は複製しません。
 - `install_python_dependencies.sh`
@@ -52,7 +52,11 @@ symlink view にします。`vendor/agent-canon/.devcontainer/dependencies.toml`
 - `packs/default.toml`
   - 既定 build / smoke pack です。
 - `packs/default-host-docker.toml`
-  - host Docker socket を mount して daemon 到達性も見る pack です。
+  - host Docker socket を明示指定した場合だけ使う optional profile です。default devcontainer/CI では実行しません。
+- `cold-build-smoke.sh`
+  - `--pull --no-cache` で build 一回、同じ image の post-create と non-root smoke 一回を実行する acceptance owner です。
+- `check_zero_build_contract.sh`
+  - Dockerfile、pack、workflow、mount/profile、lock owner の static/readback owner です。
 - `codex-container-profiles.toml`
   - nested Codex 実行 profile の正本です。
 - `python-execution-rules.toml`
@@ -71,7 +75,7 @@ runtime pack には次を 1 つの spec としてまとめます。
 - smoke command 群
 - runtime env / mounts / workdir
 
-親 template の default runtime pack は `/bin/zsh` を process boundary とし、smoke shell と明示的な bash command は `/bin/bash` のままです。`.devcontainer/parent-environment.sh` が親環境値の唯一の source、`parent-environment.toml` が値を持たない ordered variable-name manifest です。親 layout の host `~/.zshrc`、parent script mount、`HOME`/`ZDOTDIR`、mapped-UID tmpfs、Compose の意味は AgentCanon の generator と validator が所有します。
+親 template の default runtime pack は `/bin/zsh` を process boundary とし、smoke shell と明示的な bash command は `/bin/bash` のままです。`parent-environment.toml` と `parent-environment.sh` は依存入力ではなく空の親 overlay として保持します。default の必須 host mount は workspace source だけで、host `~/.zshrc` は存在時だけ専用 user home へ read-only 投影する optional customization です。`HOME`、user、platform、runtime env、workspace ownership、Compose の意味は AgentCanon generator と validator が所有します。
 
 既定 pack:
 
@@ -112,9 +116,9 @@ Codex CLI、Codex 用 Node/npm、GitHub CLI は Docker image へ焼かず、work
 - `HOME=/workspace/.state/nested-codex/<profile>` を使う
 - `"$HOME/.codex"` は container-local state として作る
 - repo の `.codex/config.toml` から full-access default を読む
-- host の `~/.gitconfig` と `~/.git-credentials` があれば持ち込む
-- `SSH_AUTH_SOCK` があれば forward する
-- `OPENAI_API_KEY` と `OPENAI_BASE_URL` は設定時だけ明示 forward する
+- host の git config、credentials、SSH、Docker socket、runtime state は default では持ち込まない
+- SSH agent、credentials、Docker socket、host git config は明示 profile/flag のみで使う
+- API credential は必要なコマンドでだけ明示 environment forward する
 
 よく使う例:
 
@@ -176,8 +180,9 @@ repo-local `.venv` は host runtime では作らず、container runtime でだ�
 Python module install は Docker image build では実行しません。Template の Docker build は
 `vendor/agent-canon` submodule や workspace Python package に依存しない OS / project runtime layer
 までを作ります。managed devcontainer の shared `post-create.sh` が workspace mount 後に
-`docker/install_python_dependencies.sh` を呼んで導入します。default runtime pack の smoke は
-product image の capability だけを確認し、AgentCanon の post-create / finalize を呼びません。
+`docker/install_python_dependencies.sh` を呼んで導入します。CI の canonical acceptance は
+`docker/cold-build-smoke.sh` が public resolver 経由で post-create と parent final hook を呼び、
+vendor bootstrap/manifest、parent lock、runtime tool surface を同じ image で確認します。
 
 許可事項:
 
@@ -297,8 +302,8 @@ VS Code で notebook を開く場合は、container 内の `.venv/bin/python` �
 Dockerfile、requirements、Python installer、runtime pack のいずれかを変えたら、まず境界検査を通します。Docker image または pack smoke に影響する変更では build check も通します。
 
 ```bash
-bash tools/agent-canon/docker_dependency_validator.sh
-python3 tools/agent-canon/ci/run_container_pack.py --pack docker/packs/default.toml
+bash docker/check_zero_build_contract.sh
+bash docker/cold-build-smoke.sh --pull --no-cache
 ```
 
 ## Docker In Docker
@@ -328,7 +333,11 @@ repo-defined container runner の Codex state は container-local です。host 
 
 ## VS Code Dev Container
 
-`.devcontainer/devcontainer.json` は 1 枚の generated Docker Compose file を使います。起動前に `vendor/agent-canon/.devcontainer/generate-runtime-compose.sh` を走らせます。script は repo-local `docker/packs/default.toml` を読み、host を見て次を自動切替します。
+`.devcontainer/devcontainer.json` は 1 枚の generated Docker Compose file を使います。起動前に
+AgentCanon の public resolver 経由で `generate-runtime-compose.sh` を走らせます。default
+generator の必須 bind は workspace source だけです。Compose には pack の
+`linux/amd64`、`PROJECT_UID/GID` build args、同じ `user`、Docker image の runtime env を
+投影します。
 
 生成 compose には repo path 由来の unique project name を入れます。共有
 `.devcontainer/devcontainer.json` の display name は
@@ -337,33 +346,21 @@ name は `<repo-slug>-<path-hash>-devcontainer` 形式にします。同名 clon
 さらに明示したい場合だけ、host 側で `DEVCONTAINER_PROJECT_NAME` を指定します。
 subnet / gateway / IPAM は固定せず、Docker Compose の default network 自動割当に任せます。
 
-- NVIDIA GPU が見えるとき:
-  - `gpus: all` を追加
-- GPU が見えないとき:
-  - CPU-only のまま起動
-- `/mnt/git` が存在するとき:
-  - `/mnt/git:/mnt/git` を bind mount
-  - local bare remote への push/pull を container 内から継続できる
-- `/mnt/git` が無いとき:
-  - mount しない
-  - dev container 自体は CPU/GPU 判定だけでそのまま起動する
+- default GPU mode:
+  - driver/device は host と container runtime の passthrough 責務であり、default Compose は GPU を要求しない
+- optional host-zshrc profile:
+  - regular file の host `~/.zshrc` だけを `/home/project/.zshrc:ro` へ投影する
+  - file が無ければ volume を生成せず、image-owned `.zshrc` で同じ機能を保つ
 - Codex state:
   - host `~/.codex` は mount せず、container-local state を使う
   - `OPENAI_API_KEY` と `OPENAI_BASE_URL` は nested runner の明示 forward で渡す
-  - attach banner の `codex-state` で host mount 禁止と login 状態を確認する
-- host `~/.config/gh` が存在するとき:
-  - `${HOME}/.config/gh:/root/.config/gh` を bind mount
-  - 初回 `gh auth login` は host 側で人間が行い、dev container はその認証 state を使う
-- host `~/.ssh` が存在するとき:
-  - `${HOME}/.ssh:/root/.ssh:ro` を read-only bind mount
-  - private key と `known_hosts` は host 側を正本にし、repo には書かない
-- host `SSH_AUTH_SOCK` が有効な socket を指すとき:
-  - socket を `/ssh-agent` として bind mount
-  - container 内では `SSH_AUTH_SOCK=/ssh-agent` を使う
+- host git config、credentials、SSH、Docker socket、parent environment、個別 runtime state は default で mount しない
+- `host-git`、`host-credentials`、`ssh-agent`、`docker-host` は明示された optional profile だけで有効化する
 
-そのため、template を clone したディレクトリでも、GPU なし環境で dev container が落ちにくくなります。
+そのため、host zshrc の有無、host Codex state、host credential/config、GPU の有無に関係なく、
+fresh checkout の dev container create/tool availability が成立します。
 
-VS Code で attach した直後には `vendor/agent-canon/.devcontainer/post-attach.sh` を実行し、少なくとも次を banner で表示します。
+VS Code で attach した直後には `vendor/agent-canon/.devcontainer/post-attach.sh` を実行し、runtime の optional profile 状態を banner で表示します。表示は診断情報であり、host file を成功条件にしません。
 
 - GPU の有無
 - `/mnt/git` mount の有無
@@ -377,16 +374,18 @@ VS Code で attach した直後には `vendor/agent-canon/.devcontainer/post-att
 - Codex の `approval_policy` と `sandbox_mode`
 - `PYTHONPATH`
 
-## GitHub CLI / SSH Sharing
+## GitHub CLI / SSH Sharing（明示 optional profile）
 
-GitHub CLI は canonical Docker image に同梱せず、`vendor/agent-canon/.devcontainer/post-create.sh` が workspace mount 後に導入します。初回認証は host で人間が行います。
+GitHub CLI は canonical Docker image に同梱せず、`vendor/agent-canon/.devcontainer/post-create.sh` が workspace mount 後に導入します。host の認証 state は default runtimeへ持ち込みません。
 
 ```bash
 gh auth login
 gh auth status
 ```
 
-dev container では `~/.config/gh` を mount するため、container 内の `gh` は host の認証 state を再利用します。SSH は `~/.ssh` を read-only mount し、可能な場合は `SSH_AUTH_SOCK` を forward します。
+host の `~/.config/gh`、`~/.ssh`、`SSH_AUTH_SOCK` を使う場合は、AgentCanon の明示 optional profile
+（`host-credentials`、`ssh-agent`）を選択します。`SSH_AUTH_SOCK` は有効な socket の場合だけ forward
+されます。default devcontainer/CI はこれらを mount しません。
 
 注意:
 
@@ -403,12 +402,12 @@ VS Code の前提拡張は `.vscode/extensions.json` を正本にします。
 - `ms-vscode.cpptools`
 - `ms-vscode.cmake-tools`
 
-runtime 側の C/C++ 基本 tool は、すでに `docker/Dockerfile` に入っています。
+runtime 側の C/C++ 基本 tool は、`docker/Dockerfile` と AgentCanon fixed bootstrap の owner split に従って提供します。
 
 - `build-essential`
 - `pkg-config`
 - `cmake`
-- `ninja-build`
+- `ninja-build`（AgentCanon fixed bootstrap）
 
 repo maintenance helper が前提にする host-compatible tool も canonical image に同梱します。
 
@@ -418,9 +417,9 @@ repo maintenance helper が前提にする host-compatible tool も canonical im
 
 C++ を使う派生 repo に備えて、canonical image には次を同梱します。
 
-- `python3.11-dev`
+- Python 3.11 headers（Dockerfile の Python.org source build）
 - `cmake`
-- `ninja-build`
+- `ninja-build`（AgentCanon fixed bootstrap）
 - `build-essential`
 
 template 既定では `CMAKE_GENERATOR=Ninja` を image 側で固定します。
