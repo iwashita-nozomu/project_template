@@ -116,7 +116,6 @@ dot -V
 jq --version
 gh --version
 agent-canon --version
-test -x tools/agent-canon/agent_tools/agent_canon_source_root.py
 
 printf '{"status":"pass","uid":%s,"gid":%s,"home":"%s","workspace":"%s"}\n' \
   "$(id -u)" "$(id -g)" "$HOME" "$workspace"
