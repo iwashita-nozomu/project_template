@@ -28,7 +28,7 @@ downstream design ../../documents/repository-audit-checklist.md parent reader ro
 - `uncovered_path_count=0`
 - `overlap_path_count=167`
 - `legacy_checklist=thin_reader_route`
-- `agentcanon_latest_source=681a5929b14c845c61153f2293c8d1001450500a`
+- `agentcanon_latest_source=58ee9f406024adecac45688b1f3b3d813f5aeba8`
 - `root_view_sync=projection_ready`
 - `dependency_graph_build=pass`
 - `dependency_graph_status=fresh`
@@ -36,7 +36,7 @@ downstream design ../../documents/repository-audit-checklist.md parent reader ro
 ## Audited Projection Identity
 
 - audited parent base: `ccd961b85c5abfad93f3e0bd2edd5385a456288e`
-- audited AgentCanon pin: `681a5929b14c845c61153f2293c8d1001450500a`
+- audited AgentCanon pin: `58ee9f406024adecac45688b1f3b3d813f5aeba8`
 - audited responsibility path set: 14 paths。receipt files
   `reports/parent-audit-projection/audit-receipts.md` と
   `reports/parent-audit-projection/defer-receipts.md` はこの集合から除外する
@@ -58,7 +58,7 @@ downstream design ../../documents/repository-audit-checklist.md parent reader ro
   vendor/agent-canon
   ```
 - path-set SHA-256: `1b7373f3b0658f3f174a236eb5cf11595650360ff42ae667c42819d14efba9de`
-- content-identity SHA-256: `dd63ac3aa9e1653710bb92559744d065d10f8e217cbc8f5f972278e085c0fcc9`
+- content-identity SHA-256: `eb7c53247ede323667ae65174d64e60495283f7a1dbc5cf80f62db8a6313e704`
   （sorted path に対する `git ls-tree` identity records の digest。receipt本文と最終commit OIDを含めない）
 - audited overlap path count: `167`。この値は audit/defer receipt 間で共有する唯一の測定値であり、
   旧測定値は使用しない
@@ -82,8 +82,8 @@ downstream design ../../documents/repository-audit-checklist.md parent reader ro
 
 - status: `closed`
 - owner: `agent-orchestration` と catalog/dependency/materializer owner tooling
-- evidence: catalog capability `parent_repository_audit` は `activation: explicit_capability`、adapter は存在し、typed resolver command は `skill_tool_commands.py show` で readback した
-- validation: `skill_dependency_map.py check` pass（skills=65, edges=1252, parallel_edges=98）、accepted source update 後の `skill_shim_materializer.py materialize --all` pass（content delta=1）、second `readback --all` pass、`skill_tool_commands.py check` pass（findings=0）
+- evidence: catalog capability `parent_repository_audit` は `activation: explicit_capability`、adapter は存在し、typed resolver command は `skill_tool_commands.py show` で readback した。accepted source `58ee9f40` のgeneric convention checker adapter契約もparent rootでreadbackした
+- validation: `skill_dependency_map.py check` pass（skills=66, edges=1275, parallel_edges=100）、accepted source `58ee9f40` の `skill_shim_materializer.py readback --all` pass、`skill_tool_commands.py check` pass（findings=0）
 - readback: source skill、catalog、dependency map、shim、generated graph の同一 capability route を再読した
 - close: keyword-only activation や新 checker を追加せず、materializer の accepted-main drift は source follow-up defer として記録し、parent gitlink/root view を clean に閉じた
 
@@ -137,8 +137,8 @@ downstream design ../../documents/repository-audit-checklist.md parent reader ro
 
 - status: `closed`（worker boundary）
 - owner: `agent-canon-update` / `pr-processing` / parent integrator
-- evidence: branch `codex/parent-audit-projection`、parent `origin/main=ccd961b85c5abfad93f3e0bd2edd5385a456288e`、canonical parent remote、AgentCanon gitlink `681a5929b14c845c61153f2293c8d1001450500a` を readback
-- validation: source PR merge の確定 evidence `d917baa0...` を起点に、accepted runtime-log source `681a5929...` へ通常更新。parent branch は origin/main から作成。PR create/merge/close は worker の scope 外として defer receipt に分離
+- evidence: branch `codex/parent-audit-projection`、parent `origin/main=ccd961b85c5abfad93f3e0bd2edd5385a456288e`、canonical parent remote、AgentCanon gitlink `58ee9f406024adecac45688b1f3b3d813f5aeba8` を readback
+- validation: source PR #531 mergeの確定 evidence `58ee9f40...` を受け、accepted runtime-log sourceへ通常更新。parent branch は origin/main から作成。PR create/merge/close は worker の scope 外として defer receipt に分離
 - readback: `.gitmodules` URL、branch/upstream、submodule status、dirty file の owner 分類を確認した
 - close: worker の lifecycle は commit/push handoff まで、parent PR lifecycle は parent-only と明記した
 
@@ -157,8 +157,8 @@ downstream design ../../documents/repository-audit-checklist.md parent reader ro
 
 - status: `closed`
 - owner: `agent-canon-update`
-- evidence: vendored source branch `main` at `681a5929b14c845c61153f2293c8d1001450500a`、parent gitlink staged at the same SHA、`.gitmodules` canonical remote
-- validation: canonical `tools/sync_agent_canon.sh check` は `agent_canon_parent_submodule=projection_ready`、`shared surface is in sync`
+- evidence: vendored source branch `main` at `58ee9f406024adecac45688b1f3b3d813f5aeba8`、parent gitlink staged at the same SHA、`.gitmodules` canonical remote
+- validation: canonical `tools/sync_agent_canon.sh link-root` と `check` は `agent_canon_parent_submodule=projection_ready`、`shared surface is in sync`
 - readback: source-root resolver、AGENTS/root view、`agents`、`.agents`、`.codex`、submodule branch/pin を latest source で再確認した
 - close: root view に不要な差分を追加せず、pin projection と canonical sync route を必要箇所だけで閉じた
 
@@ -194,7 +194,7 @@ downstream design ../../documents/repository-audit-checklist.md parent reader ro
 
 - status: `closed`（source pin/readback scope）
 - owner: `runtime-log-repair` / AgentCanon source owner
-- evidence: latest accepted source `681a5929b14c845c61153f2293c8d1001450500a` の
+- evidence: latest accepted source `58ee9f406024adecac45688b1f3b3d813f5aeba8` の
   `documents/runtime/runtime-log-archive.md`、`tools/agent_tools/runtime_log_archive_git.py`、
   hook hot-path contract を parent submodule と root view へ投影
 - validation: `runtime_log_archive_git.py --help` pass、default `check-hook-hot-path` pass、
@@ -260,7 +260,7 @@ downstream design ../../documents/repository-audit-checklist.md parent reader ro
   signal として記録し、mirror の削除や無根拠な source contract copy は行っていない
 - readback: manifest、structure contract、responsibility scope、symlink target を照合した
 - close: rust mirror は最低限の parent responsibility coverage に統合し、current AgentCanon
-  pin `681a5929` を変更していない
+  pin `58ee9f40` を保持している
 
 ## Final Projection Readback
 
@@ -273,6 +273,7 @@ downstream design ../../documents/repository-audit-checklist.md parent reader ro
 - canonical graph: final parent-root build/status is `fresh`、uncovered=0、unresolved=0、
   `DEPENDENCY_GRAPH=pass authority=canonical-graph`。fingerprint and input fingerprint are emitted
   by the canonical graph command and are intentionally not copied into this evidence receipt.
+- generic convention checker: `--root . --format json` は `findings=[]`、`status=pass`、tool_gates=19、workflow_prompts=1。前回4 CI findingsのadapter契約をtargeted確認した
 - dependency headers: pass。Markdown formatter/checker: `DOCS_CHECK=pass`。R1 adapters: `pyright`
   errors=0/warnings=0/informations=0、shell syntax pass、help/readback pass
 - GitHub projection stale-path scan: 旧 root template path、二重 slash、旧 checklist path は対象6

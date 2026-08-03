@@ -20,11 +20,11 @@ downstream design ../../AGENTS.md parent orchestration and worker trust boundary
 ## Audited Projection Identity
 
 - audited parent base: `ccd961b85c5abfad93f3e0bd2edd5385a456288e`
-- audited AgentCanon pin: `681a5929b14c845c61153f2293c8d1001450500a`
+- audited AgentCanon pin: `58ee9f406024adecac45688b1f3b3d813f5aeba8`
 - audited responsibility path set: audit receipt/defer receipt自身を除外した14 path set。詳細と
   path-set/content-identity digestは `audit-receipts.md` と同一である
 - path-set SHA-256: `1b7373f3b0658f3f174a236eb5cf11595650360ff42ae667c42819d14efba9de`
-- content-identity SHA-256: `dd63ac3aa9e1653710bb92559744d065d10f8e217cbc8f5f972278e085c0fcc9`
+- content-identity SHA-256: `eb7c53247ede323667ae65174d64e60495283f7a1dbc5cf80f62db8a6313e704`
 - audited overlap path count: `167`。audit receiptと同じ一回の測定値だけを使用し、旧測定値は使用しない
 - final PR head binding: 最終commit OIDはreceiptへ埋め込まず、parent integratorがPR exact headの
   review/CI/readbackで上記identityとbindingする
@@ -56,7 +56,7 @@ downstream design ../../AGENTS.md parent orchestration and worker trust boundary
 - status: `deferred-until-parent-integration`
 - reason: ユーザー指定の fresh parent clone と source clone は branch/PR readback のため保持する。
   worker は他の checkout を削除せず、既存 dirty checkout にも戻らない。
-- evidence: parent branch `codex/parent-audit-projection`、AgentCanon accepted pin `681a5929`、両 clone の
+- evidence: parent branch `codex/parent-audit-projection`、AgentCanon accepted pin `58ee9f40`、両 clone の
   explicit path を確認済み
 - next action: parent integrator が PR review/merge を終えた後に canonical cleanup route を選択する。
 
@@ -65,7 +65,7 @@ downstream design ../../AGENTS.md parent orchestration and worker trust boundary
 - owner: `runtime-log-repair`
 - scope: runtime dashboard/log archive、未選択の実行 profile
 - status: `accepted-source-projected-with-owner-followup`
-- reason: accepted AgentCanon source `681a5929b14c845c61153f2293c8d1001450500a` に含まれる
+- reason: accepted AgentCanon source `58ee9f406024adecac45688b1f3b3d813f5aeba8` に含まれる
   runtime-log archive contract/tool を parent submodule pin と root-view readback とともに一度で投影した。
   archive mount/外部 log repository への publish は親 projection の必要条件ではないため実行しない。
 - evidence: `runtime_log_archive_git.py --help`、default `check-hook-hot-path` pass、source targeted
@@ -88,13 +88,24 @@ downstream design ../../AGENTS.md parent orchestration and worker trust boundary
 
 - owner: AgentCanon source `agent-canon-update` / skill materializer owner
 - scope: vendored `.agents/skills/agent-log-analysis/SKILL.md` generated shim
-- status: `deferred-source-follow-up`
-- reason: accepted source main `681a5929b14c845c61153f2293c8d1001450500a` の canonical skill と
-  committed materialization record に digest drift があり、既存 `materialize --all` が
-  `content_delta=1` を返した。second `readback --all` は pass だが、parent projection で
-  submodule 内部を新規 commit する権限・scopeはない。
-- evidence: changed path は `.agents/skills/agent-log-analysis/SKILL.md` の materialization record
-  だけ。parent gitlink は accepted SHA に固定し、source worktree を clean に readback した。
-- next action: AgentCanon source owner が materialize output を source PR として commit/pushし、
-  accepted main と generated shim の固定点を再発行する。parent pin はその accepted SHA の
-  次回 projection で更新する。
+- status: `resolved-by-accepted-source-readback`
+- reason: accepted source main `58ee9f406024adecac45688b1f3b3d813f5aeba8` の generated skill
+  materializationを `skill_shim_materializer.py readback --all` で再確認し、parent projectionで
+  submodule内部を新規commitせずに固定点を閉じた。
+- evidence: readback commandはpass、parent gitlinkはaccepted SHAに固定、source worktreeはclean。
+- next action: 次回AgentCanon pin更新時に同じreadback routeを再利用する。
+
+### accepted-source-convention-fixture-tests
+
+- owner: AgentCanon source generic convention checker owner / #531
+- scope: source `test_check_convention_compliance.py` の temporary minimal-repository fixtures
+- status: `deferred-source-owner-follow-up`
+- reason: parent rootの実運用checkerは `findings=[]`、`status=pass` で前回4 CI findingsのadapter契約を
+  解消した。一方、accepted source targeted testは `82 passed, 3 failed, 21 subtests passed` で、3件は
+  minimal fixtureが `tools/agent_tools/hook_safety.py` markerを持たないためのfixture-side failureだった。
+  parent adapterやfull source copyは変更しない。
+- evidence: `check_convention_compliance.py --root <parent> --format json` pass、source targeted pytestの
+  3 failureは `test_owner_map_entrypoint_accepts_template_agents_root_view`、
+  `test_parent_repo_can_keep_shared_docs_only_in_vendor_canon`、
+  `test_runtime_boundary_wording_is_not_a_blanket_checker_gate`。
+- next action: source generic checker ownerがfixture contractの要否を判断し、必要ならsource PRで修正する。
