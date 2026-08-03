@@ -17,6 +17,18 @@ downstream design ../../AGENTS.md parent orchestration and worker trust boundary
 - 本文書は親固有の defer evidence であり、canonical audit unit の invariant を上書きしない
 - defer は pass の代替ではなく、projection の責務外または owner が進行中であることを明示する
 
+## Audited Projection Identity
+
+- audited parent base: `ccd961b85c5abfad93f3e0bd2edd5385a456288e`
+- audited AgentCanon pin: `681a5929b14c845c61153f2293c8d1001450500a`
+- audited responsibility path set: audit receipt/defer receipt自身を除外した14 path set。詳細と
+  path-set/content-identity digestは `audit-receipts.md` と同一である
+- path-set SHA-256: `1b7373f3b0658f3f174a236eb5cf11595650360ff42ae667c42819d14efba9de`
+- content-identity SHA-256: `dd63ac3aa9e1653710bb92559744d065d10f8e217cbc8f5f972278e085c0fcc9`
+- audited overlap path count: `167`。audit receiptと同じ一回の測定値だけを使用し、旧測定値は使用しない
+- final PR head binding: 最終commit OIDはreceiptへ埋め込まず、parent integratorがPR exact headの
+  review/CI/readbackで上記identityとbindingする
+
 ## Receipts
 
 ### environment-containers

@@ -33,6 +33,40 @@ downstream design ../../documents/repository-audit-checklist.md parent reader ro
 - `dependency_graph_build=pass`
 - `dependency_graph_status=fresh`
 
+## Audited Projection Identity
+
+- audited parent base: `ccd961b85c5abfad93f3e0bd2edd5385a456288e`
+- audited AgentCanon pin: `681a5929b14c845c61153f2293c8d1001450500a`
+- audited responsibility path set: 14 paths。receipt files
+  `reports/parent-audit-projection/audit-receipts.md` と
+  `reports/parent-audit-projection/defer-receipts.md` はこの集合から除外する
+
+  ```text
+  .github/PULL_REQUEST_TEMPLATE/agent_canon.md
+  Makefile
+  QUICK_START.md
+  README.md
+  documents/README.md
+  documents/contracts/remote-execution-repo-contract.md
+  documents/contracts/server-host-contract.md
+  documents/repository-audit-checklist.md
+  responsibility-scope.toml
+  tools/agent_tools/dependency_module_change.py
+  tools/agent_tools/surface_manifest.py
+  tools/agent_tools/update_agent_canon.sh
+  tools/sync_agent_canon.sh
+  vendor/agent-canon
+  ```
+- path-set SHA-256: `1b7373f3b0658f3f174a236eb5cf11595650360ff42ae667c42819d14efba9de`
+- content-identity SHA-256: `dd63ac3aa9e1653710bb92559744d065d10f8e217cbc8f5f972278e085c0fcc9`
+  （sorted path に対する `git ls-tree` identity records の digest。receipt本文と最終commit OIDを含めない）
+- audited overlap path count: `167`。この値は audit/defer receipt 間で共有する唯一の測定値であり、
+  旧測定値は使用しない
+- validation identity: 12 unit、tracked=182、uncovered=0、readiness errors=0/warnings=0、
+  docs/header/diff-check=pass、canonical graph fresh/uncovered=0/unresolved=0
+- final PR head binding: このreceiptへ最終commit OIDを埋め込まない。parent integratorがPRの
+  exact headに対してこのidentity、対象path readback、CI結果を再照合してbindingを確定する
+
 ## Unit Receipts
 
 ### audit-evidence-closeout
@@ -57,10 +91,18 @@ downstream design ../../documents/repository-audit-checklist.md parent reader ro
 
 - status: `pass`
 - owner: `oop-type-design` / language-specific review
-- evidence: parent diff の対象範囲に `python/**`、`cpp/**`、`include/**`、`rust/**`、`tools/**`、`scripts/**`、型設定、Makefile の変更なし
-- validation: projection の変更は文書、evidence、submodule gitlink に限定され、未変更言語の runtime/static checker を追加実行しない
-- readback: `git diff --name-only origin/main -- python cpp include rust tools scripts pyproject.toml pyrightconfig.json Makefile` が空
-- close: 新しい public type、helper、literal、algorithm boundary をこの projection が導入していない
+- evidence: parent diff には R1 の4 root adapter
+  （`tools/sync_agent_canon.sh`、`tools/agent_tools/surface_manifest.py`、
+  `tools/agent_tools/update_agent_canon.sh`、`tools/agent_tools/dependency_module_change.py`）と
+  Makefileのsource-template commentがある。`python/**`、`cpp/**`、`include/**`、`rust/**`、
+  `scripts/**`、型設定のproduction変更はない
+- validation: `git diff --name-only origin/main -- tools Makefile` は上記4 adapterとMakefileを
+  readbackし、pyright/shell syntax/help routeを対象実行した。未変更言語のruntime/static checkerや
+  全suiteは追加実行しない
+- readback: adapterのsource-root resolver境界、Makefileのparent override可能なtemplate route、
+  OOP/type unitの対象pathを照合した
+- close: 新しいdomain public type、algorithm boundary、stateful OOP責務は導入せず、4 adapterは
+  canonical source implementationへのrouting責務に限定される
 
 ### dependency-integrity
 
@@ -104,10 +146,12 @@ downstream design ../../documents/repository-audit-checklist.md parent reader ro
 
 - status: `pass`
 - owner: `oop-type-design` / `oop-readability-check`
-- evidence: parent diff に class/module/type/OOP implementation の変更なし。変更は root documentation、parent evidence、submodule gitlink に限定
-- validation: OOP inventory、runtime test、無関係な全 suite は新規実装がないため実行しない
-- readback: code/type boundary unit と対象 diff path を照合した
-- close: projection が state、member、helper、wrapper、object invariant の新しい責務境界を導入していない
+- evidence: 4 root adapterはprocess routing entrypointであり、class/state/member/object invariantを
+  追加しない。Makefile変更もsource template pathの説明commentだけである
+- validation: adapter pyright、shell syntax、help/readbackを実行し、OOP inventory、runtime test、
+  無関係な全suiteは増やしていない
+- readback: code/type boundary unit、R1 path set、canonical source implementationを照合した
+- close: 4 adapterの責務をparent-root解決とcanonical source dispatchに閉じ、OOP責務を新設していない
 
 ### ownership-root-views
 
@@ -122,7 +166,8 @@ downstream design ../../documents/repository-audit-checklist.md parent reader ro
 
 - status: `closed`
 - owner: `structure-refactor`
-- evidence: resolver `list/check` は parent tracked universe を対象に `uncovered_path_count=0`、`overlap_path_count=161`。submodule 内部は gitlink として扱われた
+- evidence: resolver `list/check` は parent tracked universe を対象に `uncovered_path_count=0`、
+  `overlap_path_count=167`。submodule内部はgitlinkとして扱われた
 - validation: `repo_structure_contract.py` pass（errors=0、existing warning `rust:not-in-profile-contract`）、`responsibility_scope.py` pass（scopes=4, import_rules=0, findings=0）
 - readback: `all-tracked` pattern、parent root、reports evidence placement、source submodule boundary を再確認した
 - close: uncovered を pattern の無根拠拡張で隠さず、既存 warning は今回の projection 外の owner evidence として保持した
