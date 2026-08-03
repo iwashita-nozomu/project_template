@@ -17,7 +17,7 @@ AGENT_CANON_UPDATE := bash tools/agent-canon/update_agent_canon.sh
 
 DOCKER_DEFAULT_PACK ?= docker/packs/default.toml
 DOCKER_HOST_PACK ?= docker/packs/default-host-docker.toml
-SERVER_LAYOUT ?= templates/documents/server_runtime_layout.template.toml
+SERVER_LAYOUT ?= vendor/agent-canon/templates/documents/server_runtime_layout.template.toml
 CPP_PROFILE ?= dev
 CPP_BUILD_DIR ?= build/cpp/$(CPP_PROFILE)
 CPP_INSTALL_DIR ?= .state/cpp-install/$(CPP_PROFILE)
