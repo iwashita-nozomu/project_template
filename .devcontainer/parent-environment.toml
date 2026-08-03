@@ -1,1 +1,9 @@
+# @dependency-start
+# contract environment
+# responsibility 親環境のlegacy name manifestを空の明示契約として保持し、runtime/tool availabilityの入力にしない。
+# upstream design ../documents/design/docker-zero-build-environment.md 親cold build再構成とruntime owner分離
+# upstream design ../vendor/agent-canon/documents/design/devcontainer/parent-devcontainer-policy.md 親devcontainerのmountと環境境界
+# downstream implementation ../vendor/agent-canon/tools/ci/container_config.py 親環境surfaceの静的検証
+# @dependency-end
+
 variables = []

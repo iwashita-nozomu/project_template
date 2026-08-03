@@ -12,6 +12,8 @@ on:
     paths:
       - "docker/**"
       - "cpp/**"
+      - "vendor/agent-canon"
+      - "pyproject.toml"
       - ".dockerignore"
       - ".devcontainer/**"
       - ".github/workflows/docker-build.yml"
@@ -20,6 +22,8 @@ on:
     paths:
       - "docker/**"
       - "cpp/**"
+      - "vendor/agent-canon"
+      - "pyproject.toml"
       - ".dockerignore"
       - ".devcontainer/**"
       - ".github/workflows/docker-build.yml"
@@ -49,8 +53,8 @@ jobs:
           AGENT_CANON_REPO_SSH_KEY: ${{ secrets.AGENT_CANON_REPO_SSH_KEY }}
         run: bash .github/scripts/checkout_agent_canon_submodule.sh
 
-      - name: Run default Docker pack check
-        run: python3 tools/agent-canon/ci/run_container_pack.py --pack docker/packs/default.toml --pull --tag project-template:ci-default
+      - name: Check zero-build contract
+        run: bash docker/check_zero_build_contract.sh
 
-      - name: Run host-docker Docker pack check
-        run: python3 tools/agent-canon/ci/run_container_pack.py --pack docker/packs/default-host-docker.toml --pull --tag project-template:ci-host-docker
+      - name: Run one cold build and smoke
+        run: bash docker/cold-build-smoke.sh --pull --no-cache --tag project-template:ci-zero-build

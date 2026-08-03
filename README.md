@@ -288,21 +288,22 @@ C++ を使うときの canonical entrypoint は [cpp/CMakeLists.txt](cpp/CMakeLi
 ```bash
 docker build -t project-template -f docker/Dockerfile .
 docker run --rm -it \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  -v $(pwd):/workspace -w /workspace \
+  -v "$(pwd):/workspace" -w /workspace \
 project-template bash
 python3 --version
 cmake --version
 docker --version
 ```
 
-container 内から `docker build` / `docker run` を行う場合は、上のように host の Docker socket を渡すか、別 daemon を用意します。
+上の default runtime は workspace だけを mount し、Docker CLI の version/readback は行えますが、
+host daemon/socket は要求しません。container 内から host の Docker daemon を使う必要がある場合だけ、
+`docker/packs/default-host-docker.toml` の明示 optional profile と
+`make docker-build-check-host-docker` を選択します。
 
 build 確認だけを行う場合は次です。
 
 ```bash
 make docker-build-check
-make docker-build-check-host-docker
 make server-check
 cmake -S "$PWD/cpp" -B "$PWD/build/cpp/dev" \
   -DCMAKE_INSTALL_PREFIX="$PWD/.state/cpp-install/dev"

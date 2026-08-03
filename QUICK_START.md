@@ -146,8 +146,7 @@ AgentCanon symlink の `devcontainer.json` は managed devcontainer の agent er
 ```bash
 docker build -t project-template -f docker/Dockerfile .
 docker run --rm -it \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  -v $(pwd):/workspace -w /workspace \
+  -v "$(pwd):/workspace" -w /workspace \
 project-template bash
 python3 --version
 cmake --version
@@ -156,11 +155,14 @@ make python-env-status
 make python-env-prepare
 ```
 
+default runtime は host Docker daemon/socket に依存しません。host daemon を明示的に
+共有する必要がある場合だけ、`docker/packs/default-host-docker.toml` の optional profile と
+`make docker-build-check-host-docker` を選択します。
+
 該当 profile の build 可否だけを確認したい場合は次です。
 
 ```bash
 make docker-build-check
-make docker-build-check-host-docker
 make server-check
 make CPP_PROFILE=dev cpp-test
 make CPP_PROFILE=dev cpp-install
