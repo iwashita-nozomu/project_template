@@ -2,6 +2,7 @@
 # contract workflow
 # responsibility Defines ci YAML configuration.
 # upstream implementation ../../tools/agent-canon/ci/run_all_checks.sh repository CI entrypoint
+# upstream implementation ../../tools/agent-canon/ci/check_github_workflows.py parent project quality owner contract
 # upstream implementation ../../Makefile ci target contract
 # upstream environment ../../docker/requirements.txt generated Python dependency lock and cache key
 # upstream environment ../../docker/install_python_dependencies.sh central Python dependency installer
@@ -57,6 +58,8 @@ jobs:
         run: bash docker/install_python_dependencies.sh "$PWD"
 
       - name: Run repository CI
+        env:
+          AGENT_CANON_PR_PROJECT_QUALITY_OWNER: parent_ci
         run: make ci
 
   fresh-clone-acceptance:
