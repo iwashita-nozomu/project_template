@@ -69,6 +69,8 @@ contains docker/codex-container-profiles.toml 'mount_host_git_credentials = fals
 contains docker/codex-container-profiles.toml 'forward_ssh_auth_sock = false'
 contains docker/codex-container-profiles.toml 'forward_env = []'
 contains "$workflow" 'bash docker/cold-build-smoke.sh --pull --no-cache'
+contains "$workflow" '      - "vendor/agent-canon"'
+contains "$workflow" '      - "pyproject.toml"'
 workflow_commands="$(grep -Ev '^[[:space:]]*#' "$workflow")"
 if printf '%s\n' "$workflow_commands" | grep -Fq 'default-host-docker.toml' \
   || printf '%s\n' "$workflow_commands" | grep -Fq 'run_container_pack.py'; then
@@ -85,7 +87,19 @@ contains "$design" 'https://hub.docker.com/_/ubuntu'
 contains "$design" 'https://docs.nvidia.com/cuda/cuda-installation-guide-linux/#ubuntu'
 contains "$design" 'https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/'
 contains "$design" 'https://docs.jax.dev/en/latest/installation.html'
-contains "$design" 'audit_item_update=required'
+contains "$design" 'audit_item_update=recorded'
+contains "$design" 'audit_unit=environment-containers'
+contains "$design" 'audit_clause_refs=environment-containers.Invariant.1;environment-containers.Invariant.2;environment-containers.Invariant.3;environment-containers.Invariant.4;environment-containers.Invariant.5;environment-containers.Invariant.6;environment-containers.Invariant.7;environment-containers.Invariant.8'
+contains "$design" 'audit_readback=reports/parent-audit-projection/audit-receipts.md#environment-containers'
+contains "$design" 'audit_runtime_defer_readback=reports/parent-audit-projection/defer-receipts.md#environment-containers'
+if grep -Fq 'docker-cold-build-smoke.json' "$design"; then
+  fail 'documents/design/docker-zero-build-environment.md:named-cold-receipt-forbidden'
+fi
+if grep -Fq '/var/run/docker.sock' README.md QUICK_START.md; then
+  fail 'reader-docs:default-docker-socket-example-forbidden'
+fi
+contains README.md 'docker/packs/default-host-docker.toml'
+contains QUICK_START.md 'docker/packs/default-host-docker.toml'
 
 [ -L .devcontainer/devcontainer.json ] || fail '.devcontainer/devcontainer.json:must-remain-AgentCanon-view'
 [ -x .devcontainer/post-create-parent.sh ] || fail '.devcontainer/post-create-parent.sh:not-executable'

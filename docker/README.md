@@ -446,11 +446,9 @@ Linux / WSL2 host の前提、`/mnt/git` の扱い、workspace の置き場所�
 
 ```bash
 make docker-build-check
-make docker-build-check-host-docker
 make server-check
 make docker-shell
 make docker-codex
-make docker-codex-host-docker
 ROOT=/workspace
 cmake -S "$ROOT/cpp" -B "$ROOT/build/cpp/dev" \
   -DCMAKE_INSTALL_PREFIX="$ROOT/.state/cpp-install/dev"
@@ -460,6 +458,14 @@ cmake --install "$ROOT/build/cpp/dev"
 python3 tools/agent-canon/ci/run_container_pack.py --pack docker/packs/default.toml --print-only
 python3 tools/agent-canon/ci/run_repo_program.py --print-only python3 -- --version
 python3 tools/agent-canon/ci/run_in_repo_container.py --pack docker/packs/default.toml --shell-session --tty
+```
+
+host Docker daemon が必要な操作だけは、default runtime から分離した optional profile
+として明示的に選択します。
+
+```bash
+make docker-build-check-host-docker
+make docker-codex-host-docker
 ```
 
 ## Update Rule

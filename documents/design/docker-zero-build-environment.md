@@ -4,9 +4,12 @@ contract design
 responsibility Defines the parent Docker zero-build runtime, identity, CUDA/JAX, and audit synchronization contract.
 upstream design ../../vendor/agent-canon/CONTAINER_OPERATIONS.md AgentCanon/product image ownership boundary
 upstream design ../../vendor/agent-canon/documents/design/devcontainer/parent-devcontainer-policy.md parent devcontainer mount and lifecycle contract
-upstream implementation ../../docker/Dockerfile product image and runtime capability owner
-upstream implementation ../../docker/requirements.txt parent Python lock manifest
-upstream implementation ../../docker/install_python_dependencies.sh installs the parent Python lock
+upstream design ../../vendor/agent-canon/documents/parent-repository-audit/audit-unit/environment-containers.md merged environment-containers unit and invariant clauses
+upstream environment ../../reports/parent-audit-projection/audit-receipts.md merged environment-containers audit projection receipt
+upstream environment ../../reports/parent-audit-projection/defer-receipts.md environment-containers runtime-only defer receipt
+downstream implementation ../../docker/Dockerfile product image and runtime capability owner
+downstream implementation ../../docker/requirements.txt parent Python lock manifest
+downstream implementation ../../docker/install_python_dependencies.sh installs the parent Python lock
 downstream implementation ../../docker/cold-build-smoke.sh single cold build/smoke evidence executor
 downstream implementation ../../docker/check_zero_build_contract.sh static zero-build contract checker
 @dependency-end
@@ -113,18 +116,28 @@ design/PR body の両方へ投影する。
 - `driver-host-ownership`: NVIDIA driver/kernel module は host 責務で、image は
   toolkit/runtime と Compose の optional passthrough wiring だけを持つ。
 
-Audit PR が先に main へ統合された場合は、この PR の design/PR body が audit item
-identifier と clause/ref を取り込み、同じ cold evidence receipt を参照する。Docker PR
-が先に進む場合は、次の exact update packet を返して audit PR の後続変更へ渡す。
+AgentCanon audit canon #527 の merged report では、親の該当 unit は
+`environment-containers` として確定している。この design は placeholder packet ではなく、
+unit と実値の clause/readback を次のように記録する。
 
 ```text
-audit_item_update=required
-audit_item_ids=ubuntu22.04-direct-base,cold-build-reproducibility,non-root-default,sudo-nopasswd,dependency-owner-split,driver-host-ownership
-source_design=documents/design/docker-zero-build-environment.md#Runtime-order-and-owners
-runtime_evidence=docker/cold-build-smoke.sh:one-cold-build-one-smoke
-required_clause_refs=FROM-platform-digest;CUDA-keyring-toolkit;USER-nonzero;sudoers-0440-NOPASSWD-visudo;owner-order-no-duplicate;driver-host-passthrough
-audit_followup=apply-the-six-invariants-and-reuse-the-cold-runtime-receipt
+audit_item_update=recorded
+audit_unit=environment-containers
+audit_unit_source=vendor/agent-canon/documents/parent-repository-audit/audit-unit/environment-containers.md
+audit_clause_refs=environment-containers.Invariant.1;environment-containers.Invariant.2;environment-containers.Invariant.3;environment-containers.Invariant.4;environment-containers.Invariant.5;environment-containers.Invariant.6;environment-containers.Invariant.7;environment-containers.Invariant.8
+audit_legacy_ids=PRA-C056;PRA-C057;PRA-C058;PRA-C059;PRA-C060;PRA-C061;PRA-C062;PRA-C063;PRA-C064;PRA-C065;PRA-C066;PRA-C067;PRA-C068;PRA-C069;PRA-C070;PRA-X036;PRA-X037;PRA-X038;PRA-X039
+audit_readback=reports/parent-audit-projection/audit-receipts.md#environment-containers
+audit_runtime_defer_readback=reports/parent-audit-projection/defer-receipts.md#environment-containers
+audit_projection_status=closed-projection-scope
+audit_runtime_status=deferred-owner-in-progress
 ```
+
+The six Docker-specific invariant IDs are mapped to the audit unit's invariant
+clauses above: `ubuntu22.04-direct-base` (Invariant.1),
+`cold-build-reproducibility` (Invariant.1), `non-root-default` (Invariant.2),
+`sudo-nopasswd` (Invariant.2), `dependency-owner-split` (Invariant.3), and
+`driver-host-ownership` (Invariant.4). The cold runtime witness is the existing
+stdout JSON receipt retained in the CI log; no named artifact file is required.
 
 親 `.devcontainer/devcontainer.json` は AgentCanon file への symlink、host zshrc は
 read-only optional mount とする。host `~/.zshrc` が無い fresh CI では mount を省略し、
@@ -225,7 +238,9 @@ identity に一度だけ materialize し、`docker build --platform linux/amd64 
 --no-cache` を一度、同じ image の non-root smoke を一度実行する。smoke は
 `id -u`、`sudo -n true`、home/workspace ownership、zsh、Python 3.11、JAX import、
 `nvcc`、CUDA library versions、Node/npm、Ninja、tree、required AgentCanon tools を
-確認し、`docker-cold-build-smoke.json` を stdout と CI artifact に一度だけ出力する。
+確認し、最後に status、uid、gid、home、workspace を含む JSON pass receipt を stdout へ
+一度だけ出力する。CI log がこの stdout receipt を保持し、named file や artifact upload は
+要求しない。
 host-docker pack はこの acceptance path から外し、local Make target は通常 cache を
 許可する。`docker/check_zero_build_contract.sh` は script/workflow/pack/source evidence
 の static owner であり、cold image の差分 build は行わない。
@@ -233,4 +248,4 @@ host-docker pack はこの acceptance path から外し、local Make target は�
 design packet には dependency header、current source path、owner、implementation
 mechanism、validation witness、rollback route を持つ evidence ledger を追加し、
 `check_design_doc_claims.py` が graph snapshot 不在のために成功を偽装しないよう、
-artifact/readback route を implementation packet に記録する。
+stdout/readback route を implementation packet に記録する。

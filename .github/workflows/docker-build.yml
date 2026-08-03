@@ -12,6 +12,8 @@ on:
     paths:
       - "docker/**"
       - "cpp/**"
+      - "vendor/agent-canon"
+      - "pyproject.toml"
       - ".dockerignore"
       - ".devcontainer/**"
       - ".github/workflows/docker-build.yml"
@@ -20,6 +22,8 @@ on:
     paths:
       - "docker/**"
       - "cpp/**"
+      - "vendor/agent-canon"
+      - "pyproject.toml"
       - ".dockerignore"
       - ".devcontainer/**"
       - ".github/workflows/docker-build.yml"
