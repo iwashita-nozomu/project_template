@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 # @dependency-start
 # contract environment
-# responsibility Owns the Template explicit GPU-admission lifecycle while
-# delegating bootstrap, generation, and finalize to AgentCanon sources.
+# responsibility Owns the Template explicit GPU-admission lifecycle while delegating bootstrap, generation, and finalize to AgentCanon sources.
 # upstream design ../vendor/agent-canon/documents/design/devcontainer/parent-devcontainer-policy.md GPU profile boundary
 # upstream implementation ../vendor/agent-canon/.devcontainer/gpu-admission.sh accepted host/bootstrap/up/finalize lifecycle
 # downstream environment ../docker/packs/gpu-admission.toml explicit GPU image target

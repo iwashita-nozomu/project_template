@@ -1,8 +1,7 @@
 # @dependency-start
 # contract configuration
 # responsibility Defines template make targets for validation, setup, and agent workflow automation.
-# upstream implementation tools/agent-canon/tools/ci/run_container_pack.py runs Docker runtime packs
-# downstream implementation tools/agent-canon/ci/run_container_pack.py runs Docker runtime packs
+# upstream implementation tools/agent-canon/ci/run_container_pack.py runs Docker runtime packs
 # @dependency-end
 
 PYTHON ?= python3

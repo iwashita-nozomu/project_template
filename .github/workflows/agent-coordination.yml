@@ -1,7 +1,7 @@
 # @dependency-start
 # contract configuration
 # responsibility Defines the standalone AgentCanon coordination YAML configuration.
-# upstream design ../../agents/workflows/agent-canon-pr-workflow.md agent-canon PR workflow
+# upstream design ../../vendor/agent-canon/agents/workflows/agent-canon-pr-workflow.md agent-canon PR workflow
 # @dependency-end
 
 # Standalone AgentCanon coordination workflow with selected roles. Derived
