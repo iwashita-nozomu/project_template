@@ -138,7 +138,7 @@ profile と validation の正本は
 - 既定の統合先は `main` です。恒常的な複数 branch 運用はしません。
 - 短期 branch は必要なときだけ切り、整理が済んだら `main` に戻します。
 - branch 側で file 構成を変えた場合は、`vendor/agent-canon/agents/workflows/main-integration-workflow.md` の integration worktree 手順で `main` へ戻します。
-- tracked tree に残す durable state は current tree head の canonical path だけです。旧実装、移行用の別経路、`*_old`、`*_copy`、dated snapshot、backup file、古い説明を残した文書を tracked tree に置きません。
+- tracked tree に残す durable state は current tree head の canonical path だけです。旧実装、移行用の別経路、`*_old`、`*_copy`、dated snapshot、backup file、古い説明を残した文書を tracked tree に置きません。ただし `reports/` の run/date/base/pin identity と「current を保証しない」警告を持つ immutable historical evidence（#150 の historical report など）は、旧説明や backup ではなく履歴 evidence として明示的な例外です。
 - 実装を変えたら、その実装を説明する README、guide、workflow、規約文書も同じ変更で最新実装に合わせます。古い挙動の説明を追記で温存せず、不要になった記述は削除または正本へ置換します。
 - 大規模改修、rename、構成変更のあとには、旧実装 path、旧 helper 名、旧文書 path への参照を README、guide、workflow、規約文書、script help から除去し、reader が最新 surface 以外に誘導されない状態までそろえます。
 - `documents/` には正本だけを置きます。履歴説明や日付付きの途中報告は置きません。
