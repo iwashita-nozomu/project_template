@@ -12,8 +12,7 @@ PYTHON ?= python3
 
 AGENT_TOOLS := tools/agent-canon/agent_tools
 CI_TOOLS := tools/agent-canon/ci
-AGENT_CANON_SYNC := bash tools/agent-canon/sync_agent_canon.sh
-AGENT_CANON_UPDATE := bash tools/agent-canon/update_agent_canon.sh
+AGENT_CANON_DISPATCH := env PYTHONPATH="vendor/agent-canon/tools:tools$${PYTHONPATH:+:$${PYTHONPATH}}" $(PYTHON) -m agent_tools.agent_canon_source_root exec
 
 DOCKER_DEFAULT_PACK ?= docker/packs/default.toml
 DOCKER_HOST_PACK ?= docker/packs/default-host-docker.toml
@@ -28,13 +27,9 @@ REPO_WIDE_REVIEW_QUERY ?= repo-wide review runtime surface stale path check
 .PHONY: ci ci-quick check-matrix docs-check clean-generated github-workflow-check
 .PHONY: fresh-clone-check dev-setup tools-help
 .PHONY: start-repository task-start doc-start task-close agent-evaluate
-.PHONY: dependency-review dependency-review-surfaces review-backlog-scan waterfall-gate-check
-.PHONY: user-preference-log
-.PHONY: agent-checks agent-surface-checks
-.PHONY: repo-wide-review-check semantic-index-stale-check
-.PHONY: agent-canon-check agent-canon-latest-check agent-canon-links agent-canon-status
-.PHONY: agent-canon-ensure-latest agent-canon-rebuild-tools agent-canon-update-plan
-.PHONY: agent-canon-latest agent-canon-update agent-canon-merge-main agent-canon-pr-check
+.PHONY: dependency-review
+.PHONY: agent-canon agent-canon-check agent-canon-latest-check agent-canon-update
+.PHONY: agent-canon-pr-check
 .PHONY: docker-check python-env-status python-env-prepare
 .PHONY: docker-build-check docker-build-check-host-docker docker-run devcontainer-render
 .PHONY: server-check experiment-check docker-shell docker-jupyter docker-codex docker-codex-host-docker
@@ -57,7 +52,7 @@ check-matrix:
 	@echo "  Python changes:   targeted pytest + python3 -m pyright + python3 -m ruff check python tests --select D,E,F,I,UP"
 	@echo "  AgentCanon source:   make agent-canon-pr-check (includes broad quick CI with duplicate docs/workflow gates skipped)"
 	@echo "  AgentCanon shared views: make agent-canon-check"
-	@echo "  submodule pin:    make agent-canon-status"
+	@echo "  AgentCanon update: make agent-canon-update"
 	@echo "  Docker/runtime:   make docker-check [and make docker-build-check if build behavior changed]"
 	@echo "  GitHub automation: make github-workflow-check"
 	@echo "  Experiment:       make experiment-check"
@@ -92,50 +87,6 @@ agent-evaluate:
 dependency-review:
 	bash $(AGENT_TOOLS)/run_repo_dependency_review.sh $(ARGS)
 
-# strict dependency review for both template root views and AgentCanon source
-dependency-review-surfaces:
-	bash $(AGENT_TOOLS)/run_repo_dependency_review.sh --fail-missing $(ARGS)
-	bash $(AGENT_TOOLS)/run_repo_dependency_review.sh --root vendor/agent-canon --fail-missing $(ARGS)
-
-# integrated file-by-file review backlog scan
-review-backlog-scan:
-	bash $(AGENT_TOOLS)/review_backlog_scan.sh $(ARGS)
-
-# machine-driven repo-wide review closeout gate
-repo-wide-review-check:
-	@mkdir -p "$(REPO_WIDE_REVIEW_REPORT_DIR)"
-	@test -f reports/agents/.active_run
-	@printf 'REPO_WIDE_REVIEW_CHECK_REPORT_DIR=%s\n' "$(REPO_WIDE_REVIEW_REPORT_DIR)" | tee "$(REPO_WIDE_REVIEW_REPORT_DIR)/report_contract.txt"
-	@printf 'ACTIVE_RUN=%s\n' "$$(cat reports/agents/.active_run)" | tee -a "$(REPO_WIDE_REVIEW_REPORT_DIR)/report_contract.txt"
-	bash -o pipefail -c '$(MAKE) agent-canon-ensure-latest 2>&1 | tee "$(REPO_WIDE_REVIEW_REPORT_DIR)/agent-canon-ensure-latest.txt"'
-	bash -o pipefail -c '$(AGENT_CANON_SYNC) check 2>&1 | tee "$(REPO_WIDE_REVIEW_REPORT_DIR)/agent-canon-sync-check.txt"'
-	bash -o pipefail -c '$(PYTHON) $(AGENT_TOOLS)/check_agent_runtime_alignment.py 2>&1 | tee "$(REPO_WIDE_REVIEW_REPORT_DIR)/agent-runtime-alignment.txt"'
-	bash $(AGENT_TOOLS)/review_backlog_scan.sh --report-dir "$(REPO_WIDE_REVIEW_REPORT_DIR)/review-backlog" --check inventory --check stale --check dependency-review --check semantic-index
-	$(MAKE) semantic-index-stale-check REPO_WIDE_REVIEW_REPORT_DIR="$(REPO_WIDE_REVIEW_REPORT_DIR)"
-	$(MAKE) docker-check
-	$(MAKE) github-workflow-check
-	bash -o pipefail -c '$(PYTHON) $(AGENT_TOOLS)/check_convention_compliance.py 2>&1 | tee "$(REPO_WIDE_REVIEW_REPORT_DIR)/convention-compliance.txt"'
-
-semantic-index-stale-check:
-	@mkdir -p "$(REPO_WIDE_REVIEW_REPORT_DIR)"
-	@printf '%s\n' "$(REPO_WIDE_REVIEW_QUERY)" > "$(REPO_WIDE_REVIEW_REPORT_DIR)/semantic-index-query.txt"
-	bash -o pipefail -c '\
-		if [ -f vendor/agent-canon/rust/agent-canon/Cargo.toml ]; then \
-			agent_canon_cmd="cargo run --quiet --manifest-path vendor/agent-canon/rust/agent-canon/Cargo.toml --"; \
-		else \
-			agent_canon_cmd="agent-canon"; \
-		fi; \
-		$$agent_canon_cmd semantic-index build --root . 2>&1 | tee "$(REPO_WIDE_REVIEW_REPORT_DIR)/semantic-index-build.txt"; \
-		$$agent_canon_cmd semantic-index search --root . --query-file "$(REPO_WIDE_REVIEW_REPORT_DIR)/semantic-index-query.txt" --top-k 5 --format jsonl 2>&1 | tee "$(REPO_WIDE_REVIEW_REPORT_DIR)/semantic-index-stale-check.jsonl"'
-
-# machine-driven intermediate waterfall gate check
-waterfall-gate-check:
-	$(PYTHON) $(AGENT_TOOLS)/waterfall_gate_check.py $(ARGS)
-
-# machine-driven user preference note append
-user-preference-log:
-	$(PYTHON) $(AGENT_TOOLS)/log_user_preference.py $(ARGS)
-
 # Documentation and generated artifacts
 # repo-wide Markdown lint / link checks
 docs-check:
@@ -157,45 +108,21 @@ clean-generated:
 github-workflow-check:
 	$(PYTHON) $(CI_TOOLS)/check_github_workflows.py
 
-# agent runtime / skill drift checks
-agent-checks:
-	$(MAKE) agent-surface-checks
-
-agent-surface-checks:
-	bash tools/agent-canon/ci/check_agent_canon_latest.sh
-	$(AGENT_CANON_SYNC) check
-	$(PYTHON) $(AGENT_TOOLS)/check_agent_runtime_alignment.py
-	$(PYTHON) $(AGENT_TOOLS)/smoke_test_research_perspective_pack.py
-
 # AgentCanon sync/update targets
 # read-only gate for upstream agent-canon freshness
 agent-canon-latest-check:
-	bash tools/agent-canon/ci/check_agent_canon_latest.sh
+	$(AGENT_CANON_DISPATCH) tools/agent-canon/ci/check_agent_canon_latest.sh
 
 # shared surface drift only
 agent-canon-check:
-	$(AGENT_CANON_SYNC) check
-
-# root shared surface を vendor 正本へ再リンク
-agent-canon-links:
-	$(AGENT_CANON_SYNC) link-root
-
-# submodule pin / legacy tree 設定を確認
-agent-canon-status:
-	$(AGENT_CANON_SYNC) status
+	$(AGENT_CANON_DISPATCH) tools/sync_agent_canon.sh check
 
 # upstream agent-canon を task 開始時に取り込む
-agent-canon-ensure-latest agent-canon-latest agent-canon-update:
-	$(AGENT_CANON_UPDATE) latest $(ARGS)
+agent-canon-update:
+	$(AGENT_CANON_DISPATCH) tools/update_agent_canon.sh latest $(ARGS)
 
-agent-canon-rebuild-tools:
-	$(AGENT_CANON_UPDATE) rebuild-tools
-
-agent-canon-update-plan:
-	$(AGENT_CANON_UPDATE) plan $(ARGS)
-
-agent-canon-merge-main:
-	$(AGENT_CANON_UPDATE) merge-main-into-current-preserve-dirty $(ARGS)
+agent-canon:
+	$(AGENT_CANON_DISPATCH) $(ARGS)
 
 # shared canon 専用の PR gate
 agent-canon-pr-check:
@@ -282,7 +209,7 @@ tools-help:
 	@echo "  make check-matrix        Show validation routing"
 	@echo "  make ci-quick            Run quick local validation"
 	@echo "  make docs-check          Run Markdown/document checks"
-	@echo "  make agent-checks        Check shared agent surfaces"
+	@echo "  make agent-canon         Dispatch a canonical agent-canon source command"
 	@echo "  make docker-check        Check Docker dependency boundaries"
 	@echo "  make cpp-build           Configure and build the C++ profile"
 	@echo "  make cpp-test            Configure/build, then run CTest"

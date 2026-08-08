@@ -105,7 +105,7 @@ profile と validation の正本は
 - `scripts/`
   - repo-local bootstrap の入口です。
   - template 固有の slug 置換、display name 置換、bare remote 初期化だけをここに置きます。
-  - `$start-repository` skill は `scripts/start_repository.sh` を呼び、その wrapper が clean clone では init 前の `make agent-canon-ensure-latest`、`scripts/init_from_template.sh`、必要な post-commit validation をまとめます。`--force` を init に渡すと wrapper preflight は block 扱いで skip し、dirty override を邪魔しません。
+  - `$start-repository` skill は `scripts/start_repository.sh` を呼び、その wrapper が clean clone では init 前の `make agent-canon-update`、`scripts/init_from_template.sh`、必要な post-commit validation をまとめます。`--force` を init に渡すと wrapper preflight は block 扱いで skip し、dirty override を邪魔しません。
 - `docker/`
   - Docker runtime profile、runtime pack、notebook profile の定義です。
   - Dockerfile、requirements、pack toml はここに集めます。Codex / GitHub CLI / auth / mount ergonomics は Dockerfile ではなく managed devcontainer に置き、親の regular overlay と AgentCanon の linked config を分担させます。
@@ -125,16 +125,16 @@ profile と validation の正本は
   - clone 直後の推奨入口です。内部で `scripts/start_repository.sh` を呼びます。
 - `bash scripts/start_repository.sh --validate-only`
   - init 変更を commit したあと、`agent-canon` submodule pin、fresh clone、quick CI をまとめて確認します。
-- `make agent-canon-ensure-latest`
-  - AgentCanon update surface が clean で、shared canon / pin 更新が task scope に入る時に `vendor/agent-canon/` submodule pin を configured `agent-canon` remote の `main` と揃えます。
-- `make agent-canon-update-plan`
-  - 派生 repo から `agent-canon` だけ更新するときの route を read-only で確認します。
 - `make agent-canon-update`
-  - 派生 repo から `agent-canon` だけ更新します。内部では `update_agent_canon.sh latest` を使う `make agent-canon-latest` と同じ high-level route です。
-- `make agent-canon-merge-main`
-  - `vendor/agent-canon/` の current branch に GitHub `main` を merge します。派生 repo 側で shared canon を直した branch は、このあと GitHub に push して AgentCanon PR を開きます。
-- `make agent-checks`
-  - shared surface、skill mirror、agent runtime alignment、research perspective smoke を確認します。
+  - 派生 repo から `agent-canon` だけ更新します。内部では `make agent-canon` の `ARGS='tools/update_agent_canon.sh latest'` を呼ぶ route です。
+- `make agent-canon ARGS='tools/sync_agent_canon.sh link-root'`
+  - 親 root shared surface を再リンクします。
+- `make agent-canon ARGS='tools/sync_agent_canon.sh check'`
+  - 共有 surface drift の read-only チェックをします。
+- `make agent-canon ARGS='tools/agent_tools/surface_manifest.py ...'`
+  - `surface_manifest` を canonical route 経由で実行します。
+- `make agent-canon ARGS='tools/agent_tools/dependency_module_change.py ...'`
+  - `dependency_module_change` を canonical route 絶対参照を経由で実行します。
 - `make ci-quick`
   - docs、experiment registry、pytest、pyright、pydocstyle を流します。通常の smoke 入口ですが、変更種別に応じた最小 check matrix を優先して構いません。
 - C++ の日常入口は `make CPP_PROFILE=dev cpp-test`（configure/build 後に CTest）と `make CPP_PROFILE=dev cpp-install`（configure/build 後に install）です。CMake graph の詳細は `cpp/README.md` を参照します。
@@ -247,7 +247,7 @@ make docs-check
 python3 -m pytest tests/ -q --tb=short
 python3 -m pyright
 python3 -m ruff check python tests --select D,E,F,I,UP
-make agent-canon-update-plan
+make agent-canon-update
 make agent-canon-pr-check
 make docker-check
 make docker-build-check

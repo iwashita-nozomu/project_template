@@ -69,7 +69,7 @@ make check-matrix
 Python code を触る場合は targeted pytest / pyright / ruff を足します。
 shared canon を触る場合は `make agent-canon-pr-check`、Docker を触る場合は
 `make docker-check` と必要なら `make docker-build-check` を使います。
-AgentCanon が submodule の repo では、親 repo に無関係な dirty path があっても AgentCanon update surface が clean なら `make agent-canon-ensure-latest` を先に実行できます。
+AgentCanon が submodule の repo では、親 repo に無関係な dirty path があっても AgentCanon update surface が clean なら `make agent-canon-update` を先に実行できます。
 
 ## 3. 実装前の確認
 

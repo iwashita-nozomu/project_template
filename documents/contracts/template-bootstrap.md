@@ -55,8 +55,9 @@ AgentCanon は GitHub submodule を正本とし、初期化時に project-local 
 派生 repo から `agent-canon` だけ更新したいときは次を使います。
 
 ```bash
-bash tools/update_agent_canon.sh plan
-make agent-canon-ensure-latest
+PYTHONPATH=vendor/agent-canon/tools:tools python3 -m agent_tools.agent_canon_source_root exec \
+  tools/update_agent_canon.sh latest
+make agent-canon-update
 ```
 
 派生 repo 側で shared canon を直した場合は、`vendor/agent-canon/` 内で通常の GitHub branch を作って commit し、main を取り込んでから PR を出します。
@@ -65,11 +66,19 @@ make agent-canon-ensure-latest
 git -C vendor/agent-canon switch -c canon-pr/<short-topic>
 git -C vendor/agent-canon add -A
 git -C vendor/agent-canon commit -m "<message>"
-bash tools/update_agent_canon.sh merge-main-into-current
+PYTHONPATH=vendor/agent-canon/tools:tools python3 -m agent_tools.agent_canon_source_root exec \
+  tools/update_agent_canon.sh merge-main-into-current-preserve-dirty
 git -C vendor/agent-canon push origin HEAD
 ```
 
-AgentCanon PR merge 後に派生 repo 側へ戻り、`make agent-canon-ensure-latest` で pin、root view、compiled tool rebuild、親 repo update TODO routing をまとめて更新します。
+AgentCanon PR merge 後に派生 repo 側へ戻り、`make agent-canon-update` で pin、root view、compiled tool rebuild、親 repo update TODO routing をまとめて更新します。
+
+`surface_manifest` と `dependency_module_change` は必要時に wrapper で保持し、次のように `agent-canon` ディスパッチャへ中継します。
+
+```bash
+make agent-canon ARGS='tools/agent_tools/surface_manifest.py --help'
+make agent-canon ARGS='tools/agent_tools/dependency_module_change.py --help'
+```
 
 GitHub 管理では template の canonical remote を
 `https://github.com/iwashita-nozomu/project_template.git` にします。`.gitmodules` の AgentCanon URL は

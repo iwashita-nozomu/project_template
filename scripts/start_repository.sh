@@ -19,17 +19,16 @@ Init options are passed through to scripts/init_from_template.sh.
 Wrapper options:
   --dry-run                  Run init_from_template.sh --dry-run and exit.
   --skip-preflight-dry-run   Skip the default dry-run before real init.
-  --skip-agent-canon-check   Skip make agent-canon-ensure-latest.
-  --validate-only            Run post-commit validation only.
+  --skip-agent-canon-check   Skip read-only AgentCanon freshness check in validate mode.
+  --validate-only            Run post-commit read-only validation only.
   --skip-fresh-clone-check   In --validate-only mode, skip make fresh-clone-check.
-  --skip-ci-quick            In --validate-only mode, skip make ci-quick.
   -h, --help                 Show this help.
 
 Default init flow:
   1. scripts/init_from_template.sh --dry-run ...
-  2. make agent-canon-ensure-latest
+  2. make agent-canon-update
   3. scripts/init_from_template.sh ...
-  4. make agent-canon-ensure-latest
+  4. make agent-canon-update
 
 Post-commit validation:
   bash scripts/start_repository.sh --validate-only
@@ -44,9 +43,13 @@ PREFLIGHT_DRY_RUN=1
 RUN_AGENT_CANON_CHECK=1
 VALIDATE_ONLY=0
 RUN_FRESH_CLONE_CHECK=1
-RUN_CI_QUICK=1
 INIT_ARGS=()
 PRE_INIT_AGENT_CANON_RAN=0
+FULL_STATUS_CMD=(git status --short --untracked-files=all)
+
+worktree_status_short() {
+  "${FULL_STATUS_CMD[@]}"
+}
 
 run_step() {
   echo "==> $*"
@@ -66,15 +69,15 @@ init_args_include_force() {
 run_agent_canon_preflight() {
   if init_args_include_force; then
     echo "agent_canon_preflight=blocked_init_force"
-    echo "agent_canon_preflight_reason=wrapper_skips_make_agent-canon-ensure-latest_when_init_force_is_requested"
+    echo "agent_canon_preflight_reason=wrapper_skips_make_agent-canon-update_when_init_force_is_requested"
     return 0
   fi
-  if [[ -n "$(git status --short)" ]]; then
+  if [[ -n "$(worktree_status_short)" ]]; then
     echo "agent_canon_preflight=blocked_dirty_worktree"
-    echo "agent_canon_preflight_reason=commit_or_stash_then_run_make_agent-canon-ensure-latest"
+    echo "agent_canon_preflight_reason=commit_or_stash_then_run_make_agent-canon-update"
     return 0
   fi
-  run_step make agent-canon-ensure-latest
+  run_step make agent-canon-update
   PRE_INIT_AGENT_CANON_RAN=1
 }
 
@@ -101,10 +104,6 @@ while [[ $# -gt 0 ]]; do
       RUN_FRESH_CLONE_CHECK=0
       shift
       ;;
-    --skip-ci-quick)
-      RUN_CI_QUICK=0
-      shift
-      ;;
     -h|--help)
       usage
       exit 0
@@ -123,19 +122,25 @@ if [[ "${VALIDATE_ONLY}" == "1" ]]; then
     echo "--validate-only does not accept init_from_template.sh options" >&2
     exit 2
   fi
-  if [[ -n "$(git status --short)" ]]; then
+  initial_status="$(worktree_status_short)"
+  if [[ -n "${initial_status}" ]]; then
+    echo "$initial_status"
     echo "--validate-only requires a clean worktree so fresh clone checks read the committed state" >&2
     exit 1
   fi
   if [[ "${RUN_AGENT_CANON_CHECK}" == "1" ]]; then
-    run_step make agent-canon-ensure-latest
+    run_step make agent-canon-latest-check
   fi
   if [[ "${RUN_FRESH_CLONE_CHECK}" == "1" ]]; then
     run_step make fresh-clone-check
   fi
-  if [[ "${RUN_CI_QUICK}" == "1" ]]; then
-    run_step make ci-quick
+  final_status="$(worktree_status_short)"
+  echo "$final_status"
+  if [[ -n "${final_status}" ]]; then
+    echo "--validate-only detected worktree drift after validation; refuse to report pass" >&2
+    exit 1
   fi
+  echo "start_repository_mode=validate_only_readonly"
   echo "start_repository_validation=pass"
   exit 0
 fi
@@ -157,7 +162,7 @@ fi
 run_step bash "${INIT_SCRIPT}" "${INIT_ARGS[@]}"
 
 if [[ "${RUN_AGENT_CANON_CHECK}" == "1" && "${PRE_INIT_AGENT_CANON_RAN}" == "1" ]]; then
-  run_step make agent-canon-ensure-latest
+  run_step make agent-canon-update
 fi
 
 echo "start_repository_init=pass"

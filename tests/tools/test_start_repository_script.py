@@ -85,7 +85,82 @@ def test_start_repository_wrapper_keeps_agent_canon_github_submodule(tmp_path: P
     assert "agent_canon_preflight=blocked_init_force" in result.stdout
     assert (
         "agent_canon_preflight_reason="
-        "wrapper_skips_make_agent-canon-ensure-latest_when_init_force_is_requested" in result.stdout
+        "wrapper_skips_make_agent-canon-update_when_init_force_is_requested" in result.stdout
     )
     assert "start_repository_init=pass" in result.stdout
     assert not (git_root / "seeded-project-agent-canon.git").exists()
+
+
+def test_init_from_template_unknown_python_package_option(tmp_path: Path) -> None:
+    """Unknown options now stay unknown in template init."""
+    clone_dir = tmp_path / "clone"
+    git_root = tmp_path / "git"
+    missing_git_exec = tmp_path / "missing-git-exec"
+    run(["git", "clone", "--no-local", str(REPO_ROOT), str(clone_dir)], cwd=tmp_path)
+    run(
+        ["rsync", "-a", "--delete", "--exclude", ".git", f"{REPO_ROOT}/", str(clone_dir)],
+        cwd=tmp_path,
+    )
+
+    env = os.environ.copy()
+    env["TEMPLATE_BARE_GIT_ROOT"] = str(git_root)
+    env["GIT_EXEC_PATH"] = str(missing_git_exec)
+    result = subprocess.run(
+        [
+            "bash",
+            "scripts/init_from_template.sh",
+            "--project-slug",
+            "seeded-project",
+            "--python-package",
+            "seeded_package",
+        ],
+        cwd=clone_dir,
+        env=env,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 2
+    assert "Unknown option: --python-package" in result.stderr
+
+
+def test_start_repository_validate_only_is_read_only(tmp_path: Path) -> None:
+    """validate-only must be read-only and only run freshness checks."""
+    clone_dir = tmp_path / "clone"
+    run(["git", "clone", "--no-local", str(REPO_ROOT), str(clone_dir)], cwd=tmp_path)
+    run(["rsync", "-a", "--delete", "--exclude", ".git", f"{REPO_ROOT}/", str(clone_dir)], cwd=tmp_path)
+    run(["git", "-C", str(clone_dir), "config", "user.email", "ci@localhost"], cwd=clone_dir)
+    run(["git", "-C", str(clone_dir), "config", "user.name", "CI"], cwd=clone_dir)
+    run(["git", "-C", str(clone_dir), "add", "--all"], cwd=clone_dir)
+    status = run(["git", "-C", str(clone_dir), "status", "--short"], cwd=clone_dir)
+    if status.stdout.strip():
+        run(
+            ["git", "-C", str(clone_dir), "commit", "--allow-empty", "-m", "sync working copy"],
+            cwd=clone_dir,
+        )
+
+    make = tmp_path / "make"
+    make.write_text(
+        "#!/usr/bin/env bash\n"
+        "echo \"make:$@\"\n"
+        "if [[ \"$1\" == \"agent-canon-latest-check\" || \"$1\" == \"fresh-clone-check\" ]]; then\n"
+        "  exit 0\n"
+        "fi\n"
+        "echo \"unexpected make command\" >&2\n"
+        "exit 2\n",
+        encoding="utf-8",
+    )
+    make.chmod(0o755)
+
+    env = os.environ.copy()
+    env["PATH"] = f"{tmp_path}:{env['PATH']}"
+    result = run(
+        ["bash", "scripts/start_repository.sh", "--validate-only"],
+        cwd=clone_dir,
+        env=env,
+    )
+
+    assert "make:agent-canon-latest-check" in result.stdout
+    assert "make:fresh-clone-check" in result.stdout
+    assert "start_repository_mode=validate_only_readonly" in result.stdout
+    assert "start_repository_validation=pass" in result.stdout
