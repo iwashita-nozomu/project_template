@@ -1,60 +1,53 @@
-# @dependency-start
-# contract reference
-# responsibility Upstream sync note:.
-# upstream design ../../agents/workflows/agent-canon-pr-workflow.md agent-canon PR workflow
-# upstream design ../../vendor/agent-canon/issues/README.md durable operational issue storage
-# upstream implementation ../../tools/agent-canon/ci/check_github_workflows.py validates PR checklist and workflow conventions
-# downstream implementation ../../tools/agent-canon/agent_tools/issue_sync.py validates local/GitHub issue sync state
-# upstream design ../../vendor/agent-canon/templates/documents/README.md canonical template owner and projection boundary
-# upstream design ../../vendor/agent-canon/documents/operations/issue-label-taxonomy.md issue/eval routing taxonomy
-# upstream design ../AGENTS.md GitHub subtree instructions
-# dependency-end
+<!--
+@dependency-start
+contract reference
+responsibility Owns the concise AgentCanon PR evidence fields for template and derived repositories.
+upstream design ../../../../agents/workflows/agent-canon-pr-workflow.md AgentCanon PR identity and publication route
+upstream design ../../../../.github/AGENTS.md GitHub subtree boundary
+upstream design ../../README.md canonical template owner and checked-in target boundary
+downstream implementation ../../../../tools/ci/check_github_workflows.py validates the evidence fields and workflow conventions
+@dependency-end
+-->
+
+<!-- canonical source と checked-in standalone target はこの source と
+     .github/PULL_REQUEST_TEMPLATE/agent_canon.md です。両方を同じ変更で更新します。 -->
 
 ## PR Essence
 
 - Problem / user request:
-- Design intent:
-- Canonical owner:
-- Replaceable responsibility unit:
+- Canonical owner / responsibility unit:
 - Behavior or contract delta:
+- Evidence route:
+- Explicit non-goals:
 
-## Scope and Identity
+## Change Route
 
-- Changed surface: `.github/...` only
-- Canonical route: `workflow=<family>`, `skills=$agent-orchestration`, `review=<value>`
-- Mutation authority: `PARENT_DIRECT_WRITE_EXCEPTION` (if any) / delegated handoff route
-- Identity: `local_head=<SHA>` `target_head=<SHA>`
+- canonical route (choose one): standalone AgentCanon source or template/derived parent pin/root-view:
+- changed surfaces:
+- source_commit:
+- template_pin:
+- pr_head:
+- identity relation (source_commit -> template_pin -> pr_head):
 
-## Changed-Surface Validation
+## Validation
 
-- [ ] `git diff --name-only` shows only `.github` paths (excluding README or generated artifacts)
-- [ ] `python3 tools/agent-canon/ci/check_github_workflows.py` passed
-- [ ] `python3 tools/agent-canon/ci/check.py --schema` for each touched workflow
-- [ ] Manual YAML parse for each changed `.yml`:
-  - `ci.yml`
-  - `docker-build.yml`
-  - `agent-coordination.yml`
-  - `agent-improvement-guide.yml`
-- [ ] `git diff --check` clean (no whitespace errors)
-- [ ] Any workflow surface evidence in changed files is consistent with runtime owner comments
+- changed-surface validation:
+- validation result and evidence:
+- validation gap or not_applicable reason:
 
-## Alternatives / Independent Review
+## Mutation Authority
 
-Only add an alternative table when an actual behavior choice or failure-mode risk remains unresolved:
+- mutation authority:
+- authority evidence and actions not taken:
 
-| option | mechanism | risk | decision |
-| --- | --- | --- | --- |
-| keep existing path | existing | existing baseline preserved | selected |
-| simplify to one canonical route | this PR | reduced template/config surface | selected |
+## Alternatives / Independent Review (only when a real choice or risk exists)
 
-## Operational Notes
+- real choice or risk (or `not_applicable`):
+- selected alternative and rationale:
+- independent reviewer and review scope:
 
-- This PR intentionally omits universal issue-memory-failure mirror sweep and standalone Copilot review workflow requirements for this .github-only surface pass.
-- Priority is correct route/identity visibility plus touched-surface validation.
-- `agent-improvement-guide` is manual/explicit only for this PR path.
+## Risk / Follow-up
 
-## Outcome
-
-- validation command:
-- what it proves:
-- unresolved risk / follow-up:
+- risk:
+- follow-up owner or issue:
+- residual uncertainty:

@@ -3,11 +3,56 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import tomllib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
+DISPATCHER = ROOT / "tools/agent-canon/agent_tools/agent_canon_source_root.py"
+
+
+def _fake_id_path(tmp_path: Path, *, uid: int, gid: int) -> Path:
+    """Create a deterministic id command for generator identity tests."""
+    bin_dir = tmp_path / f"fake-id-{uid}-{gid}"
+    bin_dir.mkdir()
+    id_path = bin_dir / "id"
+    id_path.write_text(
+        "#!/bin/sh\n"
+        f'if [ "$1" = "-u" ]; then printf "%s\\n" "{uid}"; exit 0; fi\n'
+        f'if [ "$1" = "-g" ]; then printf "%s\\n" "{gid}"; exit 0; fi\n'
+        "exit 97\n",
+        encoding="utf-8",
+    )
+    id_path.chmod(0o755)
+    return bin_dir
+
+
+def _run_generator(
+    *, output: Path, fake_id_path: Path, extra_env: dict[str, str] | None = None
+) -> subprocess.CompletedProcess[str]:
+    """Generate one compose file through the public source-root dispatcher."""
+    env = os.environ.copy()
+    env.pop("PROJECT_UID", None)
+    env.pop("PROJECT_GID", None)
+    env.pop("PROJECT_USER", None)
+    env["PATH"] = f"{fake_id_path}:{env['PATH']}"
+    env["AGENT_CANON_DOCKER_COMPOSE_OUTPUT"] = str(output)
+    if extra_env:
+        env.update(extra_env)
+    return subprocess.run(
+        [
+            "python3",
+            str(DISPATCHER),
+            "exec",
+            ".devcontainer/generate-runtime-compose.sh",
+        ],
+        cwd=ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
 
 
 def test_default_and_gpu_selectors_are_regular_and_identity_stable() -> None:
@@ -98,3 +143,55 @@ def test_cold_smoke_readbacks_executor_and_bind_identity() -> None:
     ):
         assert marker in smoke
     assert smoke.count('{"status":"pass"') == 1
+
+
+def test_runtime_generator_uses_host_ids_for_cpu_and_gpu(tmp_path: Path) -> None:
+    """Default and explicit GPU compose use the executor's exact host IDs."""
+    fake_id = _fake_id_path(tmp_path, uid=2345, gid=3456)
+    cpu_output = tmp_path / "cpu-compose.yml"
+    cpu = _run_generator(output=cpu_output, fake_id_path=fake_id)
+    assert cpu.returncode == 0, cpu.stdout + cpu.stderr
+    cpu_text = cpu_output.read_text(encoding="utf-8")
+    assert 'user: "2345:3456"' in cpu_text
+    assert 'PROJECT_UID: "2345"' in cpu_text
+    assert 'PROJECT_GID: "3456"' in cpu_text
+    assert 'AGENT_CANON_DEPENDENCY_PROFILE: "full"' in cpu_text
+    assert "target: gpu-runtime" not in cpu_text
+    assert "gpus: all" not in cpu_text
+
+    gpu_output = tmp_path / "gpu-compose.yml"
+    gpu = _run_generator(
+        output=gpu_output,
+        fake_id_path=fake_id,
+        extra_env={
+            "AGENT_CANON_GPU_ADMISSION_PROFILE": "gpu-admission",
+            "AGENT_CANON_OPTIONAL_MOUNTS": "shared-runtime",
+            "AGENT_CANON_RUNTIME_GID": "3456",
+            "AGENT_CANON_HOST_SUPPLEMENTARY_GIDS": "3456 2345",
+        },
+    )
+    assert gpu.returncode == 0, gpu.stdout + gpu.stderr
+    gpu_text = gpu_output.read_text(encoding="utf-8")
+    assert 'user: "2345:3456"' in gpu_text
+    assert 'PROJECT_UID: "2345"' in gpu_text
+    assert 'PROJECT_GID: "3456"' in gpu_text
+    assert "target: gpu-runtime" in gpu_text
+    assert 'AGENT_CANON_DEPENDENCY_PROFILE: "gpu"' in gpu_text
+    assert "gpus: all" in gpu_text
+
+
+def test_runtime_generator_rejects_identity_overrides_and_root(tmp_path: Path) -> None:
+    """The generator rejects caller-selected IDs and root executor identity."""
+    fake_id = _fake_id_path(tmp_path, uid=2345, gid=3456)
+    override = _run_generator(
+        output=tmp_path / "override.yml",
+        fake_id_path=fake_id,
+        extra_env={"PROJECT_UID": "999", "PROJECT_GID": "998"},
+    )
+    assert override.returncode != 0
+    assert "PROJECT_IDS_OVERRIDE_FORBIDDEN" in override.stderr
+
+    fake_root_id = _fake_id_path(tmp_path, uid=0, gid=0)
+    root = _run_generator(output=tmp_path / "root.yml", fake_id_path=fake_root_id)
+    assert root.returncode != 0
+    assert "PROJECT_IDS_MUST_BE_POSITIVE_DECIMAL" in root.stderr
