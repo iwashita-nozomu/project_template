@@ -1,3 +1,5 @@
+# @dependency-start
+# contract configuration
 # responsibility Defines ci YAML configuration.
 # upstream implementation ../../tools/agent-canon/ci/run_all_checks.sh repository CI entrypoint
 # upstream implementation ../../tools/agent-canon/ci/check_github_workflows.py parent project quality owner contract
