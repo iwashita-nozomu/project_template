@@ -1,1 +1,26 @@
-../vendor/agent-canon/.vscode/tasks.json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "AgentCanon: Docs Check",
+      "type": "shell",
+      "command": "source \"${workspaceFolder}/tools/lib/repo_paths.sh\" && CANON_TOOLS_ROOT=\"$(agent_canon_tools_root \"${workspaceFolder}\")\" && \"${CANON_TOOLS_ROOT}/bin/agent-canon\" docs check",
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "AgentCanon: Convention Check",
+      "type": "shell",
+      "command": "source \"${workspaceFolder}/tools/lib/repo_paths.sh\" && CANON_TOOLS_ROOT=\"$(agent_canon_tools_root \"${workspaceFolder}\")\" && python3 \"${CANON_TOOLS_ROOT}/agent_tools/check_convention_compliance.py\"",
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "AgentCanon: Dependency Headers",
+      "type": "shell",
+      "command": "source \"${workspaceFolder}/tools/lib/repo_paths.sh\" && CANON_TOOLS_ROOT=\"$(agent_canon_tools_root \"${workspaceFolder}\")\" && python3 \"${CANON_TOOLS_ROOT}/agent_tools/check_dependency_headers.py\" --changed && bash \"${CANON_TOOLS_ROOT}/agent_tools/scan_dependency_headers.sh\" --changed --fail-missing && bash \"${CANON_TOOLS_ROOT}/agent_tools/check_dependency_header_format.sh\" --changed --require-header",
+      "group": "test",
+      "problemMatcher": []
+    }
+  ]
+}

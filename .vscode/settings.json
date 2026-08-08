@@ -1,1 +1,34 @@
-../vendor/agent-canon/.vscode/settings.json
+{
+  "files.associations": {
+    "*.cu": "cuda-cpp",
+    "*.cuh": "cuda-cpp",
+    "*.h": "cpp",
+    "*.hpp": "cpp"
+  },
+  "files.exclude": {
+    "**/.pytest_cache": true,
+    "**/.ruff_cache": true,
+    "**/__pycache__": true,
+    "build": true,
+    "logs": true
+  },
+  "search.exclude": {
+    "**/.pytest_cache": true,
+    "**/.ruff_cache": true,
+    "**/__pycache__": true,
+    "build": true,
+    "logs": true
+  },
+  "explorer.excludeGitIgnore": false,
+  "python.analysis.extraPaths": [
+    "./python",
+    "./src",
+    "./tools",
+    "./tools/agent-canon",
+    "./tools/agent-canon/agent_tools"
+  ],
+  "python-envs.defaultEnvManager": "ms-python.python:system",
+  "python-envs.pythonProjects": [],
+  "python.envFile": "${workspaceFolder}/.env",
+  "jupyter.notebookFileRoot": "${workspaceFolder}"
+}
