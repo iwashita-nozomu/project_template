@@ -1,16 +1,12 @@
 # @dependency-start
 # contract configuration
 # responsibility Defines template make targets for validation, setup, and agent workflow automation.
-# upstream implementation tools/agent-canon/agent_tools/evaluate_agent_run.py exposes agent-evaluate target
-# upstream implementation tools/agent-canon/agent_tools/task_close.py enforces closeout gates
-# upstream implementation tools/agent-canon/agent_tools/run_repo_dependency_review.sh exposes repo-wide dependency review
-# upstream implementation tools/agent-canon/agent_tools/review_backlog_scan.sh exposes integrated review backlog scans
+# upstream implementation tools/agent-canon/tools/ci/run_container_pack.py runs Docker runtime packs
 # downstream implementation tools/agent-canon/ci/run_container_pack.py runs Docker runtime packs
 # @dependency-end
 
 PYTHON ?= python3
 
-AGENT_TOOLS := tools/agent-canon/agent_tools
 CI_TOOLS := tools/agent-canon/ci
 AGENT_CANON_DISPATCH := env PYTHONPATH="vendor/agent-canon/tools:tools$${PYTHONPATH:+:$${PYTHONPATH}}" $(PYTHON) -m agent_tools.agent_canon_source_root exec
 
@@ -26,8 +22,7 @@ REPO_WIDE_REVIEW_QUERY ?= repo-wide review runtime surface stale path check
 
 .PHONY: ci ci-quick check-matrix docs-check clean-generated github-workflow-check
 .PHONY: fresh-clone-check dev-setup tools-help
-.PHONY: start-repository task-start doc-start task-close agent-evaluate
-.PHONY: dependency-review
+.PHONY: start-repository
 .PHONY: agent-canon agent-canon-check agent-canon-latest-check agent-canon-update
 .PHONY: agent-canon-pr-check
 .PHONY: docker-check python-env-status python-env-prepare
@@ -67,26 +62,6 @@ fresh-clone-check:
 start-repository:
 	bash scripts/start_repository.sh $(ARGS)
 
-# machine-driven task start
-task-start:
-	$(PYTHON) $(AGENT_TOOLS)/task_start.py $(ARGS)
-
-# machine-driven document start
-doc-start:
-	$(PYTHON) $(AGENT_TOOLS)/doc_start.py $(ARGS)
-
-# machine-driven task close gate
-task-close:
-	$(PYTHON) $(AGENT_TOOLS)/task_close.py $(ARGS)
-
-# machine-driven agent behavior evaluation
-agent-evaluate:
-	$(PYTHON) $(AGENT_TOOLS)/evaluate_agent_run.py $(ARGS)
-
-# machine-driven repo-wide dependency review
-dependency-review:
-	bash $(AGENT_TOOLS)/run_repo_dependency_review.sh $(ARGS)
-
 # Documentation and generated artifacts
 # repo-wide Markdown lint / link checks
 docs-check:
@@ -111,7 +86,7 @@ github-workflow-check:
 # AgentCanon sync/update targets
 # read-only gate for upstream agent-canon freshness
 agent-canon-latest-check:
-	$(AGENT_CANON_DISPATCH) tools/agent-canon/ci/check_agent_canon_latest.sh
+	$(AGENT_CANON_DISPATCH) tools/ci/check_agent_canon_latest.sh
 
 # shared surface drift only
 agent-canon-check:
@@ -126,7 +101,7 @@ agent-canon:
 
 # shared canon 専用の PR gate
 agent-canon-pr-check:
-	bash tools/agent-canon/ci/check_agent_canon_pr.sh
+	$(AGENT_CANON_DISPATCH) tools/ci/check_agent_canon_pr.sh
 
 # Docker and runtime targets
 # Dockerfile と requirements の整合
@@ -217,4 +192,4 @@ tools-help:
 	@echo "  make cpp-experiments     Build native experiment targets"
 	@echo ""
 	@echo "Detailed catalog:"
-	@echo "  $(PYTHON) $(AGENT_TOOLS)/tool_catalog.py --format markdown"
+	@echo "  make agent-canon ARGS='tools/agent_tools/tool_catalog.py --format markdown'"
