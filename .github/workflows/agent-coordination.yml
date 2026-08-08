@@ -222,7 +222,7 @@ jobs:
           name: agent-run-manager-review-${{ needs.bootstrap.outputs.run_id }}
           path: ${{ needs.bootstrap.outputs.report_dir }}
 
-  manager_response:
+  researcher:
     needs: [bootstrap, manager_reviewer]
     runs-on: ubuntu-latest
     steps:
@@ -249,59 +249,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: agent-run-manager-review-${{ needs.bootstrap.outputs.run_id }}
-          path: ${{ needs.bootstrap.outputs.report_dir }}
-      - name: Run manager response stage
-        run: |
-          report_snapshot="${RUNNER_TEMP}/manager-response-report-before.json"
-          workspace_snapshot="${RUNNER_TEMP}/manager-response-workspace-before.json"
-          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
-            --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
-            --workspace-root "${GITHUB_WORKSPACE}" \
-            --report-snapshot-out "${report_snapshot}" \
-            --workspace-snapshot-out "${workspace_snapshot}"
-          {
-            echo ""
-            echo "| $(date -u '+%Y-%m-%dT%H:%M:%SZ') | manager | Resolve management review | GitHub Actions manager re-entered after review. | management_review.md |"
-          } >> "${{ needs.bootstrap.outputs.report_dir }}/decision_log.md"
-          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
-            --role manager \
-            --report-dir "${{ needs.bootstrap.outputs.report_dir }}" \
-            --workspace-root "${GITHUB_WORKSPACE}" \
-            --report-snapshot-in "${report_snapshot}" \
-            --workspace-snapshot-in "${workspace_snapshot}"
-      - name: Upload manager response bundle
-        uses: actions/upload-artifact@v4
-        with:
-          name: agent-run-manager-response-${{ needs.bootstrap.outputs.run_id }}
-          path: ${{ needs.bootstrap.outputs.report_dir }}
-
-  researcher:
-    needs: [bootstrap, manager_response]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          submodules: false
-          persist-credentials: false
-      - name: Checkout AgentCanon submodule
-        env:
-          AGENT_CANON_REPO_TOKEN: ${{ secrets.AGENT_CANON_REPO_TOKEN }}
-          AGENT_CANON_REPO_SSH_KEY: ${{ secrets.AGENT_CANON_REPO_SSH_KEY }}
-        run: |
-          if [ -f .github/scripts/checkout_agent_canon_submodule.sh ]; then
-            bash .github/scripts/checkout_agent_canon_submodule.sh
-          else
-            bash tools/agent-canon/ci/checkout_agent_canon_submodule.sh
-          fi
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - name: Download manager response bundle
-        uses: actions/download-artifact@v4
-        with:
-          name: agent-run-manager-response-${{ needs.bootstrap.outputs.run_id }}
           path: ${{ needs.bootstrap.outputs.report_dir }}
       - name: Run researcher stage
         run: |
