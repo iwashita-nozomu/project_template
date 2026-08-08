@@ -19,6 +19,7 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 image_tag="project-template:zero-build-cold-smoke"
 pull=0
 no_cache=0
+expect_non_default_id=0
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
@@ -28,6 +29,10 @@ while [ "$#" -gt 0 ]; do
       ;;
     --no-cache)
       no_cache=1
+      shift
+      ;;
+    --expect-non-default-id)
+      expect_non_default_id=1
       shift
       ;;
     --tag)
@@ -40,7 +45,7 @@ while [ "$#" -gt 0 ]; do
       shift
       ;;
     -h|--help)
-      printf 'usage: %s --pull --no-cache [--tag IMAGE]\n' "$0"
+      printf 'usage: %s --pull --no-cache [--expect-non-default-id] [--tag IMAGE]\n' "$0"
       exit 0
       ;;
     *)
@@ -65,6 +70,13 @@ project_uid="$(id -u)"
 project_gid="$(id -g)"
 case "$project_uid" in ''|0|*[!0-9]*) echo "host UID must be positive" >&2; exit 2 ;; esac
 case "$project_gid" in ''|0|*[!0-9]*) echo "host GID must be positive" >&2; exit 2 ;; esac
+if [ "$expect_non_default_id" -eq 1 ]; then
+  if [ "$project_uid:$project_gid" = "1000:1000" ]; then
+    echo "cold acceptance requires a non-default host UID/GID when --expect-non-default-id is set" >&2
+    exit 2
+  fi
+  printf 'COLD_SMOKE_EXPECT_NON_DEFAULT_ID=pass uid=%s gid=%s\n' "$project_uid" "$project_gid"
+fi
 
 probe_relative=".devcontainer/.cold-build-smoke-${project_uid}-${project_gid}-$$"
 probe_host="$repo_root/$probe_relative"

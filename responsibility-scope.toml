@@ -30,6 +30,23 @@ class_values = [
   "external_dependency",
 ]
 
+# Opt-in source surfaces for dependency-header checks.  These are the active
+# Template-owned paths touched by repository changes; AgentCanon source headers
+# are checked from the vendored runtime surface.
+dependency_header_surfaces = [
+  ".github/**",
+  ".codex/**",
+  ".devcontainer/**",
+  ".vscode/**",
+  "docker/**",
+  "documents/**",
+  "scripts/**",
+  "tests/**",
+  "README.md",
+  "QUICK_START.md",
+  "responsibility-scope.toml",
+]
+
 # These entries are the current top-level responsibilities. Retired root views
 # such as `agents/`, `.agents/`, and `evidence/` are intentionally absent.
 required_coverage = [

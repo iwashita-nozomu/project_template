@@ -1,3 +1,9 @@
+# @dependency-start
+# contract test
+# responsibility Verifies Template-owned public AgentCanon dispatcher routes and workflow role forwarding.
+# upstream implementation ../../tools/agent-canon/agent_tools/agent_canon_source_root.py resolves source-root command dispatch
+# upstream design ../../.github/workflows/agent-coordination.yml forwards specialist role IDs
+# @dependency-end
 """Integration checks for the public AgentCanon source-root dispatch routes."""
 
 from __future__ import annotations
@@ -64,3 +70,31 @@ def test_public_dispatcher_help_routes_do_not_mutate_checkout() -> None:
         text=True,
     ).stdout
     assert after == before
+
+
+def test_coordination_forwards_roles_to_canonical_bootstrap() -> None:
+    """Specialist IDs are validated by canonical bootstrap, not a local allowlist."""
+    workflow = (ROOT / ".github/workflows/agent-coordination.yml").read_text(
+        encoding="utf-8"
+    )
+    assert 'flags+=(--enable "${role}")' in workflow
+    assert "unsupported specialist role" not in workflow
+    assert "researcher|research_reviewer|scheduler" not in workflow
+
+
+def test_template_runtime_projection_paths_exist() -> None:
+    """Workflow and editor commands resolve only to checked-in Template paths."""
+    for relative in (
+        "tools/agent-canon/agent_tools/bootstrap_agent_run.py",
+        "tools/agent-canon/agent_tools/validate_role_write_scope.py",
+        "tools/agent-canon/agent_tools/check_convention_compliance.py",
+        "tools/agent-canon/lib/repo_paths.sh",
+    ):
+        assert (ROOT / relative).is_file(), relative
+    workflow = (ROOT / ".github/workflows/agent-coordination.yml").read_text(
+        encoding="utf-8"
+    )
+    tasks = (ROOT / ".vscode/tasks.json").read_text(encoding="utf-8")
+    assert "tools/agent-canon/agent_tools/bootstrap_agent_run.py" in workflow
+    assert "tools/agent-canon/agent_tools/validate_role_write_scope.py" in workflow
+    assert "tools/agent-canon/lib/repo_paths.sh" in tasks

@@ -65,7 +65,7 @@ jobs:
           if [ -f .github/scripts/checkout_agent_canon_submodule.sh ]; then
             bash .github/scripts/checkout_agent_canon_submodule.sh
           else
-            bash tools/ci/checkout_agent_canon_submodule.sh
+            bash tools/agent-canon/ci/checkout_agent_canon_submodule.sh
           fi
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -88,20 +88,10 @@ jobs:
           if [ -n "${normalized}" ]; then
             IFS=',' read -ra roles <<< "${normalized}"
             for role in "${roles[@]}"; do
-              case "${role}" in
-                researcher|research_reviewer|scheduler|schedule_reviewer|infra_steward|infra_reviewer)
-                  flags+=(--enable "${role}")
-                  ;;
-                "")
-                  ;;
-                *)
-                  echo "unsupported specialist role: ${role}" >&2
-                  exit 1
-                  ;;
-              esac
+              [ -n "${role}" ] && flags+=(--enable "${role}")
             done
           fi
-          python3 tools/agent_tools/bootstrap_agent_run.py \
+          python3 tools/agent-canon/agent_tools/bootstrap_agent_run.py \
             --task "${AGENT_COORDINATION_TASK}" \
             --owner "${AGENT_COORDINATION_OWNER}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
@@ -119,7 +109,7 @@ jobs:
           manifest_path="${report_dir}/team_manifest.yaml"
           report_snapshot="${RUNNER_TEMP}/coordination-report-before.json"
           workspace_snapshot="${RUNNER_TEMP}/coordination-workspace-before.json"
-          python3 tools/agent_tools/validate_role_write_scope.py \
+          python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --report-dir "${report_dir}" \
             --workspace-root "${GITHUB_WORKSPACE}" \
             --report-snapshot-out "${report_snapshot}" \
@@ -186,7 +176,7 @@ jobs:
             summary_finding="team_manifest_specialist_readback_missing"
           fi
           write_scope_status="pass"
-          if ! python3 tools/agent_tools/validate_role_write_scope.py \
+          if ! python3 tools/agent-canon/agent_tools/validate_role_write_scope.py \
             --role manager \
             --report-dir "${report_dir}" \
             --workspace-root "${GITHUB_WORKSPACE}" \

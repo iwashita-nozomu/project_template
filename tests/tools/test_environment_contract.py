@@ -1,3 +1,10 @@
+# @dependency-start
+# contract test
+# responsibility Verifies Template-owned CPU/GPU environment identity and cold-smoke contracts.
+# upstream implementation ../../docker/cold-build-smoke.sh performs cold image and runtime acceptance
+# upstream implementation ../../.devcontainer/devcontainer.json selects the default runtime profile
+# upstream implementation ../../vendor/agent-canon/.devcontainer/generate-runtime-compose.sh renders compose identity
+# @dependency-end
 """Focused static checks for the CPU default and explicit GPU environment contract."""
 
 from __future__ import annotations
@@ -132,6 +139,8 @@ def test_cold_smoke_readbacks_executor_and_bind_identity() -> None:
     for marker in (
         '"EXPECTED_EXECUTOR_UID=${project_uid}"',
         '"EXPECTED_EXECUTOR_GID=${project_gid}"',
+        "--expect-non-default-id",
+        "COLD_SMOKE_EXPECT_NON_DEFAULT_ID=pass",
         'test "$(id -u)" = "${EXPECTED_EXECUTOR_UID:?}"',
         'test "$(id -g)" = "${EXPECTED_EXECUTOR_GID:?}"',
         "COLD_SMOKE_CONTAINER_READBACK=identity contract=rootful",

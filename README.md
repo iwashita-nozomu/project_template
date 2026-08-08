@@ -122,7 +122,7 @@ profile と validation の正本は
 - `make start-repository ARGS='--project-slug your-project --display-name "Your Project"'`
   - clone 直後の推奨入口です。内部で `scripts/start_repository.sh` を呼びます。
 - `bash scripts/start_repository.sh --validate-only`
-  - init 変更を commit したあと、`agent-canon` submodule pin、fresh clone、quick CI をまとめて確認します。
+  - init 変更を commit したあと、`agent-canon` latest check と fresh clone acceptance だけを read-only で確認します。
 - `make agent-canon-update`
   - 派生 repo から `agent-canon` だけ更新します。内部では `make agent-canon` の `ARGS='tools/update_agent_canon.sh latest'` を呼ぶ route です。
 - `make agent-canon ARGS='tools/sync_agent_canon.sh link-root'`
@@ -164,12 +164,12 @@ submodule なしで clone した場合、または `vendor/agent-canon/` が空�
 ```bash
 git submodule sync vendor/agent-canon
 git submodule update --init --recursive vendor/agent-canon
-bash tools/agent-canon/sync_agent_canon.sh check
+PYTHONPATH=vendor/agent-canon/tools:tools python3 -m agent_tools.agent_canon_source_root exec tools/sync_agent_canon.sh check
 ```
 
-AgentCanon の URL や branch 情報が `.gitmodules` と submodule config でずれた場合は `git submodule sync vendor/agent-canon` を先に実行します。submodule worktree が stale / detached / local-only commit を含む場合は、親 repo の tree diff ではなく `vendor/agent-canon/` の branch / status を確認します。local commit がある branch は `bash tools/agent-canon/update_agent_canon.sh merge-main-into-current` で GitHub `main` を取り込んでから GitHub へ push し、AgentCanon PR にします。
+AgentCanon の URL や branch 情報が `.gitmodules` と submodule config でずれた場合は `git submodule sync vendor/agent-canon` を先に実行します。submodule worktree が stale / detached / local-only commit を含む場合は、親 repo の tree diff ではなく `vendor/agent-canon/` の branch / status を確認します。local commit がある branch は generic source-root dispatcher から `tools/update_agent_canon.sh merge-main-into-current` を実行して GitHub `main` を取り込んでから GitHub へ push し、AgentCanon PR にします。
 
-AgentCanon の更新順序は、AgentCanon repo を更新して push / PR merge、template の `vendor/agent-canon` pin 更新、`bash tools/agent-canon/sync_agent_canon.sh link-root`、validation、template commit / push です。`.gitmodules` は template runtime contract の一部なので、AgentCanon URL や branch に関わる PR では必ず確認します。AgentCanon GitHub `main`、template GitHub `origin/main`、submodule pin SHA を PR や closeout で混同しません。
+AgentCanon の更新順序は、AgentCanon repo を更新して push / PR merge、template の `vendor/agent-canon` pin 更新、generic source-root dispatcher から `tools/sync_agent_canon.sh link-root`、validation、template commit / push です。`.gitmodules` は template runtime contract の一部なので、AgentCanon URL や branch に関わる PR では必ず確認します。AgentCanon GitHub `main`、template GitHub `origin/main`、submodule pin SHA を PR や closeout で混同しません。
 
 ## まず読むもの
 

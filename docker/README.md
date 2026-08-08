@@ -63,7 +63,7 @@ source-root resolver 経由で AgentCanon generator/bootstrap を呼びます。
 - `packs/default-host-docker.toml`
   - host Docker socket を明示指定した場合だけ使う optional profile です。default devcontainer/CI では実行しません。
 - `cold-build-smoke.sh`
-  - `--pull --no-cache` で build 一回、同じ image の post-create と non-root smoke 一回を実行する acceptance owner です。
+  - `--pull --no-cache` で build 一回、同じ image の post-create と non-root smoke 一回を実行する acceptance owner です。CI は `--expect-non-default-id` を追加して `1000:1000` host identity を拒否し、手動実行ではこの guard を省略できます。
 - `check_zero_build_contract.sh`
   - Dockerfile、pack、workflow、mount/profile、lock owner の static/readback owner です。
 - `codex-container-profiles.toml`

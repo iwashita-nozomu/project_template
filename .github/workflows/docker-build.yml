@@ -55,4 +55,4 @@ jobs:
         run: bash docker/check_zero_build_contract.sh
 
       - name: Run one cold build and smoke
-        run: bash docker/cold-build-smoke.sh --pull --no-cache --tag project-template:ci-zero-build
+        run: bash docker/cold-build-smoke.sh --pull --no-cache --expect-non-default-id --tag project-template:ci-zero-build

@@ -2,15 +2,16 @@
 @dependency-start
 contract reference
 responsibility Owns the concise AgentCanon PR evidence fields for template and derived repositories.
-upstream design ../../../../agents/workflows/agent-canon-pr-workflow.md AgentCanon PR identity and publication route
-upstream design ../../../../.github/AGENTS.md GitHub subtree boundary
+upstream design ../../vendor/agent-canon/agents/workflows/agent-canon-pr-workflow.md AgentCanon PR identity and publication route
+upstream design ../../AGENTS.md GitHub subtree boundary
 upstream design ../../README.md canonical template owner and checked-in target boundary
-downstream implementation ../../../../tools/ci/check_github_workflows.py validates the evidence fields and workflow conventions
+downstream implementation ../../vendor/agent-canon/tools/ci/check_github_workflows.py validates the evidence fields and workflow conventions
 @dependency-end
 -->
 
-<!-- canonical source と checked-in standalone target はこの source と
-     .github/PULL_REQUEST_TEMPLATE/agent_canon.md です。両方を同じ変更で更新します。 -->
+<!-- AgentCanon の canonical source は
+     ../../vendor/agent-canon/templates/documents/github/pull-request/agent_canon.md
+     で、この Template target は source pin と同じ変更で更新します。 -->
 
 ## PR Essence
 
