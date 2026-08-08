@@ -1,5 +1,5 @@
 # @dependency-start
-# contract workflow
+# contract configuration
 # responsibility Defines ci YAML configuration.
 # upstream implementation ../../tools/agent-canon/ci/run_all_checks.sh repository CI entrypoint
 # upstream implementation ../../tools/agent-canon/ci/check_github_workflows.py parent project quality owner contract
@@ -40,8 +40,8 @@ jobs:
           persist-credentials: false
       - name: Checkout AgentCanon submodule
         env:
-          AGENT_CANON_REPO_TOKEN: ${{ secrets.AGENT_CANON_REPO_TOKEN }}
-          AGENT_CANON_REPO_SSH_KEY: ${{ secrets.AGENT_CANON_REPO_SSH_KEY }}
+          AGENT_CANON_REPO_TOKEN: ""
+          AGENT_CANON_REPO_SSH_KEY: ""
         run: bash .github/scripts/checkout_agent_canon_submodule.sh
 
       - name: Set up Python
@@ -76,8 +76,8 @@ jobs:
           persist-credentials: false
       - name: Checkout AgentCanon submodule
         env:
-          AGENT_CANON_REPO_TOKEN: ${{ secrets.AGENT_CANON_REPO_TOKEN }}
-          AGENT_CANON_REPO_SSH_KEY: ${{ secrets.AGENT_CANON_REPO_SSH_KEY }}
+          AGENT_CANON_REPO_TOKEN: ""
+          AGENT_CANON_REPO_SSH_KEY: ""
         run: bash .github/scripts/checkout_agent_canon_submodule.sh
 
       - name: Set up Python

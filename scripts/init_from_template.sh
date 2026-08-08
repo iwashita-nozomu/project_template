@@ -15,7 +15,6 @@ Usage:
 Options:
   --project-slug <slug>      Required. Kebab-case project slug.
   --display-name <name>      Optional. Human-facing display name.
-  --python-package <name>    Optional. Defaults to slug with '-' replaced by '_'.
   --bare-repo <name>.git     Optional. Defaults to <slug>.git.
   --force                    Allow running with a dirty worktree.
   --dry-run                  Print the planned updates without writing files.
@@ -24,7 +23,6 @@ EOF
 
 PROJECT_SLUG=""
 DISPLAY_NAME=""
-PYTHON_PACKAGE=""
 BARE_REPO=""
 BARE_GIT_ROOT="${TEMPLATE_BARE_GIT_ROOT:-/mnt/git}"
 FORCE=0
@@ -38,10 +36,6 @@ while [[ $# -gt 0 ]]; do
       ;;
     --display-name)
       DISPLAY_NAME="${2:-}"
-      shift 2
-      ;;
-    --python-package)
-      PYTHON_PACKAGE="${2:-}"
       shift 2
       ;;
     --bare-repo)
@@ -83,10 +77,6 @@ if [[ -z "${DISPLAY_NAME}" ]]; then
   DISPLAY_NAME="${PROJECT_SLUG}"
 fi
 
-if [[ -z "${PYTHON_PACKAGE}" ]]; then
-  PYTHON_PACKAGE="${PROJECT_SLUG//-/_}"
-fi
-
 if [[ -z "${BARE_REPO}" ]]; then
   BARE_REPO="${PROJECT_SLUG}.git"
 fi
@@ -101,7 +91,6 @@ fi
 
 export TEMPLATE_PROJECT_SLUG="${PROJECT_SLUG}"
 export TEMPLATE_DISPLAY_NAME="${DISPLAY_NAME}"
-export TEMPLATE_PYTHON_PACKAGE="${PYTHON_PACKAGE}"
 export TEMPLATE_BARE_REPO="${BARE_REPO}"
 export TEMPLATE_DRY_RUN="${DRY_RUN}"
 
@@ -114,7 +103,6 @@ from pathlib import Path
 root = Path.cwd()
 project_slug = os.environ["TEMPLATE_PROJECT_SLUG"]
 display_name = os.environ["TEMPLATE_DISPLAY_NAME"]
-python_package = os.environ["TEMPLATE_PYTHON_PACKAGE"]
 bare_repo = os.environ["TEMPLATE_BARE_REPO"]
 dry_run = os.environ["TEMPLATE_DRY_RUN"] == "1"
 
@@ -167,7 +155,6 @@ for relative_path, pairs in replacements.items():
 
 print(f"project_slug={project_slug}")
 print(f"display_name={display_name}")
-print(f"python_package={python_package}")
 print(f"bare_repo={bare_repo}")
 print("agent_canon_source=github_submodule")
 PY
@@ -188,6 +175,6 @@ if [[ "${DRY_RUN}" != "1" ]]; then
   echo "next:"
   echo "  1. Review git diff"
   echo "  2. Push the project branch to ${BARE_GIT_ROOT}/${BARE_REPO} or your chosen origin"
-  echo "  3. Run make agent-canon-ensure-latest"
+  echo "  3. Run make agent-canon-update"
   echo "  4. Run make fresh-clone-check"
 fi

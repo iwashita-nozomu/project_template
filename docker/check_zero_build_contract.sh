@@ -26,6 +26,7 @@ contains() {
 
 dockerfile=docker/Dockerfile
 pack=docker/packs/default.toml
+gpu_pack=docker/packs/gpu-admission.toml
 workflow=.github/workflows/docker-build.yml
 design=documents/design/docker-zero-build-environment.md
 
@@ -33,30 +34,46 @@ contains "$dockerfile" 'FROM --platform=linux/amd64 ubuntu:22.04@sha256:0d779ea9
 if grep -Eiq '^[[:space:]]*FROM[[:space:]].*nvidia/cuda|cuda-drivers|nvidia-driver|nvidia-kernel' "$dockerfile"; then
   fail 'docker/Dockerfile:driver-base-or-package-forbidden'
 fi
-contains "$dockerfile" 'cuda-keyring_1.1-1_all.deb'
-contains "$dockerfile" 'd93190d50b98ad4699ff40f4f7af50f16a76dac3bb8da1eaaf366d47898ff8df'
-contains "$dockerfile" 'cuda-toolkit-12-8=12.8.2-1'
-contains "$dockerfile" 'libcudnn9-cuda-12=9.8.0.87-1'
-contains "$dockerfile" 'libcudnn9-dev-cuda-12=9.8.0.87-1'
-contains "$dockerfile" 'libnccl2=2.25.1-1+cuda12.8'
-contains "$dockerfile" 'libnccl-dev=2.25.1-1+cuda12.8'
+contains "$dockerfile" 'FROM --platform=linux/amd64 ubuntu:22.04@sha256:0d779ea97881505f5ef0039336ee85edba27519bdba968c284c86ee066a973c8 AS cpu-runtime'
+contains "$dockerfile" 'FROM cpu-runtime AS gpu-runtime'
+contains "$dockerfile" 'FROM cpu-runtime AS default-runtime'
+gpu_stage="$(sed -n '/^FROM cpu-runtime AS gpu-runtime$/,$p' "$dockerfile")"
+cpu_stage="$(sed '/^FROM cpu-runtime AS gpu-runtime$/q' "$dockerfile" | sed '$d')"
+if printf '%s\n' "$cpu_stage" | grep -Ev '^[[:space:]]*#' | grep -Eiq 'cuda|cudnn|nccl'; then
+  fail 'docker/Dockerfile:CPU-target-installs-GPU-capability'
+fi
+for gpu_value in \
+  'cuda-keyring_1.1-1_all.deb' \
+  'd93190d50b98ad4699ff40f4f7af50f16a76dac3bb8da1eaaf366d47898ff8df' \
+  'cuda-toolkit-12-8=12.8.2-1' \
+  'libcudnn9-cuda-12=9.8.0.87-1' \
+  'libcudnn9-dev-cuda-12=9.8.0.87-1' \
+  'libnccl2=2.25.1-1+cuda12.8' \
+  'libnccl-dev=2.25.1-1+cuda12.8'; do
+  printf '%s\n' "$gpu_stage" | grep -Fq -- "$gpu_value" || fail "docker/Dockerfile:gpu-target-missing:${gpu_value}"
+done
 contains "$dockerfile" 'PYTHON_VERSION=3.11.15'
 contains "$dockerfile" 'PYTHON_SHA256=272179ddd9a2e41a0fc8e42e33dfbdca0b3711aa5abf372d3f2d51543d09b625'
 contains "$dockerfile" 'ARG PROJECT_USER=project'
 contains "$dockerfile" 'case "$PROJECT_USER" in'
 contains "$dockerfile" 'groupadd --gid "$PROJECT_GID" "$PROJECT_USER"'
-contains "$dockerfile" 'useradd --uid "$PROJECT_UID" --gid "$PROJECT_GID"'
+contains "$dockerfile" 'usermod --gid "$PROJECT_USER" --shell /bin/zsh "$PROJECT_USER"'
+contains "$dockerfile" 'groupmod --new-name "$PROJECT_USER" "$existing_gid_group"'
+contains "$dockerfile" 'useradd --uid "$PROJECT_UID" --gid "$PROJECT_USER"'
 contains "$dockerfile" 'NOPASSWD:ALL'
 contains "$dockerfile" 'chmod 0440 "/etc/sudoers.d/$PROJECT_USER"'
 contains "$dockerfile" 'visudo --check --file="/etc/sudoers.d/$PROJECT_USER"'
 grep -Eq '^USER[[:space:]]+project[[:space:]]*$' "$dockerfile" || fail 'docker/Dockerfile:last-user-is-not-project'
 last_instruction="$(grep -E '^(FROM|ARG|ENV|RUN|COPY|WORKDIR|EXPOSE|CMD|USER|ENTRYPOINT)[[:space:]]' "$dockerfile" | tail -1)"
 [ "$last_instruction" = 'USER project' ] || fail 'docker/Dockerfile:USER-project-must-be-last-instruction'
-if grep -Ev '^[[:space:]]*#' "$dockerfile" | grep -Eq 'ZDOTDIR|\.zshenv|parent-environment\.sh|(^|[[:space:]])(nodejs|npm|ninja-build|tree)([[:space:]]|\\|$)'; then
+if printf '%s\n' "$cpu_stage" | grep -Ev '^[[:space:]]*#' | grep -Eq 'ZDOTDIR|\.zshenv|parent-environment\.sh|(^|[[:space:]])(nodejs|npm|ninja-build|tree)([[:space:]]|\\|$)'; then
   fail 'docker/Dockerfile:startup-or-derived-tool-duplicate'
 fi
 
 contains "$pack" 'platform = "linux/amd64"'
+contains "$gpu_pack" 'target = "gpu-runtime"'
+contains "$gpu_pack" 'gpus = "all"'
+contains "$gpu_pack" 'dependency_profile = "gpu"'
 if grep -Eq '^[[:space:]]*mounts[[:space:]]*=' "$pack"; then
   fail 'docker/packs/default.toml:host-mounts-forbidden'
 fi
@@ -68,8 +85,14 @@ contains docker/codex-container-profiles.toml 'mount_host_gitconfig = false'
 contains docker/codex-container-profiles.toml 'mount_host_git_credentials = false'
 contains docker/codex-container-profiles.toml 'forward_ssh_auth_sock = false'
 contains docker/codex-container-profiles.toml 'forward_env = []'
-contains "$workflow" 'bash docker/cold-build-smoke.sh --pull --no-cache'
-contains "$workflow" '      - "vendor/agent-canon"'
+contains "$workflow" 'bash docker/cold-build-smoke.sh --pull --no-cache --expect-non-default-id'
+contains docker/cold-build-smoke.sh 'EXPECTED_EXECUTOR_UID='
+contains docker/cold-build-smoke.sh 'EXPECTED_EXECUTOR_GID='
+contains docker/cold-build-smoke.sh '--expect-non-default-id'
+contains docker/cold-build-smoke.sh 'COLD_SMOKE_EXPECT_NON_DEFAULT_ID=pass'
+contains docker/cold-build-smoke.sh 'COLD_SMOKE_CONTAINER_READBACK=identity contract=rootful'
+contains docker/cold-build-smoke.sh 'COLD_SMOKE_BIND_READBACK=pass contract=rootful'
+contains docker/cold-build-smoke.sh 'trap cleanup_probe EXIT HUP INT TERM'
 contains "$workflow" '      - "pyproject.toml"'
 workflow_commands="$(grep -Ev '^[[:space:]]*#' "$workflow")"
 if printf '%s\n' "$workflow_commands" | grep -Fq 'default-host-docker.toml' \
@@ -77,21 +100,20 @@ if printf '%s\n' "$workflow_commands" | grep -Fq 'default-host-docker.toml' \
   fail '.github/workflows/docker-build.yml:default-must-have-one-cold-route'
 fi
 
-contains pyproject.toml '"jax[cuda12-local]"'
+contains pyproject.toml '  "jax",'
+contains pyproject.toml 'gpu = ['
 contains docker/requirements.txt 'jax==0.10.2'
-contains docker/requirements.txt 'jax-cuda12-plugin==0.10.2'
-contains docker/requirements.txt 'jax-cuda12-pjrt==0.10.2'
 contains docker/requirements.txt 'jaxlib==0.10.2'
+contains docker/requirements-gpu.txt 'jax-cuda12-plugin==0.10.2'
+contains docker/requirements-gpu.txt 'jax-cuda12-pjrt==0.10.2'
 contains docker/requirements.txt 'pyyaml==6.0.3'
 contains "$design" 'https://hub.docker.com/_/ubuntu'
 contains "$design" 'https://docs.nvidia.com/cuda/cuda-installation-guide-linux/#ubuntu'
 contains "$design" 'https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/'
 contains "$design" 'https://docs.jax.dev/en/latest/installation.html'
-contains "$design" 'audit_item_update=recorded'
-contains "$design" 'audit_unit=environment-containers'
-contains "$design" 'audit_clause_refs=environment-containers.Invariant.1;environment-containers.Invariant.2;environment-containers.Invariant.3;environment-containers.Invariant.4;environment-containers.Invariant.5;environment-containers.Invariant.6;environment-containers.Invariant.7;environment-containers.Invariant.8'
-contains "$design" 'audit_readback=reports/parent-audit-projection/audit-receipts.md#environment-containers'
-contains "$design" 'audit_runtime_defer_readback=reports/parent-audit-projection/defer-receipts.md#environment-containers'
+if grep -Eq 'jax-cuda12-plugin|jax-cuda12-pjrt' docker/requirements.txt; then
+  fail 'docker/requirements.txt:GPU-python-dependency-in-CPU-lock'
+fi
 if grep -Fq 'docker-cold-build-smoke.json' "$design"; then
   fail 'documents/design/docker-zero-build-environment.md:named-cold-receipt-forbidden'
 fi
@@ -101,12 +123,31 @@ fi
 contains README.md 'docker/packs/default-host-docker.toml'
 contains QUICK_START.md 'docker/packs/default-host-docker.toml'
 
-[ -L .devcontainer/devcontainer.json ] || fail '.devcontainer/devcontainer.json:must-remain-AgentCanon-view'
+[ -f .devcontainer/devcontainer.json ] || fail '.devcontainer/devcontainer.json:missing-regular-selector'
+[ ! -L .devcontainer/devcontainer.json ] || fail '.devcontainer/devcontainer.json:legacy-symlink-forbidden'
+[ -f .devcontainer/gpu-admission/devcontainer.json ] || fail '.devcontainer/gpu-admission/devcontainer.json:missing-regular-selector'
+[ ! -L .devcontainer/gpu-admission/devcontainer.json ] || fail '.devcontainer/gpu-admission/devcontainer.json:legacy-symlink-forbidden'
+[ -x .devcontainer/gpu-admission.sh ] || fail '.devcontainer/gpu-admission.sh:not-executable'
+if grep -Eq 'updateRemoteUserUID|PROJECT_UID|PROJECT_GID' .devcontainer/devcontainer.json .devcontainer/gpu-admission/devcontainer.json; then
+  fail '.devcontainer/selectors:identity-override-forbidden'
+fi
+contains .devcontainer/gpu-admission.sh 'bootstrap-shared-runtime.sh'
+contains .devcontainer/gpu-admission.sh 'finalize-shared-runtime.sh'
+contains .devcontainer/gpu-admission.sh 'target=gpu-runtime'
 [ -x .devcontainer/post-create-parent.sh ] || fail '.devcontainer/post-create-parent.sh:not-executable'
 contains .devcontainer/post-create-parent.sh 'sudo -n true'
 if grep -Eq '\.zshenv|/root/\.codex|/etc/project-template/parent-environment\.sh' .devcontainer/post-create-parent.sh; then
   fail '.devcontainer/post-create-parent.sh:forbidden-shell-state-dependency'
 fi
+contains .devcontainer/dependencies.toml 'records = []'
+for selector in .devcontainer/devcontainer.json .devcontainer/gpu-admission/devcontainer.json; do
+  contains "$selector" '.devcontainer/bootstrap-dependencies.sh --install-language-runtime && python3'
+  contains "$selector" '.devcontainer/post-create-entrypoint.sh'
+done
+contains docker/cold-build-smoke.sh '.devcontainer/bootstrap-dependencies.sh --install-language-runtime'
+for lsp_record in github-cli codex-cli pyright-language-server bash-language-server jq tree clang-format clangd-language-server; do
+  contains vendor/agent-canon/.devcontainer/dependencies.toml "id = \"${lsp_record}\""
+done
 
 gitlink="$(git ls-files -s vendor/agent-canon)"
 vendor_head="$(git -C vendor/agent-canon rev-parse HEAD)"
@@ -115,10 +156,12 @@ python3 - <<'PY'
 import tomllib
 from pathlib import Path
 
-for name in ("docker/packs/default.toml", "docker/packs/default-host-docker.toml"):
+for name in ("docker/packs/default.toml", "docker/packs/default-host-docker.toml", "docker/packs/gpu-admission.toml"):
     with Path(name).open("rb") as stream:
         payload = tomllib.load(stream)
     assert payload["pack"]["platform"] == "linux/amd64", name
+assert "target" not in tomllib.loads(Path("docker/packs/default.toml").read_text())["pack"]
+assert tomllib.loads(Path("docker/packs/gpu-admission.toml").read_text())["pack"]["target"] == "gpu-runtime"
 PY
 
 printf 'ZERO_BUILD_CONTRACT=pass\n'

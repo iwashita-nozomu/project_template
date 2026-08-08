@@ -27,21 +27,21 @@ upstream design vendor/agent-canon/CONTAINER_OPERATIONS.md AgentCanon container 
 必要な profile だけ追加で読みます。
 
 - bootstrap: [documents/contracts/template-bootstrap.md](documents/contracts/template-bootstrap.md)
-- agent runtime: [agents/README.md](agents/README.md), [agents/workflows/README.md](agents/workflows/README.md)
+- agent runtime: [agents/README.md](vendor/agent-canon/agents/README.md), [agents/workflows/README.md](vendor/agent-canon/agents/workflows/README.md)
 - Python: [coding-conventions-python.md](vendor/agent-canon/documents/conventions/coding-conventions-python.md)
 - C++: [cpp-build-layout.md](vendor/agent-canon/documents/design/cpp-build-layout.md)
 - host/runtime: [linux-wsl-host-requirements.md](documents/contracts/linux-wsl-host-requirements.md)
 
 実験を扱う場合は追加で次を見ます。
 
-- [agents/workflows/experiment-workflow.md](agents/workflows/experiment-workflow.md)
-- [agents/workflows/research-workflow.md](agents/workflows/research-workflow.md)
+- [agents/workflows/experiment-workflow.md](vendor/agent-canon/agents/workflows/experiment-workflow.md)
+- [agents/workflows/research-workflow.md](vendor/agent-canon/agents/workflows/research-workflow.md)
 - [documents/experiment-registry.md](vendor/agent-canon/documents/experiments/experiment-registry.md)
 - [experiments/README.md](experiments/README.md)
 
 agent を使う場合は次を見ます。
 
-- [agents/README.md](agents/README.md)
+- [agents/README.md](vendor/agent-canon/agents/README.md)
 - [documents/AGENTS_COORDINATION.md](vendor/agent-canon/documents/codex/AGENTS_COORDINATION.md)
 - [documents/agent-canon-parent-repo-latest-checklist.md](vendor/agent-canon/documents/agent-canon/agent-canon-parent-repo-latest-checklist.md)
 
@@ -49,7 +49,7 @@ agent を使う場合は次を見ます。
 
 - 既定の統合先は `main` です。
 - 短期 branch は必要なときだけ切り、長期の分岐運用は避けます。
-- branch 側で file 構成を変えた場合は、`agents/workflows/main-integration-workflow.md` を見て integration worktree で戻します。
+- branch 側で file 構成を変えた場合は、`vendor/agent-canon/agents/workflows/main-integration-workflow.md` を見て integration worktree で戻します。
 - 変更の前に、対象ディレクトリと必要な更新を先に決めます。
 - Python と Markdown は base profile ですが、validation は changed path と risk class に合わせます。
 
@@ -69,12 +69,12 @@ make check-matrix
 Python code を触る場合は targeted pytest / pyright / ruff を足します。
 shared canon を触る場合は `make agent-canon-pr-check`、Docker を触る場合は
 `make docker-check` と必要なら `make docker-build-check` を使います。
-AgentCanon が submodule の repo では、親 repo に無関係な dirty path があっても AgentCanon update surface が clean なら `make agent-canon-ensure-latest` を先に実行できます。
+AgentCanon が submodule の repo では、親 repo に無関係な dirty path があっても AgentCanon update surface が clean なら `make agent-canon-update` を先に実行できます。
 
 ## 3. 実装前の確認
 
 - `vendor/agent-canon/documents/conventions/README.md` と `vendor/agent-canon/documents/conventions/coding-conventions-python.md` を先に見ます。
-- agent workflow を使う変更なら `agents/workflows/README.md` と `agents/canonical/CODEX_WORKFLOW.md` を確認します。
+- agent workflow を使う変更なら `vendor/agent-canon/agents/workflows/README.md` と `vendor/agent-canon/agents/canonical/CODEX_WORKFLOW.md` を確認します。
 - AgentCanon submodule / root view を触る変更なら `vendor/agent-canon/documents/agent-canon/agent-canon-parent-repo-latest-checklist.md` と `vendor/agent-canon/documents/runtime/SHARED_RUNTIME_SURFACES.md` で owner class を確認します。
 
 ```bash
@@ -137,7 +137,7 @@ bash tools/agent-canon/run_comprehensive_review.sh
 - `pipdeptree` と `deptry` は dependency profile の tool です。dependency 変更時または scheduled audit で使います。
 
 `docker/Dockerfile` は project runtime、親所有の `.devcontainer/` regular overlay と
-AgentCanon symlink の `devcontainer.json` は managed devcontainer の agent ergonomics を
+親所有の regular `devcontainer.json` は managed devcontainer の agent ergonomics を
 持ちます。Codex state は container-local とし、API 認証は `OPENAI_API_KEY` と
 `OPENAI_BASE_URL` の明示 forward で渡します。詳細な境界、例外、validation は
 `vendor/agent-canon/CONTAINER_OPERATIONS.md`、template 固有の実行手順は

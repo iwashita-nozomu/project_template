@@ -49,6 +49,7 @@ done
 
 project_root="${workspace%/}"
 lock_file="${project_root}/docker/requirements.txt"
+gpu_lock_file="${project_root}/docker/requirements-gpu.txt"
 project_file="${project_root}/pyproject.toml"
 
 if [ ! -f "$lock_file" ]; then
@@ -111,6 +112,19 @@ case "$profile" in
     python3 -m pip install --no-build-isolation --no-deps --editable "${project_root}[dev]"
     python3 -m pip check
     ;;
+  gpu)
+    if [ ! -f "$project_file" ]; then
+      printf 'missing project metadata: %s\n' "$project_file" >&2
+      exit 2
+    fi
+    if [ ! -f "$gpu_lock_file" ]; then
+      printf 'missing GPU dependency lock file: %s\n' "$gpu_lock_file" >&2
+      exit 2
+    fi
+    python3 -m pip install --require-hashes -r "$lock_file" -r "$gpu_lock_file"
+    python3 -m pip install --no-build-isolation --no-deps --editable "${project_root}[dev,gpu]"
+    python3 -m pip check
+    ;;
   validation)
     validation_requirements="$(mktemp)"
     trap 'rm -f -- "$validation_requirements"' EXIT
@@ -121,7 +135,7 @@ case "$profile" in
     python3 -m pip install --require-hashes --no-deps -r "$validation_requirements"
     ;;
   *)
-    printf 'unsupported installer profile: %s\n' "$profile" >&2
+    printf 'unsupported installer profile: %s (use full, gpu, or validation)\n' "$profile" >&2
     exit 2
     ;;
 esac

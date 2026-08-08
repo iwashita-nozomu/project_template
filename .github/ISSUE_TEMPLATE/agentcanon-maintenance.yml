@@ -3,7 +3,7 @@
 # responsibility Defines AgentCanon maintenance issue capture form.
 # upstream design ../../vendor/agent-canon/documents/operations/issue-label-taxonomy.md issue labels and template routing.
 # upstream design ../../vendor/agent-canon/issues/README.md durable operational issue storage policy.
-# upstream design ../AGENTS.md GitHub subtree instructions.
+# upstream design ../../AGENTS.md GitHub subtree instructions.
 # upstream design ../../vendor/agent-canon/templates/documents/README.md canonical template owner.
 # downstream implementation ../../tools/agent-canon/ci/check_github_workflows.py validates GitHub surface conventions.
 # @dependency-end

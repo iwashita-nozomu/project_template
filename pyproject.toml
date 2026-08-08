@@ -24,7 +24,7 @@ classifiers = [
   "License :: OSI Approved :: Apache Software License",
 ]
 dependencies = [
-  "jax[cuda12-local]",
+  "jax",
   "jaxtyping",
   "typeguard",
   "equinox",
@@ -33,6 +33,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+gpu = [
+  "jax[cuda12-local]",
+]
 dev = [
   "pytest>=8",
   "ruff>=0.5",

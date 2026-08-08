@@ -30,47 +30,70 @@ class_values = [
   "external_dependency",
 ]
 
+# Opt-in source surfaces for dependency-header checks.  These are the active
+# Template-owned paths touched by repository changes; AgentCanon source headers
+# are checked from the vendored runtime surface.
+dependency_header_surfaces = [
+  ".github/**",
+  ".codex/**",
+  ".devcontainer/**",
+  ".vscode/**",
+  "docker/**",
+  "documents/**",
+  "scripts/**",
+  "tests/**",
+  "README.md",
+  "QUICK_START.md",
+  "responsibility-scope.toml",
+]
+
+# These entries are the current top-level responsibilities. Retired root views
+# such as `agents/`, `.agents/`, and `evidence/` are intentionally absent.
 required_coverage = [
   ".codex",
   ".devcontainer",
   ".github",
-  ".agents",
+  ".vscode",
+  "cpp",
   "documents",
   "docker",
-  "cpp",
-  "evidence",
   "experiments",
+  "memory",
+  "notes",
   "python",
+  "references",
+  "reports",
+  "rust",
   "scripts",
   "tests",
-  "rust",
+  "tools",
   "vendor/agent-canon",
-  "README.md",
+  ".dockerignore",
+  ".gitignore",
+  ".gitmodules",
+  ".markdownlint.json",
+  "AGENTS.md",
+  "LICENSE",
+  "Makefile",
   "QUICK_START.md",
+  "README.md",
+  "pyproject.toml",
+  "pyrightconfig.json",
   "responsibility-scope.toml",
+  "vendor/README.md",
 ]
 
 [[scope]]
 id = "agent-canon-runtime-view"
 owner = "agent-canon"
 class = "shared_runtime"
-description = "AgentCanon submodule pin and root runtime views into that pin."
+description = "The pinned AgentCanon source and its three active parent runtime projections."
 paths = [
   "vendor/agent-canon/**",
-  "agents",
-  ".agents",
-  ".codex/**",
-  ".devcontainer/devcontainer.json",
-  ".vscode/c_cpp_properties.json",
-  ".vscode/extensions.json",
-  ".vscode/settings.json",
-  ".vscode/tasks.json",
-  "tools",
-  "rust",
-  "rust/agent-canon/tests/**",
+  "tools/agent-canon",
+  "tools/agent-canon/**",
+  ".codex/config.toml",
   "AGENTS.md",
-  "evidence",
-  "memory/**",
 ]
 protecting_tools = [
   "tools/agent-canon/agent_tools/responsibility_scope.py",
@@ -82,21 +105,37 @@ issues = []
 id = "template-active-contract"
 owner = "template"
 class = "active_contract"
-description = "Template-owned entrypoints, bootstrap contracts, Docker runtime, implementation skeleton, tests, and durable docs."
+description = "Template-owned entrypoints, regular overlays, implementation profiles, tests, and project tooling."
 paths = [
-  "README.md",
-  "QUICK_START.md",
-  "responsibility-scope.toml",
+  ".agent-canon/**",
+  ".codex/**",
+  ".devcontainer/**",
+  ".vscode/**",
+  "cpp/**",
   "documents/**",
   "docker/**",
-  ".devcontainer/**",
   "scripts/**",
   "python/**",
-  "cpp/**",
+  "rust/**",
   "tests/**",
+  "tools/**",
+  "vendor/README.md",
+  ".dockerignore",
+  ".gitignore",
+  ".gitmodules",
+  ".markdownlint.json",
+  "LICENSE",
+  "Makefile",
+  "QUICK_START.md",
+  "README.md",
+  "pyproject.toml",
+  "pyrightconfig.json",
+  "responsibility-scope.toml",
 ]
 exclude_paths = [
-  ".devcontainer/devcontainer.json",
+  ".codex/config.toml",
+  "tools/agent-canon",
+  "tools/agent-canon/**",
 ]
 protecting_tools = [
   "tools/agent-canon/agent_tools/responsibility_scope.py",
@@ -109,7 +148,7 @@ issues = []
 id = "github-automation"
 owner = "github"
 class = "github_surface"
-description = "Repository-local GitHub Actions, PR templates, and GitHub-facing automation."
+description = "Repository-local GitHub Actions, issue templates, PR templates, and automation scripts."
 paths = [
   ".github/**",
 ]
@@ -122,11 +161,13 @@ issues = []
 id = "project-durable-state"
 owner = "derived-project"
 class = "durable_state"
-description = "Project-specific checked-in notes, experiments, references, and runtime state."
+description = "Project-specific experiments, notes, references, memory, and retained reports."
 paths = [
   "experiments/**",
+  "memory/**",
   "notes/**",
   "references/**",
+  "reports/**",
 ]
 protecting_tools = [
   "tools/agent-canon/agent_tools/responsibility_scope.py",

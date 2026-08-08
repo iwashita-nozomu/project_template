@@ -123,6 +123,16 @@ GPU は必須ではありません。
 
 GPU が無いこと自体を failure 条件にしません。
 
+## 7.1 Rootless UID/GID mapping limitation
+
+devcontainer generator は host process の `id -u`/`id -g` を唯一の
+`PROJECT_UID`/`PROJECT_GID` source とし、container の `project` user/group と Compose
+`user` に同じ値を渡します。Docker rootless mode または user-namespace remapping では
+bind mount の host owner readback が数値 mapping のため異なることがあります。この
+制約を root 起動、host group mutation、または `chmod`/`chown` fallback で隠しません。
+mapped workspace が writable にならない場合は、mapping を是正した runtime へ戻すか、
+明示的 blocker として停止します。
+
 ## 8. Codex / Agent Requirement
 
 - `codex` は host に入っていることを推奨します

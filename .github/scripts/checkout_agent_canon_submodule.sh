@@ -2,9 +2,9 @@
 # @dependency-start
 # contract tool
 # responsibility Checks out the AgentCanon submodule without persisting repository credentials across workflow steps.
-# upstream design ../../documents/agent-canon/agent-canon-github-remote.md defines private submodule auth policy.
-# upstream design ../../agents/workflows/agent-canon-pr-workflow.md defines GitHub runtime behavior.
-# downstream implementation ../../tools/ci/check_github_workflows.py enforces workflow usage.
+# upstream design ../../vendor/agent-canon/documents/agent-canon/agent-canon-github-remote.md defines private submodule auth policy.
+# upstream design ../../vendor/agent-canon/agents/workflows/agent-canon-pr-workflow.md defines GitHub runtime behavior.
+# downstream implementation ../../tools/agent-canon/ci/check_github_workflows.py enforces workflow usage.
 # @dependency-end
 
 set -euo pipefail

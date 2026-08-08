@@ -52,11 +52,18 @@ GitHub-backed template では、`vendor/agent-canon` submodule は
 `--force` を init に渡すと wrapper は agent-canon preflight を block 扱いで skip し、dirty worktree override を優先します。
 AgentCanon は GitHub submodule を正本とし、初期化時に project-local `agent-canon` bare repo は作りません。
 
-派生 repo から `agent-canon` だけ更新したいときは次を使います。
+派生 repo から `agent-canon` だけ更新したいときの canonical entry は次です。
 
 ```bash
-bash tools/update_agent_canon.sh plan
-make agent-canon-ensure-latest
+make agent-canon-update
+```
+
+同じ更新を直接呼び出す必要がある場合だけ、generic source-root dispatcher を
+同等の代替として使います。両方を連続して実行しません。
+
+```bash
+PYTHONPATH=vendor/agent-canon/tools:tools python3 -m agent_tools.agent_canon_source_root exec \
+  tools/update_agent_canon.sh latest
 ```
 
 派生 repo 側で shared canon を直した場合は、`vendor/agent-canon/` 内で通常の GitHub branch を作って commit し、main を取り込んでから PR を出します。
@@ -65,11 +72,22 @@ make agent-canon-ensure-latest
 git -C vendor/agent-canon switch -c canon-pr/<short-topic>
 git -C vendor/agent-canon add -A
 git -C vendor/agent-canon commit -m "<message>"
-bash tools/update_agent_canon.sh merge-main-into-current
+PYTHONPATH=vendor/agent-canon/tools:tools python3 -m agent_tools.agent_canon_source_root exec \
+  tools/update_agent_canon.sh merge-main-into-current
 git -C vendor/agent-canon push origin HEAD
 ```
 
-AgentCanon PR merge 後に派生 repo 側へ戻り、`make agent-canon-ensure-latest` で pin、root view、compiled tool rebuild、親 repo update TODO routing をまとめて更新します。
+AgentCanon PR merge 後に派生 repo 側へ戻り、`make agent-canon-update` で pin、root view、compiled tool rebuild、親 repo update TODO routing をまとめて更新します。
+
+`surface_manifest` と `dependency_module_change` は generic source-root dispatcher から
+canonical AgentCanon source を実行します。
+
+```bash
+PYTHONPATH=vendor/agent-canon/tools:tools python3 -m agent_tools.agent_canon_source_root exec \
+  tools/agent_tools/surface_manifest.py --help
+PYTHONPATH=vendor/agent-canon/tools:tools python3 -m agent_tools.agent_canon_source_root exec \
+  tools/agent_tools/dependency_module_change.py --help
+```
 
 GitHub 管理では template の canonical remote を
 `https://github.com/iwashita-nozomu/project_template.git` にします。`.gitmodules` の AgentCanon URL は
@@ -107,17 +125,10 @@ bash scripts/start_repository.sh --validate-only
 ## 5. 作業開始
 
 - agent workflow:
-  - `agents/README.md`
+  - `vendor/agent-canon/agents/README.md`
 - workflow canon:
-  - `agents/workflows/README.md`
-- worktree kickoff:
-  - `bash tools/worktree_start.sh <branch-name> [worktree-path]`
-
-worktree を使う場合は kickoff 後に継続ログを残します。
-
-```bash
-python3 tools/agent-canon/agent_tools/work_log.py \
-  --kind kickoff \
-  --message "references and scope confirmed" \
-  --next "start implementation"
-```
+  - `vendor/agent-canon/agents/workflows/README.md`
+- managed repository-topic workspace:
+  - AgentCanon source clones belong under `workspace/<topic-slug>/agent-canon/`.
+  - Use the dependency-module lifecycle for prepare, status, merge, and cleanup;
+    remove the lifecycle-owned topic directory after commit/PR and pin readback.
