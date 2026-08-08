@@ -140,6 +140,11 @@ if grep -Eq '\.zshenv|/root/\.codex|/etc/project-template/parent-environment\.sh
   fail '.devcontainer/post-create-parent.sh:forbidden-shell-state-dependency'
 fi
 contains .devcontainer/dependencies.toml 'records = []'
+for selector in .devcontainer/devcontainer.json .devcontainer/gpu-admission/devcontainer.json; do
+  contains "$selector" '.devcontainer/bootstrap-dependencies.sh --install-language-runtime && python3'
+  contains "$selector" '.devcontainer/post-create-entrypoint.sh'
+done
+contains docker/cold-build-smoke.sh '.devcontainer/bootstrap-dependencies.sh --install-language-runtime'
 for lsp_record in github-cli codex-cli pyright-language-server bash-language-server jq tree clang-format clangd-language-server; do
   contains vendor/agent-canon/.devcontainer/dependencies.toml "id = \"${lsp_record}\""
 done

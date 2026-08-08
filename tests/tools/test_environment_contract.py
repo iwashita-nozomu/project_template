@@ -76,6 +76,12 @@ def test_default_and_gpu_selectors_are_regular_and_identity_stable() -> None:
         assert "updateRemoteUserUID" not in config
         assert "PROJECT_UID" not in config["initializeCommand"]
         assert "PROJECT_GID" not in config["initializeCommand"]
+        post_create = config["postCreateCommand"]
+        bootstrap = ".devcontainer/bootstrap-dependencies.sh --install-language-runtime"
+        entrypoint = ".devcontainer/post-create-entrypoint.sh"
+        assert post_create.count(bootstrap) == 1
+        assert post_create.count(entrypoint) == 1
+        assert post_create.index(bootstrap) < post_create.index(entrypoint)
     assert "gpu-admission" not in default["name"]
     assert "gpu-admission" in profile["name"]
     assert profile["dockerComposeFile"] != default["dockerComposeFile"]
@@ -143,6 +149,7 @@ def test_cold_smoke_readbacks_executor_and_bind_identity() -> None:
         "COLD_SMOKE_EXPECT_NON_DEFAULT_ID=pass",
         'test "$(id -u)" = "${EXPECTED_EXECUTOR_UID:?}"',
         'test "$(id -g)" = "${EXPECTED_EXECUTOR_GID:?}"',
+        ".devcontainer/bootstrap-dependencies.sh --install-language-runtime",
         "COLD_SMOKE_CONTAINER_READBACK=identity contract=rootful",
         "probe_relative=\".devcontainer/.cold-build-smoke-",
         "stat -c '%u' \"$probe_host\"",

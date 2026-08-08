@@ -109,6 +109,10 @@ cd "$workspace"
 
 # The lifecycle is deliberately reached through the same public resolver used by
 # devcontainer.json, so standalone and vendored source-root behavior are tested.
+# The fixed bootstrap owns Node/npm and Ninja. Install that language-runtime
+# layer explicitly before the shared entrypoint exercises its fail-closed check.
+python3 tools/agent-canon/agent_tools/agent_canon_source_root.py exec \
+  .devcontainer/bootstrap-dependencies.sh --install-language-runtime
 python3 tools/agent-canon/agent_tools/agent_canon_source_root.py exec \
   .devcontainer/post-create-entrypoint.sh "$workspace"
 

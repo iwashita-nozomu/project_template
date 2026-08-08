@@ -35,8 +35,10 @@ Python module install を image build へ移しません。
 
 managed devcontainer の shared developer/agent tools は AgentCanon の owner です。親の
 `.devcontainer/` は regular overlay として保持し、Template-owned selectors が
-source-root resolver 経由で AgentCanon generator/bootstrap を呼びます。legacy symlink は
-作りません。`vendor/agent-canon/.devcontainer/dependencies.toml` が共有 tool の
+source-root resolver 経由で AgentCanon generator/bootstrap を呼びます。Node/npm と Ninja
+は selectors が fixed bootstrap の明示的な `--install-language-runtime` を先に実行し、
+shared post-create の fail-closed `--check` に渡します。legacy symlink は作りません。
+`vendor/agent-canon/.devcontainer/dependencies.toml` が共有 tool の
 宣言的 source で、shared `post-create.sh` が parent manifest を先に読み、vendor manifest
 を次に merge して導入・検証します。親固有の developer/agent record がないため、root
 `.devcontainer/dependencies.toml` は schema v2 の empty parent layer を保持し、vendor record
@@ -116,7 +118,10 @@ Codex state は container-local を正本にします。nested Codex は
 `~/.codex` を mount / seed しません。API 認証が必要な場合は
 `OPENAI_API_KEY` と `OPENAI_BASE_URL` を runner の明示的な environment forward
 で渡します。
-Codex CLI、Codex 用 Node/npm、GitHub CLI は Docker image へ焼かず、workspace mount 後に `vendor/agent-canon/.devcontainer/post-create.sh` で導入します。nested Codex runner は setup だけ root で行い、Codex 起動前に host `uid:gid` へ落とします。
+Codex CLI、Codex 用 Node/npm、GitHub CLI は Docker image へ焼きません。workspace mount
+後、selector が fixed bootstrap の language runtime を導入してから
+`vendor/agent-canon/.devcontainer/post-create.sh` が manifest tool を導入します。nested
+Codex runner は setup だけ root で行い、Codex 起動前に host `uid:gid` へ落とします。
 
 既定の挙動は次です。
 
