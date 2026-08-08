@@ -150,7 +150,6 @@ docker --version
 dot -V
 jq --version
 gh --version
-agent-canon --version
 
 probe_relative="${SMOKE_PROBE_RELATIVE:?}"
 case "$probe_relative" in

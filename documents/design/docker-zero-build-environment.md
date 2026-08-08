@@ -226,7 +226,9 @@ resolved hashesは `docker/requirements.txt` に集約する。
 identity に一度だけ materialize し、`docker build --platform linux/amd64 --pull --no-cache` を一度、同じ image の non-root smoke を一度実行する。smoke は
 `id -u`、`sudo -n true`、home/workspace ownership、zsh、Python 3.11、CPU JAX import、
 CUDA/cuDNN/NCCL absent、Node/npm、Ninja、tree、required AgentCanon tools を
-確認し、CPU target で CUDA/cuDNN/NCCL が不在であることを確認し、最後に status、uid、gid、home、workspace を含む JSON pass receipt を stdout へ
+確認する。ここでいう tool は fixed bootstrap または dependency manifest が宣言した
+runtime executable であり、manifest record ではない AgentCanon CLI binary を追加要件に
+しない。CPU target で CUDA/cuDNN/NCCL が不在であることを確認し、最後に status、uid、gid、home、workspace を含む JSON pass receipt を stdout へ
 一度だけ出力する。CI log がこの stdout receipt を保持し、named file や artifact upload は
 要求しない。
 host-docker pack はこの acceptance path から外し、local Make target は通常 cache を

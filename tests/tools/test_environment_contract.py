@@ -158,6 +158,7 @@ def test_cold_smoke_readbacks_executor_and_bind_identity() -> None:
         "trap cleanup_probe EXIT HUP INT TERM",
     ):
         assert marker in smoke
+    assert "agent-canon --version" not in smoke
     assert smoke.count('{"status":"pass"') == 1
 
 
