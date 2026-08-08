@@ -7,7 +7,6 @@ import subprocess
 import tomllib
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[2]
 
 
@@ -80,3 +79,22 @@ def test_static_environment_contract_passes() -> None:
         text=True,
     )
     assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_cold_smoke_readbacks_executor_and_bind_identity() -> None:
+    """Rootful cold smoke carries host IDs into the container and reads bind ownership back."""
+    smoke = (ROOT / "docker/cold-build-smoke.sh").read_text(encoding="utf-8")
+    for marker in (
+        '"EXPECTED_EXECUTOR_UID=${project_uid}"',
+        '"EXPECTED_EXECUTOR_GID=${project_gid}"',
+        'test "$(id -u)" = "${EXPECTED_EXECUTOR_UID:?}"',
+        'test "$(id -g)" = "${EXPECTED_EXECUTOR_GID:?}"',
+        "COLD_SMOKE_CONTAINER_READBACK=identity contract=rootful",
+        "probe_relative=\".devcontainer/.cold-build-smoke-",
+        "stat -c '%u' \"$probe_host\"",
+        "stat -c '%g' \"$probe_host\"",
+        "COLD_SMOKE_BIND_READBACK=pass contract=rootful",
+        "trap cleanup_probe EXIT HUP INT TERM",
+    ):
+        assert marker in smoke
+    assert smoke.count('{"status":"pass"') == 1

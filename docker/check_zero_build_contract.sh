@@ -86,6 +86,11 @@ contains docker/codex-container-profiles.toml 'mount_host_git_credentials = fals
 contains docker/codex-container-profiles.toml 'forward_ssh_auth_sock = false'
 contains docker/codex-container-profiles.toml 'forward_env = []'
 contains "$workflow" 'bash docker/cold-build-smoke.sh --pull --no-cache'
+contains docker/cold-build-smoke.sh 'EXPECTED_EXECUTOR_UID='
+contains docker/cold-build-smoke.sh 'EXPECTED_EXECUTOR_GID='
+contains docker/cold-build-smoke.sh 'COLD_SMOKE_CONTAINER_READBACK=identity contract=rootful'
+contains docker/cold-build-smoke.sh 'COLD_SMOKE_BIND_READBACK=pass contract=rootful'
+contains docker/cold-build-smoke.sh 'trap cleanup_probe EXIT HUP INT TERM'
 contains "$workflow" '      - "pyproject.toml"'
 workflow_commands="$(grep -Ev '^[[:space:]]*#' "$workflow")"
 if printf '%s\n' "$workflow_commands" | grep -Fq 'default-host-docker.toml' \

@@ -9,9 +9,11 @@
 
 set -euo pipefail
 
-# Output contract: build and smoke diagnostics remain on stdout, followed by one
-# JSON pass receipt containing status, uid, gid, home, and workspace. CI consumes
-# this stdout receipt; it is not a checked-in source dependency or artifact path.
+# Output contract: build and smoke diagnostics remain on stdout, followed by a
+# container identity readback and one host-side JSON pass receipt. CI consumes
+# these stdout receipts; they are not checked-in source dependencies or artifact
+# paths. This witness is rootful only. Rootless/user-namespace mapping is a
+# separate documented contract.
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 image_tag="project-template:zero-build-cold-smoke"
@@ -51,11 +53,26 @@ done
 [ "$pull" -eq 1 ] || { echo "cold acceptance requires --pull" >&2; exit 2; }
 [ "$no_cache" -eq 1 ] || { echo "cold acceptance requires --no-cache" >&2; exit 2; }
 command -v docker >/dev/null 2>&1 || { echo "docker is required" >&2; exit 2; }
+docker_security_options="$(docker info --format '{{json .SecurityOptions}}' 2>/dev/null || true)"
+case "$docker_security_options" in
+  *rootless*)
+    echo "rootless Docker is outside the rootful cold-smoke contract" >&2
+    exit 2
+    ;;
+esac
 
 project_uid="$(id -u)"
 project_gid="$(id -g)"
 case "$project_uid" in ''|0|*[!0-9]*) echo "host UID must be positive" >&2; exit 2 ;; esac
 case "$project_gid" in ''|0|*[!0-9]*) echo "host GID must be positive" >&2; exit 2 ;; esac
+
+probe_relative=".devcontainer/.cold-build-smoke-${project_uid}-${project_gid}-$$"
+probe_host="$repo_root/$probe_relative"
+[ ! -e "$probe_host" ] || { echo "smoke probe already exists: $probe_host" >&2; exit 2; }
+cleanup_probe() {
+  rm -f -- "$probe_host"
+}
+trap cleanup_probe EXIT HUP INT TERM
 
 build_command=(
   docker build
@@ -85,6 +102,8 @@ python3 tools/agent-canon/agent_tools/agent_canon_source_root.py exec \
 
 test "$(id -u)" -ne 0
 test "$(id -un)" = project
+test "$(id -u)" = "${EXPECTED_EXECUTOR_UID:?}"
+test "$(id -g)" = "${EXPECTED_EXECUTOR_GID:?}"
 test "${HOME:-}" = /home/project
 test "$(stat -c '%u:%g' "$HOME")" = "$(id -u):$(id -g)"
 sudo -n true
@@ -117,8 +136,19 @@ jq --version
 gh --version
 agent-canon --version
 
-printf '{"status":"pass","uid":%s,"gid":%s,"home":"%s","workspace":"%s"}\n' \
-  "$(id -u)" "$(id -g)" "$HOME" "$workspace"
+probe_relative="${SMOKE_PROBE_RELATIVE:?}"
+case "$probe_relative" in
+  .devcontainer/.cold-build-smoke-[1-9][0-9]*-[1-9][0-9]*-[1-9][0-9]*) ;;
+  *) echo "invalid smoke probe path" >&2; exit 1 ;;
+esac
+probe_path="$workspace/$probe_relative"
+printf 'container_uid=%s\ncontainer_gid=%s\nexecutor_uid=%s\nexecutor_gid=%s\n' \
+  "$(id -u)" "$(id -g)" "$EXPECTED_EXECUTOR_UID" "$EXPECTED_EXECUTOR_GID" >"$probe_path"
+test -f "$probe_path"
+
+printf 'COLD_SMOKE_CONTAINER_READBACK=identity contract=rootful container_uid=%s container_gid=%s executor_uid=%s executor_gid=%s home=%s workspace=%s bind_probe=%s\n' \
+  "$(id -u)" "$(id -g)" "$EXPECTED_EXECUTOR_UID" "$EXPECTED_EXECUTOR_GID" \
+  "$HOME" "$workspace" "$probe_path"
 SMOKE
 )
 
@@ -128,6 +158,9 @@ run_command=(
   --workdir /workspace/project_template
   --env AGENT_CANON_CONTAINER_USER=project
   --env AGENT_CANON_DEPENDENCY_PROFILE=full
+  --env "EXPECTED_EXECUTOR_UID=${project_uid}"
+  --env "EXPECTED_EXECUTOR_GID=${project_gid}"
+  --env "SMOKE_PROBE_RELATIVE=${probe_relative}"
   "$image_tag"
   /bin/bash -lc "$smoke_script"
 )
@@ -135,3 +168,22 @@ printf 'cold-smoke:'
 printf ' %q' "${run_command[@]}"
 printf '\n'
 "${run_command[@]}"
+
+probe_content="$(cat -- "$probe_host")"
+container_uid="$(printf '%s\n' "$probe_content" | awk -F= '$1 == "container_uid" {print $2; exit}')"
+container_gid="$(printf '%s\n' "$probe_content" | awk -F= '$1 == "container_gid" {print $2; exit}')"
+generated_uid="$(printf '%s\n' "$probe_content" | awk -F= '$1 == "executor_uid" {print $2; exit}')"
+generated_gid="$(printf '%s\n' "$probe_content" | awk -F= '$1 == "executor_gid" {print $2; exit}')"
+host_probe_uid="$(stat -c '%u' "$probe_host")"
+host_probe_gid="$(stat -c '%g' "$probe_host")"
+test "$container_uid" = "$project_uid"
+test "$container_gid" = "$project_gid"
+test "$generated_uid" = "$project_uid"
+test "$generated_gid" = "$project_gid"
+test "$host_probe_uid" = "$project_uid"
+test "$host_probe_gid" = "$project_gid"
+printf 'COLD_SMOKE_BIND_READBACK=pass contract=rootful host_path=%s host_uid=%s host_gid=%s generated_uid=%s generated_gid=%s container_uid=%s container_gid=%s\n' \
+  "$probe_host" "$host_probe_uid" "$host_probe_gid" "$generated_uid" "$generated_gid" "$container_uid" "$container_gid"
+printf '{"status":"pass","contract":"rootful","identity":{"host_executor_uid":%s,"host_executor_gid":%s,"generated_project_uid":%s,"generated_project_gid":%s,"container_uid":%s,"container_gid":%s},"bind_readback":{"host_path":"%s","host_uid":%s,"host_gid":%s,"container_path":"/workspace/project_template/%s"}}\n' \
+  "$project_uid" "$project_gid" "$generated_uid" "$generated_gid" "$container_uid" "$container_gid" \
+  "$probe_host" "$host_probe_uid" "$host_probe_gid" "$probe_relative"
