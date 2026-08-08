@@ -482,12 +482,6 @@ jax==0.10.2 \
     #   equinox
     #   optax
     #   project-template (pyproject.toml)
-jax-cuda12-plugin==0.10.2 \
-    --hash=sha256:76bbfece2f6effb4e8908eb8a5fbf1abbc1125de667683ec2ffba51c63dc57af
-    # via jax (pyproject.toml)
-jax-cuda12-pjrt==0.10.2 \
-    --hash=sha256:806d1fd29038b6acf5a2b289dd62192abea977ee26aef60ea295b1d28a23acf8
-    # via jax-cuda12-plugin
 jaxlib==0.10.2 \
     --hash=sha256:1faca3c5d4662cb4a6130a68105d68bb520764817e165d6eebfd6786c0d1f30f \
     --hash=sha256:45b28b0238697ab74bbcf20411aafb6db42acc31836cc2fd711e5cf056bf9556 \

@@ -96,13 +96,13 @@ zsh -fc 'test "$SHELL" = /bin/zsh; exit 0'
 
 python3 --version | grep -E '^Python 3\.11\.'
 python3 -m pip --version
-python3 -c 'import jax; print("JAX_RUNTIME=" + jax.__version__)'
-nvcc --version | grep -F 'release 12.8'
-dpkg-query -W -f='${Version}\n' cuda-toolkit-12-8 | grep -Fx '12.8.2-1'
-dpkg-query -W -f='${Version}\n' libcudnn9-cuda-12 | grep -Fx '9.8.0.87-1'
-dpkg-query -W -f='${Version}\n' libcudnn9-dev-cuda-12 | grep -Fx '9.8.0.87-1'
-dpkg-query -W -f='${Version}\n' libnccl2 | grep -Fx '2.25.1-1+cuda12.8'
-dpkg-query -W -f='${Version}\n' libnccl-dev | grep -Fx '2.25.1-1+cuda12.8'
+python3 -c 'import jax; assert jax.default_backend() == "cpu"; print("JAX_RUNTIME=" + jax.__version__)'
+! command -v nvcc
+! dpkg-query -W cuda-toolkit-12-8
+! dpkg-query -W libcudnn9-cuda-12
+! dpkg-query -W libcudnn9-dev-cuda-12
+! dpkg-query -W libnccl2
+! dpkg-query -W libnccl-dev
 
 node --version | grep -Fx 'v22.14.0'
 npm --version | grep -Fx '10.9.2'
