@@ -24,6 +24,4 @@ commands = [
 shell = "/bin/zsh"
 workdir = "/workspace"
 workspace_mount = "/workspace"
-mounts = [
-  "/var/run/docker.sock:/var/run/docker.sock",
-]
+optional_mount_profiles = ["docker-host"]
