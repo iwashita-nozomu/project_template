@@ -2,7 +2,7 @@
 # contract configuration
 # responsibility Defines CTest consumers and the cpp-tests aggregate target.
 # upstream design ../../vendor/agent-canon/documents/design/cpp-build-layout.md test graph and aggregate contract
-# downstream implementation ../CMakeLists.txt provides cpp-core
+# upstream implementation ../CMakeLists.txt provides cpp-core
 # @dependency-end
 
 file(
