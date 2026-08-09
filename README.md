@@ -30,7 +30,7 @@ directory までの `AGENTS.override.md` / `AGENTS.md` / configured fallback fil
 ## この文書の読み方
 
 - この README は、template repo の構造、基本方針、clone 後の進め方、日常コマンドの入口を扱います。
-- `テンプレート構造` と `基本方針` で repo 全体の責務を確認し、clone、初期手順、実験、Docker、詳細入口は目的別 section を読みます。
+- `全体設計` で Template と AgentCanon の owner 境界・配布境界を確認してから、`テンプレート構造` と `基本方針` を読みます。clone、初期手順、実験、Docker、詳細入口は目的別 section を読みます。
 - 新規 clone、派生 repo の立ち上げ、どの正本文書へ進むかを決めるときに最初に読みます。
 
 ## 全体設計
@@ -44,11 +44,13 @@ AgentCanon の owner document がそれぞれ所有します。この section �
 
 ### 責務境界
 
-Template は project domain の source、active contract、pin、root view を所有します。
-AgentCanon source は shared runtime の policy、workflow、skill、role、tool、validation
-contract を所有します。親 root の `AGENTS.md` は
-`vendor/agent-canon/ROOT_AGENTS.md` に基づく runtime view であり、Template が別の
-instruction canon を作る場所ではありません。
+Template は project domain の source、active contract、そして AgentCanon を pin する
+integration commit を所有します。AgentCanon source は shared runtime の policy、workflow、
+skill、role、tool、validation contract と、`AGENTS.md`、`.codex`、tools view の active
+root-view projection contract/content を所有します。親 root の `AGENTS.md` は
+`vendor/agent-canon/ROOT_AGENTS.md` に基づく runtime view です。これらの view は親 root に
+物理配置されますが、Template が直接編集する別の instruction canon ではありません。親側は
+owner route に従って view を materialize、sync、readback します。
 
 Runtime profile の reader route は
 [Runtime Profiles And Check Matrix](vendor/agent-canon/documents/runtime/runtime-profiles-and-check-matrix.md)、
@@ -71,7 +73,8 @@ application の構造を固定するのではなく、選択した runtime profi
 組み合わせられる出発点を提供します。
 
 設計上の中心は、project 固有の責務と AgentCanon が所有する共有責務を分離し、
-`vendor/agent-canon` の commit pin と明示的な root view で接続することです。これにより、
+`vendor/agent-canon` を pin する integration commit と AgentCanon の root-view projection
+contract で接続することです。これにより、
 派生 project は domain code と active contract を所有しながら、同じ AgentCanon revision
 から workflow、skill、hook、共有 tool を再現できます。
 
@@ -81,19 +84,22 @@ application の構造を固定するのではなく、選択した runtime profi
 flowchart LR
   request[Request]
 
-  subgraph parent[Template / derived project owner]
-    entry[README and root AGENTS view]
+  subgraph parent[Template / derived project placement and integration]
+    entry[README project entry]
     domain[Project source and active contracts]
-    pin[vendor/agent-canon commit pin]
-    views[Root runtime views]
+    integration[Integration commit pins AgentCanon]
+    materialize[Parent materialize sync readback]
+    views[Root views at parent root physical placement]
     owner_routes[Owner routes for mutations]
   end
 
   subgraph canon[AgentCanon source owner]
     runtime[Shared policy workflow skill role tool]
     profiles[Profile and shared-surface routes]
-    source_update[Accepted source change]
-    review[Review and main readback]
+    projection[Active root-view projection contract/content]
+    candidate[Source change candidate]
+    review[Review and PR]
+    accepted[Accepted main readback]
   end
 
   validators[Validators]
@@ -107,16 +113,22 @@ flowchart LR
   owner_routes --> validators
   validators --> evidence
   domain --> artifacts
-  runtime --> source_update
-  source_update --> review
-  review --> pin
-  pin --> views
+  runtime --> projection
+  runtime --> candidate
+  candidate --> review
+  review --> accepted
+  accepted --> integration
+  projection --> materialize
+  integration --> materialize
+  materialize --> views
   views --> entry
   profiles --> validators
 ```
 
 `AGENTS.md`、`vendor/agent-canon/ROOT_AGENTS.md`、profile route、shared-surface route は
-reader と owner をつなぐ入口です。Validators は変更の property を確認して evidence と
+reader と owner をつなぐ入口です。`AGENTS.md` などの root view は親 root に配置されますが、
+その projection contract/content は AgentCanon が所有し、親側は materialization、sync、
+readback の operation を行います。Validators は変更の property を確認して evidence と
 readback を生成しますが、mutation の代替にはなりません。変更は選択された owner route
 から行い、profile と touched surface に対応する validation だけを実行します。
 
@@ -130,20 +142,26 @@ review、validation は選択した profile と touched surface に従って決�
    変更対象の owner を区別します。
 1. Active contract と runtime profile の reader route を読み、設計、実装、validation の
    対応を決めます。機械可読な TOML / JSON はその判断を実行へ伝える canonical source です。
-1. Project source、active contract、pin、root view の変更は、それぞれの owner route で
-   行います。Validator は finding、evidence、readback を返します。
+1. Project source、active contract、AgentCanon source の変更は、それぞれの owner route で
+   行います。Template 側の integration commit は AgentCanon pin を固定し、親側の route が
+   root view を materialize、sync、readback します。Validator は finding、evidence、readback
+   を返します。
 1. Project artifact、report、experiment result、runtime evidence は対応する artifact
    owner が管理します。全 surface に一律の retention policy があるとは限りません。
 1. AgentCanon source の更新が必要な場合は、AgentCanon 側の source change、review、main
-   readback の後に、Template 側で pin と root view を更新します。
+   readback の後に、Template 側で pin を固定する integration commit を作成し、親側の route
+   で root view を materialize、sync、readback します。
 
 ### 配布境界
 
 Template と derived repository は、project 固有の source、active contract、開発環境、
-experiment、project artifact、`vendor/agent-canon` の commit pin と root view を所有します。
-AgentCanon repository は shared policy、workflow、skill、role、tool、validation contract
-の source を所有します。Template は AgentCanon source を複製せず、pin と root view から
-必要な runtime surface を公開します。
+experiment、project artifact、そして `vendor/agent-canon` を pin する integration commit
+を所有します。AgentCanon repository は shared policy、workflow、skill、role、tool、validation
+contract の source と、`AGENTS.md`、`.codex`、tools view の active root-view projection
+contract/content を所有します。これらの view は親 root に物理配置されますが、親側は owner
+route に従って materialize、sync、readback し、view の内容を直接編集しません。Template は
+AgentCanon source を複製せず、integration commit と materialized root view から必要な runtime
+surface を公開します。
 
 Generated runtime view、validator evidence、run report、experiment result、memory、notes
 は、それぞれの owner が定める surface で扱います。これらを一つの retention policy に
@@ -159,12 +177,13 @@ route は [Shared Runtime Surfaces](vendor/agent-canon/documents/runtime/SHARED_
 
 ### 設計上の不変条件
 
-- Project domain、active contract、pin、root view と shared runtime source は、それぞれ一つの owner を持ちます。
-- 親 root の `AGENTS.md` は `vendor/agent-canon/ROOT_AGENTS.md` に基づく view であり、独立した policy source ではありません。
+- Template / derived repository は project domain、active contract、そして AgentCanon を pin する integration commit を所有します。
+- AgentCanon は shared runtime source と `AGENTS.md`、`.codex`、tools view の active root-view projection contract/content を所有します。これらは親 root に物理配置されます。
+- 親 root の `AGENTS.md` は `vendor/agent-canon/ROOT_AGENTS.md` に基づく view であり、親側は owner route に従って materialize、sync、readback します。親側はその内容を直接編集しません。
 - Runtime profile と shared surface の Markdown は reader route、TOML / JSON は機械可読 canonical source として対応します。
 - Validator は evidence / readback を生成し、mutation は選択された owner route から行います。
 - Project 固有の code、config、active contract、artifact は AgentCanon の shared source に取り込みません。
-- AgentCanon source の変更は source 側の review / main readback を経てから Template の pin / root view に反映します。
+- AgentCanon source の変更は source 側の review / main readback を経てから Template の integration commit に pin され、親側の route で root view が materialize、sync、readback されます。
 - Artifact、report、log、experiment output の保持期間は owner ごとに決まり、全 surface に一律の retention policy を置きません。
 
 ## テンプレート構造の例
