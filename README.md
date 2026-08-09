@@ -46,8 +46,9 @@ AgentCanon の owner document がそれぞれ所有します。この section �
 
 Template は project domain の source、active contract、そして AgentCanon を pin する
 integration commit を所有します。AgentCanon source は shared runtime の policy、workflow、
-skill、role、tool、validation contract と、`AGENTS.md`、`.codex`、tools view の active
-root-view projection contract/content を所有します。親 root の `AGENTS.md` は
+skill、role、tool、validation contract と、root `AGENTS.md`、`.codex/config.toml`、
+`tools/agent-canon` の active root-view projection contract/content を所有します。
+`.codex/` の container とその他の内容は parent overlay として扱います。親 root の `AGENTS.md` は
 `vendor/agent-canon/ROOT_AGENTS.md` に基づく runtime view です。これらの view は親 root に
 物理配置されますが、Template が直接編集する別の instruction canon ではありません。親側は
 owner route に従って view を materialize、sync、readback します。
@@ -157,8 +158,9 @@ review、validation は選択した profile と touched surface に従って決�
 Template と derived repository は、project 固有の source、active contract、開発環境、
 experiment、project artifact、そして `vendor/agent-canon` を pin する integration commit
 を所有します。AgentCanon repository は shared policy、workflow、skill、role、tool、validation
-contract の source と、`AGENTS.md`、`.codex`、tools view の active root-view projection
-contract/content を所有します。これらの view は親 root に物理配置されますが、親側は owner
+contract の source と、root `AGENTS.md`、`.codex/config.toml`、`tools/agent-canon` の active
+root-view projection contract/content を所有します。`.codex/` の container とその他の内容は
+parent overlay として扱います。これらの view は親 root に物理配置されますが、親側は owner
 route に従って materialize、sync、readback し、view の内容を直接編集しません。Template は
 AgentCanon source を複製せず、integration commit と materialized root view から必要な runtime
 surface を公開します。
@@ -178,7 +180,7 @@ route は [Shared Runtime Surfaces](vendor/agent-canon/documents/runtime/SHARED_
 ### 設計上の不変条件
 
 - Template / derived repository は project domain、active contract、そして AgentCanon を pin する integration commit を所有します。
-- AgentCanon は shared runtime source と `AGENTS.md`、`.codex`、tools view の active root-view projection contract/content を所有します。これらは親 root に物理配置されます。
+- AgentCanon は shared runtime source と root `AGENTS.md`、`.codex/config.toml`、`tools/agent-canon` の active root-view projection contract/content を所有します。これらは親 root に物理配置されます。
 - 親 root の `AGENTS.md` は `vendor/agent-canon/ROOT_AGENTS.md` に基づく view であり、親側は owner route に従って materialize、sync、readback します。親側はその内容を直接編集しません。
 - Runtime profile と shared surface の Markdown は reader route、TOML / JSON は機械可読 canonical source として対応します。
 - Validator は evidence / readback を生成し、mutation は選択された owner route から行います。
