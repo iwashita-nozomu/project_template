@@ -66,9 +66,10 @@ contains "$dockerfile" 'visudo --check --file="/etc/sudoers.d/$PROJECT_USER"'
 grep -Eq '^USER[[:space:]]+project[[:space:]]*$' "$dockerfile" || fail 'docker/Dockerfile:last-user-is-not-project'
 last_instruction="$(grep -E '^(FROM|ARG|ENV|RUN|COPY|WORKDIR|EXPOSE|CMD|USER|ENTRYPOINT)[[:space:]]' "$dockerfile" | tail -1)"
 [ "$last_instruction" = 'USER project' ] || fail 'docker/Dockerfile:USER-project-must-be-last-instruction'
-if printf '%s\n' "$cpu_stage" | grep -Ev '^[[:space:]]*#' | grep -Eq 'ZDOTDIR|\.zshenv|parent-environment\.sh|(^|[[:space:]])(nodejs|npm|ninja-build|tree)([[:space:]]|\\|$)'; then
+if printf '%s\n' "$cpu_stage" | grep -Ev '^[[:space:]]*#' | grep -Eq 'ZDOTDIR|\.zshenv|parent-environment\.sh|(^|[[:space:]])(nodejs|npm|tree)([[:space:]]|\\|$)'; then
   fail 'docker/Dockerfile:startup-or-derived-tool-duplicate'
 fi
+contains "$dockerfile" 'ninja-build'
 
 contains "$pack" 'platform = "linux/amd64"'
 contains "$gpu_pack" 'target = "gpu-runtime"'
@@ -139,12 +140,25 @@ contains .devcontainer/post-create-parent.sh 'sudo -n true'
 if grep -Eq '\.zshenv|/root/\.codex|/etc/project-template/parent-environment\.sh' .devcontainer/post-create-parent.sh; then
   fail '.devcontainer/post-create-parent.sh:forbidden-shell-state-dependency'
 fi
-contains .devcontainer/dependencies.toml 'records = []'
+[ ! -e .devcontainer/dependencies.toml ] || fail '.devcontainer/dependencies.toml:empty-parent-overlay-forbidden'
+[ ! -e .devcontainer/parent-environment.toml ] || fail '.devcontainer/parent-environment.toml:empty-legacy-overlay-forbidden'
+[ ! -e .devcontainer/parent-environment.sh ] || fail '.devcontainer/parent-environment.sh:empty-legacy-overlay-forbidden'
 for selector in .devcontainer/devcontainer.json .devcontainer/gpu-admission/devcontainer.json; do
-  contains "$selector" '.devcontainer/bootstrap-dependencies.sh --install-language-runtime && python3'
+  contains "$selector" 'ghcr.io/devcontainers/features/node@sha256:586c9a6f7dd40bd3ba2cd41e7f2f88dcc31fbe5d1442afcbf07ffbc66b686857'
+  contains "$selector" '"version": "22.14.0"'
+  contains "$selector" '"npmVersion": "10.9.2"'
+  contains "$selector" '"nodeGypDependencies": false'
+  contains "$selector" '"pnpmVersion": "none"'
   contains "$selector" '.devcontainer/post-create-entrypoint.sh'
+  if grep -Fq 'bootstrap-dependencies.sh' "$selector"; then
+    fail "${selector}:removed-bootstrap-reference"
+  fi
 done
-contains docker/cold-build-smoke.sh '.devcontainer/bootstrap-dependencies.sh --install-language-runtime'
+contains docker/cold-build-smoke.sh 'bash docker/install_python_dependencies.sh "$workspace"'
+contains docker/cold-build-smoke.sh 'bash .devcontainer/post-create-parent.sh "$workspace"'
+if grep -Eq 'bootstrap-dependencies\.sh|AGENT_CANON_DEPENDENCY_PROFILE' docker/cold-build-smoke.sh; then
+  fail 'docker/cold-build-smoke.sh:removed-bootstrap-or-profile-reference'
+fi
 for lsp_record in github-cli codex-cli pyright-language-server bash-language-server jq tree clang-format clangd-language-server; do
   contains vendor/agent-canon/.devcontainer/dependencies.toml "id = \"${lsp_record}\""
 done

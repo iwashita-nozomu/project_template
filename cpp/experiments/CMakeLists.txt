@@ -2,7 +2,7 @@
 # contract configuration
 # responsibility Defines native experiment consumers and the cpp-experiments aggregate target.
 # upstream design ../../vendor/agent-canon/documents/design/cpp-build-layout.md experiment graph and result contract
-# downstream implementation ../CMakeLists.txt provides cpp-core and the root result anchor
+# upstream implementation ../CMakeLists.txt provides cpp-core and the root result anchor
 # @dependency-end
 
 file(

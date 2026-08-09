@@ -51,19 +51,16 @@ toolkit は明示的な `gpu-runtime` Docker target だけで Ubuntu 22.04 に N
 | 1    | Ubuntu 22.04 base と target platform                                                                     | `docker/Dockerfile` と `docker/packs/*.toml`                                        | pinned `FROM --platform=linux/amd64` の static readback                              |
 | 2    | OS fundamentals（git、build-essential、cmake、Python 3.11、zsh、Docker CLI、`ca-certificates`、sudo 等） | `docker/Dockerfile`                                                                 | package/executable smoke と Dockerfile contract check                                |
 | 3    | CPU default target と explicit GPU target                                                                | `docker/Dockerfile` の `cpu-runtime`/`gpu-runtime` stages と `docker/packs/*.toml`  | default の CUDA/cuDNN/NCCL 不在 smoke、GPU target の keyring SHA と `nvcc --version` |
-| 4    | language runtime capability（Python、Node/npm、Ninja）                                                   | `docker/Dockerfile` または AgentCanon fixed bootstrap の一意な owner                | version/executable static readback と smoke                                          |
-| 5    | AgentCanon fixed bootstrap と derived developer/agent tools                                              | `vendor/agent-canon/.devcontainer/bootstrap-dependencies.sh` と `dependencies.toml` | bootstrap check、typed manifest validation、record verification                      |
+| 4    | language/build capability（Python、Node/npm、Ninja）                                                     | Python/Ninja は `docker/Dockerfile`、Node/npm は exact devcontainer Feature          | image smoke と Feature digest/options readback                                       |
+| 5    | mounted developer/agent tools                                                                            | `vendor/agent-canon/.devcontainer/dependencies.toml`                                 | typed manifest validation、record verification                                       |
 | 6    | parent workspace Python dependencies                                                                     | `docker/requirements.txt` と `docker/install_python_dependencies.sh`                | CPU lock の `--require-hashes` install、GPU profile の追加 lock、`pip check`         |
 | 7    | parent-specific final hook                                                                               | `.devcontainer/post-create-parent.sh`                                               | shared post-create 成功後の final hook receipt                                       |
 
-同じ package を Dockerfile、fixed bootstrap、vendor TOML、parent TOML の複数箇所
-で宣言しない。親 Dockerfile が image 基礎能力を提供する場合、AgentCanon fixed
-bootstrap はそれを `--check` で検証し、同じ package を再 install しない。standalone
-bootstrap 用の install route が必要なら、その mode は明示 flag として扱い、parent
-image route の暗黙 fallback にしない。`tree` 等の派生 tool は manifest の一つの
-installer だけが導入し、host PATH、host `~/.codex`、前回の receipt を成功条件に
-しない。既存の AgentCanon parent-first manifest merge 契約は保持し、parent manifest
-が空の場合も明示的な `records = []` を保持する。
+同じ package を Dockerfile、Feature、vendor TOML、parent TOML の複数箇所で宣言しない。
+Python/Ninja は parent image、Node/npm は exact Feature、`tree` 等の mounted tool は
+manifest の一つの installer だけが導入する。host PATH、host `~/.codex`、前回の receipt
+を成功条件にしない。AgentCanon parent-first manifest merge 契約は保持し、親固有 record
+が無い場合は空 manifest や sentinel を作らず、不在を parent overlay なしとして表す。
 
 runtime identity は root を許可しない。Dockerfile は `PROJECT_USER`、
 `PROJECT_UID`、`PROJECT_GID` を ARG として受け取り、非ゼロ UID/GID の canonical
@@ -134,7 +131,7 @@ stdout JSON receipt retained in the CI log; no named artifact file is required.
 
 親 `.devcontainer/devcontainer.json` と `.devcontainer/gpu-admission/devcontainer.json`
 は regular Template-owned selectors とし、source-root resolver 経由で AgentCanon の
-generator/bootstrap を呼ぶ。legacy symlink は作らない。host zshrc は read-only
+generator/shared post-create を呼ぶ。legacy symlink は作らない。host zshrc は read-only
 optional mount とし、無い fresh CI では mount を省略して image-owned zsh startup で
 create を成立させる。
 
@@ -152,17 +149,16 @@ optional passthrough として扱う。CUDA package や source pin が一次資�
 最初の nested detailed-design review は implementation-ready `blocked` を返した。
 以下の decisions で blocker を閉じてから実装する。
 
-1. **stage terminology and order**: `language runtime capability` は Python 3.11、
-   Node/npm、Ninja の供給であり、`parent workspace Python dependencies` は最後の
-   parent dependency stage である。したがって実行順は fixed bootstrap による
-   language runtime capability → AgentCanon vendor manifest → parent workspace
-   Python lock → AgentCanon cache/projection → parent final hook とする。source contract、
+1. **stage terminology and order**: image build は Python 3.11/Ninja、Feature は Node/npm、
+   mounted lifecycle は AgentCanon vendor manifest、選択された parent Python extras、
+   AgentCanon cache/projection、parent final hook の順である。parent product image の
+   cold smoke は parent lock installer と final hook だけを実行し、Feature/manifest を
+   devcontainer acceptance と重複実行しない。source contract、
    post-create readback、focused order test はこの stage 名を明記する。
-1. **base/bootstrap ownership**: 親 Dockerfile は `ca-certificates`、`curl`、
-   `xz-utils`、Python 3.11、build/runtime OS packages、sudo、zsh、CPU runtime を所有する。
-   AgentCanon fixed bootstrap は Node/npm と Ninja を所有し、parent image route では
-   明示的な `--install-language-runtime` を使う。`--check` は install をせず、
-   standalone の `--install` 以外に implicit fallback を持たない。parent Dockerfile と
+1. **base/Feature ownership**: 親 Dockerfile は `ca-certificates`、`curl`、`xz-utils`、
+   Python 3.11、Ninja、build/runtime OS packages、sudo、zsh、CPU runtime を所有する。
+   Node/npm は exact digest/options の official devcontainer Feature が所有する。
+   ad hoc bootstrap や implicit fallback は持たず、parent Dockerfile、Feature、
    AgentCanon manifest は同じ package を宣言しない。
 1. **Python source**: Ubuntu 22.04 Jammy に `python3.11` の公式 apt package が
    無いため、parent Dockerfile は Python.org の `Python-3.11.15.tar.xz` を SHA256
@@ -225,10 +221,10 @@ resolved hashesは `docker/requirements.txt` に集約する。
 この script は host UID/GID を `PROJECT_UID/PROJECT_GID` build args と runtime
 identity に一度だけ materialize し、`docker build --platform linux/amd64 --pull --no-cache` を一度、同じ image の non-root smoke を一度実行する。smoke は
 `id -u`、`sudo -n true`、home/workspace ownership、zsh、Python 3.11、CPU JAX import、
-CUDA/cuDNN/NCCL absent、Node/npm、Ninja、tree、required AgentCanon tools を
-確認する。ここでいう tool は fixed bootstrap または dependency manifest が宣言した
-runtime executable であり、manifest record ではない AgentCanon CLI binary を追加要件に
-しない。CPU target で CUDA/cuDNN/NCCL が不在であることを確認し、最後に status、uid、gid、home、workspace を含む JSON pass receipt を stdout へ
+CUDA/cuDNN/NCCL absent、Ninja、Git/CMake/SSH/Docker/Graphviz を確認する。Node/npm と
+mounted AgentCanon tools は Feature/manifest を実行する fresh-clone devcontainer acceptance
+が所有し、product image smoke の追加要件にしない。CPU target で CUDA/cuDNN/NCCL が
+不在であることを確認し、最後に status、uid、gid、home、workspace を含む JSON pass receipt を stdout へ
 一度だけ出力する。CI log がこの stdout receipt を保持し、named file や artifact upload は
 要求しない。
 host-docker pack はこの acceptance path から外し、local Make target は通常 cache を
