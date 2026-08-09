@@ -33,6 +33,140 @@ directory までの `AGENTS.override.md` / `AGENTS.md` / configured fallback fil
 - `テンプレート構造` と `基本方針` で repo 全体の責務を確認し、clone、初期手順、実験、Docker、詳細入口は目的別 section を読みます。
 - 新規 clone、派生 repo の立ち上げ、どの正本文書へ進むかを決めるときに最初に読みます。
 
+## 全体設計
+
+この section は Template と派生 project の構成、所有境界、実行ライフサイクルを読むための
+非規範的な overview です。実行、責務、profile、artifact、配布の契約は、親 root の
+[`AGENTS.md`](AGENTS.md)、その backing view である
+[`vendor/agent-canon/ROOT_AGENTS.md`](vendor/agent-canon/ROOT_AGENTS.md)、および
+AgentCanon の owner document がそれぞれ所有します。この section は正本を複製せず、
+次に読む入口を示します。
+
+### 責務境界
+
+Template は project domain の source、active contract、pin、root view を所有します。
+AgentCanon source は shared runtime の policy、workflow、skill、role、tool、validation
+contract を所有します。親 root の `AGENTS.md` は
+`vendor/agent-canon/ROOT_AGENTS.md` に基づく runtime view であり、Template が別の
+instruction canon を作る場所ではありません。
+
+Runtime profile の reader route は
+[Runtime Profiles And Check Matrix](vendor/agent-canon/documents/runtime/runtime-profiles-and-check-matrix.md)、
+その機械可読 canonical source は
+[runtime-profiles-and-check-matrix.json](vendor/agent-canon/documents/runtime/runtime-profiles-and-check-matrix.json)
+です。Shared surface の reader route は
+[Shared Runtime Surfaces](vendor/agent-canon/documents/runtime/SHARED_RUNTIME_SURFACES.md)、
+その機械可読 canonical source は
+[shared-runtime-surfaces.toml](vendor/agent-canon/documents/runtime/shared-runtime-surfaces.toml)
+です。Runtime の詳細な workflow、subagent、communication contract は
+[`CODEX_WORKFLOW.md`](vendor/agent-canon/agents/canonical/CODEX_WORKFLOW.md)、
+[`CODEX_SUBAGENTS.md`](vendor/agent-canon/agents/canonical/CODEX_SUBAGENTS.md)、
+[`COMMUNICATION_PROTOCOL.md`](vendor/agent-canon/agents/COMMUNICATION_PROTOCOL.md) を読みます。
+
+### 設計目的
+
+Project Template は、project 固有の source、検証、文書、実験、開発環境と、共有
+Agent runtime を一つの repository root から扱う composition root です。完成済み
+application の構造を固定するのではなく、選択した runtime profile に必要な surface を
+組み合わせられる出発点を提供します。
+
+設計上の中心は、project 固有の責務と AgentCanon が所有する共有責務を分離し、
+`vendor/agent-canon` の commit pin と明示的な root view で接続することです。これにより、
+派生 project は domain code と active contract を所有しながら、同じ AgentCanon revision
+から workflow、skill、hook、共有 tool を再現できます。
+
+### システムモデル
+
+```mermaid
+flowchart LR
+  request[Request]
+
+  subgraph parent[Template / derived project owner]
+    entry[README and root AGENTS view]
+    domain[Project source and active contracts]
+    pin[vendor/agent-canon commit pin]
+    views[Root runtime views]
+    owner_routes[Owner routes for mutations]
+  end
+
+  subgraph canon[AgentCanon source owner]
+    runtime[Shared policy workflow skill role tool]
+    profiles[Profile and shared-surface routes]
+    source_update[Accepted source change]
+    review[Review and main readback]
+  end
+
+  validators[Validators]
+  evidence[Evidence and readback]
+  artifacts[Project artifact owners]
+
+  request --> entry
+  entry --> domain
+  entry --> profiles
+  domain --> owner_routes
+  owner_routes --> validators
+  validators --> evidence
+  domain --> artifacts
+  runtime --> source_update
+  source_update --> review
+  review --> pin
+  pin --> views
+  views --> entry
+  profiles --> validators
+```
+
+`AGENTS.md`、`vendor/agent-canon/ROOT_AGENTS.md`、profile route、shared-surface route は
+reader と owner をつなぐ入口です。Validators は変更の property を確認して evidence と
+readback を生成しますが、mutation の代替にはなりません。変更は選択された owner route
+から行い、profile と touched surface に対応する validation だけを実行します。
+
+### タスクの流れ
+
+以下は Template / derived project の変更を読むための概要です。具体的な workflow、skill、
+review、validation は選択した profile と touched surface に従って決まり、この README の
+一律 checklist ではありません。
+
+1. Root entrypoint が user request と現在の構造を読み、project domain、shared runtime、
+   変更対象の owner を区別します。
+1. Active contract と runtime profile の reader route を読み、設計、実装、validation の
+   対応を決めます。機械可読な TOML / JSON はその判断を実行へ伝える canonical source です。
+1. Project source、active contract、pin、root view の変更は、それぞれの owner route で
+   行います。Validator は finding、evidence、readback を返します。
+1. Project artifact、report、experiment result、runtime evidence は対応する artifact
+   owner が管理します。全 surface に一律の retention policy があるとは限りません。
+1. AgentCanon source の更新が必要な場合は、AgentCanon 側の source change、review、main
+   readback の後に、Template 側で pin と root view を更新します。
+
+### 配布境界
+
+Template と derived repository は、project 固有の source、active contract、開発環境、
+experiment、project artifact、`vendor/agent-canon` の commit pin と root view を所有します。
+AgentCanon repository は shared policy、workflow、skill、role、tool、validation contract
+の source を所有します。Template は AgentCanon source を複製せず、pin と root view から
+必要な runtime surface を公開します。
+
+Generated runtime view、validator evidence、run report、experiment result、memory、notes
+は、それぞれの owner が定める surface で扱います。これらを一つの retention policy に
+まとめたり、README や設計正本の代替にしたりしません。配布と root view の reader/owner
+route は [Shared Runtime Surfaces](vendor/agent-canon/documents/runtime/SHARED_RUNTIME_SURFACES.md)、
+その機械可読 canonical source は
+[shared-runtime-surfaces.toml](vendor/agent-canon/documents/runtime/shared-runtime-surfaces.toml)
+です。利用能力と検証範囲の reader/owner route は
+[Runtime Profiles And Check Matrix](vendor/agent-canon/documents/runtime/runtime-profiles-and-check-matrix.md)、
+その機械可読 canonical source は
+[runtime-profiles-and-check-matrix.json](vendor/agent-canon/documents/runtime/runtime-profiles-and-check-matrix.json)
+です。
+
+### 設計上の不変条件
+
+- Project domain、active contract、pin、root view と shared runtime source は、それぞれ一つの owner を持ちます。
+- 親 root の `AGENTS.md` は `vendor/agent-canon/ROOT_AGENTS.md` に基づく view であり、独立した policy source ではありません。
+- Runtime profile と shared surface の Markdown は reader route、TOML / JSON は機械可読 canonical source として対応します。
+- Validator は evidence / readback を生成し、mutation は選択された owner route から行います。
+- Project 固有の code、config、active contract、artifact は AgentCanon の shared source に取り込みません。
+- AgentCanon source の変更は source 側の review / main readback を経てから Template の pin / root view に反映します。
+- Artifact、report、log、experiment output の保持期間は owner ごとに決まり、全 surface に一律の retention policy を置きません。
+
 ## テンプレート構造の例
 
 この repo は、project 固有の実装、実験、文書、開発環境、agent runtime を同じ root から扱えるように分けています。以下は利用可能な surface の例であり、親レポに要求する十分条件や完全な tree ではありません。必要条件は AgentCanon の shared surface manifest と親レポの owner document だけで確認します。
