@@ -24,9 +24,9 @@ ENV DEBIAN_FRONTEND=noninteractive \
     SHELL=/bin/zsh \
     HOME=/home/project
 
-# Ubuntu fundamentals and deterministic build dependencies.  Node/npm, ninja-build,
-# tree, and the remaining derived developer tools are intentionally owned by the
-# fixed AgentCanon bootstrap or its merged dependency manifest.
+# Ubuntu fundamentals and deterministic project build dependencies. Node/npm is
+# supplied by the exact devcontainer Feature; tree and the remaining shared
+# developer tools are owned by the AgentCanon dependency manifest.
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
     ca-certificates \
@@ -38,6 +38,7 @@ RUN apt-get update \
     build-essential \
     pkg-config \
     cmake \
+    ninja-build \
     psmisc \
     openssh-client \
     graphviz \
@@ -156,7 +157,7 @@ EXPOSE 8888
 CMD ["/bin/zsh"]
 USER project
 
-# The default target is deliberately CPU/LSP-only. GPU capability is opt-in via
+# The default target is deliberately CPU-only. GPU capability is opt-in via
 # `--target gpu-runtime` (or docker/packs/gpu-admission.toml) and never enters
 # the default image layers.
 

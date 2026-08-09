@@ -35,14 +35,13 @@ Python module install を image build へ移しません。
 
 managed devcontainer の shared developer/agent tools は AgentCanon の owner です。親の
 `.devcontainer/` は regular overlay として保持し、Template-owned selectors が
-source-root resolver 経由で AgentCanon generator/bootstrap を呼びます。Node/npm と Ninja
-は selectors が fixed bootstrap の明示的な `--install-language-runtime` を先に実行し、
-shared post-create の fail-closed `--check` に渡します。legacy symlink は作りません。
+source-root resolver 経由で AgentCanon generator と shared post-create を呼びます。Node/npm
+は digest-pinned official Feature、Ninja は parent product image が所有し、ad hoc bootstrap
+を挟みません。legacy symlink は作りません。
 `vendor/agent-canon/.devcontainer/dependencies.toml` が共有 tool の
-宣言的 source で、shared `post-create.sh` が parent manifest を先に読み、vendor manifest
-を次に merge して導入・検証します。親固有の developer/agent record がないため、root
-`.devcontainer/dependencies.toml` は schema v2 の empty parent layer を保持し、vendor record
-を複製しません。
+宣言的 source で、shared `post-create.sh` は親 manifest が存在する場合だけ先に読み、
+vendor manifest を次に merge して導入・検証します。この template に親固有 record はないため、
+空の `.devcontainer/dependencies.toml` は置かず、vendor record も複製しません。
 
 この責務分離により、Codex、GitHub CLI、Rust、TeX、Playwright などの AgentCanon convenience tool を product image に追加しません。親の `.devcontainer/devcontainer.json` と `.devcontainer/gpu-admission/devcontainer.json` は regular selectors、`.devcontainer/post-create-parent.sh` は shared post-create の最後に一度だけ実行する親固有の final hook として残します。
 
@@ -55,7 +54,7 @@ shared post-create の fail-closed `--check` に渡します。legacy symlink �
 ## Primary Files
 
 - `Dockerfile`
-  - canonical container image 定義です。Ubuntu 22.04、Python 3.11、CPU runtime、OS fundamentals、Docker CLI、zsh、sudo、canonical `project` user を入れます。CUDA toolkit/runtime は `gpu-runtime` target のみです。Node/npm、Ninja、tree、Codex CLI、GitHub CLI は AgentCanon bootstrap/manifest owner です。
+  - canonical container image 定義です。Ubuntu 22.04、Python 3.11、CPU runtime、OS fundamentals、Docker CLI、zsh、sudo、Ninja、canonical `project` user を入れます。CUDA toolkit/runtime は `gpu-runtime` target のみです。Node/npm は exact Feature、tree、Codex CLI、GitHub CLI は AgentCanon manifest owner です。
 - `requirements.txt`
   - `pyproject.toml` から `pip-compile` で生成する親 repo の hash 付き lock です。直接依存の編集元ではなく、workspace mount 後の導入と CI cache の成果物です。AgentCanon の独立した依存 manifest は複製しません。
 - `install_python_dependencies.sh`
@@ -86,7 +85,7 @@ runtime pack には次を 1 つの spec としてまとめます。
 - smoke command 群
 - runtime env / mounts / workdir
 
-親 template の default runtime pack は `/bin/zsh` を process boundary とし、smoke shell と明示的な bash command は `/bin/bash` のままです。`parent-environment.toml` と `parent-environment.sh` は依存入力ではなく空の親 overlay として保持します。default の必須 host mount は workspace source だけで、host `~/.zshrc` は存在時だけ専用 user home へ read-only 投影する optional customization です。`HOME`、user、platform、runtime env、workspace ownership、Compose の意味は AgentCanon generator と validator が所有します。
+親 template の default runtime pack は `/bin/zsh` を process boundary とし、smoke shell と明示的な bash command は `/bin/bash` のままです。空の `parent-environment` sentinel は置きません。default の必須 host mount は workspace source だけで、host `~/.zshrc` は存在時だけ専用 user home へ read-only 投影する optional customization です。`HOME`、user、platform、runtime env、workspace ownership、Compose の意味は AgentCanon generator と validator が所有します。
 
 既定 pack:
 
@@ -112,15 +111,15 @@ runtime pack には次を 1 つの spec としてまとめます。
 
 `run_codex_in_repo_container.py` は、repo の canonical runtime を build し、その中で `codex` を起動する入口です。
 実行 profile の正本は `docker/codex-container-profiles.toml` です。
-project-scoped Codex config の正本は `.codex/config.toml` で、template 既定では `approval_policy = "never"` と `sandbox_mode = "danger-full-access"` を使います。つまり container 内で起動した Codex も、`jax_solver_util` と同じく最初から full access 前提です。
+project-scoped Codex config の正本は AgentCanon から投影される `.codex/config.toml` です。container 内でも Codex の標準的な確認付き・workspace 限定境界を使い、host 固有の bypass や常時 full-access を前提にしません。
 Codex state は container-local を正本にします。nested Codex は
 `HOME=/workspace/.state/nested-codex/<profile>` 以下に state を作り、host
 `~/.codex` を mount / seed しません。API 認証が必要な場合は
 `OPENAI_API_KEY` と `OPENAI_BASE_URL` を runner の明示的な environment forward
 で渡します。
-Codex CLI、Codex 用 Node/npm、GitHub CLI は Docker image へ焼きません。workspace mount
-後、selector が fixed bootstrap の language runtime を導入してから
-`vendor/agent-canon/.devcontainer/post-create.sh` が manifest tool を導入します。nested
+Codex CLI、Codex 用 Node/npm、GitHub CLI は Docker image へ焼きません。Node/npm は
+selector の exact Feature、workspace mount 後の CLI は
+`vendor/agent-canon/.devcontainer/post-create.sh` の manifest が導入します。nested
 Codex runner は setup だけ root で行い、Codex 起動前に host `uid:gid` へ落とします。
 
 既定の挙動は次です。
@@ -129,7 +128,7 @@ Codex runner は setup だけ root で行い、Codex 起動前に host `uid:gid`
 - setup 後に host の `uid:gid` で Codex を実行する
 - `HOME=/workspace/.state/nested-codex/<profile>` を使う
 - `"$HOME/.codex"` は container-local state として作る
-- repo の `.codex/config.toml` から full-access default を読む
+- repo の `.codex/config.toml` から標準的な approval/sandbox 境界を読む
 - host の git config、credentials、SSH、Docker socket、runtime state は default では持ち込まない
 - SSH agent、credentials、Docker socket、host git config は明示 profile/flag のみで使う
 - API credential は必要なコマンドでだけ明示 environment forward する
@@ -193,10 +192,10 @@ repo-local `.venv` は host runtime では作らず、container runtime でだ�
 
 Python module install は Docker image build では実行しません。Template の Docker build は
 `vendor/agent-canon` submodule や workspace Python package に依存しない OS / project runtime layer
-までを作ります。managed devcontainer の shared `post-create.sh` が workspace mount 後に
-`docker/install_python_dependencies.sh` を呼んで導入します。CI の canonical acceptance は
-`docker/cold-build-smoke.sh` が public resolver 経由で post-create と parent final hook を呼び、
-vendor bootstrap/manifest、parent lock、runtime tool surface を同じ image で確認します。
+までを作ります。managed devcontainer の shared `post-create.sh` は選択された
+`pyproject.toml` extras を標準 editable install で導入します。親 product image の cold
+acceptance は `docker/cold-build-smoke.sh` が parent lock installer と final hook を呼び、
+Feature/manifest tool の確認は fresh-clone devcontainer acceptance が所有します。
 
 許可事項:
 
@@ -416,12 +415,12 @@ VS Code の前提拡張は `.vscode/extensions.json` を正本にします。
 - `ms-vscode.cpptools`
 - `ms-vscode.cmake-tools`
 
-runtime 側の C/C++ 基本 tool は、`docker/Dockerfile` と AgentCanon fixed bootstrap の owner split に従って提供します。
+runtime 側の C/C++ 基本 tool は、parent `docker/Dockerfile` の product build capability と AgentCanon manifest の shared analysis tool に分けて提供します。
 
 - `build-essential`
 - `pkg-config`
 - `cmake`
-- `ninja-build`（AgentCanon fixed bootstrap）
+- `ninja-build`（parent product image）
 
 repo maintenance helper が前提にする host-compatible tool も canonical image に同梱します。
 
@@ -433,7 +432,7 @@ C++ を使う派生 repo に備えて、canonical image には次を同梱しま
 
 - Python 3.11 headers（Dockerfile の Python.org source build）
 - `cmake`
-- `ninja-build`（AgentCanon fixed bootstrap）
+- `ninja-build`（parent product image）
 - `build-essential`
 
 template 既定では `CMAKE_GENERATOR=Ninja` を image 側で固定します。

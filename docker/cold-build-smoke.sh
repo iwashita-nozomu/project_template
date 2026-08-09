@@ -4,7 +4,8 @@
 # responsibility Performs the single cold parent-image build and single non-root runtime smoke.
 # upstream design ../documents/design/docker-zero-build-environment.md cold acceptance owner and runtime evidence
 # upstream environment ./Dockerfile direct Ubuntu 22.04 image and runtime identity
-# upstream implementation ../vendor/agent-canon/.devcontainer/post-create-entrypoint.sh shared-first lifecycle resolver
+# upstream implementation ./install_python_dependencies.sh installs the parent Python project after the workspace mount
+# upstream implementation ../.devcontainer/post-create-parent.sh validates the parent runtime identity
 # @dependency-end
 
 set -euo pipefail
@@ -107,14 +108,11 @@ set -euo pipefail
 workspace=/workspace/project_template
 cd "$workspace"
 
-# The lifecycle is deliberately reached through the same public resolver used by
-# devcontainer.json, so standalone and vendored source-root behavior are tested.
-# The fixed bootstrap owns Node/npm and Ninja. Install that language-runtime
-# layer explicitly before the shared entrypoint exercises its fail-closed check.
-python3 tools/agent-canon/agent_tools/agent_canon_source_root.py exec \
-  .devcontainer/bootstrap-dependencies.sh --install-language-runtime
-python3 tools/agent-canon/agent_tools/agent_canon_source_root.py exec \
-  .devcontainer/post-create-entrypoint.sh "$workspace"
+# This witness owns the parent product image and project dependency path. The
+# devcontainer Feature and AgentCanon mounted-tool lifecycle are validated by
+# fresh-clone/devcontainer acceptance instead of being recreated in this image.
+bash docker/install_python_dependencies.sh "$workspace"
+bash .devcontainer/post-create-parent.sh "$workspace"
 
 test "$(id -u)" -ne 0
 test "$(id -un)" = project
@@ -139,17 +137,12 @@ python3 -c 'import jax; assert jax.default_backend() == "cpu"; print("JAX_RUNTIM
 ! dpkg-query -W libnccl2
 ! dpkg-query -W libnccl-dev
 
-node --version | grep -Fx 'v22.14.0'
-npm --version | grep -Fx '10.9.2'
 ninja --version
-tree --version
 git --version
 cmake --version
 ssh -V
 docker --version
 dot -V
-jq --version
-gh --version
 
 probe_relative="${SMOKE_PROBE_RELATIVE:?}"
 case "$probe_relative" in
@@ -172,7 +165,6 @@ run_command=(
   --mount "type=bind,src=${repo_root},dst=/workspace/project_template"
   --workdir /workspace/project_template
   --env AGENT_CANON_CONTAINER_USER=project
-  --env AGENT_CANON_DEPENDENCY_PROFILE=full
   --env "EXPECTED_EXECUTOR_UID=${project_uid}"
   --env "EXPECTED_EXECUTOR_GID=${project_gid}"
   --env "SMOKE_PROBE_RELATIVE=${probe_relative}"

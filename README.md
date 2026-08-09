@@ -425,7 +425,7 @@ Dockerfile、requirements、Python installer、runtime pack のいずれかを�
 
 repo-wide な tool 導入案や Docker 変更では AgentCanon source template `vendor/agent-canon/templates/agents/environment_change_proposal.md` に triggering code requirement、blocked command、Docker 影響、validation、rollback を残します。
 
-project-scoped Codex config の正本は `.codex/config.toml` です。template 既定では `approval_policy = "never"` と `sandbox_mode = "danger-full-access"` を入れているので、container 内で起動した Codex も最初から full access 前提です。
+project-scoped Codex config の正本は AgentCanon から投影される `.codex/config.toml` です。template は Codex の標準的な確認付き・workspace 限定の実行境界を使い、host 固有の bypass や常時 full-access 設定を第二の正本として持ちません。
 
 VS Code の dev container は `.devcontainer/` から起動します。compose 生成、GitHub / SSH
 mount、container-local Codex state、post-create、attach status の詳細は `CONTAINER_OPERATIONS.md` と

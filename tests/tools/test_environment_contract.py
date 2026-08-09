@@ -17,6 +17,16 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 DISPATCHER = ROOT / "tools/agent-canon/agent_tools/agent_canon_source_root.py"
+NODE_FEATURE_REF = (
+    "ghcr.io/devcontainers/features/node@sha256:"
+    "586c9a6f7dd40bd3ba2cd41e7f2f88dcc31fbe5d1442afcbf07ffbc66b686857"
+)
+NODE_FEATURE_OPTIONS = {
+    "version": "22.14.0",
+    "npmVersion": "10.9.2",
+    "nodeGypDependencies": False,
+    "pnpmVersion": "none",
+}
 
 
 def _fake_id_path(tmp_path: Path, *, uid: int, gid: int) -> Path:
@@ -77,11 +87,10 @@ def test_default_and_gpu_selectors_are_regular_and_identity_stable() -> None:
         assert "PROJECT_UID" not in config["initializeCommand"]
         assert "PROJECT_GID" not in config["initializeCommand"]
         post_create = config["postCreateCommand"]
-        bootstrap = ".devcontainer/bootstrap-dependencies.sh --install-language-runtime"
         entrypoint = ".devcontainer/post-create-entrypoint.sh"
-        assert post_create.count(bootstrap) == 1
+        assert "bootstrap-dependencies.sh" not in post_create
         assert post_create.count(entrypoint) == 1
-        assert post_create.index(bootstrap) < post_create.index(entrypoint)
+        assert config["features"] == {NODE_FEATURE_REF: NODE_FEATURE_OPTIONS}
     assert "gpu-admission" not in default["name"]
     assert "gpu-admission" in profile["name"]
     assert profile["dockerComposeFile"] != default["dockerComposeFile"]
@@ -107,10 +116,9 @@ def test_runtime_packs_split_cpu_and_gpu_capability() -> None:
     assert gpu["runtime"]["dependency_profile"] == "gpu"
 
 
-def test_parent_manifest_remains_empty_and_lsp_records_are_canonical() -> None:
-    """Parent dependency ownership stays empty; AgentCanon owns the LSP set."""
-    parent = tomllib.loads((ROOT / ".devcontainer/dependencies.toml").read_text())
-    assert parent["records"] == []
+def test_parent_manifest_is_absent_and_lsp_records_are_canonical() -> None:
+    """No empty parent overlay exists; AgentCanon owns the shared LSP set."""
+    assert not (ROOT / ".devcontainer/dependencies.toml").exists()
     vendor = tomllib.loads(
         (ROOT / "vendor/agent-canon/.devcontainer/dependencies.toml").read_text()
     )
@@ -149,7 +157,8 @@ def test_cold_smoke_readbacks_executor_and_bind_identity() -> None:
         "COLD_SMOKE_EXPECT_NON_DEFAULT_ID=pass",
         'test "$(id -u)" = "${EXPECTED_EXECUTOR_UID:?}"',
         'test "$(id -g)" = "${EXPECTED_EXECUTOR_GID:?}"',
-        ".devcontainer/bootstrap-dependencies.sh --install-language-runtime",
+        'bash docker/install_python_dependencies.sh "$workspace"',
+        'bash .devcontainer/post-create-parent.sh "$workspace"',
         "COLD_SMOKE_CONTAINER_READBACK=identity contract=rootful",
         "probe_relative=\".devcontainer/.cold-build-smoke-",
         "stat -c '%u' \"$probe_host\"",
@@ -158,6 +167,8 @@ def test_cold_smoke_readbacks_executor_and_bind_identity() -> None:
         "trap cleanup_probe EXIT HUP INT TERM",
     ):
         assert marker in smoke
+    assert "bootstrap-dependencies.sh" not in smoke
+    assert "AGENT_CANON_DEPENDENCY_PROFILE" not in smoke
     assert "agent-canon --version" not in smoke
     assert smoke.count('{"status":"pass"') == 1
 
@@ -172,7 +183,7 @@ def test_runtime_generator_uses_host_ids_for_cpu_and_gpu(tmp_path: Path) -> None
     assert 'user: "2345:3456"' in cpu_text
     assert 'PROJECT_UID: "2345"' in cpu_text
     assert 'PROJECT_GID: "3456"' in cpu_text
-    assert 'AGENT_CANON_DEPENDENCY_PROFILE: "full"' in cpu_text
+    assert "AGENT_CANON_DEPENDENCY_PROFILE" not in cpu_text
     assert "target: gpu-runtime" not in cpu_text
     assert "gpus: all" not in cpu_text
 
@@ -180,12 +191,7 @@ def test_runtime_generator_uses_host_ids_for_cpu_and_gpu(tmp_path: Path) -> None
     gpu = _run_generator(
         output=gpu_output,
         fake_id_path=fake_id,
-        extra_env={
-            "AGENT_CANON_GPU_ADMISSION_PROFILE": "gpu-admission",
-            "AGENT_CANON_OPTIONAL_MOUNTS": "shared-runtime",
-            "AGENT_CANON_RUNTIME_GID": "3456",
-            "AGENT_CANON_HOST_SUPPLEMENTARY_GIDS": "3456 2345",
-        },
+        extra_env={"AGENT_CANON_GPU_ADMISSION_PROFILE": "gpu-admission"},
     )
     assert gpu.returncode == 0, gpu.stdout + gpu.stderr
     gpu_text = gpu_output.read_text(encoding="utf-8")
@@ -193,7 +199,7 @@ def test_runtime_generator_uses_host_ids_for_cpu_and_gpu(tmp_path: Path) -> None
     assert 'PROJECT_UID: "2345"' in gpu_text
     assert 'PROJECT_GID: "3456"' in gpu_text
     assert "target: gpu-runtime" in gpu_text
-    assert 'AGENT_CANON_DEPENDENCY_PROFILE: "gpu"' in gpu_text
+    assert "AGENT_CANON_DEPENDENCY_PROFILE" not in gpu_text
     assert "gpus: all" in gpu_text
 
 
