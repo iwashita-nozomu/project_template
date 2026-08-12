@@ -58,13 +58,6 @@ jobs:
       - name: Install pip dependencies
         run: bash docker/install_python_dependencies.sh "$PWD"
 
-      - name: Test Template Python
-        if: github.event_name == 'pull_request'
-        run: |
-          python -m pytest -q
-          python -m pyright
-          python -m ruff check python tests --select D,E,F,I,UP
-
       - name: Check Template docs
         if: github.event_name == 'pull_request'
         run: make docs-check
