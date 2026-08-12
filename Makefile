@@ -39,11 +39,8 @@ ci:
 ci-quick:
 	bash tools/agent-canon/ci/run_all_checks.sh --quick
 
-# Template-owned PR baseline. Keep shared AgentCanon full gates out of ordinary parent PRs.
+# Template-owned PR baseline. Repository-machinery tests stay in the full integration gate.
 pr-check:
-	$(PYTHON) -m pytest -q
-	$(PYTHON) -m pyright
-	$(PYTHON) -m ruff check python tests --select D,E,F,I,UP
 	$(MAKE) docs-check
 	$(MAKE) github-workflow-check
 	$(MAKE) cpp-test
@@ -53,7 +50,7 @@ check-matrix:
 	@echo "Check matrix:"
 	@echo "  ordinary PR:     make pr-check"
 	@echo "  docs-only:       make docs-check"
-	@echo "  Python changes:  targeted pytest + python3 -m pyright + python3 -m ruff check python tests --select D,E,F,I,UP"
+	@echo "  Python project changes: targeted project tests/type/lint once project Python exists"
 	@echo "  C++ changes:     make cpp-test"
 	@echo "  AgentCanon source:   make agent-canon-pr-check"
 	@echo "  AgentCanon shared views: make agent-canon-check"
