@@ -58,9 +58,24 @@ jobs:
       - name: Install pip dependencies
         run: bash docker/install_python_dependencies.sh "$PWD"
 
-      - name: Run Template PR baseline
+      - name: Test Template Python
         if: github.event_name == 'pull_request'
-        run: make pr-check
+        run: |
+          python -m pytest -q
+          python -m pyright
+          python -m ruff check python tests --select D,E,F,I,UP
+
+      - name: Check Template docs
+        if: github.event_name == 'pull_request'
+        run: make docs-check
+
+      - name: Check GitHub workflows
+        if: github.event_name == 'pull_request'
+        run: make github-workflow-check
+
+      - name: Test native C++
+        if: github.event_name == 'pull_request'
+        run: make cpp-test
 
       - name: Run full repository CI
         if: github.event_name != 'pull_request'
