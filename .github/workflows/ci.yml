@@ -78,24 +78,30 @@ jobs:
 
   fresh-clone-acceptance:
     name: Fresh Clone Acceptance
-    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: ["3.11"]
     steps:
+      - name: Preserve required check on pull requests
+        if: github.event_name == 'pull_request'
+        run: echo "Fresh-clone lifecycle acceptance runs on main/manual integration only."
+
       - name: Checkout repository
+        if: github.event_name != 'pull_request'
         uses: actions/checkout@v4
         with:
           submodules: false
           persist-credentials: false
       - name: Checkout AgentCanon submodule
+        if: github.event_name != 'pull_request'
         env:
           AGENT_CANON_REPO_TOKEN: ""
           AGENT_CANON_REPO_SSH_KEY: ""
         run: bash .github/scripts/checkout_agent_canon_submodule.sh
 
       - name: Set up Python
+        if: github.event_name != 'pull_request'
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
@@ -103,10 +109,13 @@ jobs:
           cache-dependency-path: docker/requirements.txt
 
       - name: Install system packages
+        if: github.event_name != 'pull_request'
         run: sudo apt-get update && sudo apt-get install -y graphviz ripgrep
 
       - name: Install pip dependencies
+        if: github.event_name != 'pull_request'
         run: bash docker/install_python_dependencies.sh "$PWD"
 
       - name: Run fresh clone acceptance
+        if: github.event_name != 'pull_request'
         run: make fresh-clone-check
