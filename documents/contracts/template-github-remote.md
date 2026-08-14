@@ -1,79 +1,23 @@
-<!--
-@dependency-start
-contract template
-responsibility Documents the GitHub canonical remote policy for the project template.
-upstream design ../../vendor/agent-canon/documents/agent-canon/agent-canon-github-remote.md defines AgentCanon remote policy.
-downstream design ./template-bootstrap.md consumes template GitHub remote policy.
-downstream design ../../vendor/agent-canon/agents/workflows/agent-canon-pr-workflow.md consumes template GitHub evidence.
-@dependency-end
--->
+# Template GitHub remote contract
 
-# Template GitHub Remote
+`iwashita-nozomu/project_template` on branch `main` is the canonical template source. A derived repository owns its own `origin`; bootstrap does not preserve the template remote as a runtime dependency and does not configure any secondary source checkout.
 
-この root copy は template / derived repo が所有する active contract です。AgentCanon は GitHub / PR / sync policy を提供しますが、この repo の template remote contract の正本はこの regular file です。
+## Publish a derived repository
 
-`iwashita-nozomu/project_template` on GitHub is the canonical template
-repository. Template bootstrap and update workflows use the GitHub canonical
-remote.
-
-## Canonical Defaults
-
-- Canonical URL: `https://github.com/iwashita-nozomu/project_template.git`
-- Canonical branch: `main`
-
-Use `origin` for GitHub:
+After local initialization, review and commit the generated tree. Then attach the destination repository and push the committed branch:
 
 ```bash
-git remote set-url origin https://github.com/iwashita-nozomu/project_template.git
+git remote set-url origin <destination-url>
+git push -u origin main
 ```
 
-## AgentCanon Submodule
+Creating the destination repository and authenticating that push are caller responsibilities. They are the only network-dependent publication steps. No recursive clone, submodule credential, producer token, or seed refresh is part of publication.
 
-Template `main` should point `vendor/agent-canon` at the GitHub canonical
-AgentCanon remote:
+## Branch protection baseline
 
-```bash
-git config -f .gitmodules submodule.vendor/agent-canon.url \
-  https://github.com/iwashita-nozomu/agent-canon.git
-git submodule sync vendor/agent-canon
-```
+For repositories that use protected `main`, require pull requests and these project-owned checks:
 
-## Private Submodule Workflow Secret
+- `Repository CI (3.11)`
+- `Fresh Clone Acceptance (3.11)`
 
-Because both the template repository and AgentCanon can be private, GitHub
-Actions needs an explicit cross-repo read credential for `vendor/agent-canon`.
-
-Configure one of these repository secrets in `iwashita-nozomu/project_template`:
-
-- `AGENT_CANON_REPO_TOKEN`: read-only Contents access to
-  `iwashita-nozomu/agent-canon`.
-- `AGENT_CANON_REPO_SSH_KEY`: private half of a read-only deploy key whose
-  public half is installed on `iwashita-nozomu/agent-canon`.
-
-Do not rely on automatic `actions/checkout` submodule fetch for the private
-AgentCanon submodule. Workflows should checkout the template root with
-`submodules: false`, then run
-`bash .github/scripts/checkout_agent_canon_submodule.sh` so missing credentials fail
-with a precise remediation message. In GitHub Actions, the helper also
-persists AgentCanon-specific auth for later `make ci`,
-`make fresh-clone-check`, and `make agent-canon-pr-check` steps in the same
-job, whether the credential is a token or a deploy key.
-
-## Branch Protection Baseline
-
-Template `main` should be protected in GitHub UI when the repository is used by
-other projects as a source template.
-
-Minimum settings:
-
-- Require pull request before merge.
-- Require status checks for `Repository CI (3.11)` and `Fresh Clone Acceptance
-  (3.11)`. Require `Docker Build` only when Docker paths are touched.
-- Run `make agent-canon-pr-check` explicitly for full AgentCanon
-  maintenance/source validation; it is not a branch-protection status context.
-- Restrict force-push and deletion on `main`.
-- Keep vulnerability alerts and Dependabot alerts enabled for the canonical
-  GitHub repository.
-
-Record `missing_or_unavailable` in PR evidence when private-repo permissions
-prevent the agent from reading branch protection.
+Require the Docker workflow when Docker-owned paths change. Disable force-push and branch deletion for the protected branch, and keep conversation resolution enabled when review is required.

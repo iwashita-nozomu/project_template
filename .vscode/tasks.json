@@ -2,24 +2,27 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "AgentCanon: Docs Check",
+      "label": "Project: Documentation Check",
       "type": "shell",
-      "command": "source \"${workspaceFolder}/tools/agent-canon/lib/repo_paths.sh\" && CANON_TOOLS_ROOT=\"$(agent_canon_tools_root \"${workspaceFolder}\")\" && \"${CANON_TOOLS_ROOT}/bin/agent-canon\" docs check",
+      "command": "make docs-check",
       "group": "test",
       "problemMatcher": []
     },
     {
-      "label": "AgentCanon: Convention Check",
+      "label": "Project: Workflow Check",
       "type": "shell",
-      "command": "source \"${workspaceFolder}/tools/agent-canon/lib/repo_paths.sh\" && CANON_TOOLS_ROOT=\"$(agent_canon_tools_root \"${workspaceFolder}\")\" && python3 \"${CANON_TOOLS_ROOT}/agent_tools/check_convention_compliance.py\"",
+      "command": "make github-workflow-check",
       "group": "test",
       "problemMatcher": []
     },
     {
-      "label": "AgentCanon: Dependency Headers",
+      "label": "Project: Pull Request Check",
       "type": "shell",
-      "command": "source \"${workspaceFolder}/tools/agent-canon/lib/repo_paths.sh\" && CANON_TOOLS_ROOT=\"$(agent_canon_tools_root \"${workspaceFolder}\")\" && python3 \"${CANON_TOOLS_ROOT}/agent_tools/check_dependency_headers.py\" --changed && bash \"${CANON_TOOLS_ROOT}/agent_tools/scan_dependency_headers.sh\" --changed --fail-missing && bash \"${CANON_TOOLS_ROOT}/agent_tools/check_dependency_header_format.sh\" --changed --require-header",
-      "group": "test",
+      "command": "make pr-check",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
       "problemMatcher": []
     }
   ]
