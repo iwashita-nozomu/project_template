@@ -32,7 +32,7 @@ git -C "$template_clone" config user.name "Fixture"
   git commit -m "Initialize descendant fixture" >/dev/null
   git init --bare "$bare_remote" >/dev/null
   git remote add fixture "$bare_remote"
-  git push fixture HEAD:main >/dev/null
+  git push fixture HEAD:refs/heads/main >/dev/null
   git --git-dir="$bare_remote" symbolic-ref HEAD refs/heads/main
 )
 
