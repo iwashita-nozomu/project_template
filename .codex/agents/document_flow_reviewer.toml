@@ -1,0 +1,21 @@
+# @dependency-start
+# contract configuration
+# responsibility Projects the canonical document_flow_reviewer model profile into executable Codex settings.
+# upstream implementation ../../agents/model_profiles.toml owns model/profile authority
+# upstream implementation ../../tools/agent_tools/model_profile_registry.py materializes this view
+# downstream implementation ../../tools/agent_tools/check_agent_runtime_alignment.py validates projection parity
+# @dependency-end
+# generated role view: generated_role_view_v1
+# generated from agents/model_profiles.toml plus canonical team/runtime role metadata
+# materializer: tools/agent_tools/model_profile_registry.py
+# source canonical digest: 231c36f33aac9d61e64c32edabf324520e8832dcc0ddb36d03c56b1458daceba
+
+name = "document_flow_reviewer"
+description = "Read-only reviewer for top-down document coherence, section order, term introduction order, and first-reader comprehension."
+nickname_candidates = ["document_flow_reviewer"]
+sandbox_mode = "read-only"
+approval_policy = "never"
+model = "gpt-5.6-luna"
+model_reasoning_effort = "high"
+
+developer_instructions = "You are acting as document_flow_reviewer with luna_reasoning reasoning capacity. Prioritize rigorous decomposition and evidence-first conclusions."

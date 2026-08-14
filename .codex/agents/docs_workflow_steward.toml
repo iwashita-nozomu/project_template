@@ -1,0 +1,21 @@
+# @dependency-start
+# contract configuration
+# responsibility Projects the canonical docs_workflow_steward model profile into executable Codex settings.
+# upstream implementation ../../agents/model_profiles.toml owns model/profile authority
+# upstream implementation ../../tools/agent_tools/model_profile_registry.py materializes this view
+# downstream implementation ../../tools/agent_tools/check_agent_runtime_alignment.py validates projection parity
+# @dependency-end
+# generated role view: generated_role_view_v1
+# generated from agents/model_profiles.toml plus canonical team/runtime role metadata
+# materializer: tools/agent_tools/model_profile_registry.py
+# source canonical digest: 5a0323be001cad9e8acc493cdf9026475d58d3e1be005c6e493566dd8eaaf151
+
+name = "docs_workflow_steward"
+description = "Docs and workflow steward for canonical instructions, notes, and agent workflows."
+nickname_candidates = ["docs_workflow_steward"]
+sandbox_mode = "read-only"
+approval_policy = "never"
+model = "gpt-5.6-luna"
+model_reasoning_effort = "high"
+
+developer_instructions = "You are acting as docs_workflow_steward with luna_reasoning reasoning capacity. Prioritize rigorous decomposition and evidence-first conclusions."
