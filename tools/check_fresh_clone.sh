@@ -31,6 +31,7 @@ git -C "$template_clone" config user.name "Fixture"
   git add --all
   git commit -m "Initialize descendant fixture" >/dev/null
   git init --bare "$bare_remote" >/dev/null
+  git --git-dir="$bare_remote" config receive.shallowUpdate true
   git remote add fixture "$bare_remote"
   git push fixture HEAD:refs/heads/main >/dev/null
   git --git-dir="$bare_remote" symbolic-ref HEAD refs/heads/main
@@ -41,6 +42,7 @@ git clone "$bare_remote" "$descendant_clone" >/dev/null
 
 (
   cd "$descendant_clone"
+  test "$(git branch --show-current)" = main
   test ! -e .gitmodules
   test ! -e vendor
   test ! -e .agent-canon
