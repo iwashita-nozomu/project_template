@@ -1,3 +1,5 @@
+"""Guard the root README consumer/maintainer boundary for static configuration."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -8,6 +10,7 @@ MAINTENANCE_CONTRACT = "documents/design/template-static-seed-import.md"
 
 
 def test_root_readme_keeps_static_configuration_consumer_facing() -> None:
+    """Keep producer provenance and import operations out of normal user guidance."""
     text = README.read_text(encoding="utf-8")
     lowered = text.lower()
 
