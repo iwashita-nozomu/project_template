@@ -1,11 +1,3 @@
-# @dependency-start
-# contract configuration
-# responsibility Excludes non-build inputs from the template Docker build context.
-# upstream environment docker/Dockerfile canonical container image definition
-# upstream environment docker/packs/default.toml uses repository root build context
-# downstream implementation tools/agent-canon/ci/container_config.py validates AgentCanon submodule exclusion
-# @dependency-end
-
 .git
 .pytest_cache
 .ruff_cache
@@ -13,5 +5,5 @@
 build
 logs
 reports
-.agent-canon/docker-compose.generated.yml
-vendor/agent-canon
+__pycache__
+*.egg-info

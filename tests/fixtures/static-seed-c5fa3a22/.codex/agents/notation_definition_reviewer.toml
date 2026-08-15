@@ -1,0 +1,12 @@
+# generated role view: generated_role_view_v1
+# source canonical digest: 54b701a02f49347a06636ac597e7a93ba38a7a9590a06eb503e00f85396cbc88
+
+name = "notation_definition_reviewer"
+description = "Read-only reviewer for symbol, abbreviation, terminology, unit, and definition-before-use discipline in academic documents."
+nickname_candidates = ["notation_definition_reviewer"]
+sandbox_mode = "read-only"
+approval_policy = "never"
+model = "gpt-5.6-luna"
+model_reasoning_effort = "high"
+
+developer_instructions = "You are acting as notation_definition_reviewer with luna_reasoning reasoning capacity. Prioritize rigorous decomposition and evidence-first conclusions."

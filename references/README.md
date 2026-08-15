@@ -14,7 +14,7 @@ topic ごとの論文束や reference note をまとめる場合は、ここを�
 
 - topic ごとの reference index
 - 論文、標準、仕様書、手順書の整理メモ
-- repo-wide workflow や review policy の外部根拠に紐づく補助資料
+- repo-wide の設計や運用を補足する外部根拠
 
 ## 置かないもの
 
@@ -29,7 +29,7 @@ topic ごとの論文束や reference note をまとめる場合は、ここを�
 - run ごとの結果や report
   - `experiments/` または `reports/agents/`
 - 恒久ルール
-  - Template 固有の規約は `documents/`、shared AgentCanon workflow / rules は `vendor/agent-canon/agents/`
+  - Template 固有の規約は `documents/`
 
 ## Source Record Policy
 
@@ -56,9 +56,7 @@ tracked tree.
 
 ## 関連入口
 
-- [vendor/agent-canon/agents/workflows/README.md](../vendor/agent-canon/agents/workflows/README.md)
-  - workflow と review policy の正本入口です。
-- [vendor/agent-canon/agents/workflows/research-workflow.md](../vendor/agent-canon/agents/workflows/research-workflow.md)
-  - 研究・実験改造の workflow 正本です。
+- [Repository documents](../documents/README.md)
+  - Template 固有の契約と設計の正本入口です。
 - [notes/README.md](../notes/README.md)
   - cross-run の知見整理はこちらです。

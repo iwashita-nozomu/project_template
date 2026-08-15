@@ -2,10 +2,9 @@
 # contract environment
 # responsibility Stores the generated, hash-pinned parent Python dependency lock.
 # upstream environment ../pyproject.toml parent direct dependency declarations
-# upstream design ../vendor/agent-canon/CONTAINER_OPERATIONS.md parent Python dependency boundary
+# upstream design ../documents/design/docker-zero-build-environment.md parent Python dependency boundary
 # downstream implementation ./install_python_dependencies.sh installs this lock fail-closed
 # downstream environment ../.github/workflows/ci.yml uses this lock for installation and cache identity
-# downstream environment ../.github/workflows/agent-coordination.yml uses this lock for installation and cache identity
 # @dependency-end
 # Generated for Linux x86_64 with CPython 3.11.15 and pip-tools 7.6.0.
 # Edit pyproject.toml and rerun the command below; do not edit package pins directly.

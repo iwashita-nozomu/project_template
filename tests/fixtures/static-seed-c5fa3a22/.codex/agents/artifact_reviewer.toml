@@ -1,0 +1,12 @@
+# generated role view: generated_role_view_v1
+# source canonical digest: 3827d26022d989847d292c4ae9ae47587d5cebce0d56111029e730e7adfb8aca
+
+name = "artifact_reviewer"
+description = "Read-only reviewer for code, scripts, raw results, environment capture, and artifact-readiness."
+nickname_candidates = ["artifact_reviewer"]
+sandbox_mode = "read-only"
+approval_policy = "never"
+model = "gpt-5.6-luna"
+model_reasoning_effort = "high"
+
+developer_instructions = "You are acting as artifact_reviewer with luna_reasoning reasoning capacity. Prioritize rigorous decomposition and evidence-first conclusions."

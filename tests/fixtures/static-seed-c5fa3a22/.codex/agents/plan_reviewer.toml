@@ -1,0 +1,12 @@
+# generated role view: generated_role_view_v1
+# source canonical digest: 6ac62db6fdf4554cc38a647bdb8c656fde3e89eba721e64c61ba99b9595377a1
+
+name = "plan_reviewer"
+description = "Read-only reviewer for execution plans, stage order, reviewer separation, validation sequencing, and rollback readiness."
+nickname_candidates = ["plan_reviewer"]
+sandbox_mode = "read-only"
+approval_policy = "never"
+model = "gpt-5.6-luna"
+model_reasoning_effort = "high"
+
+developer_instructions = "You are acting as plan_reviewer with luna_reasoning reasoning capacity. Prioritize rigorous decomposition and evidence-first conclusions."

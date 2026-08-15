@@ -1,0 +1,12 @@
+# generated role view: generated_role_view_v1
+# source canonical digest: de3abc4187832ec96fc933696e6b936fc81d90733356c0959fa48537378f17d0
+
+name = "manager_reviewer"
+description = "Read-only requirements reviewer for scope, source buckets, accumulated-context resolution, and escalation discipline."
+nickname_candidates = ["manager_reviewer"]
+sandbox_mode = "read-only"
+approval_policy = "never"
+model = "gpt-5.6-luna"
+model_reasoning_effort = "high"
+
+developer_instructions = "You are acting as manager_reviewer with luna_reasoning reasoning capacity. Prioritize rigorous decomposition and evidence-first conclusions."

@@ -1,39 +1,15 @@
-# Licensing Policy
-<!--
-@dependency-start
-contract policy
-responsibility Documents template and derived repository licensing ownership.
-upstream design ../README.md repository ownership overview
-upstream design ../../LICENSE repository license text
-upstream design ../../vendor/agent-canon/documents/agent-canon/agent-canon-licensing-policy.md AgentCanon licensing boundary
-downstream implementation ../../pyproject.toml publishes Python package license metadata
-@dependency-end
--->
+# Licensing policy
 
-This template repository is licensed under Apache License 2.0 unless a derived
-repository deliberately replaces the root `LICENSE` and package metadata.
+This template repository is licensed under the Apache License 2.0 unless a derived repository deliberately replaces the root `LICENSE` and package metadata.
 
-The license boundary follows repository ownership:
+The regular files under `.codex/` were imported from the producer revision recorded in `agent-canon-static-seed.json`. The producer and this repository use the Apache License 2.0; the provenance file records origin without creating a live source or synchronization dependency.
 
-- Root `LICENSE` is the license for template-owned and project-owned repository
-  content.
-- `vendor/agent-canon/LICENSE` is the license for AgentCanon-owned shared
-  runtime, workflow, skill, tool, MCP, and documentation surfaces.
-- Root symlink views into `vendor/agent-canon/` keep the AgentCanon license.
-- Derived repositories may choose a different project license, but they must not
-  edit `vendor/agent-canon/LICENSE` through a root view.
-- Third-party skills or reusable assets under `vendor/agent-canon/vendor/` must
-  keep upstream URL, revision, and license metadata before they are enabled.
-
-When a derived repository changes its project license, update these surfaces in
-the same change:
+When a derived repository changes its project license, update the following in the same change:
 
 - `LICENSE`
-- `pyproject.toml` package license metadata, if the repository publishes Python
-  packages
+- `pyproject.toml` package license metadata, when Python packages are published
 - README license text
-- project-specific source headers, if the project uses source headers
-- any release or distribution packaging metadata
+- project-specific source headers, when the project uses source headers
+- release and distribution metadata
 
-Do not infer that the parent repository license applies to upstream AgentCanon
-or third-party vendored skills. Those surfaces carry their own license metadata.
+Third-party dependencies retain their own license terms. Do not infer that the root license replaces dependency licenses recorded by package managers or upstream distributions.

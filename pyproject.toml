@@ -1,14 +1,3 @@
-# @dependency-start
-# contract configuration
-# responsibility Defines Python packaging, dependency, and tool configuration.
-# upstream design LICENSE repository license text
-# upstream design documents/contracts/licensing-policy.md repository license ownership
-# upstream design vendor/agent-canon/documents/conventions/coding-conventions-python.md Python convention contract
-# downstream implementation tests/tools/test_python_env_policy.py validates Python environment policy
-# downstream implementation tests/tools/test_update_latest_result.py imports shared tools in pyright
-# downstream environment docker/requirements.txt is generated from these declarations
-# downstream implementation docker/install_python_dependencies.sh installs the generated lock and editable project
-# @dependency-end
 [build-system]
 requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
@@ -16,26 +5,15 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "project-template"
 version = "0.1.0"
-description = "Template repository for implementation, experiments, and agent workflows"
+description = "Self-contained project repository template"
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.11"
-classifiers = [
-  "License :: OSI Approved :: Apache Software License",
-]
-dependencies = [
-  "jax",
-  "jaxtyping",
-  "typeguard",
-  "equinox",
-  "optax",
-  "scipy",
-]
+classifiers = ["License :: OSI Approved :: Apache Software License"]
+dependencies = ["jax", "jaxtyping", "typeguard", "equinox", "optax", "scipy"]
 
 [project.optional-dependencies]
-gpu = [
-  "jax[cuda12-local]",
-]
+gpu = ["jax[cuda12-local]"]
 dev = [
   "pytest>=8",
   "ruff>=0.5",
@@ -70,18 +48,12 @@ target-version = "py311"
 [tool.ruff.lint]
 select = ["E", "F", "I", "D", "UP"]
 ignore = ["E501"]
-# D: docstring チェック
-# UP: Python 最新構文への自動升格
-# E501: 行長は固定文字数で fail させず、可読性と project-local formatter に委ねる
 
 [tool.ruff.lint.pydocstyle]
 convention = "pep257"
 
 [tool.pyright]
-# 型検査は strict を基本方針とします。
 typeCheckingMode = "strict"
-
-# この template では `python/` 全体を baseline として扱います。
 include = ["./python", "./tests"]
 exclude = [
   "**/.*",
@@ -94,34 +66,18 @@ exclude = [
   "**/*.egg-info",
   "./references",
   "./notes",
-  "./diary",
-  "./includes",
-  "./lib",
-  "./src",
   "./scripts",
   "./.worktrees",
 ]
-
-# ローカルパッケージと shared tool surface 解決のため、python、repo root、
-# AgentCanon submodule root、root shared tool view を追加します。
-extraPaths = ["./python", ".", "./vendor/agent-canon", "./tools/agent-canon/agent_tools"]
+extraPaths = ["./python", "."]
 stubPath = "./python/typings"
-
-
 reportUnusedVariable = "warning"
 reportConstantRedefinition = "warning"
 reportMissingTypeStubs = "warning"
 
 [tool.pydocstyle]
-# Docstring 規約の設定
-# D100: モジュール docstring 必須
-# D101: クラス docstring 必須
-# D102: パブリックメソッド docstring 必須
-# D103: 関数 docstring 必須
-# D104-D105: パッケージ/Magic method は除外
 match = ".*\\.py"
 match_dir = ".*"
-# プライベート関数 (_prefix) の docstring チェックは除外
 ignore = ["D104", "D105", "D107", "D203"]
 
 [tool.pytest.ini_options]
