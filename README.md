@@ -55,6 +55,18 @@ The default image is CPU-only. GPU support remains an explicit Docker target and
 
 Seed refresh is a one-way template-maintainer operation. A generated repository never checks for a newer producer revision and never updates the snapshot in the background.
 
+To perform that explicit maintainer operation, pass one already-exported
+static-seed directory to the importer:
+
+```bash
+python3 tools/import_agent_canon_static_seed.py --bundle <fresh-export-directory>
+```
+
+The importer validates the export first, then atomically journals and updates
+only the tracked seed files. Review its source revision and added/updated/
+deleted role counts with the resulting diff before committing. Bootstrap,
+normal checks, CI, Docker, and descendant repositories never call this command.
+
 ## Repository layout
 
 ```text
