@@ -18,7 +18,7 @@ git commit -m "Initialize my-project"
 make pr-check
 ```
 
-The initializer is an offline, repository-local identity conversion. It rewrites project metadata and reader-facing examples only. It does not fetch or regenerate the static seed.
+The initializer is an offline, repository-local identity conversion. It rewrites project metadata and reader-facing examples only. It does not fetch or regenerate the static configuration.
 
 After committing the initialized tree, run the descendant acceptance check:
 
@@ -49,23 +49,11 @@ make docker-run ARGS='python3 --version'
 
 The default image is CPU-only. GPU support remains an explicit Docker target and requires a compatible host driver.
 
-## Static Codex seed
+## Static Codex configuration
 
-`.codex/config.toml` and `.codex/agents/*.toml` are regular tracked files. `agent-canon-static-seed.json` records the producer repository and immutable source revision. The checker derives the exact role-file closure from `.codex/config.toml`. The snapshot supplies configuration data only; it does not include producer tooling, source resolvers, update state, hooks, secrets, symlinks, or network behavior.
+`.codex/config.toml` and `.codex/agents/*.toml` are regular tracked files. The repository-owned runtime-independence checker derives and validates the exact role-file closure from `.codex/config.toml`. The tracked snapshot supplies configuration data only; it contains no source resolver, updater, update state, hook, secret, symlink, or network behavior.
 
-Seed refresh is a one-way template-maintainer operation. A generated repository never checks for a newer producer revision and never updates the snapshot in the background.
-
-To perform that explicit maintainer operation, pass one already-exported
-static-seed directory to the importer:
-
-```bash
-python3 tools/import_agent_canon_static_seed.py --bundle <fresh-export-directory>
-```
-
-The importer validates the export first, then atomically journals and updates
-only the tracked seed files. Review its source revision and added/updated/
-deleted role counts with the resulting diff before committing. Bootstrap,
-normal checks, CI, Docker, and descendant repositories never call this command.
+Normal clone, initialization, checks, CI, Docker, and generated repositories read these files directly. None of those paths performs background refresh or requires another checkout. Replacing the tracked snapshot is an explicit template-maintainer operation documented in the repository-local [static-configuration maintenance contract](documents/design/template-static-seed-import.md); normal users do not run it.
 
 ## Repository layout
 
