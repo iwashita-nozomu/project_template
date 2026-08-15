@@ -11,6 +11,7 @@
 - [Linux and WSL host requirements](contracts/linux-wsl-host-requirements.md)
 - [Server host contract](contracts/server-host-contract.md)
 - [Remote execution repository contract](contracts/remote-execution-repo-contract.md)
+- [Legacy live AgentCanon descendant migration](contracts/legacy-live-agent-canon-migration.md)
 
 ## Design documents
 
