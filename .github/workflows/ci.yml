@@ -68,5 +68,5 @@ jobs:
 
       - name: Run descendant fresh-clone acceptance
         env:
-          TEMPLATE_FRESH_CLONE_RUN_DOCKER: ${{ github.event_name == 'pull_request' && '0' || '1' }}
+          TEMPLATE_FRESH_CLONE_RUN_DOCKER: "1"
         run: make fresh-clone-check
