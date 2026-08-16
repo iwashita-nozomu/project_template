@@ -1,4 +1,4 @@
-name: CI
+name: Validation Summary
 
 on:
   push:
@@ -11,62 +11,87 @@ permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
+  group: validation-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  repository-ci:
-    name: Repository CI
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11"]
+  validation:
+    name: Validation Summary
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
+          fetch-depth: 0
           persist-credentials: false
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: pip
-          cache-dependency-path: docker/requirements.txt
-
-      - name: Install native build tools
-        run: sudo apt-get update && sudo apt-get install -y ninja-build
-
-      - name: Install project dependencies
-        run: bash docker/install_python_dependencies.sh "$PWD"
-
-      - name: Run project-owned pull-request gate
-        run: make pr-check
-
-  fresh-clone-acceptance:
-    name: Fresh Clone Acceptance
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11"]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install native build tools
-        run: sudo apt-get update && sudo apt-get install -y ninja-build
-
-      - name: Install project dependencies
-        run: bash docker/install_python_dependencies.sh "$PWD"
-
-      - name: Run descendant fresh-clone acceptance
+      - name: Classify changed responsibilities
+        id: route
         env:
-          TEMPLATE_FRESH_CLONE_RUN_DOCKER: "1"
-        run: make fresh-clone-check
+          BASE_SHA: ${{ github.event.pull_request.base.sha || '' }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          mkdir -p .state
+          python3 tools/validation_routing.py plan \
+            --root "$PWD" \
+            --event "${{ github.event_name }}" \
+            --base "$BASE_SHA" \
+            --head "$HEAD_SHA" \
+            --plan-file .state/validation-plan.json \
+            --summary-file .state/validation-summary.md \
+            --github-output "$GITHUB_OUTPUT"
+
+      - name: Build canonical development image
+        env:
+          IMAGE: project-template-ci:${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          docker build --platform linux/amd64 \
+            --build-arg "PROJECT_UID=$(id -u)" \
+            --build-arg "PROJECT_GID=$(id -g)" \
+            --target cpu-dev \
+            --tag "$IMAGE" \
+            --file docker/Dockerfile .
+
+      - name: Execute applicable profiles in canonical image
+        env:
+          IMAGE: project-template-ci:${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          docker run --rm --platform linux/amd64 \
+            --mount "type=bind,src=$PWD,dst=/workspace/project" \
+            --workdir /workspace/project \
+            --env PROJECT_TEMPLATE_IMAGE=1 \
+            "$IMAGE" /bin/bash -lc '
+              /opt/project-venv/bin/python tools/validation_routing.py run \
+                --root /workspace/project \
+                --plan-file .state/validation-plan.json \
+                --result-file .state/validation-result.json \
+                --summary-file .state/validation-summary.md
+            '
+
+      - name: Run cold canonical-image acceptance
+        if: ${{ always() && steps.route.outputs.docker_runtime_applicable == 'true' }}
+        env:
+          IMAGE: project-template-cold:${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          bash docker/cold-build-smoke.sh \
+            --pull --no-cache --expect-non-default-id --tag "$IMAGE"
+
+      - name: Publish validation summary
+        if: always()
+        run: |
+          if [[ -f .state/validation-summary.md ]]; then
+            cat .state/validation-summary.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            printf 'Validation summary was not produced.\n' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload validation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .state/validation-plan.json
+            .state/validation-result.json
+            .state/validation-summary.md
+          if-no-files-found: warn

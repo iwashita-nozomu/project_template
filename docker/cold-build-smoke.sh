@@ -2,7 +2,7 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
-image_tag=project-template:zero-build-cold-smoke
+image_tag=project-template:canonical-cold-smoke
 pull=0
 no_cache=0
 expect_non_default_id=0
@@ -33,35 +33,23 @@ if [[ $expect_non_default_id -eq 1 && "$project_uid:$project_gid" == 1000:1000 ]
 fi
 
 build=(docker build --platform linux/amd64 --pull --no-cache \
-  --build-arg "PROJECT_UID=$project_uid" --build-arg "PROJECT_GID=$project_gid" \
+  --build-arg "PROJECT_UID=$project_uid" \
+  --build-arg "PROJECT_GID=$project_gid" \
+  --target cpu-validation \
   --tag "$image_tag" --file "$repo_root/docker/Dockerfile" "$repo_root")
 printf 'cold-build:'; printf ' %q' "${build[@]}"; printf '\n'
 "${build[@]}"
 
-smoke=$(cat <<'SMOKE'
-set -euo pipefail
-cd /workspace/project-template
-
-test "$(id -un)" = project
-test "$(id -u)" = "${EXPECTED_UID:?}"
-test "$(id -g)" = "${EXPECTED_GID:?}"
-test "$HOME" = /home/project
-sudo -n true
-bash docker/install_python_dependencies.sh "$PWD"
-bash .devcontainer/post-create-parent.sh "$PWD"
-python3 tools/check_runtime_independence.py
-python3 tools/check_markdown_links.py
-python3 tools/check_github_workflows.py
-make cpp-test
-python3 -c 'import jax; assert jax.default_backend() == "cpu"'
-! command -v nvcc
-printf 'COLD_SMOKE=pass uid=%s gid=%s\n' "$(id -u)" "$(id -g)"
-SMOKE
-)
-
 docker run --rm --platform linux/amd64 \
-  --mount "type=bind,src=$repo_root,dst=/workspace/project-template" \
-  --workdir /workspace/project-template \
+  --env PROJECT_TEMPLATE_IMAGE=1 \
   --env "EXPECTED_UID=$project_uid" \
   --env "EXPECTED_GID=$project_gid" \
-  "$image_tag" /bin/bash -lc "$smoke"
+  "$image_tag" /bin/bash -lc '
+    set -euo pipefail
+    cd /workspace/project
+    test "${VALIDATION_IMAGE:?}" = 1
+    test "$(id -u)" = "${EXPECTED_UID:?}"
+    test "$(id -g)" = "${EXPECTED_GID:?}"
+    make image-smoke-local
+    printf "COLD_SMOKE=pass uid=%s gid=%s\n" "$(id -u)" "$(id -g)"
+  '

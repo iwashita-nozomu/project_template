@@ -1,8 +1,12 @@
 # Project Template
 
-A self-contained starting point for Python, C++, documents, experiments, and containerized development.
+A self-contained starting point for Python, C++, documents, experiments, and
+containerized development.
 
-A normal clone contains every tracked file required to read, bootstrap, build, and validate the project. The default path has no submodule, no runtime checkout, no source resolver, no updater, and no upstream credential requirement.
+A normal clone contains every tracked file required to read, bootstrap, build,
+and validate the project. The default path has no submodule, no runtime
+checkout, no source resolver, no updater, and no upstream credential
+requirement.
 
 ## Start a repository
 
@@ -15,22 +19,42 @@ bash scripts/start_repository.sh \
 git diff --check
 git add --all
 git commit -m "Initialize my-project"
-make pr-check
 ```
 
-The initializer is an offline, repository-local identity conversion. It rewrites project metadata and reader-facing examples only. It does not fetch or regenerate the static configuration.
+The initializer is an offline, repository-local identity conversion. It
+rewrites project metadata and reader-facing examples only. It does not fetch or
+regenerate the static configuration.
 
-After committing the initialized tree, run the descendant acceptance check:
+Open the repository in its Dev Container, or build target `cpu-dev`, before
+running checks. The image already contains the Python environment, Node.js,
+standard CLIs, CMake, and Ninja; no post-create installation runs.
 
 ```bash
+export PROJECT_UID="$(id -u)"
+export PROJECT_GID="$(id -g)"
+code .
+```
+
+Inside the canonical environment:
+
+```bash
+make pr-check
 make fresh-clone-check
 ```
 
-This publishes the generated repository to a temporary local bare remote, clones it normally without recursive options, hides the template source, and reruns project-owned checks.
+The descendant acceptance check publishes the generated repository to a
+temporary local bare remote, clones it normally without recursive options,
+hides the template source, and reruns project-owned checks.
 
 ## Canonical checks
 
+`validation/profiles.toml` maps changed paths to responsibility profiles. Pull
+request CI executes only applicable profiles in the same `cpu-dev` image and
+reports independent profiles as `not_applicable`, not as passing. Routing
+self-changes and integration events select the full profile set.
+
 ```bash
+make check-matrix
 make runtime-independence-check
 make docs-check
 make github-workflow-check
@@ -39,21 +63,29 @@ make test
 make pr-check
 ```
 
-`make ci` is the full project-owned host gate. Docker checks use the same tracked Dockerfile:
+Build-time full acceptance uses the same tracked Dockerfile:
 
 ```bash
-make docker-check
 make docker-build-check
-make docker-run ARGS='python3 --version'
 ```
 
-The default image is CPU-only. GPU support remains an explicit Docker target and requires a compatible host driver.
+The default development image is CPU-only. GPU support is the explicit
+`gpu-dev` target and requires a compatible host driver.
 
 ## Static Codex configuration
 
-`.codex/config.toml` and `.codex/agents/*.toml` are regular tracked files. The repository-owned runtime-independence checker derives and validates the exact role-file closure from `.codex/config.toml`. The tracked snapshot supplies configuration data only; it contains no source resolver, updater, update state, hook, secret, symlink, or network behavior.
+`.codex/config.toml` and `.codex/agents/*.toml` are regular tracked files. The
+repository-owned runtime-independence checker derives and validates the exact
+role-file closure from `.codex/config.toml`. The tracked snapshot supplies
+configuration data only; it contains no source resolver, updater, update state,
+hook, secret, symlink, or network behavior.
 
-Normal clone, initialization, checks, CI, Docker, and generated repositories read these files directly. None of those paths performs background refresh or requires another checkout. Replacing the tracked snapshot is an explicit template-maintainer operation documented in the repository-local [static-configuration maintenance contract](documents/design/template-static-seed-import.md); normal users do not run it.
+Normal clone, initialization, checks, CI, Docker, and generated repositories
+read these files directly. None of those paths performs background refresh or
+requires another checkout. Replacing the tracked snapshot is an explicit
+template-maintainer operation documented in the repository-local
+[static-configuration maintenance contract](documents/design/template-static-seed-import.md);
+normal users do not run it.
 
 ## Repository layout
 
@@ -66,10 +98,12 @@ Normal clone, initialization, checks, CI, Docker, and generated repositories rea
 ├── experiments/                # project experiments
 ├── documents/                  # project-owned contracts and design
 ├── docker/                     # canonical image definition and checks
-├── .devcontainer/              # Dockerfile selector and read-only validation hook
+├── .devcontainer/              # image target, identity, and mount projection
+├── validation/                 # responsibility-to-command routing source
 ├── scripts/                    # offline repository initialization
 ├── tools/                      # project-owned validation tools
 └── tests/                      # project-owned tests
 ```
 
-See `QUICK_START.md`, `documents/contracts/template-bootstrap.md`, and `documents/contracts/template-validation.md` for the operational contracts.
+See `QUICK_START.md`, `documents/contracts/template-bootstrap.md`, and
+`documents/contracts/template-validation.md` for the operational contracts.
