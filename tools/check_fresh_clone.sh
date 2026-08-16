@@ -49,6 +49,8 @@ git clone "$bare_remote" "$descendant_clone" >/dev/null
   make pr-check
 
   if [[ "${TEMPLATE_FRESH_CLONE_RUN_DOCKER:-0}" == 1 ]]; then
+    # CMake caches contain absolute paths and cannot cross the host/container mount boundary.
+    make clean-generated
     image="descendant-fixture:fresh-clone"
     docker build --platform linux/amd64 \
       --build-arg "PROJECT_UID=$(id -u)" \
