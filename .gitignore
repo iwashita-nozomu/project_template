@@ -1,28 +1,18 @@
-# Python caches and environments
+# Cross-tree Python and notebook artifacts
 __pycache__/
 *.py[cod]
-.pytest_cache/
-.ruff_cache/
-.venv/
-venv/
 *.egg-info/
-
-# Notebook and editor artifacts
 .ipynb_checkpoints/
+
+# Root Python tooling and environments
+/.pytest_cache/
+/.ruff_cache/
+/.venv/
+/venv/
+
+# Host and editor metadata
 .DS_Store
 
-# Build, install, and runtime artifacts
-build/
-dist/
-.state/
-logs/
-tests/logs/
-reports/
-
 # Local worktrees and scratch checkouts
-.worktrees/
-workspace/
-
-# Experiment outputs; keep explicit placeholders only
-experiments/**/result/*
-!experiments/**/result/.gitkeep
+/.worktrees/
+/workspace/

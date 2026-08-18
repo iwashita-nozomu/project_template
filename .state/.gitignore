@@ -1,0 +1,3 @@
+# Generated local state; keep only this local policy file.
+*
+!.gitignore

@@ -1,0 +1,3 @@
+# Generated reports; keep only this local policy file.
+*
+!.gitignore
