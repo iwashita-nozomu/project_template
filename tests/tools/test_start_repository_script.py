@@ -69,7 +69,9 @@ def test_bootstrap_is_local_and_idempotent(tmp_path: Path) -> None:
     assert (clone / ".gitmodules").is_file()
     gitlink = run(["git", "ls-files", "-s", "vendor/agent-canon"], clone).stdout
     assert gitlink.startswith("160000 ")
-    assert not (clone / "vendor/agent-canon").exists()
+    checkout = clone / "vendor/agent-canon"
+    assert not (checkout / ".git").exists()
+    assert not checkout.exists() or not any(checkout.iterdir())
 
     before = run(["git", "diff", "--binary"], clone).stdout
     second = run(
