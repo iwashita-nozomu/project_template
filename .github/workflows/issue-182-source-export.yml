@@ -33,3 +33,5 @@ jobs:
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git commit -m "fix: remove Agent definitions from template (#182)"
           git push --force origin HEAD:fix/182-remove-agent-definitions
+
+# Triggered after the workflow and reviewed patch are both present on the branch.
