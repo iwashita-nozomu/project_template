@@ -25,18 +25,18 @@ topic ごとの論文束や reference note をまとめる場合は、ここを�
 これらは次へ分けます。
 
 - 作業ログや補助メモ
-  - `notes/`
+  - `documents/notes/`
 - run ごとの結果や report
   - `experiments/` または `reports/agents/`
 - 恒久ルール
-  - Template 固有の規約は `documents/`
+  - Template 固有の規約は `documents/` の責務 directory
 
 ## Source Record Policy
 
-Before adding a new source note, search existing `references/`, `notes/`,
-`documents/`, and task reports for the same title, DOI, URL, or claim. If an
-existing note already covers the source, update or cite that note instead of
-creating a duplicate.
+Before adding a new source note, search existing `references/`,
+`documents/notes/`, owning `documents/` directories, and task reports for the
+same title, DOI, URL, or claim. If an existing note already covers the source,
+update or cite that note instead of creating a duplicate.
 
 When an external source is used in an answer, design, workflow, experiment, or
 review, leave a durable source record. At minimum record the URL or DOI,
@@ -57,6 +57,6 @@ tracked tree.
 ## 関連入口
 
 - [Repository documents](../documents/README.md)
-  - Template 固有の契約と設計の正本入口です。
-- [notes/README.md](../notes/README.md)
+  - Template 固有の契約、設計、cross-run notes の入口です。
+- [documents/notes/README.md](../documents/notes/README.md)
   - cross-run の知見整理はこちらです。

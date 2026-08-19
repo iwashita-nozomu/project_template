@@ -1,6 +1,12 @@
 # Repository documents
 
-`documents/` contains contracts and design material owned by this repository. A normal clone carries every document needed by the default bootstrap and validation paths; no document resolver or parent checkout is required.
+`documents/` contains contracts, design material, and tracked supporting notes owned by this repository. A normal clone carries every document needed by the default bootstrap and validation paths; no document resolver or parent checkout is required.
+
+## Cross-run notes
+
+- [Notes hub](notes/README.md)
+  - Holds cross-run knowledge, comparisons, and supporting decisions before they are promoted to an owning contract or design document.
+  - It is a responsibility directory under `documents/`, not a second root-level document owner.
 
 ## Operational contracts
 
@@ -20,4 +26,4 @@
 - [Experiment README contract](experiment-readme-contract-r9.md)
 - `experiment-readme-contract-r9.json` is the machine-readable schema paired with that contract.
 
-Generated reports and run artifacts do not belong in this directory. Repository-specific additions should be regular files with local links and explicit ownership.
+Generated reports and run artifacts do not belong in this directory. Repository-specific additions should be regular files with local links and explicit ownership. Canonical rules and designs remain in their owning responsibility directories; `documents/notes/` does not replace those owners.

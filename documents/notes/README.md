@@ -3,13 +3,13 @@
 @dependency-start
 contract design
 responsibility Documents Notes Hub for this repository.
-upstream design ../README.md repository entrypoint and operating context
-upstream design ../documents/README.md repository-owned document index and contract ownership
+upstream design ../../README.md repository entrypoint and operating context
+upstream design ../README.md repository-owned document index and contract ownership
 @dependency-end
 -->
 
-`notes/` は、この template で作業をまたいで残す知見、比較、補助メモの置き場です。
-規約や設計の一次情報は `documents/` に残し、ここではそれに昇格させる前の知見や、
+`documents/notes/` は、この template で作業をまたいで残す知見、比較、補助メモの置き場です。
+規約や設計の一次情報は `documents/` の責務 directory に残し、ここではそれに昇格させる前の知見や、
 複数の run にまたがって参照する判断を扱います。
 
 ## 使い方
@@ -22,10 +22,11 @@ upstream design ../documents/README.md repository-owned document index and contr
 ## 配置
 
 このディレクトリは通常の追跡対象ファイルだけで構成します。生成物、メモリ、symlink、
-親 checkout への参照は配置しません。
+親 checkout への参照は配置しません。root `notes/` に互換 path や checked copy を残さず、
+notes の reader entry は `documents/notes/` に一本化します。
 
 ## 関連入口
 
-- [Repository entrypoint](../README.md)
-- [Repository documents](../documents/README.md)
-- [References](../references/README.md)
+- [Repository entrypoint](../../README.md)
+- [Repository documents](../README.md)
+- [References](../../references/README.md)
