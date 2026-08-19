@@ -1,0 +1,136 @@
+name: Finalize Issue 182 responsibility fix
+
+on:
+  push:
+    branches:
+      - fix/182-remove-agent-definitions
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: docker/requirements.txt
+
+      - name: Install validation dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build
+          bash docker/install_python_dependencies.sh "$PWD"
+
+      - name: Apply migration when an earlier run has not materialized it
+        run: |
+          if [[ -f .github/scripts/issue_182_apply.py ]]; then
+            python3 .github/scripts/issue_182_apply.py
+          fi
+
+      - name: Create exact final candidate
+        run: |
+          rm -f .github/workflows/issue-182-source-export.yml
+          rm -f .github/workflows/issue-182-finalize.yml
+          rm -f .github/scripts/issue_182_migrate.py
+          rm -f .github/scripts/issue_182_apply.py
+          git add -A
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if ! git diff --cached --quiet; then
+            git commit -m "fix: remove Agent definitions from template (#182)"
+          fi
+
+      - name: Validate focused responsibility contract
+        run: python3 -m pytest -q tests/tools/test_check_runtime_independence.py
+
+      - name: Validate project pull-request gate
+        run: make pr-check
+
+      - name: Validate committed fresh clone including Docker
+        env:
+          TEMPLATE_FRESH_CLONE_RUN_DOCKER: "1"
+        run: make fresh-clone-check
+
+      - name: Push exact validated candidate
+        run: git push origin HEAD:fix/182-remove-agent-definitions
+
+      - name: Publish Issue and PR evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          HEAD_SHA="$(git rev-parse HEAD)"
+          BASE_SHA="$(gh pr view 183 --json baseRefOid --jq .baseRefOid)"
+          git diff --name-status "${BASE_SHA}...${HEAD_SHA}" > /tmp/changed-scope.txt
+          cat > /tmp/issue-comment.md <<EOF
+          <!-- agent-canon:issue-182-agent-definition-boundary:v1 head=${HEAD_SHA} -->
+          ## 実装完了・レビュー引き継ぎ
+
+          template 側が AgentCanon 由来の Agent 定義を静的に保持していた責務違反を、branch \`fix/182-remove-agent-definitions\` / PR #183 で修正しました。
+
+          ### 根本原因と修正境界
+
+          旧構成は、論理 role、prompt、model profile、Skill binding、subagent registration を template の tracked tree に複製し、AgentCanon と template の二重 owner を作っていました。今回の変更では template の責務を project source/build/test/runtime と project-scoped Codex session settings に限定し、Agent inventory は AgentCanon と active runtime のみに戻しています。
+
+          - role-specific Agent TOML 群を撤去
+          - Agent registry/provenance snapshot と importer を撤去
+          - \`.codex/config.toml\` を project-scoped session settings のみに縮退
+          - runtime-independence checker を「Agent 定義が必要」から「Agent 定義が tracked tree に存在したら失敗」へ反転
+          - focused regression を 18 case で固定
+          - fresh clone が AgentCanon checkout/import/registry なしで project gate と Docker gateを完了することを確認
+
+          ### Exact evidence
+
+          - baseline: \`${BASE_SHA}\`
+          - branch: \`fix/182-remove-agent-definitions\`
+          - head: \`${HEAD_SHA}\`
+          - PR: https://github.com/iwashita-nozomu/project_template/pull/183
+          - \`python3 -m pytest -q tests/tools/test_check_runtime_independence.py\` — pass
+          - \`make pr-check\` — pass
+          - \`TEMPLATE_FRESH_CLONE_RUN_DOCKER=1 make fresh-clone-check\` — pass
+          - remaining verification: none
+
+          ### Changed scope
+
+          \`git diff --name-status ${BASE_SHA}...${HEAD_SHA}\`:
+
+          \`\`\`
+          $(cat /tmp/changed-scope.txt)
+          \`\`\`
+
+          Agent の追加・削除・prompt 更新が今後 template diff を発生させないことを構造条件としました。変更は review-ready です。
+          EOF
+
+          cat > /tmp/pr-body.md <<EOF
+          ## 概要
+
+          AgentCanon Issue #781 と対になる template 側の責務修正です。template tree から Agent role definitions、model/profile projection、Skill binding、registration、provenance/import machinery を撤去し、project-scoped session settings のみを残しました。
+
+          ## 工学的境界
+
+          static configuration size を active logical role 数 \`N_role\` に比例させず、template 側の Agent definition count を常に 0 とします。Agent inventory の owner は AgentCanon/runtime、template の owner は project scaffold です。
+
+          ## Validation
+
+          - \`python3 -m pytest -q tests/tools/test_check_runtime_independence.py\`
+          - \`make pr-check\`
+          - \`TEMPLATE_FRESH_CLONE_RUN_DOCKER=1 make fresh-clone-check\`
+
+          すべて exact head \`${HEAD_SHA}\` で pass。remaining verification はありません。
+
+          Closes #182
+          Related: iwashita-nozomu/agent-canon#781
+          EOF
+
+          gh issue comment 182 --body-file /tmp/issue-comment.md
+          gh issue edit 182 --remove-label "in progress" --add-label "ready for review"
+          gh pr edit 183 --body-file /tmp/pr-body.md
+          gh pr ready 183
