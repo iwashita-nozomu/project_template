@@ -147,7 +147,11 @@ def validate_agent_canon_registration(root: Path, entries: list[Entry]) -> None:
         fail("agent-canon-gitlink-missing")
 
     checkout = root / AGENT_CANON_PATH
+    if checkout.is_symlink() or (checkout.exists() and not checkout.is_dir()):
+        fail("agent-canon-checkout-path-invalid")
     if not (checkout / ".git").exists():
+        if checkout.exists() and any(checkout.iterdir()):
+            fail("agent-canon-uninitialized-checkout-not-empty")
         return
     result = subprocess.run(
         ["git", "-C", str(checkout), "rev-parse", "--verify", "HEAD^{commit}"],

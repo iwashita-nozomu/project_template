@@ -147,6 +147,16 @@ def test_initialized_checkout_must_match_gitlink(tmp_path: Path) -> None:
     assert "agent-canon-checkout-pin-mismatch" in result.stderr
 
 
+def test_uninitialized_checkout_directory_must_be_empty(tmp_path: Path) -> None:
+    root = make_fixture(tmp_path)
+    checkout = root / "vendor/agent-canon"
+    checkout.mkdir(parents=True)
+    (checkout / "unexpected.txt").write_text("unexpected\n", encoding="utf-8")
+    result = check(root)
+    assert result.returncode == 1
+    assert "agent-canon-uninitialized-checkout-not-empty" in result.stderr
+
+
 def test_agent_canon_root_symlink_remains_rejected(tmp_path: Path) -> None:
     root = make_fixture(tmp_path)
     (root / "tools/agent-canon").symlink_to("../vendor/agent-canon/tools")
