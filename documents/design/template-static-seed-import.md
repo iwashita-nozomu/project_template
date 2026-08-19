@@ -57,9 +57,9 @@ provenance は次の key だけを持ちます。
 受理する payload bytes は importer 内の `REVIEWED_SOURCE_COMMIT` と
 `REVIEWED_PAYLOAD_MANIFEST` に固定します。任意の future export を prose や pattern の類似だけで
 受理せず、maintainer review で manifest を更新した change だけを新しい authority とします。
-`tests/fixtures/static-seed-c5fa3a22/` は、この reviewed payload の repository 内参照資料として
-残しますが、通常の template test suite が AgentCanon importer の内部状態機械を所有する根拠には
-しません。
+static-seed payloadの生成正本とproducer testはAgentCanon側の
+`tools/agent_tools/export_static_seed.py`と`tests/agent_tools/test_export_static_seed.py`です。
+Templateはそのpayload fixtureやproducer testを`tests/`へcopyしません。
 
 入力 bytes は producer-only path、live runtime、updater、network、secret、source checkout を
 示す marker を含めません。検査は危険 surface を明確な typed finding で拒否するための境界であり、
@@ -86,16 +86,16 @@ multi-file 更新の安全性は、各 file の rename が単独で atomic で�
 
 1. bundle 全体、provenance、config-role closure、mode、type、reviewed digest を読み切り、mutation
    前に immutable plan を作る。
-1. `.codex/agents` directory descriptor に nonblocking exclusive lock を取得し、同時 importer は
+2. `.codex/agents` directory descriptor に nonblocking exclusive lock を取得し、同時 importer は
    `TSSI_CONCURRENT_IMPORT` で直ちに拒否する。
-1. target の path、bytes、mode、device、inode を lock 下で snapshot し、bundle と target の
+3. target の path、bytes、mode、device、inode を lock 下で snapshot し、bundle と target の
    descriptor identity を apply 直前まで再検証する。
-1. target と同じ filesystem の private journal に new bytes と complete backup を durable 化し、
+4. target と同じ filesystem の private journal に new bytes と complete backup を durable 化し、
    `COMPLETE`、`rollback-required`、manifest state を定めた順序で fsync する。
-1. controlled path だけを deterministic order で replace または delete する。
-1. live target を再読込し、path set、bytes、mode、source commit、role closure、reviewed digest を
-   確認した後にだけ `committed` evidence を durable 化する。
-1. apply または readback が失敗した場合は complete backup を逆順 replay し、pre-import の path、
+5. controlled path だけを deterministic order で replace または delete する。
+6. live target を再読込し、path set、bytes、mode、source commit、role closure、reviewed digest を
+  確認した後にだけ `committed` evidence を durable 化する。
+7. apply または readback が失敗した場合は complete backup を逆順 replay し、pre-import の path、
    bytes、mode を完全に復元できたことを確認してから failure を返す。
 
 prevalidation failure は target を一切変更しません。journal の schema、closure、marker、state が

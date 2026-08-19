@@ -33,6 +33,7 @@ FORBIDDEN_TRACKED_PATHS = {
     ".github/workflows/agent-coordination.yml",
     ".github/workflows/agent-improvement-guide.yml",
     "tests/agent_tools",
+    "tests/fixtures/static-seed-c5fa3a22",
     "tools/agent-canon",
 }
 
