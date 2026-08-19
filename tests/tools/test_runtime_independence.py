@@ -248,6 +248,24 @@ def test_agent_canon_runtime_state_remains_rejected(tmp_path: Path) -> None:
     assert_finding(root, "forbidden-tracked-path:.agent-canon")
 
 
+def test_parent_agent_tools_test_namespace_is_rejected(tmp_path: Path) -> None:
+    root = make_fixture(tmp_path)
+    test_path = root / "tests/agent_tools/test_runtime.py"
+    test_path.parent.mkdir(parents=True)
+    test_path.write_text("def test_runtime():\n    assert True\n", encoding="utf-8")
+    run(["git", "add", str(test_path.relative_to(root))], root)
+    assert_finding(root, "forbidden-tracked-path:tests/agent_tools")
+
+
+def test_parent_static_seed_payload_fixture_is_rejected(tmp_path: Path) -> None:
+    root = make_fixture(tmp_path)
+    fixture = root / "tests/fixtures/static-seed-c5fa3a22/payload.json"
+    fixture.parent.mkdir(parents=True)
+    fixture.write_text("{}\n", encoding="utf-8")
+    run(["git", "add", str(fixture.relative_to(root))], root)
+    assert_finding(root, "forbidden-tracked-path:tests/fixtures/static-seed-c5fa3a22")
+
+
 def test_runtime_dispatch_reference_is_rejected(tmp_path: Path) -> None:
     root = make_fixture(tmp_path)
     (root / "scripts/bootstrap.sh").write_text(

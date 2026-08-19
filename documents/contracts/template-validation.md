@@ -2,7 +2,7 @@
 
 The repository owns its normal validation entry points:
 
-- `make runtime-independence-check` accepts either no AgentCanon registration or the exact inert registration, and rejects partial metadata, alternate path/URL/branch, any additional gitlink, producer-runtime projection, tracked `.agent-canon/` state, updater/dispatcher reference, or non-regular seed file.
+- `make runtime-independence-check` accepts either no AgentCanon registration or the exact inert registration, and rejects partial metadata, alternate path/URL/branch, any additional gitlink, producer-runtime projection, tracked `.agent-canon/` state, updater/dispatcher reference, parent-owned `tests/agent_tools` namespace, copied AgentCanon static-seed payload fixture, or non-regular seed file.
 - `make docs-check` verifies reader-facing local links.
 - `make github-workflow-check` verifies workflow ownership and required check names.
 - `make cpp-test` builds and runs the native CTest surface.
