@@ -25,7 +25,7 @@ def test_current_template_remains_static_seed_and_runtime_independent() -> None:
     text = migration_text()
     assert "Current Template descendants are different" in text
     assert "audited static seed as regular files" in text
-    assert "one exact AgentCanon gitlink as an inactive source identity" in text
+    assert "may retain one exact AgentCanon gitlink as inactive source identity" in text
     assert "must not be added to the current default path" in text
     assert "This Template does not own or duplicate that state machine" in text
 
@@ -47,6 +47,7 @@ def test_migration_separates_bounded_live_update_from_static_seed_default() -> N
     assert "### Route A: temporarily retain the live runtime" in text
     assert "### Route B: migrate permanently to the static-seed default" in text
     assert "source-publication-ready.json" in text
-    assert "mode-`160000` gitlink" in text
+    assert "mode-`160000`" in text
+    assert "Select one source-identity state" in text
     assert "Verify a checkout-independent clone" in text
     assert "AgentCanon issue [#724]" in text

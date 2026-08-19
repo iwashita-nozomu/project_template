@@ -2,9 +2,14 @@
 
 ## Goal
 
-A normal clone of `project-template` is complete for project-owned bootstrap and validation. It records the exact AgentCanon submodule registration and gitlink without initializing that checkout. Bootstrap changes only project identity and reader-facing examples; it must not fetch another source tree, initialize the registered submodule, resolve a producer checkout, read credentials, or mutate the static `.codex` seed.
+A normal clone of `project-template` is complete for project-owned bootstrap and validation. AgentCanon source registration is an optional repository-identity layer, not an execution dependency. Bootstrap changes only project identity and reader-facing examples; it must not fetch another source tree, initialize a submodule, resolve a producer checkout, read credentials, or mutate the static `.codex` seed.
 
-The initializer preserves `.gitmodules` and the mode-`160000` `vendor/agent-canon` entry. Live AgentCanon root projections are a separate explicit integration step and are not created by descendant bootstrap.
+The admitted registration states are:
+
+1. `.gitmodules` and gitlinks are absent; or
+2. `.gitmodules` is a regular file with the exact `vendor/agent-canon` path, `https://github.com/iwashita-nozomu/agent-canon.git` URL, and `main` branch, and `vendor/agent-canon` is the sole mode-`160000` gitlink.
+
+The initializer preserves the admitted state byte-for-tree: it neither creates nor removes the registration pair, does not change the pin, and does not initialize the checkout. Live AgentCanon root projections are a separate explicit integration step and are not created by descendant bootstrap.
 
 ## Entry points
 
@@ -32,7 +37,7 @@ After applying, review and commit the diff before running read-only validation:
 bash scripts/start_repository.sh --validate-only
 ```
 
-The static seed provenance is historical input, not synchronization state. Updating it is a deliberate template-maintainer change outside descendant bootstrap.
+The static seed provenance and an optional gitlink pin are historical source identities, not synchronization state. Updating either is a deliberate reviewed change outside descendant bootstrap.
 
 ## Maintainer-only static-seed import
 

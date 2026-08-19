@@ -7,7 +7,7 @@ git clone <template-url> my-project
 cd my-project
 ```
 
-Do not use recursive clone or submodule commands for the default project path. The registered AgentCanon gitlink remains uninitialized while project-owned bootstrap and validation run from the tracked tree.
+Do not use recursive clone or submodule commands for the default project path. When the exact AgentCanon source registration is present, an ordinary clone retains its pin while leaving the checkout uninitialized; project-owned bootstrap and validation still run from the tracked tree.
 
 ## 2. Preview and initialize
 
@@ -22,7 +22,7 @@ bash scripts/start_repository.sh \
   --display-name "My Project"
 ```
 
-Initialization is local and offline. It needs no upstream token, checkout, updater, or network access.
+Initialization is local and offline. It needs no upstream token, checkout, updater, or network access, and it preserves the admitted registration state instead of creating, removing, or initializing it.
 
 ## 3. Commit and validate
 

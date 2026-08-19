@@ -20,6 +20,7 @@ class Entry:
     path: str
 
 
+AGENT_CANON_METADATA_PATH = ".gitmodules"
 AGENT_CANON_PATH = "vendor/agent-canon"
 AGENT_CANON_SUBMODULE_CONFIG = {
     "submodule.vendor/agent-canon.path": AGENT_CANON_PATH,
@@ -28,7 +29,7 @@ AGENT_CANON_SUBMODULE_CONFIG = {
 }
 
 FORBIDDEN_TRACKED_PATHS = {
-    ".agent-canon/update-state.toml",
+    ".agent-canon",
     ".github/scripts/checkout_agent_canon_submodule.sh",
     ".github/workflows/agent-coordination.yml",
     ".github/workflows/agent-improvement-guide.yml",
@@ -107,9 +108,9 @@ def submodule_config(root: Path) -> dict[str, str]:
             "git",
             "config",
             "--file",
-            str(root / ".gitmodules"),
-            "--get-regexp",
-            r"^submodule\.",
+            str(root / AGENT_CANON_METADATA_PATH),
+            "--null",
+            "--list",
         ],
         check=False,
         capture_output=True,
@@ -119,17 +120,29 @@ def submodule_config(root: Path) -> dict[str, str]:
         fail(f"agent-canon-submodule-config-unreadable:{result.stderr.strip()}")
 
     parsed: dict[str, str] = {}
-    for line in result.stdout.splitlines():
-        key, separator, value = line.partition(" ")
+    for record in result.stdout.split("\0"):
+        if not record:
+            continue
+        key, separator, value = record.partition("\n")
         if not separator or key in parsed:
-            fail(f"agent-canon-submodule-config-invalid:{line}")
+            fail(f"agent-canon-submodule-config-invalid:{record}")
         parsed[key] = value
     return parsed
 
 
 def validate_agent_canon_registration(root: Path, entries: list[Entry]) -> None:
     by_path = {entry.path: entry for entry in entries}
-    metadata = by_path.get(".gitmodules")
+    metadata = by_path.get(AGENT_CANON_METADATA_PATH)
+    gitlinks = sorted(entry.path for entry in entries if entry.mode == "160000")
+    agent_canon_paths = sorted(
+        entry.path
+        for entry in entries
+        if entry.path == AGENT_CANON_PATH
+        or entry.path.startswith(f"{AGENT_CANON_PATH}/")
+    )
+
+    if metadata is None and not gitlinks and not agent_canon_paths:
+        return
     if metadata is None:
         fail("agent-canon-submodule-metadata-missing")
     if metadata.mode != "100644":
@@ -139,14 +152,12 @@ def validate_agent_canon_registration(root: Path, entries: list[Entry]) -> None:
     if config != AGENT_CANON_SUBMODULE_CONFIG:
         fail(f"agent-canon-submodule-config-mismatch:{config}")
 
-    gitlinks = sorted(entry.path for entry in entries if entry.mode == "160000")
     if gitlinks != [AGENT_CANON_PATH]:
         fail(f"agent-canon-gitlink-set-mismatch:{gitlinks}")
+    if agent_canon_paths != [AGENT_CANON_PATH]:
+        fail(f"agent-canon-path-set-mismatch:{agent_canon_paths}")
 
-    gitlink = by_path.get(AGENT_CANON_PATH)
-    if gitlink is None or gitlink.mode != "160000":
-        fail("agent-canon-gitlink-missing")
-
+    gitlink = by_path[AGENT_CANON_PATH]
     checkout = root / AGENT_CANON_PATH
     if checkout.is_symlink() or (checkout.exists() and not checkout.is_dir()):
         fail("agent-canon-checkout-path-invalid")
@@ -154,6 +165,7 @@ def validate_agent_canon_registration(root: Path, entries: list[Entry]) -> None:
         if checkout.exists() and any(checkout.iterdir()):
             fail("agent-canon-uninitialized-checkout-not-empty")
         return
+
     result = subprocess.run(
         ["git", "-C", str(checkout), "rev-parse", "--verify", "HEAD^{commit}"],
         check=False,

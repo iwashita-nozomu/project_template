@@ -20,6 +20,7 @@ descendant_clone="$workdir/descendant"
 git clone --no-local "$repo_root" "$template_clone" >/dev/null
 git -C "$template_clone" config user.email "fixture@localhost"
 git -C "$template_clone" config user.name "Fixture"
+registration_manifest="$(git -C "$template_clone" ls-files -s .gitmodules vendor/agent-canon)"
 
 (
   cd "$template_clone"
@@ -28,6 +29,7 @@ git -C "$template_clone" config user.name "Fixture"
       --project-slug descendant-fixture \
       --display-name "Descendant Fixture" \
       --skip-preflight-dry-run
+  test "$(git ls-files -s .gitmodules vendor/agent-canon)" = "$registration_manifest"
   git add --all
   git commit -m "Initialize descendant fixture" >/dev/null
   git init --bare "$bare_remote" >/dev/null
@@ -43,13 +45,24 @@ git clone "$bare_remote" "$descendant_clone" >/dev/null
 (
   cd "$descendant_clone"
   test "$(git branch --show-current)" = main
-  test -f .gitmodules
-  test "$(git config --file .gitmodules --get submodule.vendor/agent-canon.path)" = vendor/agent-canon
-  test "$(git ls-files -s vendor/agent-canon | awk '{print $1}')" = 160000
-  test ! -e vendor/agent-canon/.git
-  if [[ -d vendor/agent-canon ]]; then
-    test -z "$(find vendor/agent-canon -mindepth 1 -maxdepth 1 -print -quit)"
+  test "$(git ls-files -s .gitmodules vendor/agent-canon)" = "$registration_manifest"
+
+  if [[ -n "$registration_manifest" ]]; then
+    test -f .gitmodules
+    test "$(git config --file .gitmodules --get submodule.vendor/agent-canon.path)" = vendor/agent-canon
+    test "$(git config --file .gitmodules --get submodule.vendor/agent-canon.url)" = https://github.com/iwashita-nozomu/agent-canon.git
+    test "$(git config --file .gitmodules --get submodule.vendor/agent-canon.branch)" = main
+    test "$(git ls-files -s | awk '$1 == "160000" { print $4 }')" = vendor/agent-canon
+    test ! -e vendor/agent-canon/.git
+    if [[ -d vendor/agent-canon ]]; then
+      test -z "$(find vendor/agent-canon -mindepth 1 -maxdepth 1 -print -quit)"
+    fi
+  else
+    test ! -e .gitmodules
+    test -z "$(git ls-files -s | awk '$1 == "160000" { print $4 }')"
+    test ! -e vendor/agent-canon
   fi
+
   test ! -e .agent-canon
   make pr-check
 

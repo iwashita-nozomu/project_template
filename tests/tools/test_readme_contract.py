@@ -10,7 +10,7 @@ MAINTENANCE_CONTRACT = "documents/design/template-static-seed-import.md"
 
 
 def test_root_readme_keeps_static_configuration_consumer_facing() -> None:
-    """Describe the inert registration without exposing producer operations."""
+    """Describe optional source identity without exposing producer operations."""
     text = README.read_text(encoding="utf-8")
     lowered = text.lower()
 
@@ -33,10 +33,10 @@ def test_root_readme_keeps_static_configuration_consumer_facing() -> None:
         "exact role-file closure",
         "background refresh",
         "normal users do not run it",
-        "one AgentCanon submodule pin",
-        "does not initialize that checkout",
-        ".gitmodules",
-        "vendor/agent-canon",
+        "may additionally record one exact AgentCanon submodule registration",
+        "no `.gitmodules` file and no gitlink",
+        "sole mode-`160000` gitlink",
+        "does not authorize default checkout initialization",
     ):
         assert clause in normalized
 

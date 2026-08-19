@@ -11,7 +11,7 @@ git remote set-url origin <destination-url>
 git push -u origin main
 ```
 
-Creating the destination repository and authenticating that push are caller responsibilities. They are the only network-dependent publication steps. The registered gitlink is transported as part of the committed tree; no recursive clone, submodule credential, producer token, or seed refresh is part of publication.
+Creating the destination repository and authenticating that push are caller responsibilities. They are the only network-dependent publication steps. When the exact AgentCanon registration is present, its metadata and gitlink pin are transported as part of the committed tree without recursive clone, submodule credential, producer token, checkout initialization, or seed refresh. When it is absent, publication does not create it.
 
 ## Branch protection baseline
 

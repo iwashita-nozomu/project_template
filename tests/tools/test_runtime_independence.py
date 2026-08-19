@@ -7,6 +7,8 @@ import shutil
 import subprocess
 from pathlib import Path
 
+import pytest
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CHECKER = REPO_ROOT / "tools/check_runtime_independence.py"
 AGENT_CANON_PIN = "1" * 40
@@ -51,22 +53,26 @@ def make_fixture(tmp_path: Path) -> Path:
         + "\n",
         encoding="utf-8",
     )
-    (root / ".gitmodules").write_text(GITMODULES, encoding="utf-8")
     run(["git", "init"], root)
     run(["git", "config", "user.email", "test@localhost"], root)
     run(["git", "config", "user.name", "Test"], root)
     run(["git", "add", "--all"], root)
+    return root
+
+
+def register_agent_canon(
+    root: Path,
+    *,
+    metadata: str = GITMODULES,
+    path: str = "vendor/agent-canon",
+    pin: str = AGENT_CANON_PIN,
+) -> None:
+    (root / ".gitmodules").write_text(metadata, encoding="utf-8")
+    run(["git", "add", ".gitmodules"], root)
     run(
-        [
-            "git",
-            "update-index",
-            "--add",
-            "--cacheinfo",
-            f"160000,{AGENT_CANON_PIN},vendor/agent-canon",
-        ],
+        ["git", "update-index", "--add", "--cacheinfo", f"160000,{pin},{path}"],
         root,
     )
-    return root
 
 
 def check(root: Path) -> subprocess.CompletedProcess[str]:
@@ -77,38 +83,89 @@ def check(root: Path) -> subprocess.CompletedProcess[str]:
     )
 
 
-def test_minimal_regular_static_seed_passes(tmp_path: Path) -> None:
+def assert_finding(root: Path, finding: str) -> None:
+    result = check(root)
+    assert result.returncode == 1
+    assert finding in result.stderr
+
+
+def test_static_seed_without_registration_passes(tmp_path: Path) -> None:
     root = make_fixture(tmp_path)
     result = check(root)
     assert result.returncode == 0, result.stderr
     assert "RUNTIME_INDEPENDENCE=pass" in result.stdout
 
 
-def test_missing_submodule_metadata_is_rejected(tmp_path: Path) -> None:
+def test_exact_agent_canon_registration_passes(tmp_path: Path) -> None:
     root = make_fixture(tmp_path)
-    run(["git", "rm", "--cached", ".gitmodules"], root)
+    register_agent_canon(root)
     result = check(root)
-    assert result.returncode == 1
-    assert "agent-canon-submodule-metadata-missing" in result.stderr
+    assert result.returncode == 0, result.stderr
+    assert "RUNTIME_INDEPENDENCE=pass" in result.stdout
 
 
-def test_wrong_submodule_url_is_rejected(tmp_path: Path) -> None:
+def test_submodule_metadata_without_gitlink_is_rejected(tmp_path: Path) -> None:
     root = make_fixture(tmp_path)
-    (root / ".gitmodules").write_text(
-        GITMODULES.replace(
-            "https://github.com/iwashita-nozomu/agent-canon.git",
-            "https://example.invalid/agent-canon.git",
-        ),
-        encoding="utf-8",
-    )
+    (root / ".gitmodules").write_text(GITMODULES, encoding="utf-8")
     run(["git", "add", ".gitmodules"], root)
-    result = check(root)
-    assert result.returncode == 1
-    assert "agent-canon-submodule-config-mismatch" in result.stderr
+    assert_finding(root, "agent-canon-gitlink-set-mismatch")
+
+
+def test_gitlink_without_submodule_metadata_is_rejected(tmp_path: Path) -> None:
+    root = make_fixture(tmp_path)
+    run(
+        [
+            "git",
+            "update-index",
+            "--add",
+            "--cacheinfo",
+            f"160000,{AGENT_CANON_PIN},vendor/agent-canon",
+        ],
+        root,
+    )
+    assert_finding(root, "agent-canon-submodule-metadata-missing")
+
+
+def test_malformed_submodule_metadata_is_rejected(tmp_path: Path) -> None:
+    root = make_fixture(tmp_path)
+    register_agent_canon(root, metadata='[submodule "vendor/agent-canon"\n')
+    assert_finding(root, "agent-canon-submodule-config-unreadable")
+
+
+@pytest.mark.parametrize(
+    ("before", "after"),
+    [
+        ("path = vendor/agent-canon", "path = vendor/other"),
+        (
+            "url = https://github.com/iwashita-nozomu/agent-canon.git",
+            "url = https://example.invalid/agent-canon.git",
+        ),
+        ("branch = main", "branch = release"),
+    ],
+)
+def test_alternate_submodule_config_is_rejected(
+    tmp_path: Path, before: str, after: str
+) -> None:
+    root = make_fixture(tmp_path)
+    register_agent_canon(root, metadata=GITMODULES.replace(before, after))
+    assert_finding(root, "agent-canon-submodule-config-mismatch")
+
+
+def test_additional_submodule_config_is_rejected(tmp_path: Path) -> None:
+    root = make_fixture(tmp_path)
+    register_agent_canon(root, metadata=GITMODULES + "\n[core]\n\tworktree = .\n")
+    assert_finding(root, "agent-canon-submodule-config-mismatch")
+
+
+def test_arbitrary_gitlink_is_rejected(tmp_path: Path) -> None:
+    root = make_fixture(tmp_path)
+    register_agent_canon(root, path="vendor/other")
+    assert_finding(root, "agent-canon-gitlink-set-mismatch")
 
 
 def test_additional_gitlink_is_rejected(tmp_path: Path) -> None:
     root = make_fixture(tmp_path)
+    register_agent_canon(root)
     run(
         [
             "git",
@@ -119,20 +176,10 @@ def test_additional_gitlink_is_rejected(tmp_path: Path) -> None:
         ],
         root,
     )
-    result = check(root)
-    assert result.returncode == 1
-    assert "agent-canon-gitlink-set-mismatch" in result.stderr
+    assert_finding(root, "agent-canon-gitlink-set-mismatch")
 
 
-def test_missing_agent_canon_gitlink_is_rejected(tmp_path: Path) -> None:
-    root = make_fixture(tmp_path)
-    run(["git", "update-index", "--force-remove", "vendor/agent-canon"], root)
-    result = check(root)
-    assert result.returncode == 1
-    assert "agent-canon-gitlink-set-mismatch" in result.stderr
-
-
-def test_initialized_checkout_must_match_gitlink(tmp_path: Path) -> None:
+def test_initialized_checkout_matching_gitlink_passes(tmp_path: Path) -> None:
     root = make_fixture(tmp_path)
     checkout = root / "vendor/agent-canon"
     checkout.mkdir(parents=True)
@@ -142,28 +189,63 @@ def test_initialized_checkout_must_match_gitlink(tmp_path: Path) -> None:
     (checkout / "README.md").write_text("source\n", encoding="utf-8")
     run(["git", "add", "README.md"], checkout)
     run(["git", "commit", "-m", "fixture"], checkout)
+    pin = run(["git", "rev-parse", "HEAD"], checkout).stdout.strip()
+    register_agent_canon(root, pin=pin)
     result = check(root)
-    assert result.returncode == 1
-    assert "agent-canon-checkout-pin-mismatch" in result.stderr
+    assert result.returncode == 0, result.stderr
+
+
+def test_initialized_checkout_must_match_gitlink(tmp_path: Path) -> None:
+    root = make_fixture(tmp_path)
+    register_agent_canon(root)
+    checkout = root / "vendor/agent-canon"
+    checkout.mkdir(parents=True)
+    run(["git", "init"], checkout)
+    run(["git", "config", "user.email", "test@localhost"], checkout)
+    run(["git", "config", "user.name", "Test"], checkout)
+    (checkout / "README.md").write_text("source\n", encoding="utf-8")
+    run(["git", "add", "README.md"], checkout)
+    run(["git", "commit", "-m", "fixture"], checkout)
+    assert_finding(root, "agent-canon-checkout-pin-mismatch")
 
 
 def test_uninitialized_checkout_directory_must_be_empty(tmp_path: Path) -> None:
     root = make_fixture(tmp_path)
+    register_agent_canon(root)
     checkout = root / "vendor/agent-canon"
     checkout.mkdir(parents=True)
     (checkout / "unexpected.txt").write_text("unexpected\n", encoding="utf-8")
-    result = check(root)
-    assert result.returncode == 1
-    assert "agent-canon-uninitialized-checkout-not-empty" in result.stderr
+    assert_finding(root, "agent-canon-uninitialized-checkout-not-empty")
 
 
-def test_agent_canon_root_symlink_remains_rejected(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    ("path", "target"),
+    [
+        ("tools/agent-canon", "../vendor/agent-canon/tools"),
+        ("notes/shared", "../vendor/agent-canon/notes"),
+        ("tests/shared", "../vendor/agent-canon/tests"),
+    ],
+)
+def test_agent_canon_runtime_symlinks_remain_rejected(
+    tmp_path: Path, path: str, target: str
+) -> None:
     root = make_fixture(tmp_path)
-    (root / "tools/agent-canon").symlink_to("../vendor/agent-canon/tools")
-    run(["git", "add", "tools/agent-canon"], root)
+    link = root / path
+    link.parent.mkdir(parents=True, exist_ok=True)
+    link.symlink_to(target)
+    run(["git", "add", path], root)
     result = check(root)
     assert result.returncode == 1
-    assert "forbidden-tracked-path:tools/agent-canon" in result.stderr
+    assert "agent-canon" in result.stderr
+
+
+def test_agent_canon_runtime_state_remains_rejected(tmp_path: Path) -> None:
+    root = make_fixture(tmp_path)
+    state = root / ".agent-canon/state.toml"
+    state.parent.mkdir()
+    state.write_text("state = true\n", encoding="utf-8")
+    run(["git", "add", ".agent-canon/state.toml"], root)
+    assert_finding(root, "forbidden-tracked-path:.agent-canon")
 
 
 def test_runtime_dispatch_reference_is_rejected(tmp_path: Path) -> None:
@@ -172,9 +254,7 @@ def test_runtime_dispatch_reference_is_rejected(tmp_path: Path) -> None:
         "python3 agent_canon_source_root.py exec something\n", encoding="utf-8"
     )
     run(["git", "add", "scripts/bootstrap.sh"], root)
-    result = check(root)
-    assert result.returncode == 1
-    assert "forbidden-runtime-reference:scripts/bootstrap.sh" in result.stderr
+    assert_finding(root, "forbidden-runtime-reference:scripts/bootstrap.sh")
 
 
 def test_legacy_submodule_strategy_is_rejected(tmp_path: Path) -> None:
@@ -183,9 +263,7 @@ def test_legacy_submodule_strategy_is_rejected(tmp_path: Path) -> None:
         "submodule_strategy=github_submodule\n", encoding="utf-8"
     )
     run(["git", "add", "scripts/bootstrap.sh"], root)
-    result = check(root)
-    assert result.returncode == 1
-    assert "forbidden-runtime-reference:scripts/bootstrap.sh" in result.stderr
+    assert_finding(root, "forbidden-runtime-reference:scripts/bootstrap.sh")
 
 
 def test_seed_registration_requires_regular_file(tmp_path: Path) -> None:
@@ -193,6 +271,4 @@ def test_seed_registration_requires_regular_file(tmp_path: Path) -> None:
     (root / ".codex/agents/worker.toml").unlink()
     (root / ".codex/agents/worker.toml").symlink_to("missing.toml")
     run(["git", "add", ".codex/agents/worker.toml"], root)
-    result = check(root)
-    assert result.returncode == 1
-    assert "static-seed-agent-file-not-regular" in result.stderr
+    assert_finding(root, "static-seed-agent-file-not-regular")
