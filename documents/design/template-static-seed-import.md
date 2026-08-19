@@ -86,16 +86,16 @@ multi-file 更新の安全性は、各 file の rename が単独で atomic で�
 
 1. bundle 全体、provenance、config-role closure、mode、type、reviewed digest を読み切り、mutation
    前に immutable plan を作る。
-2. `.codex/agents` directory descriptor に nonblocking exclusive lock を取得し、同時 importer は
+1. `.codex/agents` directory descriptor に nonblocking exclusive lock を取得し、同時 importer は
    `TSSI_CONCURRENT_IMPORT` で直ちに拒否する。
-3. target の path、bytes、mode、device、inode を lock 下で snapshot し、bundle と target の
+1. target の path、bytes、mode、device、inode を lock 下で snapshot し、bundle と target の
    descriptor identity を apply 直前まで再検証する。
-4. target と同じ filesystem の private journal に new bytes と complete backup を durable 化し、
+1. target と同じ filesystem の private journal に new bytes と complete backup を durable 化し、
    `COMPLETE`、`rollback-required`、manifest state を定めた順序で fsync する。
-5. controlled path だけを deterministic order で replace または delete する。
-6. live target を再読込し、path set、bytes、mode、source commit、role closure、reviewed digest を
-  確認した後にだけ `committed` evidence を durable 化する。
-7. apply または readback が失敗した場合は complete backup を逆順 replay し、pre-import の path、
+1. controlled path だけを deterministic order で replace または delete する。
+1. live target を再読込し、path set、bytes、mode、source commit、role closure、reviewed digest を
+   確認した後にだけ `committed` evidence を durable 化する。
+1. apply または readback が失敗した場合は complete backup を逆順 replay し、pre-import の path、
    bytes、mode を完全に復元できたことを確認してから failure を返す。
 
 prevalidation failure は target を一切変更しません。journal の schema、closure、marker、state が
@@ -123,8 +123,9 @@ failure は `TSSI_*` finding と非zero exitで表し、partial success や warn
 - `tools/check_runtime_independence.py` は static seed の regular-file shape、provenance、role closure、
   exact AgentCanon registration、および live AgentCanon runtime の再流入を検査する。
 - AgentCanon producer は exporter と consumer-static projection の closure を producer 側で検査する。
-- template の `tests/tools` には AgentCanon importer 専用の executable test module、別名 wrapper、
-  skip-only module、dispatcher を置かない。
+- template の `tests/tools` にはproject-owned consumer testだけを置き、AgentCanon importer専用の
+  executable test module、別名wrapper、skip-only module、dispatcherを置かない。
+- AgentCanon内部tool testのnamespaceである`tests/agent_tools`はparent treeに作らない。
 - importer の実装、static seed、reviewed fixtureを通常の派生 repository lifecycleへ接続しない。
 
 この分離により、producer、maintainer transition、consumer の三責務を混在させず、通常の

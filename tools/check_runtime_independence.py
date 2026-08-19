@@ -32,6 +32,7 @@ FORBIDDEN_TRACKED_PATHS = {
     ".github/scripts/checkout_agent_canon_submodule.sh",
     ".github/workflows/agent-coordination.yml",
     ".github/workflows/agent-improvement-guide.yml",
+    "tests/agent_tools",
     "tools/agent-canon",
 }
 

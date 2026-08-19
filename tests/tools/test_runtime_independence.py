@@ -166,6 +166,17 @@ def test_agent_canon_root_symlink_remains_rejected(tmp_path: Path) -> None:
     assert "forbidden-tracked-path:tools/agent-canon" in result.stderr
 
 
+def test_parent_agent_tools_test_namespace_is_rejected(tmp_path: Path) -> None:
+    root = make_fixture(tmp_path)
+    test_path = root / "tests/agent_tools/test_runtime.py"
+    test_path.parent.mkdir(parents=True)
+    test_path.write_text("def test_runtime():\n    assert True\n", encoding="utf-8")
+    run(["git", "add", str(test_path.relative_to(root))], root)
+    result = check(root)
+    assert result.returncode == 1
+    assert "forbidden-tracked-path:tests/agent_tools" in result.stderr
+
+
 def test_runtime_dispatch_reference_is_rejected(tmp_path: Path) -> None:
     root = make_fixture(tmp_path)
     (root / "scripts/bootstrap.sh").write_text(
