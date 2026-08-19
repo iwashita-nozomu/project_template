@@ -1,0 +1,52 @@
+name: Supersede responsibility-violating PR 181
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - fix/182-remove-agent-definitions
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  supersede:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Require the replacement PR to be review-ready
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          IS_DRAFT="$(gh pr view 183 --json isDraft --jq .isDraft)"
+          ISSUE_LABELS="$(gh issue view 182 --json labels --jq '[.labels[].name] | join(",")')"
+          [[ "${IS_DRAFT}" == "false" ]]
+          [[ ",${ISSUE_LABELS}," == *",ready for review,"* ]]
+
+      - name: Remove this one-time workflow and push
+        run: |
+          git rm -f .github/workflows/issue-182-supersede-181.yml
+          git add -A
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: remove issue #182 supersede automation"
+          git push origin HEAD:fix/182-remove-agent-definitions
+
+      - name: Close superseded PR 181 with durable rationale
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cat > /tmp/comment.md <<'EOF'
+          ## Superseded by the corrected responsibility boundary
+
+          This PR treated `project_template` as a consumer of AgentCanon-owned Agent definitions. That is the responsibility violation tracked by #182 and upstream AgentCanon #781.
+
+          The replacement is PR #183, which removes role/profile/prompt/registration snapshots and keeps only project-scoped Codex session settings. Agent inventory changes must not create template diffs. This PR is therefore closed rather than rebased or repaired.
+          EOF
+          gh pr comment 181 --body-file /tmp/comment.md
+          gh pr close 181
