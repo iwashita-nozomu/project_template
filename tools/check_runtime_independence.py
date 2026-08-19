@@ -10,6 +10,7 @@ import sys
 import tomllib
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Never, cast
 
 
 @dataclass(frozen=True)
@@ -67,7 +68,7 @@ SCAN_EXCLUSIONS = {
 }
 
 
-def fail(message: str) -> None:
+def fail(message: str) -> Never:
     print(f"RUNTIME_INDEPENDENCE_FINDING={message}", file=sys.stderr)
     raise SystemExit(1)
 
@@ -212,18 +213,20 @@ def validate_static_seed(root: Path, entries: list[Entry]) -> None:
     by_path = {entry.path: entry for entry in entries}
     config_path = root / ".codex/config.toml"
     with config_path.open("rb") as stream:
-        config = tomllib.load(stream)
+        config = cast(dict[str, object], tomllib.load(stream))
 
-    registrations = config.get("agents")
-    if not isinstance(registrations, dict):
+    loaded_registrations = config.get("agents")
+    if not isinstance(loaded_registrations, dict):
         fail("static-seed-config-missing-agents")
+    registrations = cast(dict[str, object], loaded_registrations)
 
     registered_paths: set[str] = set()
-    for name, payload in registrations.items():
+    for name, loaded_payload in registrations.items():
         if name in {"max_threads", "max_depth", "job_max_runtime_seconds"}:
             continue
-        if not isinstance(payload, dict):
+        if not isinstance(loaded_payload, dict):
             fail(f"static-seed-agent-invalid:{name}")
+        payload = cast(dict[str, object], loaded_payload)
         config_file = payload.get("config_file")
         if not isinstance(config_file, str) or not config_file.startswith("agents/"):
             fail(f"static-seed-agent-path-invalid:{name}")
