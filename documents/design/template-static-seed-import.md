@@ -57,10 +57,6 @@ provenance は次の key だけを持ちます。
 受理する payload bytes は importer 内の `REVIEWED_SOURCE_COMMIT` と
 `REVIEWED_PAYLOAD_MANIFEST` に固定します。任意の future export を prose や pattern の類似だけで
 受理せず、maintainer review で manifest を更新した change だけを新しい authority とします。
-static-seed payloadの生成正本とproducer testはAgentCanon側の
-`tools/agent_tools/export_static_seed.py`と`tests/agent_tools/test_export_static_seed.py`です。
-Templateはそのpayload fixtureやproducer testを`tests/`へcopyしません。
-
 入力 bytes は producer-only path、live runtime、updater、network、secret、source checkout を
 示す marker を含めません。検査は危険 surface を明確な typed finding で拒否するための境界であり、
 free-prose の意味同値を推論する validator ではありません。
@@ -125,7 +121,6 @@ failure は `TSSI_*` finding と非zero exitで表し、partial success や warn
 - AgentCanon producer は exporter と consumer-static projection の closure を producer 側で検査する。
 - template の `tests/tools` にはproject-owned consumer testだけを置き、AgentCanon importer専用の
   executable test module、別名wrapper、skip-only module、dispatcherを置かない。
-- AgentCanon内部tool testのnamespaceである`tests/agent_tools`はparent treeに作らない。
 - importer の実装とstatic seedを通常の派生repository lifecycleへ接続しない。
 
 この分離により、producer、maintainer transition、consumer の三責務を混在させず、通常の
@@ -156,6 +151,4 @@ make fresh-clone-check
 git diff --check
 ```
 
-レビューでは追加で、削除済みAgentCanon importer test pathやcopied payload fixtureがtracked treeと
-`documents/design/template-static-seed-import.md`の必須gate記述へ戻っていないこと、importer、
-static seed、runtime-independence checkerに意図しない差分がないことを確認します。
+レビューでは追加で、importer、static seed、runtime-independence checkerに意図しない差分がないことを確認します。
