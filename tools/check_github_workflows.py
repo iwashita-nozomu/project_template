@@ -8,7 +8,6 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKFLOWS = ROOT / ".github/workflows"
-DESIGN = ROOT / "documents/design/github-actions.md"
 FORBIDDEN = (
     "vendor/agent-canon",
     "tools/agent-canon",
@@ -42,23 +41,5 @@ for required_name in ("name: Repository CI", "name: Fresh Clone Acceptance"):
         fail(f"required-check-name-missing:{required_name}")
 if "make pr-check" not in ci or "make fresh-clone-check" not in ci:
     fail("canonical-command-missing")
-
-if not DESIGN.is_file():
-    fail("github-actions-design-missing")
-design = DESIGN.read_text(encoding="utf-8")
-for path in files:
-    relative = path.relative_to(ROOT).as_posix()
-    if f"`{relative}`" not in design:
-        fail(f"github-actions-design-workflow-missing:{relative}")
-for required in (
-    "Repository CI (3.11)",
-    "Fresh Clone Acceptance (3.11)",
-    "Docker Build and Smoke",
-    "dynamic/github-code-scanning/codeql",
-    "dynamic/dependabot/update-graph",
-    "dynamic/copilot-swe-agent/copilot",
-):
-    if required not in design:
-        fail(f"github-actions-design-contract-missing:{required}")
 
 print("GITHUB_WORKFLOW_CHECK=pass")

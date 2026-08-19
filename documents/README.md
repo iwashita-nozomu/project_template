@@ -16,7 +16,6 @@
 ## Design documents
 
 - [Docker environment boundary](design/docker-zero-build-environment.md)
-- [GitHub Actions design](design/github-actions.md)
 - [Template static-seed import transaction](design/template-static-seed-import.md)
 - [Experiment README contract](experiment-readme-contract-r9.md)
 - `experiment-readme-contract-r9.json` is the machine-readable schema paired with that contract.

@@ -34,6 +34,9 @@ jobs:
           cache: pip
           cache-dependency-path: docker/requirements.txt
 
+      - name: Install native build tools
+        run: sudo apt-get update && sudo apt-get install -y ninja-build
+
       - name: Install project dependencies
         run: bash docker/install_python_dependencies.sh "$PWD"
 
@@ -56,6 +59,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+
+      - name: Install native build tools
+        run: sudo apt-get update && sudo apt-get install -y ninja-build
 
       - name: Install project dependencies
         run: bash docker/install_python_dependencies.sh "$PWD"

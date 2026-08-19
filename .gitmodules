@@ -1,8 +1,8 @@
 # @dependency-start
 # contract configuration
-# responsibility Pins the shared AgentCanon runtime as a Git submodule.
-# upstream design vendor/agent-canon/documents/agent-canon/agent-canon-subtree-migration.md defines vendoring policy
-# downstream implementation vendor/agent-canon provides shared tools, workflows, skills, and runtime links
+# responsibility Records the exact AgentCanon source identity and reviewed pin.
+# upstream contract tools/check_runtime_independence.py validates the exact path, URL, branch, and sole gitlink.
+# downstream behavior project-owned bootstrap and validation do not initialize or consume this checkout.
 # @dependency-end
 [submodule "vendor/agent-canon"]
 	path = vendor/agent-canon
