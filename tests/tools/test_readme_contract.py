@@ -35,7 +35,7 @@ def test_root_readme_describes_exact_live_view_without_static_copy() -> None:
         "Agent definitions",
         "remain owned by AgentCanon",
         "does not copy those files",
-        "does not run it automatically",
+        "do not run it automatically",
         "tools/agent-canon",
     ):
         assert clause in normalized
