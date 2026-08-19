@@ -104,7 +104,7 @@ print(f"project_slug={slug}")
 print(f"display_name={display}")
 print(f"bare_repo={bare_repo}")
 print("template_bootstrap=local_offline")
-print("static_seed=repository_owned_regular_files")
+print("agent_canon_view=exact_live_symlinks")
 print(f"changed_files={len(changed)}")
 PY
 

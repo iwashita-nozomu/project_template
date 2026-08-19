@@ -1,8 +1,7 @@
-"""Focused tests for the self-contained repository guard."""
+"""Focused tests for the exact AgentCanon registration and live Codex view."""
 
 from __future__ import annotations
 
-import json
 import shutil
 import subprocess
 from pathlib import Path
@@ -15,6 +14,13 @@ GITMODULES = """[submodule "vendor/agent-canon"]
 \turl = https://github.com/iwashita-nozomu/agent-canon.git
 \tbranch = main
 """
+LIVE_VIEWS = {
+    "AGENTS.md": "vendor/agent-canon/ROOT_AGENTS.md",
+    ".codex/config.toml": "../vendor/agent-canon/.codex/config.toml",
+    ".codex/agents": "../vendor/agent-canon/.codex/agents",
+    ".codex/hooks.json": "../vendor/agent-canon/.codex/hooks.json",
+    ".codex/hooks": "../vendor/agent-canon/.codex/hooks",
+}
 
 
 def run(args: list[str], cwd: Path, *, check: bool = True) -> subprocess.CompletedProcess[str]:
@@ -24,34 +30,16 @@ def run(args: list[str], cwd: Path, *, check: bool = True) -> subprocess.Complet
 def make_fixture(tmp_path: Path) -> Path:
     root = tmp_path / "fixture"
     (root / "tools").mkdir(parents=True)
-    (root / ".codex/agents").mkdir(parents=True)
+    (root / ".codex").mkdir()
     (root / "scripts").mkdir()
     shutil.copy2(CHECKER, root / "tools/check_runtime_independence.py")
-    (root / "AGENTS.md").write_text("# instructions\n", encoding="utf-8")
     (root / "Makefile").write_text("check:\n\t@true\n", encoding="utf-8")
-    (root / ".codex/config.toml").write_text(
-        "[agents]\nmax_threads = 1\n\n"
-        "[agents.worker]\n"
-        'description = "worker"\n'
-        'config_file = "agents/worker.toml"\n',
-        encoding="utf-8",
-    )
-    (root / ".codex/agents/worker.toml").write_text(
-        'name = "worker"\ndescription = "worker"\n', encoding="utf-8"
-    )
-    (root / "agent-canon-static-seed.json").write_text(
-        json.dumps(
-            {
-                "schema_version": 1,
-                "source_repository": "iwashita-nozomu/agent-canon",
-                "source_commit": "0" * 40,
-            },
-            sort_keys=True,
-        )
-        + "\n",
-        encoding="utf-8",
-    )
     (root / ".gitmodules").write_text(GITMODULES, encoding="utf-8")
+    for relative, target in LIVE_VIEWS.items():
+        path = root / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.symlink_to(target)
+
     run(["git", "init"], root)
     run(["git", "config", "user.email", "test@localhost"], root)
     run(["git", "config", "user.name", "Test"], root)
@@ -77,11 +65,24 @@ def check(root: Path) -> subprocess.CompletedProcess[str]:
     )
 
 
-def test_minimal_regular_static_seed_passes(tmp_path: Path) -> None:
+def replace_symlink(root: Path, relative: str, target: str) -> None:
+    path = root / relative
+    path.unlink()
+    path.symlink_to(target)
+    run(["git", "add", relative], root)
+
+
+def test_exact_uninitialized_live_projection_passes(tmp_path: Path) -> None:
     root = make_fixture(tmp_path)
     result = check(root)
     assert result.returncode == 0, result.stderr
     assert "RUNTIME_INDEPENDENCE=pass" in result.stdout
+    for relative, target in LIVE_VIEWS.items():
+        entry = run(["git", "ls-files", "-s", relative], root).stdout
+        assert entry.startswith("120000 ")
+        assert (root / relative).readlink().as_posix() == target
+    checkout = root / "vendor/agent-canon"
+    assert not checkout.exists()
 
 
 def test_missing_submodule_metadata_is_rejected(tmp_path: Path) -> None:
@@ -147,6 +148,31 @@ def test_initialized_checkout_must_match_gitlink(tmp_path: Path) -> None:
     assert "agent-canon-checkout-pin-mismatch" in result.stderr
 
 
+def test_initialized_checkout_at_exact_pin_passes(tmp_path: Path) -> None:
+    root = make_fixture(tmp_path)
+    checkout = root / "vendor/agent-canon"
+    checkout.mkdir(parents=True)
+    run(["git", "init"], checkout)
+    run(["git", "config", "user.email", "test@localhost"], checkout)
+    run(["git", "config", "user.name", "Test"], checkout)
+    (checkout / "README.md").write_text("source\n", encoding="utf-8")
+    run(["git", "add", "README.md"], checkout)
+    run(["git", "commit", "-m", "fixture"], checkout)
+    head = run(["git", "rev-parse", "HEAD"], checkout).stdout.strip()
+    run(
+        [
+            "git",
+            "update-index",
+            "--add",
+            "--cacheinfo",
+            f"160000,{head},vendor/agent-canon",
+        ],
+        root,
+    )
+    result = check(root)
+    assert result.returncode == 0, result.stderr
+
+
 def test_uninitialized_checkout_directory_must_be_empty(tmp_path: Path) -> None:
     root = make_fixture(tmp_path)
     checkout = root / "vendor/agent-canon"
@@ -157,13 +183,85 @@ def test_uninitialized_checkout_directory_must_be_empty(tmp_path: Path) -> None:
     assert "agent-canon-uninitialized-checkout-not-empty" in result.stderr
 
 
-def test_agent_canon_root_symlink_remains_rejected(tmp_path: Path) -> None:
+def test_missing_required_live_view_is_rejected(tmp_path: Path) -> None:
+    root = make_fixture(tmp_path)
+    (root / ".codex/hooks.json").unlink()
+    run(["git", "add", "-u", ".codex/hooks.json"], root)
+    result = check(root)
+    assert result.returncode == 1
+    assert "required-live-view-missing:.codex/hooks.json" in result.stderr
+
+
+def test_regular_copy_cannot_replace_live_view(tmp_path: Path) -> None:
+    root = make_fixture(tmp_path)
+    path = root / ".codex/config.toml"
+    path.unlink()
+    path.write_text('model = "copied"\n', encoding="utf-8")
+    run(["git", "add", ".codex/config.toml"], root)
+    result = check(root)
+    assert result.returncode == 1
+    assert "required-live-view-not-symlink:.codex/config.toml:100644" in result.stderr
+
+
+def test_wrong_live_view_target_is_rejected(tmp_path: Path) -> None:
+    root = make_fixture(tmp_path)
+    replace_symlink(
+        root,
+        ".codex/agents",
+        "../vendor/agent-canon/copied-agents",
+    )
+    result = check(root)
+    assert result.returncode == 1
+    assert "required-live-view-target-mismatch:.codex/agents" in result.stderr
+
+
+def test_copied_agent_definitions_are_rejected(tmp_path: Path) -> None:
+    root = make_fixture(tmp_path)
+    path = root / ".codex/agents"
+    path.unlink()
+    path.mkdir()
+    (path / "worker.toml").write_text('name = "worker"\n', encoding="utf-8")
+    run(["git", "add", "-A", ".codex/agents"], root)
+    result = check(root)
+    assert result.returncode == 1
+    assert "copied-agent-definition:.codex/agents/worker.toml" in result.stderr
+
+
+def test_tools_alias_remains_rejected(tmp_path: Path) -> None:
     root = make_fixture(tmp_path)
     (root / "tools/agent-canon").symlink_to("../vendor/agent-canon/tools")
     run(["git", "add", "tools/agent-canon"], root)
     result = check(root)
     assert result.returncode == 1
     assert "forbidden-tracked-path:tools/agent-canon" in result.stderr
+
+
+def test_unmanaged_agent_canon_symlink_is_rejected(tmp_path: Path) -> None:
+    root = make_fixture(tmp_path)
+    (root / "scripts/canon").symlink_to("../vendor/agent-canon/tools")
+    run(["git", "add", "scripts/canon"], root)
+    result = check(root)
+    assert result.returncode == 1
+    assert "unmanaged-agent-canon-symlink:scripts/canon" in result.stderr
+
+
+def test_static_seed_provenance_is_rejected(tmp_path: Path) -> None:
+    root = make_fixture(tmp_path)
+    (root / "agent-canon-static-seed.json").write_text("{}\n", encoding="utf-8")
+    run(["git", "add", "agent-canon-static-seed.json"], root)
+    result = check(root)
+    assert result.returncode == 1
+    assert "forbidden-tracked-path:agent-canon-static-seed.json" in result.stderr
+
+
+def test_static_seed_importer_is_rejected(tmp_path: Path) -> None:
+    root = make_fixture(tmp_path)
+    importer = root / "tools/import_agent_canon_static_seed.py"
+    importer.write_text("raise SystemExit(0)\n", encoding="utf-8")
+    run(["git", "add", "tools/import_agent_canon_static_seed.py"], root)
+    result = check(root)
+    assert result.returncode == 1
+    assert "forbidden-tracked-path:tools/import_agent_canon_static_seed.py" in result.stderr
 
 
 def test_runtime_dispatch_reference_is_rejected(tmp_path: Path) -> None:
@@ -186,13 +284,3 @@ def test_legacy_submodule_strategy_is_rejected(tmp_path: Path) -> None:
     result = check(root)
     assert result.returncode == 1
     assert "forbidden-runtime-reference:scripts/bootstrap.sh" in result.stderr
-
-
-def test_seed_registration_requires_regular_file(tmp_path: Path) -> None:
-    root = make_fixture(tmp_path)
-    (root / ".codex/agents/worker.toml").unlink()
-    (root / ".codex/agents/worker.toml").symlink_to("missing.toml")
-    run(["git", "add", ".codex/agents/worker.toml"], root)
-    result = check(root)
-    assert result.returncode == 1
-    assert "static-seed-agent-file-not-regular" in result.stderr

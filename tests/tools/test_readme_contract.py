@@ -1,4 +1,4 @@
-"""Guard the root README consumer/maintainer boundary for static configuration."""
+"""Guard the root README ownership and AgentCanon activation boundary."""
 
 from __future__ import annotations
 
@@ -6,39 +6,50 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 README = PROJECT_ROOT / "README.md"
-MAINTENANCE_CONTRACT = "documents/design/template-static-seed-import.md"
 
 
-def test_root_readme_keeps_static_configuration_consumer_facing() -> None:
-    """Describe the inert registration without exposing producer operations."""
+def test_root_readme_describes_exact_live_view_without_static_copy() -> None:
     text = README.read_text(encoding="utf-8")
     lowered = text.lower()
 
     for token in (
         "agent-canon-static-seed.json",
-        "producer repository",
-        "producer tooling",
-        "producer revision",
-        "newer producer",
         "import_agent_canon_static_seed",
-        "<fresh-export-directory>",
+        "template-static-seed-import",
+        "regular tracked files under `.codex`",
+        "background refresh",
     ):
         assert token not in lowered
 
     normalized = " ".join(text.split())
     for clause in (
+        "one exact AgentCanon submodule pin",
+        "Normal project checks",
+        "without initializing the checkout",
+        "git submodule update --init --checkout -- vendor/agent-canon",
+        "AGENTS.md",
         ".codex/config.toml",
-        ".codex/agents/*.toml",
-        "regular tracked files",
-        "exact role-file closure",
-        "background refresh",
-        "normal users do not run it",
-        "one AgentCanon submodule pin",
-        "does not initialize that checkout",
-        ".gitmodules",
-        "vendor/agent-canon",
+        ".codex/agents",
+        ".codex/hooks.json",
+        ".codex/hooks",
+        "Agent definitions",
+        "remain owned by AgentCanon",
+        "does not copy those files",
+        "do not run it automatically",
+        "tools/agent-canon",
     ):
         assert clause in normalized
 
-    assert f"]({MAINTENANCE_CONTRACT})" in text
-    assert (PROJECT_ROOT / MAINTENANCE_CONTRACT).is_file()
+
+def test_root_readme_live_view_matches_tracked_symlinks() -> None:
+    expected = {
+        "AGENTS.md": "vendor/agent-canon/ROOT_AGENTS.md",
+        ".codex/config.toml": "../vendor/agent-canon/.codex/config.toml",
+        ".codex/agents": "../vendor/agent-canon/.codex/agents",
+        ".codex/hooks.json": "../vendor/agent-canon/.codex/hooks.json",
+        ".codex/hooks": "../vendor/agent-canon/.codex/hooks",
+    }
+    for relative, target in expected.items():
+        path = PROJECT_ROOT / relative
+        assert path.is_symlink()
+        assert path.readlink().as_posix() == target
