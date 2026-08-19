@@ -126,7 +126,7 @@ failure は `TSSI_*` finding と非zero exitで表し、partial success や warn
 - template の `tests/tools` にはproject-owned consumer testだけを置き、AgentCanon importer専用の
   executable test module、別名wrapper、skip-only module、dispatcherを置かない。
 - AgentCanon内部tool testのnamespaceである`tests/agent_tools`はparent treeに作らない。
-- importer の実装、static seed、reviewed fixtureを通常の派生 repository lifecycleへ接続しない。
+- importer の実装とstatic seedを通常の派生repository lifecycleへ接続しない。
 
 この分離により、producer、maintainer transition、consumer の三責務を混在させず、通常の
 `make test` は project template 自身が所有する契約だけを収集します。
@@ -156,6 +156,6 @@ make fresh-clone-check
 git diff --check
 ```
 
-レビューでは追加で、削除済み AgentCanon importer test path が tracked tree と
-`documents/design/template-static-seed-import.md` の必須 gate 記述へ戻っていないこと、importer、
-static seed、reviewed fixture、runtime-independence checkerに意図しない差分がないことを確認します。
+レビューでは追加で、削除済みAgentCanon importer test pathやcopied payload fixtureがtracked treeと
+`documents/design/template-static-seed-import.md`の必須gate記述へ戻っていないこと、importer、
+static seed、runtime-independence checkerに意図しない差分がないことを確認します。
