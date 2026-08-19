@@ -65,7 +65,7 @@ Normal clone, initialization, checks, CI, Docker, and generated repositories rea
 ├── cpp/                        # C++ project and CTest targets
 ├── python/                     # Python package source
 ├── experiments/                # project experiments
-├── documents/                  # project-owned contracts and design
+├── documents/                  # contracts, design, notes, and source records
 ├── docker/                     # canonical image definition and checks
 ├── .devcontainer/              # Dockerfile selector and read-only validation hook
 ├── scripts/                    # offline repository initialization
