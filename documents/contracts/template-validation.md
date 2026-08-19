@@ -2,7 +2,7 @@
 
 The repository owns its normal validation entry points:
 
-- `make runtime-independence-check` validates the exact AgentCanon submodule registration, sole gitlink, five required live-view symlinks, and the absence of copied AgentCanon configuration, internal tools, producer tests, fixtures, updater state, and runtime dispatch references.
+- `make runtime-independence-check` validates the exact AgentCanon submodule registration, sole gitlink, five required live-view symlinks, and the absence of copied AgentCanon configuration, internal tools, updater state, and runtime dispatch references.
 - `make docs-check` verifies reader-facing local links.
 - `make github-workflow-check` verifies workflow ownership and required check names.
 - `make cpp-test` builds and runs the native CTest surface.

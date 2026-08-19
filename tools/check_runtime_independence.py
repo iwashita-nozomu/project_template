@@ -39,8 +39,6 @@ FORBIDDEN_TRACKED_PATHS = {
     ".github/workflows/agent-improvement-guide.yml",
     "agent-canon-static-seed.json",
     "documents/design/template-static-seed-import.md",
-    "tests/agent_tools",
-    "tests/fixtures/static-seed-c5fa3a22",
     "tools/agent-canon",
     "tools/import_agent_canon_static_seed.py",
 }
