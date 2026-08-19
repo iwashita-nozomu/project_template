@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
-"""Validate that the template and its normal execution paths are self-contained."""
+"""Validate exact AgentCanon registration and bounded live Codex views."""
 
 from __future__ import annotations
 
 import argparse
-import json
 import subprocess
 import sys
-import tomllib
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Never, cast
+from typing import Never
 
 
 @dataclass(frozen=True)
@@ -26,15 +24,25 @@ AGENT_CANON_SUBMODULE_CONFIG = {
     "submodule.vendor/agent-canon.url": "https://github.com/iwashita-nozomu/agent-canon.git",
     "submodule.vendor/agent-canon.branch": "main",
 }
+AGENT_CANON_RUNTIME_SYMLINKS = {
+    "AGENTS.md": "vendor/agent-canon/ROOT_AGENTS.md",
+    ".codex/config.toml": "../vendor/agent-canon/.codex/config.toml",
+    ".codex/agents": "../vendor/agent-canon/.codex/agents",
+    ".codex/hooks.json": "../vendor/agent-canon/.codex/hooks.json",
+    ".codex/hooks": "../vendor/agent-canon/.codex/hooks",
+}
 
 FORBIDDEN_TRACKED_PATHS = {
     ".agent-canon/update-state.toml",
     ".github/scripts/checkout_agent_canon_submodule.sh",
     ".github/workflows/agent-coordination.yml",
     ".github/workflows/agent-improvement-guide.yml",
+    "agent-canon-static-seed.json",
+    "documents/design/template-static-seed-import.md",
     "tests/agent_tools",
     "tests/fixtures/static-seed-c5fa3a22",
     "tools/agent-canon",
+    "tools/import_agent_canon_static_seed.py",
 }
 
 EXECUTION_PATHS = (
@@ -156,6 +164,7 @@ def validate_agent_canon_registration(root: Path, entries: list[Entry]) -> None:
         if checkout.exists() and any(checkout.iterdir()):
             fail("agent-canon-uninitialized-checkout-not-empty")
         return
+
     result = subprocess.run(
         ["git", "-C", str(checkout), "rev-parse", "--verify", "HEAD^{commit}"],
         check=False,
@@ -172,27 +181,54 @@ def validate_agent_canon_registration(root: Path, entries: list[Entry]) -> None:
         )
 
 
+def read_link(root: Path, path: str) -> str:
+    try:
+        return (root / path).readlink().as_posix()
+    except OSError as exc:
+        fail(f"live-view-unreadable:{path}:{exc}")
+
+
+def validate_live_projection(root: Path, entries: list[Entry]) -> None:
+    by_path = {entry.path: entry for entry in entries}
+
+    copied_agent_paths = sorted(
+        path for path in by_path if path.startswith(".codex/agents/")
+    )
+    if copied_agent_paths:
+        fail(f"copied-agent-definition:{copied_agent_paths[0]}")
+
+    for path, expected_target in AGENT_CANON_RUNTIME_SYMLINKS.items():
+        entry = by_path.get(path)
+        if entry is None:
+            fail(f"required-live-view-missing:{path}")
+        if entry.mode != "120000":
+            fail(f"required-live-view-not-symlink:{path}:{entry.mode}")
+        actual_target = read_link(root, path)
+        if actual_target != expected_target:
+            fail(
+                "required-live-view-target-mismatch:"
+                f"{path}:expected={expected_target}:actual={actual_target}"
+            )
+
+    for entry in entries:
+        if entry.mode != "120000" or entry.path in AGENT_CANON_RUNTIME_SYMLINKS:
+            continue
+        target = read_link(root, entry.path)
+        if "agent-canon" in target.casefold():
+            fail(f"unmanaged-agent-canon-symlink:{entry.path}:{target}")
+
+
 def validate_tree(root: Path, entries: list[Entry]) -> None:
     by_path = {entry.path: entry for entry in entries}
     validate_agent_canon_registration(root, entries)
+
     for forbidden in sorted(FORBIDDEN_TRACKED_PATHS):
-        if forbidden in by_path or any(path.startswith(f"{forbidden}/") for path in by_path):
+        if forbidden in by_path or any(
+            path.startswith(f"{forbidden}/") for path in by_path
+        ):
             fail(f"forbidden-tracked-path:{forbidden}")
 
-    for entry in entries:
-        if entry.mode != "120000":
-            continue
-        target = (root / entry.path).readlink().as_posix()
-        if "agent-canon" in target.lower():
-            fail(f"runtime-symlink-forbidden:{entry.path}:{target}")
-
-    required_regular = ["AGENTS.md", ".codex/config.toml", "agent-canon-static-seed.json"]
-    for path in required_regular:
-        entry = by_path.get(path)
-        if entry is None:
-            fail(f"required-static-file-missing:{path}")
-        if entry.mode not in {"100644", "100755"}:
-            fail(f"required-static-file-not-regular:{path}:{entry.mode}")
+    validate_live_projection(root, entries)
 
 
 def validate_execution_text(root: Path, entries: list[Entry]) -> None:
@@ -211,60 +247,6 @@ def validate_execution_text(root: Path, entries: list[Entry]) -> None:
                 fail(f"forbidden-runtime-reference:{entry.path}:{token}")
 
 
-def validate_static_seed(root: Path, entries: list[Entry]) -> None:
-    by_path = {entry.path: entry for entry in entries}
-    config_path = root / ".codex/config.toml"
-    with config_path.open("rb") as stream:
-        config = cast(dict[str, object], tomllib.load(stream))
-
-    loaded_registrations = config.get("agents")
-    if not isinstance(loaded_registrations, dict):
-        fail("static-seed-config-missing-agents")
-    registrations = cast(dict[str, object], loaded_registrations)
-
-    registered_paths: set[str] = set()
-    for name, loaded_payload in registrations.items():
-        if name in {"max_threads", "max_depth", "job_max_runtime_seconds"}:
-            continue
-        if not isinstance(loaded_payload, dict):
-            fail(f"static-seed-agent-invalid:{name}")
-        payload = cast(dict[str, object], loaded_payload)
-        config_file = payload.get("config_file")
-        if not isinstance(config_file, str) or not config_file.startswith("agents/"):
-            fail(f"static-seed-agent-path-invalid:{name}")
-        relative = f".codex/{config_file}"
-        entry = by_path.get(relative)
-        if entry is None:
-            fail(f"static-seed-agent-file-missing:{relative}")
-        if entry.mode != "100644":
-            fail(f"static-seed-agent-file-not-regular:{relative}:{entry.mode}")
-        registered_paths.add(relative)
-
-    actual_paths = {
-        entry.path
-        for entry in entries
-        if entry.path.startswith(".codex/agents/") and entry.path.endswith(".toml")
-    }
-    if actual_paths != registered_paths:
-        missing = sorted(registered_paths - actual_paths)
-        extra = sorted(actual_paths - registered_paths)
-        fail(f"static-seed-closure-mismatch:missing={missing}:extra={extra}")
-
-    provenance = json.loads((root / "agent-canon-static-seed.json").read_text(encoding="utf-8"))
-    expected_keys = {"schema_version", "source_commit", "source_repository"}
-    if set(provenance) != expected_keys:
-        fail("static-seed-provenance-key-set")
-    if provenance.get("schema_version") != 1:
-        fail("static-seed-provenance-schema")
-    if provenance.get("source_repository") != "iwashita-nozomu/agent-canon":
-        fail("static-seed-provenance-source")
-    source_commit = provenance.get("source_commit")
-    if not isinstance(source_commit, str) or len(source_commit) not in {40, 64}:
-        fail("static-seed-provenance-commit")
-    if any(character not in "0123456789abcdef" for character in source_commit):
-        fail("static-seed-provenance-commit")
-
-
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
@@ -275,7 +257,6 @@ def main() -> None:
     entries = tracked_entries(root)
     validate_tree(root, entries)
     validate_execution_text(root, entries)
-    validate_static_seed(root, entries)
     print("RUNTIME_INDEPENDENCE=pass")
 
 
