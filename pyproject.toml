@@ -64,8 +64,8 @@ exclude = [
   "**/reports",
   "**/experiments",
   "**/*.egg-info",
-  "./references",
-  "./notes",
+  "./documents/references",
+  "./documents/notes",
   "./scripts",
   "./.worktrees",
 ]
