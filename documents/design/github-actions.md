@@ -131,7 +131,6 @@ default branchのvalidation graphとは別です。
 
 1. repositoryをcheckoutする。
 1. `actions/setup-python@v5`でPython 3.11とpip cacheを設定する。
-1. `ninja-build`をinstallする。
 1. `bash docker/install_python_dependencies.sh "$PWD"`でproject dependenciesをinstallする。
 1. `make pr-check`を実行する。
 
@@ -141,7 +140,7 @@ checkout、credential、root runtime symlinkを要求しません。
 
 ### `Fresh Clone Acceptance (3.11)`
 
-1. repositoryを通常checkoutし、Python 3.11とnative/Python dependenciesを用意する。
+1. repositoryを通常checkoutし、Python 3.11とproject Python dependenciesを用意する。
 1. `TEMPLATE_FRESH_CLONE_RUN_DOCKER=1 make fresh-clone-check`を実行する。
 1. current templateを通常cloneし、AgentCanon checkoutを初期化せずにproject identityを変換する。
 1. 変換treeをlocal bare remoteへpushし、そのremoteからdescendantを通常cloneする。
@@ -152,6 +151,8 @@ checkout、credential、root runtime symlinkを要求しません。
 
 このjobはbootstrap、normal clone、project checks、Docker runtimeを一つのdescendant identityで
 検証します。AgentCanon source checkoutの内容やroot viewは検証対象ではありません。
+Host C++ checkはCMakeのdefault generatorを使うため、workflowでNinjaを追加installしません。
+Docker buildは`docker/Dockerfile`が所有する`CMAKE_GENERATOR=Ninja`と`ninja-build`を使います。
 
 ## `Docker Build` workflow
 
