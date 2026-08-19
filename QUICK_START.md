@@ -7,7 +7,7 @@ git clone <template-url> my-project
 cd my-project
 ```
 
-Do not use recursive clone or submodule commands; the tracked tree is complete.
+Do not use recursive clone or submodule commands for the default project path. The registered AgentCanon gitlink remains uninitialized while project-owned bootstrap and validation run from the tracked tree.
 
 ## 2. Preview and initialize
 

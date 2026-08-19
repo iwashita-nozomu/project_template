@@ -15,23 +15,27 @@ from pathlib import Path
 @dataclass(frozen=True)
 class Entry:
     mode: str
+    object_id: str
     path: str
 
 
+AGENT_CANON_PATH = "vendor/agent-canon"
+AGENT_CANON_SUBMODULE_CONFIG = {
+    "submodule.vendor/agent-canon.path": AGENT_CANON_PATH,
+    "submodule.vendor/agent-canon.url": "https://github.com/iwashita-nozomu/agent-canon.git",
+    "submodule.vendor/agent-canon.branch": "main",
+}
+
 FORBIDDEN_TRACKED_PATHS = {
-    ".gitmodules",
     ".agent-canon/update-state.toml",
     ".github/scripts/checkout_agent_canon_submodule.sh",
     ".github/workflows/agent-coordination.yml",
     ".github/workflows/agent-improvement-guide.yml",
     "tools/agent-canon",
-    "vendor/agent-canon",
 }
 
 EXECUTION_PATHS = (
     "Makefile",
-    "README.md",
-    "QUICK_START.md",
     "pyproject.toml",
     "scripts/",
     "docker/",
@@ -39,9 +43,6 @@ EXECUTION_PATHS = (
     ".github/workflows/",
     ".github/scripts/",
     ".vscode/",
-    "documents/contracts/template-bootstrap.md",
-    "documents/contracts/template-validation.md",
-    "documents/design/docker-zero-build-environment.md",
 )
 
 FORBIDDEN_RUNTIME_TEXT = (
@@ -90,8 +91,8 @@ def tracked_entries(root: Path) -> list[Entry]:
         if not record:
             continue
         metadata, path = record.split("\t", 1)
-        mode = metadata.split(" ", 1)[0]
-        entries.append(Entry(mode=mode, path=path))
+        mode, object_id, _stage = metadata.split()
+        entries.append(Entry(mode=mode, object_id=object_id, path=path))
     return entries
 
 
@@ -99,15 +100,77 @@ def is_execution_path(path: str) -> bool:
     return any(path == prefix or path.startswith(prefix) for prefix in EXECUTION_PATHS)
 
 
+def submodule_config(root: Path) -> dict[str, str]:
+    result = subprocess.run(
+        [
+            "git",
+            "config",
+            "--file",
+            str(root / ".gitmodules"),
+            "--get-regexp",
+            r"^submodule\.",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        fail(f"agent-canon-submodule-config-unreadable:{result.stderr.strip()}")
+
+    parsed: dict[str, str] = {}
+    for line in result.stdout.splitlines():
+        key, separator, value = line.partition(" ")
+        if not separator or key in parsed:
+            fail(f"agent-canon-submodule-config-invalid:{line}")
+        parsed[key] = value
+    return parsed
+
+
+def validate_agent_canon_registration(root: Path, entries: list[Entry]) -> None:
+    by_path = {entry.path: entry for entry in entries}
+    metadata = by_path.get(".gitmodules")
+    if metadata is None:
+        fail("agent-canon-submodule-metadata-missing")
+    if metadata.mode != "100644":
+        fail(f"agent-canon-submodule-metadata-not-regular:{metadata.mode}")
+
+    config = submodule_config(root)
+    if config != AGENT_CANON_SUBMODULE_CONFIG:
+        fail(f"agent-canon-submodule-config-mismatch:{config}")
+
+    gitlinks = sorted(entry.path for entry in entries if entry.mode == "160000")
+    if gitlinks != [AGENT_CANON_PATH]:
+        fail(f"agent-canon-gitlink-set-mismatch:{gitlinks}")
+
+    gitlink = by_path.get(AGENT_CANON_PATH)
+    if gitlink is None or gitlink.mode != "160000":
+        fail("agent-canon-gitlink-missing")
+
+    checkout = root / AGENT_CANON_PATH
+    if not (checkout / ".git").exists():
+        return
+    result = subprocess.run(
+        ["git", "-C", str(checkout), "rev-parse", "--verify", "HEAD^{commit}"],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        fail(f"agent-canon-checkout-unreadable:{result.stderr.strip()}")
+    checkout_head = result.stdout.strip()
+    if checkout_head != gitlink.object_id:
+        fail(
+            "agent-canon-checkout-pin-mismatch:"
+            f"gitlink={gitlink.object_id}:checkout={checkout_head}"
+        )
+
+
 def validate_tree(root: Path, entries: list[Entry]) -> None:
     by_path = {entry.path: entry for entry in entries}
+    validate_agent_canon_registration(root, entries)
     for forbidden in sorted(FORBIDDEN_TRACKED_PATHS):
         if forbidden in by_path or any(path.startswith(f"{forbidden}/") for path in by_path):
             fail(f"forbidden-tracked-path:{forbidden}")
-
-    gitlinks = [entry.path for entry in entries if entry.mode == "160000"]
-    if gitlinks:
-        fail(f"gitlink-forbidden:{gitlinks[0]}")
 
     for entry in entries:
         if entry.mode != "120000":

@@ -43,8 +43,10 @@ git clone "$bare_remote" "$descendant_clone" >/dev/null
 (
   cd "$descendant_clone"
   test "$(git branch --show-current)" = main
-  test ! -e .gitmodules
-  test ! -e vendor
+  test -f .gitmodules
+  test "$(git config --file .gitmodules --get submodule.vendor/agent-canon.path)" = vendor/agent-canon
+  test "$(git ls-files -s vendor/agent-canon | awk '{print $1}')" = 160000
+  test ! -e vendor/agent-canon
   test ! -e .agent-canon
   make pr-check
 
