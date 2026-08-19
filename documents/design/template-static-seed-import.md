@@ -3,7 +3,7 @@
 contract design
 responsibility Defines the template-maintainer-only transaction that imports one reviewed AgentCanon static-seed export into the tracked consumer snapshot.
 upstream design ../contracts/template-bootstrap.md descendant bootstrap must not mutate the static seed
-upstream design ../../README.md source-free template and maintainer boundary
+upstream design ../../README.md checkout-independent template and maintainer boundary
 upstream implementation ../../tools/check_runtime_independence.py post-import consumer-side closure check
 upstream reference AgentCanon #716 at c5fa3a22c8486952dc6dede0cc3a25e5ba7741e5 static exporter and consumer-static semantic closure
 downstream implementation ../../tools/import_agent_canon_static_seed.py one-way maintainer importer
@@ -27,9 +27,9 @@ python3 tools/import_agent_canon_static_seed.py \
 
 この入口は template 保守専用です。`Makefile` の通常 target、pytest の標準収集、bootstrap、
 fresh-clone acceptance、GitHub Actions、Docker、Dev Container、生成後の派生 repository から
-呼び出しません。派生 repository は取り込み済み regular file を読む consumer であり、
-AgentCanon source、checkout、submodule、runtime dispatcher、network、credential、latest 判定、
-同期状態を所有しません。
+呼び出しません。派生 repository は取り込み済み regular file を読む consumer です。exact
+AgentCanon gitlink を source identity として保持できますが、通常経路はその checkout を初期化・
+実行せず、runtime dispatcher、network、credential、latest 判定、同期状態を要求しません。
 
 ## 入力 authority
 
@@ -121,7 +121,7 @@ failure は `TSSI_*` finding と非zero exitで表し、partial success や warn
 取り込み後の consumer tree が自己完結していることです。
 
 - `tools/check_runtime_independence.py` は static seed の regular-file shape、provenance、role closure、
-  live AgentCanon runtime の再流入を検査する。
+  exact AgentCanon registration、および live AgentCanon runtime の再流入を検査する。
 - AgentCanon producer は exporter と consumer-static projection の closure を producer 側で検査する。
 - template の `tests/tools` には AgentCanon importer 専用の executable test module、別名 wrapper、
   skip-only module、dispatcher を置かない。
@@ -146,8 +146,8 @@ failure は `TSSI_*` finding と非zero exitで表し、partial success や warn
 
 ## Validation route
 
-この設計または importer ownership を変更する template change は、通常の project gate と
-source-free descendant acceptance で検証します。
+この設計または importer ownership を変更する template change は、通常の project gate と、
+registered checkout を初期化しない descendant acceptance で検証します。
 
 ```bash
 make pr-check

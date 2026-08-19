@@ -2,7 +2,9 @@
 
 ## Goal
 
-A normal clone of `project-template` is a complete repository. Bootstrap changes only project identity and reader-facing examples. It must not fetch another source tree, initialize a submodule, resolve a producer checkout, read credentials, or mutate the static `.codex` seed.
+A normal clone of `project-template` is complete for project-owned bootstrap and validation. It records the exact AgentCanon submodule registration and gitlink without initializing that checkout. Bootstrap changes only project identity and reader-facing examples; it must not fetch another source tree, initialize the registered submodule, resolve a producer checkout, read credentials, or mutate the static `.codex` seed.
+
+The initializer preserves `.gitmodules` and the mode-`160000` `vendor/agent-canon` entry. Live AgentCanon root projections are a separate explicit integration step and are not created by descendant bootstrap.
 
 ## Entry points
 

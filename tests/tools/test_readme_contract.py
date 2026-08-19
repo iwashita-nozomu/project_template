@@ -10,13 +10,11 @@ MAINTENANCE_CONTRACT = "documents/design/template-static-seed-import.md"
 
 
 def test_root_readme_keeps_static_configuration_consumer_facing() -> None:
-    """Keep producer provenance and import operations out of normal user guidance."""
+    """Describe the inert registration without exposing producer operations."""
     text = README.read_text(encoding="utf-8")
     lowered = text.lower()
 
     for token in (
-        "agentcanon",
-        "agent-canon",
         "agent-canon-static-seed.json",
         "producer repository",
         "producer tooling",
@@ -35,6 +33,10 @@ def test_root_readme_keeps_static_configuration_consumer_facing() -> None:
         "exact role-file closure",
         "background refresh",
         "normal users do not run it",
+        "one AgentCanon submodule pin",
+        "does not initialize that checkout",
+        ".gitmodules",
+        "vendor/agent-canon",
     ):
         assert clause in normalized
 

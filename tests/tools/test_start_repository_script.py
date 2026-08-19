@@ -66,8 +66,12 @@ def test_bootstrap_is_local_and_idempotent(tmp_path: Path) -> None:
     )
     assert "static_seed=repository_owned_regular_files" in result.stdout
     assert "start_repository_init=pass" in result.stdout
-    assert not (clone / ".gitmodules").exists()
-    assert not (clone / "vendor").exists()
+    assert (clone / ".gitmodules").is_file()
+    gitlink = run(["git", "ls-files", "-s", "vendor/agent-canon"], clone).stdout
+    assert gitlink.startswith("160000 ")
+    checkout = clone / "vendor/agent-canon"
+    assert not (checkout / ".git").exists()
+    assert not checkout.exists() or not any(checkout.iterdir())
 
     before = run(["git", "diff", "--binary"], clone).stdout
     second = run(
