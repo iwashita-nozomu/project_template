@@ -1,89 +1,44 @@
 # Template validation contract
 
-## Invariants
+The repository owns its normal validation entry points:
 
-`docker/Dockerfile` is the sole owner of the standard validation environment.
-Every profile command runs in target `cpu-dev`; no workflow, Dev Container hook,
-or repository script creates a virtual environment or installs a package after
-container start. The image owns `/opt/project-venv`, Node.js, npm, the standard
-CLIs, the native toolchain, and the non-root `project` identity.
+- `make runtime-independence-check` validates the exact AgentCanon submodule registration, sole gitlink, five required live-view symlinks, and the absence of copied AgentCanon configuration, internal tools, updater state, and runtime dispatch references.
+- `make docs-check` verifies reader-facing local links.
+- `make github-workflow-check` verifies workflow ownership and required check names.
+- `make cpp-test` builds and runs the native CTest surface.
+- `make test` runs focused repository tooling tests.
+- `make pr-check` composes the pull-request gate.
+- `make fresh-clone-check` creates, commits, publishes, and normally clones a generated descendant before rerunning project-owned checks.
 
-Applicability and success are different dimensions. An independent profile is
-reported as `not_applicable`; it is never represented as a passing check. The
-single required GitHub check is `Validation Summary`, whose JSON and Markdown
-evidence retain every profile and one of these states:
+## Uninitialized-checkout validation
 
-- `applicable` + `pass`
-- `applicable` + `fail`
-- `not_applicable`
+The runtime-independence checker reads tracked modes and lexical symlink targets. It therefore validates all of the following without initializing `vendor/agent-canon`:
 
-## Canonical responsibility projection
+- `.gitmodules` is one regular exact registration;
+- `vendor/agent-canon` is the sole mode-`160000` entry;
+- `AGENTS.md`, `.codex/config.toml`, `.codex/agents`, `.codex/hooks.json`, and `.codex/hooks` are mode-`120000` entries with exact targets;
+- no regular `.codex/agents/*.toml`, static-seed importer/provenance, `tools/agent-canon`, AgentCanon test namespace, or copied fixture exists;
+- project execution paths do not invoke AgentCanon update, checkout, source resolver, or internal tools.
 
-The only path-to-command mapping is `validation/profiles.toml`. Let `P` be the
-ordered profile set, `C` the changed path set, and `M(f) ⊆ P` the profiles whose
-tracked glob matches path `f`. For an ordinary pull request, the selected set is
+When the checkout is initialized, the same checker additionally requires:
 
 ```text
-S(C) = union(M(f) for f in C)
+vendor/agent-canon HEAD == staged vendor/agent-canon gitlink
 ```
 
-with three conservative overrides:
+A mismatch fails rather than loading an unreviewed runtime.
 
-1. A path not covered by any mapping is assigned to `base-project`.
-2. A change to the routing authority (`validation/profiles.toml`, the router,
-   its regression test, the workflow projection, this contract, or the
-   Makefile command surface) selects all profiles.
-3. `push` and `workflow_dispatch` select all profiles independent of paths.
+## Fresh-clone boundary
 
-The router is `tools/validation_routing.py`. It emits
-`.state/validation-plan.json`, executes only applicable commands, and writes
-`.state/validation-result.json`. GitHub Actions only builds/runs the canonical
-image and projects router outputs; it does not duplicate path lists or profile
-commands in YAML.
+The fresh-clone check starts from a clean committed tree. It uses a temporary local bare remote so it can prove that the exact registration and symlink modes survive an ordinary clone while the checkout remains uninitialized. Project checks run without network, credentials, recursive options, access to the original template checkout, or dereferencing the AgentCanon views. Docker execution is enabled explicitly with `TEMPLATE_FRESH_CLONE_RUN_DOCKER=1`.
 
-## Profiles
+## Codex activation
 
-| Profile | Owned responsibility | Canonical command |
-| --- | --- | --- |
-| `docs` | Markdown and local-link integrity | `make docs-check-local` |
-| `base-project` | self-containment, lint, typing, package build, and tooling tests | `make base-project-check-local` |
-| `cpp` | CMake configure/build/install boundary and CTest | `make cpp-test-local` |
-| `github-automation` | workflow structure and canonical-image projection | `make github-workflow-check-local` |
-| `docker-runtime` | Dockerfile, locks, Dev Container projection, and environment ownership | `make docker-contract-check-local` |
-| `bootstrap` | initialized descendant and real normal-clone lifecycle | `make fresh-clone-check-local` |
-
-Typical pull-request routing is therefore:
-
-| Change | Applicable profiles |
-| --- | --- |
-| documentation only | `docs` |
-| C++ only | `cpp` |
-| workflow only | `github-automation` |
-| bootstrap script or bootstrap contract | `bootstrap` |
-| documentation plus C++ | `docs`, `cpp` |
-| unclassified file | `base-project` |
-| routing authority | all profiles |
-
-A `docker-runtime` change also triggers
-`docker/cold-build-smoke.sh --pull --no-cache`. That builds target
-`cpu-validation`, copies the committed source into the image, constructs a
-synthetic local Git commit, runs the full local profile set, and then performs
-an image-only smoke. The broad check is justified because a Dockerfile change
-can alter every profile's execution semantics.
-
-## Local commands
-
-Inside target `cpu-dev` or the Dev Container:
+Loading the AgentCanon-owned custom agents and hooks is outside the normal validation path. A user explicitly initializes the exact reviewed pin before the Codex session:
 
 ```bash
-make check-matrix
-make pr-check
-make fresh-clone-check
+git submodule update --init --checkout -- vendor/agent-canon
+make runtime-independence-check
 ```
 
-`make pr-check` is the full local confidence set. Pull-request CI may select a
-strict subset through the canonical router. `make fresh-clone-check` requires a
-clean committed tree and publishes the initialized descendant to a temporary
-local bare remote before cloning it normally. The descendant reuses the
-already-built image capabilities and runs `make validation-core-local`; it does
-not install dependencies or build a nested image.
+No validation command advances the pin, selects latest `main`, or repairs root views from the network.

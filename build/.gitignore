@@ -1,0 +1,3 @@
+# Generated build contents; keep only this local policy file.
+*
+!.gitignore

@@ -7,6 +7,13 @@ import subprocess
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+LIVE_VIEWS = {
+    "AGENTS.md": "vendor/agent-canon/ROOT_AGENTS.md",
+    ".codex/config.toml": "../vendor/agent-canon/.codex/config.toml",
+    ".codex/agents": "../vendor/agent-canon/.codex/agents",
+    ".codex/hooks.json": "../vendor/agent-canon/.codex/hooks.json",
+    ".codex/hooks": "../vendor/agent-canon/.codex/hooks",
+}
 
 
 def run(
@@ -49,6 +56,7 @@ def test_bootstrap_is_local_and_idempotent(tmp_path: Path) -> None:
         env,
     )
     assert "template_bootstrap=local_offline" in preview.stdout
+    assert "agent_canon_view=exact_live_symlinks" in preview.stdout
     assert "start_repository_mode=dry_run_only" in preview.stdout
 
     result = run(
@@ -64,10 +72,18 @@ def test_bootstrap_is_local_and_idempotent(tmp_path: Path) -> None:
         clone,
         env,
     )
-    assert "static_seed=repository_owned_regular_files" in result.stdout
+    assert "agent_canon_view=exact_live_symlinks" in result.stdout
     assert "start_repository_init=pass" in result.stdout
-    assert not (clone / ".gitmodules").exists()
-    assert not (clone / "vendor").exists()
+    assert (clone / ".gitmodules").is_file()
+    gitlink = run(["git", "ls-files", "-s", "vendor/agent-canon"], clone).stdout
+    assert gitlink.startswith("160000 ")
+    checkout = clone / "vendor/agent-canon"
+    assert not (checkout / ".git").exists()
+    assert not checkout.exists() or not any(checkout.iterdir())
+    for relative, target in LIVE_VIEWS.items():
+        path = clone / relative
+        assert path.is_symlink()
+        assert path.readlink().as_posix() == target
 
     before = run(["git", "diff", "--binary"], clone).stdout
     second = run(

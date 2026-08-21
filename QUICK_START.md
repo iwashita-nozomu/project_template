@@ -7,9 +7,9 @@ git clone <template-url> my-project
 cd my-project
 ```
 
-Do not use recursive clone or submodule commands; the tracked tree is complete.
+A normal clone leaves `vendor/agent-canon` uninitialized. Project-owned bootstrap, build, tests, documentation, Docker, and CI still work because they validate the exact registration and lexical live views without reading the target checkout.
 
-## 2. Preview and initialize
+## 2. Preview and initialize the project
 
 ```bash
 bash scripts/start_repository.sh \
@@ -22,61 +22,43 @@ bash scripts/start_repository.sh \
   --display-name "My Project"
 ```
 
-Initialization is local and offline. It needs no upstream token, checkout,
-updater, or network access.
+Initialization is local and offline. It preserves `.gitmodules`, the AgentCanon gitlink, and the tracked symlink views. It needs no upstream token, checkout, updater, or network access.
 
-## 3. Commit the initialized tree
+## 3. Commit and validate
 
 ```bash
 git diff --check
 git add --all
 git commit -m "Initialize my-project"
-```
-
-## 4. Enter the canonical environment
-
-Open the repository as a Dev Container. On Linux, export the identity used by
-the image build before opening VS Code:
-
-```bash
-export PROJECT_UID="$(id -u)"
-export PROJECT_GID="$(id -g)"
-code .
-```
-
-The Dev Container selects target `cpu-dev`, mounts the repository at
-`/workspace/project`, and uses `/opt/project-venv/bin/python`. It has no
-post-create installer.
-
-A command-line equivalent is:
-
-```bash
-docker build --platform linux/amd64 \
-  --build-arg "PROJECT_UID=$(id -u)" \
-  --build-arg "PROJECT_GID=$(id -g)" \
-  --target cpu-dev \
-  --tag my-project:dev \
-  --file docker/Dockerfile .
-
-docker run --rm --platform linux/amd64 \
-  --mount "type=bind,src=$PWD,dst=/workspace/project" \
-  --workdir /workspace/project \
-  --env PROJECT_TEMPLATE_IMAGE=1 \
-  my-project:dev make pr-check
-```
-
-## 5. Validate the descendant lifecycle
-
-Inside the canonical environment:
-
-```bash
 make pr-check
 make fresh-clone-check
 ```
 
-`make fresh-clone-check` requires a clean committed tree because it validates
-exactly what another user receives from a normal clone. It reuses the image
-capabilities and does not install dependencies in the generated repository.
+`make fresh-clone-check` requires a clean committed tree because it validates exactly what another user receives from an ordinary, non-recursive clone.
 
-The static files under `.codex/` are already present. Derived repositories do
-not download or synchronize them.
+## 4. Activate the Codex runtime when needed
+
+Before a Codex session that must load AgentCanon custom agents or hooks:
+
+```bash
+git submodule update --init --checkout -- vendor/agent-canon
+git -C vendor/agent-canon rev-parse HEAD
+git ls-files -s vendor/agent-canon
+```
+
+The checkout `HEAD` and staged gitlink must match. The root `AGENTS.md` and `.codex/{config.toml,agents,hooks.json,hooks}` symlinks then expose the AgentCanon-owned project runtime to Codex. Do not create a `tools/agent-canon` alias or copy AgentCanon tests, fixtures, or role files into the project tree.
+
+## 5. Use Docker
+
+```bash
+docker build -t project-template -f docker/Dockerfile .
+docker run --rm project-template python3 --version
+```
+
+For the repository checks:
+
+```bash
+make docker-check
+make docker-build-check
+make docker-run ARGS='cmake --version'
+```

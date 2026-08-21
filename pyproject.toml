@@ -49,10 +49,6 @@ target-version = "py311"
 select = ["E", "F", "I", "D", "UP"]
 ignore = ["E501"]
 
-[tool.ruff.lint.per-file-ignores]
-"tests/**/*.py" = ["D"]
-"tools/**/*.py" = ["D"]
-
 [tool.ruff.lint.pydocstyle]
 convention = "pep257"
 
@@ -68,8 +64,8 @@ exclude = [
   "**/reports",
   "**/experiments",
   "**/*.egg-info",
-  "./references",
-  "./notes",
+  "./documents/references",
+  "./documents/notes",
   "./scripts",
   "./.worktrees",
 ]

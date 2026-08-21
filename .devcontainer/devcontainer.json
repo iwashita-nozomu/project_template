@@ -1,24 +1,16 @@
 {
-  "name": "project-template-devcontainer",
+  "name": "${localWorkspaceFolderBasename}-devcontainer",
   "build": {
     "dockerfile": "../docker/Dockerfile",
     "context": "..",
-    "target": "cpu-dev",
-    "args": {
-      "PROJECT_UID": "${localEnv:PROJECT_UID:1000}",
-      "PROJECT_GID": "${localEnv:PROJECT_GID:1000}"
-    }
+    "target": "default-runtime"
   },
   "containerUser": "project",
   "remoteUser": "project",
-  "updateRemoteUserUID": false,
-  "workspaceFolder": "/workspace/project",
-  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace/project,type=bind,consistency=cached",
-  "containerEnv": {
-    "PROJECT_TEMPLATE_IMAGE": "1"
-  },
+  "workspaceFolder": "/workspace/${localWorkspaceFolderBasename}",
+  "postCreateCommand": "bash .devcontainer/post-create-parent.sh /workspace/${localWorkspaceFolderBasename}",
   "shutdownAction": "stopContainer",
-  "overrideCommand": true,
+  "overrideCommand": false,
   "customizations": {
     "vscode": {
       "extensions": [
@@ -33,7 +25,7 @@
       "settings": {
         "jupyter.notebookFileRoot": "${workspaceFolder}",
         "python.analysis.extraPaths": ["${workspaceFolder}/python"],
-        "python.defaultInterpreterPath": "/opt/project-venv/bin/python",
+        "python.defaultInterpreterPath": "/usr/local/bin/python3",
         "python.terminal.activateEnvironment": false
       }
     }

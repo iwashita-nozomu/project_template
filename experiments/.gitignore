@@ -1,0 +1,3 @@
+# Generated experiment outputs; retain explicit result placeholders.
+**/result/*
+!**/result/.gitkeep

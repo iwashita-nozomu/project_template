@@ -1,12 +1,8 @@
 # Project Template
 
-A self-contained starting point for Python, C++, documents, experiments, and
-containerized development.
+A starting point for Python, C++, documents, experiments, containerized development, and an explicitly activated AgentCanon Codex runtime.
 
-A normal clone contains every tracked file required to read, bootstrap, build,
-and validate the project. The default path has no submodule, no runtime
-checkout, no source resolver, no updater, and no upstream credential
-requirement.
+A normal clone contains every project-owned file required to bootstrap, build, test, and validate the project. The repository also records one exact AgentCanon submodule pin and five lexical root views. Normal project checks validate those identities without initializing the checkout or contacting an upstream service.
 
 ## Start a repository
 
@@ -19,42 +15,46 @@ bash scripts/start_repository.sh \
 git diff --check
 git add --all
 git commit -m "Initialize my-project"
-```
-
-The initializer is an offline, repository-local identity conversion. It
-rewrites project metadata and reader-facing examples only. It does not fetch or
-regenerate the static configuration.
-
-Open the repository in its Dev Container, or build target `cpu-dev`, before
-running checks. The image already contains the Python environment, Node.js,
-standard CLIs, CMake, and Ninja; no post-create installation runs.
-
-```bash
-export PROJECT_UID="$(id -u)"
-export PROJECT_GID="$(id -g)"
-code .
-```
-
-Inside the canonical environment:
-
-```bash
 make pr-check
+```
+
+The initializer is an offline, repository-local identity conversion. It rewrites project metadata and reader-facing examples only. It preserves the AgentCanon registration, gitlink, and live-view symlinks without initializing or modifying the checkout.
+
+After committing the initialized tree, run the descendant acceptance check:
+
+```bash
 make fresh-clone-check
 ```
 
-The descendant acceptance check publishes the generated repository to a
-temporary local bare remote, clones it normally without recursive options,
-hides the template source, and reruns project-owned checks.
+This publishes the generated repository to a temporary local bare remote, clones it normally without recursive options, hides the template source, and reruns project-owned checks.
+
+## Activate AgentCanon for Codex
+
+The tracked `.codex` entries are symlink views into the exact `vendor/agent-canon` pin. Before starting a Codex session that must load AgentCanon custom agents or hooks, initialize that reviewed pin explicitly:
+
+```bash
+git submodule update --init --checkout -- vendor/agent-canon
+git -C vendor/agent-canon rev-parse HEAD
+git ls-files -s vendor/agent-canon
+```
+
+The two object IDs must match. This activation is deliberate user action; bootstrap, CI, Docker, `make pr-check`, and `make fresh-clone-check` do not run it automatically.
+
+The live Codex view is exactly:
+
+```text
+AGENTS.md          -> vendor/agent-canon/ROOT_AGENTS.md
+.codex/config.toml -> ../vendor/agent-canon/.codex/config.toml
+.codex/agents      -> ../vendor/agent-canon/.codex/agents
+.codex/hooks.json  -> ../vendor/agent-canon/.codex/hooks.json
+.codex/hooks       -> ../vendor/agent-canon/.codex/hooks
+```
+
+Agent definitions, model and reasoning settings, developer instructions, and hook code remain owned by AgentCanon. The template tracks only the exact pin and view edges. It does not copy those files, import snapshots, project `tools/agent-canon`, or mirror AgentCanon tests and fixtures.
 
 ## Canonical checks
 
-`validation/profiles.toml` maps changed paths to responsibility profiles. Pull
-request CI executes only applicable profiles in the same `cpu-dev` image and
-reports independent profiles as `not_applicable`, not as passing. Routing
-self-changes and integration events select the full profile set.
-
 ```bash
-make check-matrix
 make runtime-independence-check
 make docs-check
 make github-workflow-check
@@ -63,47 +63,35 @@ make test
 make pr-check
 ```
 
-Build-time full acceptance uses the same tracked Dockerfile:
+`make runtime-independence-check` validates the exact submodule registration, sole gitlink, symlink modes, and lexical targets. It succeeds with an uninitialized checkout. If the checkout is initialized, it additionally requires its `HEAD` to equal the staged gitlink.
+
+`make ci` is the full project-owned host gate. Docker checks use the same tracked Dockerfile:
 
 ```bash
+make docker-check
 make docker-build-check
+make docker-run ARGS='python3 --version'
 ```
 
-The default development image is CPU-only. GPU support is the explicit
-`gpu-dev` target and requires a compatible host driver.
-
-## Static Codex configuration
-
-`.codex/config.toml` and `.codex/agents/*.toml` are regular tracked files. The
-repository-owned runtime-independence checker derives and validates the exact
-role-file closure from `.codex/config.toml`. The tracked snapshot supplies
-configuration data only; it contains no source resolver, updater, update state,
-hook, secret, symlink, or network behavior.
-
-Normal clone, initialization, checks, CI, Docker, and generated repositories
-read these files directly. None of those paths performs background refresh or
-requires another checkout. Replacing the tracked snapshot is an explicit
-template-maintainer operation documented in the repository-local
-[static-configuration maintenance contract](documents/design/template-static-seed-import.md);
-normal users do not run it.
+The default image is CPU-only. GPU support remains an explicit Docker target and requires a compatible host driver.
 
 ## Repository layout
 
 ```text
 .
-├── AGENTS.md
-├── .codex/                     # regular static configuration files
-├── cpp/                        # C++ project and CTest targets
-├── python/                     # Python package source
-├── experiments/                # project experiments
-├── documents/                  # project-owned contracts and design
-├── docker/                     # canonical image definition and checks
-├── .devcontainer/              # image target, identity, and mount projection
-├── validation/                 # responsibility-to-command routing source
-├── scripts/                    # offline repository initialization
-├── tools/                      # project-owned validation tools
-└── tests/                      # project-owned tests
+├── AGENTS.md                  # symlink to exact AgentCanon root instructions
+├── .gitmodules               # exact AgentCanon source registration
+├── .codex/                   # symlink views for config, agents, and hooks
+├── cpp/                      # C++ project and CTest targets
+├── python/                   # Python package source
+├── experiments/              # project experiments
+├── documents/                # project contracts, design, notes, and sources
+├── docker/                   # canonical image definition and checks
+├── .devcontainer/            # Dockerfile selector and read-only validation hook
+├── scripts/                  # offline repository initialization
+├── tools/                    # project-owned validation tools
+├── tests/                    # project-owned tests
+└── vendor/agent-canon         # exact gitlink; uninitialized by normal checks
 ```
 
-See `QUICK_START.md`, `documents/contracts/template-bootstrap.md`, and
-`documents/contracts/template-validation.md` for the operational contracts.
+See `QUICK_START.md`, `documents/contracts/template-bootstrap.md`, and `documents/contracts/template-validation.md` for the operational contracts.

@@ -4,14 +4,6 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 cd "$repo_root"
 
-[[ "${PROJECT_TEMPLATE_IMAGE:-}" == 1 ]] || {
-  echo "fresh-clone acceptance must run in the canonical cpu-dev image" >&2
-  exit 2
-}
-[[ -x /opt/project-venv/bin/python ]] || {
-  echo "image-owned Python environment is missing" >&2
-  exit 2
-}
 if [[ -n "$(git status --short --untracked-files=all)" ]]; then
   echo "fresh-clone acceptance requires a clean committed tree" >&2
   exit 1
@@ -51,13 +43,32 @@ git clone "$bare_remote" "$descendant_clone" >/dev/null
 (
   cd "$descendant_clone"
   test "$(git branch --show-current)" = main
-  test ! -e .gitmodules
-  test ! -e vendor
+  test -f .gitmodules
+  test "$(git config --file .gitmodules --get submodule.vendor/agent-canon.path)" = vendor/agent-canon
+  test "$(git ls-files -s vendor/agent-canon | awk '{print $1}')" = 160000
+  test ! -e vendor/agent-canon/.git
+  if [[ -d vendor/agent-canon ]]; then
+    test -z "$(find vendor/agent-canon -mindepth 1 -maxdepth 1 -print -quit)"
+  fi
   test ! -e .agent-canon
-  test ! -e docker/install_python_dependencies.sh
-  test ! -e .devcontainer/post-create-parent.sh
-  make validation-core-local
+  make pr-check
+
+  if [[ "${TEMPLATE_FRESH_CLONE_RUN_DOCKER:-0}" == 1 ]]; then
+    # CMake caches contain absolute paths and cannot cross the host/container mount boundary.
+    make clean-generated
+    image="descendant-fixture:fresh-clone"
+    docker build --platform linux/amd64 \
+      --build-arg "PROJECT_UID=$(id -u)" \
+      --build-arg "PROJECT_GID=$(id -g)" \
+      --tag "$image" --file docker/Dockerfile .
+    docker run --rm --platform linux/amd64 \
+      --mount "type=bind,src=$descendant_clone,dst=/workspace/descendant-fixture" \
+      --workdir /workspace/descendant-fixture \
+      "$image" /bin/bash -lc \
+      'bash docker/install_python_dependencies.sh "$PWD" && make pr-check'
+  fi
+
   test -z "$(git status --short --untracked-files=all)"
 )
 
-printf 'FRESH_CLONE_ACCEPTANCE=pass image=cpu-dev\n'
+printf 'FRESH_CLONE_ACCEPTANCE=pass docker=%s\n' "${TEMPLATE_FRESH_CLONE_RUN_DOCKER:-0}"
