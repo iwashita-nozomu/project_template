@@ -1,78 +1,56 @@
 <!--
 @dependency-start
 contract policy
-responsibility Documents Server Host Contract for this repository.
-upstream design ../../vendor/agent-canon/documents/runtime/SHARED_RUNTIME_SURFACES.md shared documents ownership policy
+responsibility Documents the parent project's server host contract.
+upstream design ../design/docker-zero-build-environment.md project container boundary
 @dependency-end
 -->
 
 # Server Host Contract
 
-この文書は、repo を日常運用する main server host の最小契約をまとめます。
-この root copy は template / derived repo が所有する active contract です。AgentCanon は contract template と validation tooling を提供しますが、この repo の server host contract の正本はこの regular file です。
-remote execution contract が「repo が外部 server から実行される条件」を定義するのに対し、ここでは「この repo を主に回す host 自身が満たすべき条件」を固定します。
-
-## 対象
-
-- main 開発 host
-- nested Codex や Docker build を回す host
-- bare repo、shared workspace、mirror hook を持つ host
+この文書は、server または SSH orchestration からこの parent repo を実行する host の
+最小契約を定めます。AgentCanon の source、runtime、eval archive は別 repository の
+責務であり、parent server host に常駐させません。
 
 ## 必須
 
-- `git`, `python3`, `codex`, `docker` か `podman` の少なくとも 1 つが利用可能であること
-- bare repo root と workspace root が決まっていること
-- local state を置く Linux filesystem 側 path が決まっていること
-- Docker を使う場合、daemon socket へ実際にアクセスできる shell を持つこと
-- `origin` push、mirror hook、artifact root の責務分担が文書化されていること
+- `git`、`python3`、`codex`、`docker` または `podman` が利用できること
+- bare repo root と project workspace root が決まっていること
+- local Linux filesystem に build/cache/artifact root があること
+- `origin` push、artifact root、log retention の責務分担が文書化されていること
+- remote execution が実行する commit SHA を記録すること
 
-## 推奨
+## Storage
 
-- bare repo root を 1 か所に集約する
-- shared workspace root を 1 か所に集約する
-- Docker state は local Linux filesystem に置き、CIFS / 9p / network share に置かない
-- host inventory を AgentCanon source template `vendor/agent-canon/templates/documents/server_host_inventory.template.md` で記録する
-- path / mount / builder 前提を AgentCanon source template `vendor/agent-canon/templates/documents/server_runtime_layout.template.toml` で明文化する
-- `python3 tools/ci/check_server_readiness.py` で定期的に readiness を確認する
+bare repo root と workspace root は分けます。Docker state、build cache、runtime artifact
+は local Linux filesystem に置き、CIFS、9p、network share を正本にしません。
+project checkout の `workspace/agent-canondevelop/` は AgentCanon 編集時だけ使う ignored
+作業領域で、task 終了時に exact task directory を削除します。
 
-## Storage Rule
+## Container
 
-- bare repo root と shared workspace root は分けます
-- network share を使う場合でも、Docker state と socket は local Linux filesystem 側に置きます
-- `/workspace/.state/` に永続化したいものがある場合、host 側でもどこへ残るかを決めます
+remote execution は project が定義する `docker/Dockerfile` と test runner を使います。
+server 固有の ad-hoc command、parent test directory の AgentCanon runtime mount、
+AgentCanon managed devcontainer は使いません。GPU は project command の明示的な run
+option でのみ渡します。daemon が rootful/rootless かを契約条件にしません。
 
-## Container Runtime Rule
+## Git and artifacts
 
-- Docker を既定にする場合、`docker` group にユーザーが追加されているだけでは不十分です
-- 現在の shell がその group を有効にしていることを確認しなければなりません
-- `getent group docker` にユーザーが出ても `id` に `docker` が出ない場合は、新しい login shell を開くか group refresh が必要です
-- 一時確認だけなら `sg docker -c 'docker version'` で daemon 到達性を切り分けられます
-- main server host では、`make docker-build-check` と `make docker-build-check-host-docker` を実行できる状態を推奨します
-
-## WSL / Shared Mount Rule
-
-- WSL2 を main host にすること自体は許容します
-- ただし、CIFS / 9p / network share と local ext4 を混同せず、どの path がどの filesystem かを inventory に残します
-- bare repo や共有 workspace を network share に置く場合、Docker state と build cache は local ext4 側に残します
-- symlink、file permission、case sensitivity、I/O 特性の差を前提にします
-
-## Git Rule
-
-- GitHub canonical remote と authentication state を記録します
-- `tools/push_origin.sh` を canonical push 入口にします
+- execution は branch を commit SHA に解決して記録します
+- log と artifact の出力先を execution record に残します
+- partial run を正式結果として扱うかを project contract で明示します
+- host credentials は project container に自動 forward しません
 
 ## Validation
 
 ```bash
 python3 tools/ci/check_server_readiness.py
-python3 tools/ci/check_server_readiness.py --layout vendor/agent-canon/templates/documents/server_runtime_layout.template.toml
 make docker-build-check
-make docker-build-check-host-docker
+make pr-check
 ```
 
 ## Related
 
-- `documents/contracts/linux-wsl-host-requirements.md`
-- `documents/contracts/remote-execution-repo-contract.md`
-- AgentCanon source template: `vendor/agent-canon/templates/documents/server_host_inventory.template.md`
-- AgentCanon source template: `vendor/agent-canon/templates/documents/server_runtime_layout.template.toml`
+- [Linux / WSL host requirements](linux-wsl-host-requirements.md)
+- [Remote execution repo contract](remote-execution-repo-contract.md)
+- [Docker environment boundary](../design/docker-zero-build-environment.md)

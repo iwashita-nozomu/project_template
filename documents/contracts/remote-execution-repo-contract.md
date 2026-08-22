@@ -1,57 +1,53 @@
 <!--
 @dependency-start
 contract policy
-responsibility Documents Remote Execution Repo Contract for this repository.
-upstream design ../../vendor/agent-canon/documents/runtime/SHARED_RUNTIME_SURFACES.md shared documents ownership policy
+responsibility Documents the parent project's remote execution contract.
+upstream design ../design/docker-zero-build-environment.md project container boundary
 @dependency-end
 -->
 
 # Remote Execution Repo Contract
 
-この root copy は template / derived repo が所有する active contract です。AgentCanon は generic policy と reusable templates を提供しますが、この repo の remote execution contract の正本はこの regular file です。
-
-この文書は、server や orchestration layer から SSH 経由で remote execution を受けられる repo の最小契約です。
-target host のセットアップ自体は利用者責務にしつつ、repo 側で揃えるべき項目だけを固定します。
+この文書は、server や orchestration layer から SSH 経由で parent repo を実行するための
+最小契約です。AgentCanon の source、tool runtime、eval archive は別 repository の責務です。
 
 ## 必須
 
 - `docker/Dockerfile`
-- `docker/packs/*.toml`
-- repo root から動く実行入口
+- repo root から動く project-owned 実行入口
 - `commit SHA` 固定実行で壊れないこと
 - log / artifact の出力先が決まっていること
 
 ## 推奨
 
 - CPU 前提の default runtime pack を 1 つ持つ
-- GPU を要する場合だけ追加 pack を持つ
-- `python3 tools/agent-canon/ci/run_container_pack.py --pack ... --print-only` で preview できる
-- `README.md` か `docker/README.md` に runtime の役割が書かれている
+- GPU を要する場合だけ追加 pack と明示的な Docker run option を持つ
+- `README.md` か `docker/README.md` に runtime の役割を書く
 
 ## branch と commit の扱い
 
-- 実行依頼の入力では branch を受けてもよい
-- orchestration 側で branch を `commit SHA` に解決し、その SHA を execution record に残します
-- target 側では branch 名ではなく resolved commit を checkout します
+- 実行依頼では branch を受けてもよい
+- orchestration 側で branch を `commit SHA` に解決し、その SHA を execution record に残す
+- target 側では branch 名ではなく resolved commit を checkout する
 
 ## Docker 契約
 
-- remote execution は repo 定義の Docker pack をそのまま使います
-- server 固有の ad-hoc command 断片に依存しません
-- 必要な env や mount は pack か repo 内 script に寄せます
-- product pack は AgentCanon の managed devcontainer post-create / finalize を呼びません
-- nested Codex の state は container-local とし、API 認証は `OPENAI_API_KEY` と
-  `OPENAI_BASE_URL` の明示 forward で渡します
+- remote execution は repo 定義の Dockerfile と test runner を使う
+- server 固有の ad-hoc command 断片に依存しない
+- 必要な env や mount は project pack か repo 内 script に寄せる
+- project pack は AgentCanon の managed devcontainer や tool runtime を呼ばない
+- nested Codex の state と credentials は明示的に分離する
 
 ## artifact 契約
 
-- 実行結果の log と artifact の置き場を決めます
-- repo 内に残すものと orchestration 側で集約するものを分けます
-- partial run を正式結果として扱うかどうかは repo 文書で明示します
+- 実行結果の log と artifact の置き場を決める
+- repo 内に残すものと orchestration 側で集約するものを分ける
+- partial run を正式結果として扱うかどうかを repo 文書で明示する
 
-## template
+## AgentCanon separation
 
-登録 template の正本は次です。
-
-- AgentCanon source template: `vendor/agent-canon/templates/documents/remote_execution_repo.template.toml`
-- `vendor/agent-canon/templates/documents/remote_execution_target.template.toml`
+AgentCanon が必要な分析は、親 repo の ignored
+`workspace/agent-canondevelop/<qualified-task>/agent-canon` から standalone bootstrap
+で別途実行します。project tests はその runtime に mount しません。eval は external
+spool に収集し、認可された場合だけ
+[`agent-canon-log`](https://github.com/iwashita-nozomu/agent-canon-log) に同期します。

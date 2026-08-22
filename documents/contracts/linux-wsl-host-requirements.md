@@ -1,157 +1,75 @@
 <!--
 @dependency-start
 contract policy
-responsibility Documents Linux / WSL Host Requirements for this repository.
-upstream design ../../vendor/agent-canon/documents/runtime/SHARED_RUNTIME_SURFACES.md shared documents ownership policy
-upstream design ../../vendor/agent-canon/CONTAINER_OPERATIONS.md container and devcontainer ownership boundary
+responsibility Documents Linux / WSL host requirements for the parent project.
+upstream design ../design/docker-zero-build-environment.md parent Docker boundary
 @dependency-end
 -->
 
 # Linux / WSL Host Requirements
 
-この root copy は template / derived repo が所有する active contract です。AgentCanon は generic policy と reusable templates を提供しますが、この repo の host requirements の正本はこの regular file です。
+この文書は `project_template` と派生 repo の host 前提を定めます。対象は Linux と
+WSL2 です。AgentCanon の tool runtime は別 repository の standalone bootstrap が
+管理するため、この契約は AgentCanon の source checkout や常駐 container を要求しません。
 
-この文書は、この template を日常利用する host の前提条件をまとめます。
-対象は Linux と WSL2 です。macOS や純 Windows native は正本対象にしません。
-
-## この文書の読み方
-
-- この文書は、template / 派生 repo を日常利用する Linux / WSL2 host の前提条件を扱います。
-- `対象`、`必須`、`推奨` で基本条件を確認し、WSL2、Docker / container、VS Code、GPU、Codex / agent、初期確認は環境に応じて読みます。
-- host を準備するとき、workspace の置き場や container / devcontainer 前提を確認するときに読みます。
-
-## 1. 対象
-
-- Ubuntu などの Linux host
-- WSL2 上の Linux distro
-- workspace、Docker build、VS Code dev container を扱う開発 host
-
-## 2. 必須
+## 必須
 
 - Linux filesystem 上で作業できること
-- `git` が使えること
-- `python3` が使えること
-- `make` が使えること
-- `docker` か `podman` の少なくとも 1 つが使えること
-- repo workspace を置く path が決まっていること
+- `git`、`python3`、`make`、`rg` が使えること
+- project Docker を使う場合は `docker version` または `podman version` が通ること
+- workspace の正本 path が決まっていること
 
-この template の既定は次です。
+## 推奨
 
-- workspace root:
-  - `/mnt/l/workspace`
-
-## 3. 推奨
-
-- WSL2 では repo workspace を ext4 側に置く
-- Docker state と build cache を Linux filesystem 側に置く
-- `~/.ssh/` を Linux 側 home に持つ
-- GitHub CLI を host 側で認証し、`~/.config/gh/` を Linux 側 home に持つ
-- SSH agent を使う場合は `SSH_AUTH_SOCK` が現在の shell で有効な socket を指す
+- WSL2 では repo、Docker state、build cache を Linux filesystem 側に置く
 - `git config user.name` と `git config user.email` を設定する
-- `rg` を入れる
-- VS Code を使う場合は `.vscode/extensions.json` の推奨拡張を入れる
+- GitHub CLI は host 側で認証し、credential を project container に渡さない
+- Docker daemon が rootful か rootless かに依存する手順を書かない
+- AgentCanon 編集時だけ、parent repo 配下の ignored
+  `workspace/agent-canondevelop/<qualified-task>/agent-canon` を使う
 
-## 4. WSL2 Rule
+## WSL2
 
-- WSL2 を main 開発環境として使って構いません
-- repo は `/home/...` か `/mnt/wsl/...` のような Linux filesystem 側へ置くことを推奨します
-- `/mnt/c/...` のような Windows drive mount は、I/O、permission、symlink、case sensitivity の点で正本運用にしません
-- Docker Desktop 連携を使う場合でも、workspace は Linux 側 path を既定にします
+repo は `/home/...` など Linux filesystem 側に置くことを推奨します。
+`/mnt/c/...` は I/O、permission、symlink、case sensitivity の差があるため、
+正本 workspace と Docker build context には使いません。Docker Desktop 連携を使う
+場合でも、project source は Linux 側 path を既定にします。
 
-## 5. Docker / Container Requirement
+## Project Docker
 
-- `docker version` か `podman version` が通ること
-- Docker を使う場合、現在の shell から daemon socket に到達できること
-- host で `make docker-build-check` を実行できることを推奨します
+Project の `docker/Dockerfile` と test runner が project dependency、build、test を
+所有します。GPU は project の明示的な Docker 実行時オプションでのみ渡し、既定では
+CPU-only とします。AgentCanon tool runtime と project image は別の責務であり、相互に
+`tests/` や build directory を mount しません。
 
-補足:
+```bash
+docker version
+docker build -f docker/Dockerfile -t project-template .
+docker run --rm project-template python3 --version
+```
 
-- `docker` group にユーザーが入っていても、今の shell に group が反映されていない場合があります
-- `getent group docker` に名前があっても `id` に `docker` が無ければ、新しい login shell を開きます
+## AgentCanon の任意利用
 
-## 6. Dev Container / VS Code Requirement
+AgentCanon が必要な task だけ standalone checkout から次を実行します。
 
-VS Code を使う場合の既定は次です。
+```bash
+ROOT="$PWD"
+TASK="<qualified-task>"
+CANON="$ROOT/workspace/agent-canondevelop/$TASK/agent-canon"
+RUNTIME="$ROOT/workspace/agent-canon-runtime/$TASK"
+cd "$CANON"
+COMMON=(--control-parent-root "$ROOT" --runtime-root "$RUNTIME")
+./bootstrap.sh "${COMMON[@]}" install
+./bootstrap.sh "${COMMON[@]}" start
+./bootstrap.sh "${COMMON[@]}" target add --root "$ROOT" --mode read-only
+```
 
-- Dev Containers extension
-- Python extension
-- Jupyter extension
-- Docker extension
-- C/C++ extension
-- CMake Tools extension
+`codex prepare` / `codex launch`、eval collect、eval sync は AgentCanon の契約に従います。
+ログと eval は external runtime spool に置き、認可された場合だけ
+[`agent-canon-log`](https://github.com/iwashita-nozomu/agent-canon-log) へ公開します。
+終了時は runtime を stop/uninstall し、上記の task clone と runtime directory を削除します。
 
-正本は `.vscode/extensions.json` です。
-
-dev container は `.devcontainer/` を使います。起動時に generated compose を作り、
-既定 profile は workspace-source-only です。parent environment、host file、host
-credentials、SSH、Docker socket、secret、host runtime state のどれも既定起動の
-前提にしません。これらが host に無い fresh clone / CI runner でも同じ既定 runtime
-を生成します。
-
-- default profile は host GPU/NVIDIA runtime を probe せず、
-  `DEVCONTAINER_GPU_MODE=disabled` を設定し、`DEVCONTAINER_GPU_REQUEST` と
-  `gpus: all` を生成しません
-- GPU が必要な場合の device / driver runtime passthrough は明示的に選択した
-  optional profile の責務とし、profile が選択されないか host capability が無い場合は
-  CPU-only の既定起動を継続します。profile の実装と validation の正本は
-  [`CONTAINER_OPERATIONS.md`](../../vendor/agent-canon/CONTAINER_OPERATIONS.md) と
-  [`parent-devcontainer-policy.md`](../../vendor/agent-canon/documents/design/devcontainer/parent-devcontainer-policy.md)、
-  follow-up は [#521](https://github.com/iwashita-nozomu/agent-canon/issues/521) とします
-- credentials、SSH agent、Docker socket、secret、host git は、それぞれ明示選択した
-  optional profile の対象が存在するときだけ追加します。欠落した host path、socket、
-  directory は mount/forward を行わず、既定 runtime を failure にしません
-- optional profile の名前、target、read-only、fixed secret target の表は
-  [`CONTAINER_OPERATIONS.md`](../../vendor/agent-canon/CONTAINER_OPERATIONS.md) と
-  [`parent-devcontainer-policy.md`](../../vendor/agent-canon/documents/design/devcontainer/parent-devcontainer-policy.md)
-  が所有します。この host contract は同じ表を複製しません
-- subnet / gateway は固定せず、Docker Compose の default network 自動割当に任せます
-
-で動きます。
-
-## 7. GPU Requirement
-
-GPU は必須ではありません。
-
-- CPU-only host:
-  - 既定でサポートします
-- NVIDIA GPU host:
-  - `nvidia-smi` は GPU 実験を明示的に選択する場合だけ確認します。default generator は probe しません
-  - default dev container は GPU を検出しても `gpus: all` を追加せず、`DEVCONTAINER_GPU_MODE=disabled` を出力します
-  - device、driver runtime、shared lock、runtime receipt、host runtime group、GPU
-    scheduler は default の host requirement ではありません。これらを使う場合は
-    明示 optional profile が全 capability と absence-safe failure semantics を所有します。
-
-GPU が無いこと自体を failure 条件にしません。
-
-## 7.1 Rootless UID/GID mapping limitation
-
-devcontainer generator は host process の `id -u`/`id -g` を唯一の
-`PROJECT_UID`/`PROJECT_GID` source とし、container の `project` user/group と Compose
-`user` に同じ値を渡します。Docker rootless mode または user-namespace remapping では
-bind mount の host owner readback が数値 mapping のため異なることがあります。この
-制約を root 起動、host group mutation、または `chmod`/`chown` fallback で隠しません。
-mapped workspace が writable にならない場合は、mapping を是正した runtime へ戻すか、
-明示的 blocker として停止します。
-
-## 8. Codex / Agent Requirement
-
-- `codex` は host に入っていることを推奨します
-- container 内の Codex CLI は AgentCanon-owned `vendor/agent-canon/.devcontainer/post-create.sh` が必要時に導入します
-- container 内の Codex state は container-local です。認証に使う
-  `OPENAI_API_KEY` と `OPENAI_BASE_URL` は runner の明示的な環境 forward で渡します。
-- `gh` は host に入っていることを推奨します。container 内の GitHub CLI も AgentCanon-owned `vendor/agent-canon/.devcontainer/post-create.sh` が必要時に導入します
-- 初回 `gh auth login`、SSH key、GitHub host key 登録は host 側で行います。container
-  から credentials または SSH を再利用する場合は、明示 optional profile を選択し、
-  対象が存在するときだけ read-only mount または valid socket forward を使います。
-- Docker socket と confidential secrets も既定では渡しません。必要な session だけ
-  owner docs の明示 profile を選択し、対象が無い場合は mount を省略します。
-- AgentCanon CLI と lifecycle command は公開 source-root resolver 経由で起動し、
-  active source identity が親の `vendor/agent-canon` gitlink と一致することを要求します。
-  host `~/.codex`、資格情報、前回 container state、個別の host config はこの identity
-  や tool availability の source になりません。
-- GitHub canonical remote と AgentCanon submodule を使う前提なので、host から GitHub へ到達できることを確認します
-
-## 9. 最低限の初期確認
+## 初期確認
 
 ```bash
 uname -a
@@ -160,32 +78,12 @@ git --version
 make --version
 docker version
 git status --short
-make ci-quick
-make docker-build-check
+make pr-check
 ```
-
-`gh auth status`、`ssh -T git@github.com`、credential、SSH agent、secret directory、
-Docker socket、`nvidia-smi` の確認は、対応する optional profile を明示選択した
-session だけで行います。profile を選択しない既定確認は host file、credential、
-socket、GPU の存在を要求しません。
-
-WSL2 で Docker Desktop 連携を使う場合の追加確認:
-
-```bash
-grep -i microsoft /proc/version
-docker context ls
-```
-
-## 10. 置き場の原則
-
-- workspace は Linux filesystem 側に置く
-- `docker` state、Codex state、SSH key は Linux 側に置く
-- template の canonical docs は host-global install を正本にしない
 
 ## Related
 
 - [README.md](../README.md)
 - [QUICK_START.md](../../QUICK_START.md)
-- [docker/README.md](../../docker/README.md)
-- [server-host-contract.md](server-host-contract.md)
-- [TROUBLESHOOTING.md](../../vendor/agent-canon/documents/operations/TROUBLESHOOTING.md)
+- [Docker environment boundary](../design/docker-zero-build-environment.md)
+- [Server host contract](server-host-contract.md)

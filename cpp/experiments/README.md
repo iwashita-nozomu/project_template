@@ -2,7 +2,7 @@
 @dependency-start
 contract design
 responsibility Documents the parent-local native experiment target boundary.
-upstream design ../../vendor/agent-canon/documents/design/cpp-build-layout.md experiment graph and result contract
+upstream design ../../documents/design/cpp-build-layout.md experiment graph and result contract
 downstream implementation ../CMakeLists.txt experiment manifest
 @dependency-end
 -->

@@ -3,14 +3,15 @@
 @dependency-start
 contract design
 responsibility Documents Experiments Hub for this repository.
-upstream design ../vendor/agent-canon/documents/experiments/experiment-registry.md experiment registry contract
+upstream design ../documents/design/experiment-workflow.md experiment registry contract
 downstream environment registry.toml template-local registry
 @dependency-end
 -->
 
 `experiments/` は、server 上で回す実験コード、run ごとの生成物、1 run ごとの report をまとめる場所です。
 この template では、topic ごとの実験コードと run artifact を同じ tree に寄せます。
-shared canon では、このうち topic 共通の scaffold と report 導線だけを `vendor/agent-canon/templates/` に保持し、派生 repo ごとの `registry.toml` と `experiments/<topic>/` は root 側の正本に残します。
+topic 共通の scaffold と report 導線も parent repository の契約として扱います。AgentCanon
+の source や template はこの tree に保持せず、必要な編集は ignored standalone clone で行います。
 
 ## この文書の読み方
 
@@ -40,17 +41,17 @@ experiments/
 
 ## まず使うもの
 
-- `vendor/agent-canon/templates/experiments/_template/`
-  - 新しい topic を始めるときの AgentCanon-owned 最小雛形 source です。親 root には scaffold のコピーを置きません。
+- `experiments/<topic>/`
+  - 新しい topic を始めるときの parent-owned 最小雛形です。
 - `registry.toml`
   - topic、entrypoint、formal run command、active branch の集中管理ファイルです。
 - `report/README.md`
   - run report の置き方です。
-- `tools/agent-canon/experiments/create_experiment_topic.py`
-  - `vendor/agent-canon/templates/experiments/_template/` から新しい topic を作り、registry entry も追加します。
-- `tools/agent-canon/experiments/sync_experiment_registry_context.py`
+- parent experiment topic creator
+  - parent-owned scaffold から新しい topic を作り、registry entry も追加します。
+- parent experiment context synchronizer
   - current branch / worktree / scope file を registry に同期します。
-- `tools/agent-canon/experiments/run_managed_experiment.py`
+- parent managed experiment runner
   - `run_manifest.json`、`eval_manifest.json`、`artifact_manifest.json`、`command.json`、`environment.json`、`source_snapshot.json`、`config.json`、`config_source.yaml`、`run.log`、run ごとの `logs/` を残しながら実験を実行する入口です。
 
 ## server 実行の既定
@@ -79,7 +80,7 @@ experiments/
 ## topic の作り始め
 
 ```bash
-python3 tools/agent-canon/experiments/create_experiment_topic.py <topic>
+make experiment-create TOPIC=<topic>
 ```
 
 コピーしたら、少なくとも次をその topic に合わせて書き換えます。
@@ -99,9 +100,7 @@ python3 tools/agent-canon/experiments/create_experiment_topic.py <topic>
 ## 実行例
 
 ```bash
-python3 tools/agent-canon/experiments/run_managed_experiment.py \
-  --topic <topic> \
-  --use-registered-command smoke
+make experiment-run TOPIC=<topic> COMMAND=smoke
 ```
 
 この wrapper は、`registry.toml` の topic entry を見て command 実行前に result dir、`logs/`、`config.json`、`config_source.yaml`、`command.json`、`environment.json`、`source_snapshot.json`、report stub を初期化し、起動順序を `logs/startup.jsonl` に残します。終了後に `run_manifest.json` と `artifact_manifest.json` を更新し、`summary.json` / `cases.jsonl` / `config.json` と registry で指定した topic 固有 eval artifact を `eval_manifest.json` に収集します。managed file と managed log は `artifact_manifest.json` で辿ります。
@@ -111,7 +110,6 @@ python3 tools/agent-canon/experiments/run_managed_experiment.py \
 ## Registry Check
 
 ```bash
-python3 tools/agent-canon/ci/check_experiment_registry.py
 make experiment-check
 ```
 
@@ -120,8 +118,7 @@ make experiment-check
 branch / worktree を使う場合は、scope 更新後に次で registry metadata を合わせます。
 
 ```bash
-python3 tools/agent-canon/experiments/sync_experiment_registry_context.py \
-  --topic <topic> \
-  --branch work/<topic>-YYYYMMDD \
-  --workspace-root .worktrees/<branch-name>
+make experiment-context-sync TOPIC=<topic> \
+  BRANCH=work/<topic>-YYYYMMDD \
+  WORKSPACE_ROOT=.worktrees/<branch-name>
 ```

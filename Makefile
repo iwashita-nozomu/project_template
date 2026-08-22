@@ -7,7 +7,7 @@ CPP_INSTALL_DIR ?= .state/cpp-install/$(CPP_PROFILE)
 
 .PHONY: test ci ci-quick pr-check check-matrix docs-check github-workflow-check
 .PHONY: runtime-independence-check fresh-clone-check start-repository
-.PHONY: docker-check docker-build-check docker-run docker-shell
+.PHONY: docker-check docker-build-check docker-test docker-run docker-shell
 .PHONY: cpp-configure cpp-build cpp-test cpp-install cpp-experiments
 .PHONY: dev-setup tools-help clean-generated
 
@@ -21,11 +21,11 @@ github-workflow-check:
 	$(PYTHON) tools/check_github_workflows.py
 
 test:
-	$(PYTHON) -m pytest -q tests/tools
+	bash test/testrunner.sh
 
-pr-check: runtime-independence-check docs-check github-workflow-check cpp-test test
+pr-check: runtime-independence-check docs-check github-workflow-check test
 
-ci: pr-check docker-check
+ci: runtime-independence-check docs-check github-workflow-check docker-check docker-test
 
 ci-quick: runtime-independence-check docs-check github-workflow-check cpp-test
 
@@ -33,7 +33,7 @@ check-matrix:
 	@printf '%s\n' \
 	  'ordinary PR:        make pr-check' \
 	  'bootstrap/tree:      make fresh-clone-check' \
-	  'Docker/runtime:      make docker-check && make docker-build-check' \
+	  'Docker/runtime:      make docker-check && make docker-test' \
 	  'C++:                 make cpp-test' \
 	  'full host gate:      make ci'
 
@@ -48,6 +48,10 @@ docker-check:
 
 docker-build-check:
 	$(DOCKER) build --platform linux/amd64 --tag $(DOCKER_IMAGE) --file docker/Dockerfile .
+
+docker-test:
+	$(DOCKER) build --platform linux/amd64 --tag $(DOCKER_IMAGE) --file docker/Dockerfile .
+	$(DOCKER) run --rm --platform linux/amd64 $(DOCKER_IMAGE) test/testrunner.sh
 
 docker-run:
 	$(DOCKER) run --rm --platform linux/amd64 $(DOCKER_IMAGE) $(ARGS)

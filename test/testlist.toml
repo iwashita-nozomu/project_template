@@ -1,0 +1,18 @@
+# Parent-repository test contract.
+# TOML comments are intentional: keep the command list reviewable and local.
+
+format = "parent-test-list-v1"
+environment_owner = "invocation-environment"
+responsibility = "parent-repository"
+
+[[tests]]
+name = "repository-tooling"
+command = ["python3", "-m", "pytest", "-q", "tests/tools"]
+working_directory = "."
+
+[[tests]]
+name = "cpp"
+# Keep the complete configure/build/test sequence in one entry so a failed
+# configure or build is reported as the parent C++ test, not as an opaque step.
+command = ["bash", "-lc", "cmake -S cpp -B build/cpp/test-runner -DCMAKE_BUILD_TYPE=Debug && cmake --build build/cpp/test-runner --parallel && ctest --test-dir build/cpp/test-runner --output-on-failure"]
+working_directory = "."

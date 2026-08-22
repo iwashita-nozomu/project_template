@@ -1,6 +1,5 @@
-FROM --platform=linux/amd64 ubuntu:22.04@sha256:0d779ea97881505f5ef0039336ee85edba27519bdba968c284c86ee066a973c8 AS cpu-runtime
+FROM ubuntu:22.04@sha256:0d779ea97881505f5ef0039336ee85edba27519bdba968c284c86ee066a973c8 AS cpu-runtime
 
-ARG PROJECT_USER=project
 ARG PROJECT_UID=1000
 ARG PROJECT_GID=1000
 ARG PYTHON_VERSION=3.11.15
@@ -12,7 +11,8 @@ ENV DEBIAN_FRONTEND=noninteractive \
     CMAKE_GENERATOR=Ninja \
     PROJECT_TEMPLATE_CPP_BUILD_ROOT=/workspace/build/cpp \
     PROJECT_TEMPLATE_CPP_INSTALL_ROOT=/workspace/.state/cpp-install \
-    PYTHONPATH=/workspace/python \
+    PROJECT_TEST_ENVIRONMENT_OWNER=project-container \
+    PYTHONPATH=/workspace/project-template/python \
     SHELL=/bin/zsh \
     HOME=/home/project
 
@@ -23,7 +23,6 @@ RUN apt-get update \
     xz-utils \
     gnupg \
     git \
-    docker.io \
     build-essential \
     pkg-config \
     cmake \
@@ -33,7 +32,6 @@ RUN apt-get update \
     graphviz \
     rsync \
     zsh \
-    sudo \
     python3-packaging \
     python3-venv \
     libbz2-dev \
@@ -75,44 +73,28 @@ RUN set -eux; \
     python3 -c 'from packaging.requirements import Requirement; Requirement("pyyaml>=6")'; \
     rm -rf "$build_dir"
 
-COPY docker/register_safe_directories.sh /usr/local/bin/project-template-register-safe-directories
-RUN chmod 0755 /usr/local/bin/project-template-register-safe-directories
+COPY docker/requirements-test.txt /tmp/project-test-requirements.txt
+RUN python3 -m pip install --no-cache-dir --require-hashes \
+      --requirement /tmp/project-test-requirements.txt \
+ && rm -f /tmp/project-test-requirements.txt
 
 RUN set -eux; \
-    case "$PROJECT_USER" in project) ;; *) echo "PROJECT_USER must be project" >&2; exit 1 ;; esac; \
     case "$PROJECT_UID" in ''|0|*[!0-9]*) echo "PROJECT_UID must be positive" >&2; exit 1 ;; esac; \
     case "$PROJECT_GID" in ''|0|*[!0-9]*) echo "PROJECT_GID must be positive" >&2; exit 1 ;; esac; \
-    existing_user="$(getent passwd "$PROJECT_UID" | cut -d: -f1 || true)"; \
-    existing_group="$(getent group "$PROJECT_GID" | cut -d: -f1 || true)"; \
-    if [ -n "$existing_group" ] && [ "$existing_group" != "$PROJECT_USER" ]; then \
-      [ "$PROJECT_GID" -ge 1000 ] || { echo "PROJECT_GID collides with a system group" >&2; exit 1; }; \
-      groupmod --new-name "$PROJECT_USER" "$existing_group"; \
-    elif ! getent group "$PROJECT_USER" >/dev/null 2>&1; then \
-      groupadd --gid "$PROJECT_GID" "$PROJECT_USER"; \
-    fi; \
-    if [ -n "$existing_user" ] && [ "$existing_user" != "$PROJECT_USER" ]; then \
-      [ "$PROJECT_UID" -ge 1000 ] || { echo "PROJECT_UID collides with a system user" >&2; exit 1; }; \
-      usermod --login "$PROJECT_USER" "$existing_user"; \
-    elif ! getent passwd "$PROJECT_USER" >/dev/null 2>&1; then \
-      useradd --uid "$PROJECT_UID" --gid "$PROJECT_USER" --create-home --shell /bin/zsh "$PROJECT_USER"; \
-    fi; \
-    usermod --gid "$PROJECT_USER" --shell /bin/zsh "$PROJECT_USER"; \
-    current_home="$(getent passwd "$PROJECT_USER" | cut -d: -f6)"; \
-    if [ "$current_home" != "/home/$PROJECT_USER" ]; then \
-      [ ! -e "/home/$PROJECT_USER" ] || { echo "project home path is occupied" >&2; exit 1; }; \
-      usermod --home "/home/$PROJECT_USER" --move-home "$PROJECT_USER"; \
-    fi; \
-    install -d -m 0755 -o "$PROJECT_USER" -g "$PROJECT_USER" /workspace; \
-    install -d -m 0755 -o "$PROJECT_USER" -g "$PROJECT_USER" "/home/$PROJECT_USER/.config" "/home/$PROJECT_USER/.local"; \
-    printf '%s\n' '# Image-owned default shell configuration.' > "/home/$PROJECT_USER/.zshrc"; \
-    printf '%s ALL=(ALL) NOPASSWD:ALL\n' "$PROJECT_USER" > "/etc/sudoers.d/$PROJECT_USER"; \
-    chmod 0440 "/etc/sudoers.d/$PROJECT_USER"; \
-    visudo --check --file="/etc/sudoers.d/$PROJECT_USER"; \
-    chown "$PROJECT_USER:$PROJECT_USER" "/home/$PROJECT_USER/.zshrc"; \
-    test "$(id -u "$PROJECT_USER")" = "$PROJECT_UID"; \
-    test "$(id -g "$PROJECT_USER")" = "$PROJECT_GID"
+    groupadd --gid "$PROJECT_GID" project; \
+    useradd --uid "$PROJECT_UID" --gid "$PROJECT_GID" --create-home --shell /bin/zsh project; \
+    install -d -m 0755 -o project -g project /workspace; \
+    install -d -m 0755 -o project -g project /home/project/.config /home/project/.local; \
+    printf '%s\n' '# Image-owned default shell configuration.' > /home/project/.zshrc; \
+    chown project:project /home/project/.zshrc; \
+    test "$(id -u project)" = "$PROJECT_UID"; \
+    test "$(id -u project)" != 0; \
+    test "$(id -g project)" = "$PROJECT_GID"
 
-WORKDIR /workspace
+# The product image is self-contained: tests run against the exact source that
+# was reviewed at build time, with no external lifecycle hook.
+COPY --chown=project:project . /workspace/project-template
+WORKDIR /workspace/project-template
 EXPOSE 8888
 CMD ["/bin/zsh"]
 USER project
