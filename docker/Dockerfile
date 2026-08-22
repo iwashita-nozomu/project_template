@@ -11,7 +11,6 @@ ENV DEBIAN_FRONTEND=noninteractive \
     CMAKE_GENERATOR=Ninja \
     PROJECT_TEMPLATE_CPP_BUILD_ROOT=/workspace/build/cpp \
     PROJECT_TEMPLATE_CPP_INSTALL_ROOT=/workspace/.state/cpp-install \
-    PROJECT_TEST_ENVIRONMENT_OWNER=project-container \
     PYTHONPATH=/workspace/project-template/python \
     SHELL=/bin/zsh \
     HOME=/home/project
@@ -90,6 +89,10 @@ RUN set -eux; \
     test "$(id -u project)" = "$PROJECT_UID"; \
     test "$(id -u project)" != 0; \
     test "$(id -g project)" = "$PROJECT_GID"
+
+# Keep invocation metadata after the expensive dependency layers so changing
+# the test contract does not rebuild the compiler and Python toolchain.
+ENV PROJECT_TEST_ENVIRONMENT_OWNER=project-container
 
 # The product image is self-contained: tests run against the exact source that
 # was reviewed at build time, with no external lifecycle hook.
