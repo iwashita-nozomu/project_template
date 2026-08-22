@@ -18,49 +18,37 @@ jobs:
   repository-ci:
     name: Repository CI
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11"]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           persist-credentials: false
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: pip
-          cache-dependency-path: docker/requirements.txt
+      - name: Check repository-owned static contracts
+        run: |
+          make runtime-independence-check docs-check github-workflow-check
+          make docker-check
 
-      - name: Install project dependencies
-        run: bash docker/install_python_dependencies.sh "$PWD"
+      - name: Build and run the parent test image
+        run: |
+          docker build --platform linux/amd64 \
+            --tag project-template:ci \
+            --file docker/Dockerfile .
+          docker run --rm --platform linux/amd64 \
+            project-template:ci test/testrunner.sh
 
-      - name: Run project-owned pull-request gate
-        run: make pr-check
+      - name: Remove parent test image
+        if: always()
+        run: docker image rm project-template:ci || true
 
   fresh-clone-acceptance:
     name: Fresh Clone Acceptance
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11"]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           persist-credentials: false
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install project dependencies
-        run: bash docker/install_python_dependencies.sh "$PWD"
-
       - name: Run descendant fresh-clone acceptance
-        env:
-          TEMPLATE_FRESH_CLONE_RUN_DOCKER: "1"
         run: make fresh-clone-check

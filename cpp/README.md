@@ -2,7 +2,7 @@
 @dependency-start
 contract design
 responsibility Documents the parent-local C++ project layout.
-upstream design ../vendor/agent-canon/documents/design/cpp-build-layout.md C++ project boundary and migration map
+upstream design ../documents/design/cpp-build-layout.md C++ project boundary and migration map
 downstream implementation CMakeLists.txt single C++ project entrypoint
 @dependency-end
 -->

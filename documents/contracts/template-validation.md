@@ -2,43 +2,35 @@
 
 The repository owns its normal validation entry points:
 
-- `make runtime-independence-check` validates the exact AgentCanon submodule registration, sole gitlink, five required live-view symlinks, and the absence of copied AgentCanon configuration, internal tools, updater state, and runtime dispatch references.
-- `make docs-check` verifies reader-facing local links.
-- `make github-workflow-check` verifies workflow ownership and required check names.
-- `make cpp-test` builds and runs the native CTest surface.
-- `make test` runs focused repository tooling tests.
-- `make pr-check` composes the pull-request gate.
-- `make fresh-clone-check` creates, commits, publishes, and normally clones a generated descendant before rerunning project-owned checks.
+- `make docs-check` verifies reader-facing local links;
+- `make cpp-test` builds and runs the parent CTest surface;
+- `make test` runs parent repository tooling tests;
+- `make pr-check` composes the pull-request gate;
+- `make fresh-clone-check` validates an ordinary source-free descendant clone
+  when the project provides that acceptance check.
 
-## Uninitialized-checkout validation
-
-The runtime-independence checker reads tracked modes and lexical symlink targets. It therefore validates all of the following without initializing `vendor/agent-canon`:
-
-- `.gitmodules` is one regular exact registration;
-- `vendor/agent-canon` is the sole mode-`160000` entry;
-- `AGENTS.md`, `.codex/config.toml`, `.codex/agents`, `.codex/hooks.json`, and `.codex/hooks` are mode-`120000` entries with exact targets;
-- no regular `.codex/agents/*.toml`, static-seed importer/provenance, `tools/agent-canon`, AgentCanon test namespace, or copied fixture exists;
-- project execution paths do not invoke AgentCanon update, checkout, source resolver, or internal tools.
-
-When the checkout is initialized, the same checker additionally requires:
-
-```text
-vendor/agent-canon HEAD == staged vendor/agent-canon gitlink
-```
-
-A mismatch fails rather than loading an unreviewed runtime.
+Project checks do not initialize a submodule, resolve an AgentCanon source
+root, load Codex hooks, contact `agent-canon-log`, or inspect an external
+AgentCanon checkout. Project Docker validation uses the tracked
+`docker/Dockerfile` and the parent test runner.
 
 ## Fresh-clone boundary
 
-The fresh-clone check starts from a clean committed tree. It uses a temporary local bare remote so it can prove that the exact registration and symlink modes survive an ordinary clone while the checkout remains uninitialized. Project checks run without network, credentials, recursive options, access to the original template checkout, or dereferencing the AgentCanon views. Docker execution is enabled explicitly with `TEMPLATE_FRESH_CLONE_RUN_DOCKER=1`.
+The fresh-clone check starts from a clean committed tree and validates exactly
+what a user receives from an ordinary clone. It may use a temporary local bare
+remote, but it does not use recursive clone options, AgentCanon credentials, a
+vendor checkout, or root symlink projections. Docker execution is explicit and
+is limited to the project image.
 
-## Codex activation
+## Optional AgentCanon validation
 
-Loading the AgentCanon-owned custom agents and hooks is outside the normal validation path. A user explicitly initializes the exact reviewed pin before the Codex session:
+AgentCanon changes are validated in the standalone AgentCanon checkout, using
+the runtime profile selected by AgentCanon. That validation is not a parent
+repository gate. The AgentCanon source clone lives at
+`workspace/agent-canondevelop/<qualified-task>/agent-canon`; runtime state lives
+at the corresponding external runtime root. Eval evidence is collected and,
+when authorized, synchronized to `agent-canon-log` by AgentCanon itself.
 
-```bash
-git submodule update --init --checkout -- vendor/agent-canon
-make runtime-independence-check
-```
-
-No validation command advances the pin, selects latest `main`, or repairs root views from the network.
+The two validation planes must not be conflated: a failure must identify the
+executed command, the owning repository, and whether the responsibility belongs
+to the parent project or AgentCanon.

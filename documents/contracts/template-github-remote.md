@@ -11,13 +11,16 @@ git remote set-url origin <destination-url>
 git push -u origin main
 ```
 
-Creating the destination repository and authenticating that push are caller responsibilities. They are the only network-dependent publication steps. The registered gitlink is transported as part of the committed tree; no recursive clone, submodule credential, producer token, or seed refresh is part of publication.
+Creating the destination repository and authenticating that push are caller
+responsibilities. They are the only network-dependent publication steps for a
+parent project. No recursive clone, submodule credential, AgentCanon token, or
+source/runtime seed refresh is part of publication.
 
 ## Branch protection baseline
 
 For repositories that use protected `main`, require pull requests and these project-owned checks:
 
-- `Repository CI (3.11)`
-- `Fresh Clone Acceptance (3.11)`
+- `Repository CI`
+- `Fresh Clone Acceptance`
 
 Require the Docker workflow when Docker-owned paths change. Disable force-push and branch deletion for the protected branch, and keep conversation resolution enabled when review is required.

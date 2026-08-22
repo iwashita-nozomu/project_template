@@ -10,12 +10,10 @@ __pycache__/
 /.venv/
 /venv/
 
-# Generated AgentCanon runtime state
-/.agent-canon/
-
 # Host and editor metadata
 .DS_Store
 
 # Local worktrees and scratch checkouts
 /.worktrees/
 /workspace/
+/workspace/agent-canondevelop/

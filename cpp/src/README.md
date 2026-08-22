@@ -2,7 +2,7 @@
 @dependency-start
 contract design
 responsibility Documents the parent-local C++ source boundary.
-upstream design ../../vendor/agent-canon/documents/design/cpp-build-layout.md native source ownership
+upstream design ../../documents/design/cpp-build-layout.md native source ownership
 downstream implementation ../CMakeLists.txt cpp-core source inventory
 @dependency-end
 -->

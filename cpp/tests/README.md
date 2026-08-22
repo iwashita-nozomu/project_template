@@ -2,7 +2,7 @@
 @dependency-start
 contract test
 responsibility Documents the parent-local CTest consumer boundary.
-upstream design ../../vendor/agent-canon/documents/design/cpp-build-layout.md CTest graph and aggregate contract
+upstream design ../../documents/design/cpp-build-layout.md CTest graph and aggregate contract
 downstream implementation ../CMakeLists.txt test manifest
 @dependency-end
 -->

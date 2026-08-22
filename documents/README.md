@@ -16,10 +16,9 @@
 
 - [Docker environment boundary](design/docker-zero-build-environment.md)
 - [GitHub Actions design](design/github-actions.md)
-- [Experiment README contract](experiment-readme-contract-r9.md)
-- `experiment-readme-contract-r9.json` is the machine-readable schema paired with that contract.
+- [Experiment workflow](design/experiment-workflow.md)
 
-AgentCanon runtime definitions are not duplicated as template documents. The exact source pin and root symlink view are described by the bootstrap and validation contracts; the referenced runtime remains owned by AgentCanon.
+AgentCanon runtime definitions are not duplicated as template documents. AgentCanon is a separate standalone repository. When its tools are needed, use the ignored task clone and external runtime described by the bootstrap contract; never add its source, symlinks, tests, or runtime state to this tree.
 
 ## Notes and source records
 

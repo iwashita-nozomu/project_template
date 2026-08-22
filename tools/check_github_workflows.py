@@ -40,8 +40,16 @@ ci = (WORKFLOWS / "ci.yml").read_text(encoding="utf-8")
 for required_name in ("name: Repository CI", "name: Fresh Clone Acceptance"):
     if required_name not in ci:
         fail(f"required-check-name-missing:{required_name}")
-if "make pr-check" not in ci or "make fresh-clone-check" not in ci:
+if "make fresh-clone-check" not in ci:
     fail("canonical-command-missing")
+for command in (
+    "docker build --platform linux/amd64",
+    "--file docker/Dockerfile .",
+    "docker run --rm --platform linux/amd64",
+    "project-template:ci test/testrunner.sh",
+):
+    if command not in ci:
+        fail(f"project-container-command-missing:{command}")
 
 if not DESIGN.is_file():
     fail("github-actions-design-missing")
@@ -51,9 +59,8 @@ for path in files:
     if f"`{relative}`" not in design:
         fail(f"github-actions-design-workflow-missing:{relative}")
 for required in (
-    "Repository CI (3.11)",
-    "Fresh Clone Acceptance (3.11)",
-    "Docker Build and Smoke",
+    "Repository CI",
+    "Fresh Clone Acceptance",
     "dynamic/github-code-scanning/codeql",
     "dynamic/dependabot/update-graph",
     "dynamic/copilot-swe-agent/copilot",

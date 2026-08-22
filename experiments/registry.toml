@@ -1,13 +1,12 @@
 # @dependency-start
 # contract registry
 # responsibility Registers experiment metadata for template experiment workflows.
-# upstream design ../vendor/agent-canon/documents/experiments/experiment-registry.md experiment registry contract
-# downstream implementation ../tools/agent-canon/experiments/run_managed_experiment.py consumes registry
+# upstream design ../documents/design/experiment-workflow.md experiment registry contract
+# downstream design ./README.md documents parent-owned execution and result paths
 # @dependency-end
 schema_version = 1
 
 [defaults]
-managed_runner = "tools/agent-canon/experiments/run_managed_experiment.py"
 report_root = "experiments/report"
 integration_branch = "main"
 required_eval_artifacts = ["summary.json", "cases.jsonl", "config.json"]

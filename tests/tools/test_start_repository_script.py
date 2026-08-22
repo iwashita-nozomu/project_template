@@ -1,19 +1,13 @@
-"""Tests for offline template initialization and the validation wrapper."""
+"""Tests for offline parent-project initialization and validation."""
 
 from __future__ import annotations
 
 import os
+import shutil
 import subprocess
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-LIVE_VIEWS = {
-    "AGENTS.md": "vendor/agent-canon/ROOT_AGENTS.md",
-    ".codex/config.toml": "../vendor/agent-canon/.codex/config.toml",
-    ".codex/agents": "../vendor/agent-canon/.codex/agents",
-    ".codex/hooks.json": "../vendor/agent-canon/.codex/hooks.json",
-    ".codex/hooks": "../vendor/agent-canon/.codex/hooks",
-}
 
 
 def run(
@@ -26,7 +20,23 @@ def run(
 
 def clone_current(tmp_path: Path) -> Path:
     clone = tmp_path / "clone"
-    run(["git", "clone", "--no-local", str(REPO_ROOT), str(clone)], tmp_path)
+    ignored = shutil.ignore_patterns(
+        ".git",
+        "workspace",
+        ".pytest_cache",
+        ".ruff_cache",
+        "build",
+        ".state",
+        "dist",
+        "logs",
+        "reports",
+    )
+    shutil.copytree(REPO_ROOT, clone, symlinks=True, ignore=ignored)
+    run(["git", "init", "--quiet"], clone)
+    run(["git", "config", "user.email", "test@localhost"], clone)
+    run(["git", "config", "user.name", "Test"], clone)
+    run(["git", "add", "--all"], clone)
+    run(["git", "commit", "--quiet", "-m", "fixture"], clone)
     return clone
 
 
@@ -56,7 +66,7 @@ def test_bootstrap_is_local_and_idempotent(tmp_path: Path) -> None:
         env,
     )
     assert "template_bootstrap=local_offline" in preview.stdout
-    assert "agent_canon_view=exact_live_symlinks" in preview.stdout
+    assert "project_runtime=source_free" in preview.stdout
     assert "start_repository_mode=dry_run_only" in preview.stdout
 
     result = run(
@@ -72,18 +82,12 @@ def test_bootstrap_is_local_and_idempotent(tmp_path: Path) -> None:
         clone,
         env,
     )
-    assert "agent_canon_view=exact_live_symlinks" in result.stdout
+    assert "project_runtime=source_free" in result.stdout
     assert "start_repository_init=pass" in result.stdout
-    assert (clone / ".gitmodules").is_file()
-    gitlink = run(["git", "ls-files", "-s", "vendor/agent-canon"], clone).stdout
-    assert gitlink.startswith("160000 ")
-    checkout = clone / "vendor/agent-canon"
-    assert not (checkout / ".git").exists()
-    assert not checkout.exists() or not any(checkout.iterdir())
-    for relative, target in LIVE_VIEWS.items():
-        path = clone / relative
-        assert path.is_symlink()
-        assert path.readlink().as_posix() == target
+    assert not (clone / ".gitmodules").exists()
+    assert not (clone / "vendor/agent-canon").exists()
+    assert not (clone / ".codex").exists()
+    assert not (clone / "AGENTS.md").is_symlink()
 
     before = run(["git", "diff", "--binary"], clone).stdout
     second = run(
@@ -104,7 +108,7 @@ def test_bootstrap_is_local_and_idempotent(tmp_path: Path) -> None:
     assert before == after
 
 
-def test_unknown_legacy_option_remains_rejected(tmp_path: Path) -> None:
+def test_unknown_option_is_rejected(tmp_path: Path) -> None:
     clone = clone_current(tmp_path)
     result = run(
         [
@@ -112,7 +116,7 @@ def test_unknown_legacy_option_remains_rejected(tmp_path: Path) -> None:
             "scripts/init_from_template.sh",
             "--project-slug",
             "seeded-project",
-            "--skip-agent-canon-check",
+            "--unknown-option",
         ],
         clone,
         check=False,

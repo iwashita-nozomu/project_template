@@ -2,7 +2,7 @@
 @dependency-start
 contract design
 responsibility Documents the parent-local CMake helper boundary.
-upstream design ../../vendor/agent-canon/documents/design/cpp-build-layout.md C++ helper ownership
+upstream design ../../documents/design/cpp-build-layout.md C++ helper ownership
 downstream implementation ../CMakeLists.txt single C++ project entrypoint
 @dependency-end
 -->

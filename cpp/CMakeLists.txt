@@ -1,7 +1,7 @@
 # @dependency-start
 # contract configuration
 # responsibility Defines the single C++ project entrypoint and shared target/artifact contract.
-# upstream design ../vendor/agent-canon/documents/design/cpp-build-layout.md C++ project boundary and migration map
+# upstream design ../documents/design/cpp-build-layout.md C++ project boundary and migration map
 # downstream implementation tests/CMakeLists.txt test consumers of cpp-core
 # downstream implementation experiments/CMakeLists.txt native experiment consumers of cpp-core
 # @dependency-end

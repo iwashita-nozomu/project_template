@@ -70,12 +70,12 @@ replacements: dict[str, list[tuple[str, str]]] = {
     "pyproject.toml": [('name = "project-template"', f'name = "{slug}"')],
     "README.md": [
         ("# Project Template", f"# {display}"),
-        ("docker build -t project-template -f docker/Dockerfile .", f"docker build -t {slug} -f docker/Dockerfile ."),
-        ("docker run --rm project-template python3 --version", f"docker run --rm {slug} python3 --version"),
+        ("docker build -f docker/Dockerfile -t project-template .", f"docker build -f docker/Dockerfile -t {slug} ."),
+        ("docker run --rm project-template test/testrunner.sh", f"docker run --rm {slug} test/testrunner.sh"),
     ],
     "QUICK_START.md": [
-        ("docker build -t project-template -f docker/Dockerfile .", f"docker build -t {slug} -f docker/Dockerfile ."),
-        ("docker run --rm project-template python3 --version", f"docker run --rm {slug} python3 --version"),
+        ("docker build -f docker/Dockerfile -t project-template .", f"docker build -f docker/Dockerfile -t {slug} ."),
+        ("docker run --rm project-template test/testrunner.sh", f"docker run --rm {slug} test/testrunner.sh"),
     ],
     "Makefile": [("DOCKER_IMAGE ?= project-template:local", f"DOCKER_IMAGE ?= {slug}:local")],
     "documents/contracts/template-bootstrap.md": [
@@ -104,7 +104,7 @@ print(f"project_slug={slug}")
 print(f"display_name={display}")
 print(f"bare_repo={bare_repo}")
 print("template_bootstrap=local_offline")
-print("agent_canon_view=exact_live_symlinks")
+print("project_runtime=source_free")
 print(f"changed_files={len(changed)}")
 PY
 

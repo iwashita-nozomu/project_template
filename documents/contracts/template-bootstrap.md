@@ -2,63 +2,69 @@
 
 ## Goal
 
-A normal clone of `project-template` is complete for project-owned bootstrap and validation. It records the exact AgentCanon submodule registration, one mode-`160000` gitlink, and the bounded root symlink view without initializing that checkout.
+A normal clone of `project-template` is complete for project-owned bootstrap,
+build, and validation. AgentCanon is deliberately not part of that checkout:
+there is no submodule, vendor tree, root projection, symlink view, or hidden
+source resolver.
 
-Bootstrap changes only project identity and reader-facing examples. It must not fetch another source tree, initialize or advance the registered submodule, resolve a latest AgentCanon revision, read credentials, rewrite the root views, or copy AgentCanon configuration into regular template files.
+Bootstrap changes only project identity and reader-facing examples. It is
+offline and repository-local. It must not clone AgentCanon, initialize a
+checkout, resolve a latest revision, read credentials, or modify a global Codex
+installation.
 
-## Preserved AgentCanon identity
+## Project entry points
 
-The initializer preserves these tracked identities exactly:
+Preview and apply the project identity conversion as follows:
+
+```bash
+bash scripts/start_repository.sh --project-slug example \
+  --display-name "Example" --dry-run
+bash scripts/start_repository.sh --project-slug example \
+  --display-name "Example"
+```
+
+Review and commit the result before validation:
+
+```bash
+git diff --check
+git add --all
+git commit -m "Initialize example"
+make pr-check
+```
+
+The project bootstrap does not install language tools. The project Dockerfile
+and test runner own project dependencies and test execution.
+
+## Optional AgentCanon development
+
+AgentCanon editing is a separate workflow. The clone and runtime must be under
+the ignored project workspace, qualified by the task, and removed at closeout:
 
 ```text
-.gitmodules
-vendor/agent-canon                         # sole gitlink
-AGENTS.md                                  # exact symlink
-.codex/config.toml                         # exact symlink
-.codex/agents                              # exact symlink
-.codex/hooks.json                          # exact symlink
-.codex/hooks                               # exact symlink
+workspace/agent-canondevelop/<qualified-task>/agent-canon/
+workspace/agent-canon-runtime/<qualified-task>/
 ```
 
-The symlink targets are validated lexically, so bootstrap and normal checks do not need the checkout. Codex activation is a separate explicit operation:
+From the standalone AgentCanon checkout, use `bootstrap.sh install`, `start`,
+`target add`, and (when Codex is needed) `codex prepare` / `codex launch`. The
+target mode must be explicit. The AgentCanon container is a shared tool plane;
+it does not own or mount the project's tests, build tree, credentials, or
+Docker socket. Project tests remain parent-owned.
 
-```bash
-git submodule update --init --checkout -- vendor/agent-canon
-```
+AgentCanon `eval collect` writes to its external runtime spool. `eval sync`
+publishes through the typed adapter to the separate
+[`agent-canon-log`](https://github.com/iwashita-nozomu/agent-canon-log)
+repository. Archive failure preserves the spool for retry and never leaves
+logs, reports, caches, or generated files in this source checkout.
 
-That command is never called by descendant bootstrap.
+## Closeout
 
-## Entry points
+At the end of an AgentCanon task:
 
-Preview:
+1. stop the runtime and uninstall the managed installation;
+2. remove only the exact task clone and runtime under `workspace/`;
+3. verify `git status --short`, `git diff --check`, and the absence of runtime
+   artifacts in the parent repository.
 
-```bash
-bash scripts/start_repository.sh --project-slug example --display-name "Example" --dry-run
-```
-
-Apply:
-
-```bash
-bash scripts/start_repository.sh --project-slug example --display-name "Example"
-```
-
-The optional bare-repository example is `/mnt/git/template.git`; callers may replace it with their own local or hosted origin after initialization.
-
-## State handling
-
-The initializer refuses a dirty worktree unless `--force` is explicit. Repeating the same initialization is a no-op. Unknown options are rejected rather than silently selecting a compatibility mode.
-
-After applying, review and commit the diff before running read-only validation:
-
-```bash
-bash scripts/start_repository.sh --validate-only
-```
-
-The initializer reports `agent_canon_view=exact_live_symlinks`. It does not own an AgentCanon snapshot, importer, update transaction, background synchronization process, or compatibility alias.
-
-## Ownership boundary
-
-- AgentCanon owns `ROOT_AGENTS.md`, `.codex/config.toml`, `.codex/agents/**`, `.codex/hooks.json`, `.codex/hooks/**`, and their runtime semantics.
-- This repository owns the exact source registration, gitlink, symlink edges, project source/build/test/docs, and offline bootstrap.
-- Project commands must not execute `vendor/agent-canon/tools/**` as an implicit dependency.
-- `tools/agent-canon`, copied AgentCanon tests/fixtures, static provenance, and importer placeholders are forbidden.
+The parent bootstrap never performs these cleanup operations implicitly because
+it never creates the AgentCanon resources.

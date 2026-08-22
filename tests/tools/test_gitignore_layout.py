@@ -3,16 +3,46 @@
 from __future__ import annotations
 
 import subprocess
+import shutil
 from pathlib import Path
 
+import pytest
+
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+IGNORE_ROOT: Path | None = None
+
+
+@pytest.fixture(scope="module", autouse=True)
+def isolated_ignore_repository(tmp_path_factory: pytest.TempPathFactory) -> None:
+    """Provide Git ignore semantics without requiring the source checkout's .git."""
+    global IGNORE_ROOT
+    root = tmp_path_factory.mktemp("gitignore-fixture")
+    for relative in (
+        ".gitignore",
+        "build/.gitignore",
+        ".state/.gitignore",
+        "dist/.gitignore",
+        "logs/.gitignore",
+        "reports/.gitignore",
+        "tests/.gitignore",
+        "experiments/.gitignore",
+        "experiments/topic/result/.gitignore",
+    ):
+        source = PROJECT_ROOT / relative
+        if source.is_file():
+            destination = root / relative
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, destination)
+    subprocess.run(["git", "init", "--quiet", str(root)], check=True)
+    IGNORE_ROOT = root
 
 
 def _matching_rule(path: str) -> tuple[str, str] | None:
     """Return the matching ignore owner and pattern for a repository-relative path."""
+    assert IGNORE_ROOT is not None
     result = subprocess.run(
         ["git", "check-ignore", "-v", "--no-index", "--", path],
-        cwd=PROJECT_ROOT,
+        cwd=IGNORE_ROOT,
         check=False,
         capture_output=True,
         text=True,
