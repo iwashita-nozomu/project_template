@@ -47,6 +47,8 @@ git clone "$bare_remote" "$descendant_clone" >/dev/null
   test -z "$(git ls-files -s | awk '$1 == 160000 { print; exit }')"
   test ! -e vendor/agent-canon
   test ! -e .agent-canon
+  test -x test/testrunner.sh
+  test -x scripts/agent-canon-develop.sh
   python3 tools/check_runtime_independence.py
   python3 tools/check_markdown_links.py
   python3 tools/check_github_workflows.py
