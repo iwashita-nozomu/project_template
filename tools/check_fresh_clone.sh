@@ -43,8 +43,14 @@ git clone "$bare_remote" "$descendant_clone" >/dev/null
 (
   cd "$descendant_clone"
   test "$(git branch --show-current)" = main
-  test ! -e .gitmodules
-  test -z "$(git ls-files -s | awk '$1 == 160000 { print; exit }')"
+  if [[ -f .gitmodules ]] && grep -Eiq 'agent[-_[:space:]]*canon' .gitmodules; then
+    echo "fresh clone contains AgentCanon submodule metadata" >&2
+    exit 1
+  fi
+  if git ls-files -s | awk '$1 == 160000 { print $4 }' | grep -Eiq 'agent[-_]?canon'; then
+    echo "fresh clone contains an AgentCanon gitlink" >&2
+    exit 1
+  fi
   test ! -e vendor/agent-canon
   test ! -e .agent-canon
   test -x test/testrunner.sh

@@ -139,15 +139,22 @@ def validate_structure(root: Path, entries: list[Entry]) -> None:
     """Reject submodules, source artifacts, and AgentCanon source links."""
     by_path = {entry.path: entry for entry in entries}
 
-    # No submodule metadata is part of the source-free parent contract. This
-    # catches both an AgentCanon registration and a future replacement that
-    # moves the submodule to another path.
-    if ".gitmodules" in by_path:
-        fail("submodule-metadata-forbidden:.gitmodules")
+    metadata = by_path.get(".gitmodules")
+    if metadata is not None:
+        try:
+            metadata_text = (root / metadata.path).read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError) as exc:
+            fail(f"submodule-metadata-unreadable:.gitmodules:{exc}")
+        if contains_agent_canon(metadata_text):
+            fail("agent-canon-submodule-forbidden:.gitmodules")
 
-    gitlinks = sorted(entry.path for entry in entries if entry.mode == "160000")
+    gitlinks = sorted(
+        entry.path
+        for entry in entries
+        if entry.mode == "160000" and contains_agent_canon(entry.path)
+    )
     if gitlinks:
-        fail(f"gitlink-forbidden:{gitlinks[0]}")
+        fail(f"agent-canon-gitlink-forbidden:{gitlinks[0]}")
 
     for marker in FORBIDDEN_TRACKED_PATH_MARKERS:
         matching = sorted(

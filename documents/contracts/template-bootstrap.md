@@ -4,8 +4,11 @@
 
 A normal clone of `project-template` is complete for project-owned bootstrap,
 build, and validation. AgentCanon is deliberately not part of that checkout:
-there is no submodule, vendor tree, root projection, symlink view, or hidden
-source resolver.
+there is no AgentCanon submodule, populated AgentCanon vendor checkout, root
+projection, symlink view, or hidden source resolver. The tracked
+`vendor/.gitkeep` only preserves an empty project-owned extension directory;
+it is not an AgentCanon registration or runtime dependency. Unrelated
+project-owned vendor or submodule choices are not prohibited by this contract.
 
 Bootstrap changes only project identity and reader-facing examples. It is
 offline and repository-local. It must not clone AgentCanon, initialize a

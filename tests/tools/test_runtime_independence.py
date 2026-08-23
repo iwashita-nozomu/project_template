@@ -61,8 +61,8 @@ def test_clean_source_free_tree_passes(tmp_path: Path) -> None:
     assert "RUNTIME_INDEPENDENCE=pass" in result.stdout
 
 
-def test_submodule_metadata_is_rejected(tmp_path: Path) -> None:
-    """Reject tracked submodule metadata regardless of its configured path."""
+def test_agent_canon_submodule_metadata_is_rejected(tmp_path: Path) -> None:
+    """Reject only metadata that registers an AgentCanon checkout."""
     root = make_fixture(tmp_path)
     (root / ".gitmodules").write_text(
         '[submodule "vendor/agent-canon"]\n'
@@ -73,12 +73,19 @@ def test_submodule_metadata_is_rejected(tmp_path: Path) -> None:
     run(["git", "add", ".gitmodules"], root)
     result = check(root)
     assert result.returncode == 1
-    assert "submodule-metadata-forbidden:.gitmodules" in result.stderr
+    assert "agent-canon-submodule-forbidden:.gitmodules" in result.stderr
 
 
-def test_any_gitlink_is_rejected(tmp_path: Path) -> None:
-    """Reject a gitlink before it can become a hidden source checkout."""
+def test_unrelated_submodule_and_gitlink_are_allowed(tmp_path: Path) -> None:
+    """Do not turn the AgentCanon boundary into a generic submodule ban."""
     root = make_fixture(tmp_path)
+    (root / ".gitmodules").write_text(
+        '[submodule "vendor/other"]\n'
+        "\tpath = vendor/other\n"
+        "\turl = https://example.invalid/other.git\n",
+        encoding="utf-8",
+    )
+    run(["git", "add", ".gitmodules"], root)
     run(
         [
             "git",
@@ -90,8 +97,8 @@ def test_any_gitlink_is_rejected(tmp_path: Path) -> None:
         root,
     )
     result = check(root)
-    assert result.returncode == 1
-    assert "gitlink-forbidden:vendor/other" in result.stderr
+    assert result.returncode == 0, result.stderr
+    assert "RUNTIME_INDEPENDENCE=pass" in result.stdout
 
 
 def test_agent_canon_source_symlink_is_rejected(tmp_path: Path) -> None:
