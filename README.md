@@ -107,6 +107,7 @@ The default image is CPU-only. GPU support remains an explicit Docker target and
 ├── scripts/                  # offline repository initialization
 ├── tools/                    # project-owned validation tools
 ├── tests/                    # project-owned tests
+├── vendor/                   # empty placeholder for project-owned third-party sources
 └── workspace/agent-canondevelop/ # ignored, temporary AgentCanon edit clones
 ```
 
