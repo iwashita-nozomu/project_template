@@ -33,11 +33,11 @@ repository, and it writes only the project identity files.
 git diff --check
 git add --all
 git commit -m "Initialize my-project"
-make pr-check
-make fresh-clone-check
+bash test/testrunner.sh
+bash tools/check_fresh_clone.sh
 ```
 
-`make fresh-clone-check` requires a clean committed tree because it validates exactly what another user receives from an ordinary, non-recursive clone.
+`tools/check_fresh_clone.sh` requires a clean committed tree because it validates exactly what another user receives from an ordinary, non-recursive clone.
 
 ## 4. Use AgentCanon only when the task needs it
 
@@ -73,9 +73,5 @@ exact task resources.
 bash docker/run-tests.sh --tag project-template:test
 ```
 
-For the repository checks:
-
-```bash
-make docker-check
-make docker-test
-```
+The Docker wrapper executes the same complete repository test list and removes
+the exact temporary image.

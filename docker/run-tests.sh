@@ -37,5 +37,7 @@ build=(docker build --platform linux/amd64 --tag "$image_tag" \
 build+=("$repo_root")
 
 printf 'project-test-build:'; printf ' %q' "${build[@]}"; printf '\n'
+bash "$repo_root/test/testrunner.sh" --phase static
 "${build[@]}"
-docker run --rm --platform linux/amd64 "$image_tag" test/testrunner.sh
+docker run --rm --platform linux/amd64 \
+  "$image_tag" test/testrunner.sh --phase portable

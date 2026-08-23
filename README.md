@@ -19,7 +19,7 @@ bash scripts/start_repository.sh \
 git diff --check
 git add --all
 git commit -m "Initialize my-project"
-make pr-check
+bash test/testrunner.sh
 ```
 
 The initializer is an offline, repository-local identity conversion. It rewrites
@@ -29,7 +29,7 @@ initialize AgentCanon and does not write outside the project checkout.
 After committing the initialized tree, run the descendant acceptance check:
 
 ```bash
-make fresh-clone-check
+bash tools/check_fresh_clone.sh
 ```
 
 This publishes the generated repository to a temporary local bare remote, clones it normally without recursive options, hides the template source, and reruns project-owned checks.
@@ -69,29 +69,26 @@ clean.
 ## Canonical checks
 
 ```bash
-make docs-check
-make github-workflow-check
-make cpp-test
-make test
-make pr-check
+bash test/testrunner.sh
+bash tools/check_fresh_clone.sh
+cmake --preset dev
+cmake --build --preset dev --parallel
+ctest --preset dev
 ```
 
-`make docs-check` verifies reader-facing local links and `make pr-check`
-composes the project-owned pull-request gate. No project check initializes or
-loads AgentCanon.
-`make cpp-test` is the targeted native check; `make test` runs the complete
-list from `test/testlist.toml`.
-
-`make ci` is the full project-owned host gate. Docker checks use the same tracked Dockerfile:
+`test/testlist.toml` owns the complete static, tooling, and C++ validation list.
+No project check initializes or loads AgentCanon. Docker uses the same test
+entry with the tracked Dockerfile:
 
 ```bash
 bash docker/run-tests.sh --tag project-template:test
 ```
 
 The source tree and its parent test list are copied into the image at build
-time. The test command therefore needs no workspace mount or interactive
-development-container lifecycle. The commented command contract lives in
-`test/testlist.toml` and is executed by `test/testrunner.sh`.
+time. The Docker wrapper runs the list's `static` phase on the Host, then its
+`portable` phase in the image, so Git-bound checks are not duplicated or run
+against a snapshot without `.git`. The workflow needs no workspace mount or interactive
+development-container lifecycle is needed.
 
 The default image is a bounded CPU test image. Full project dependencies use
 the explicit `full-runtime` target; GPU support uses `gpu-runtime` and requires

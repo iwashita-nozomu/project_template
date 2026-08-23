@@ -44,9 +44,8 @@ option でのみ渡します。daemon が rootful/rootless かを契約条件に
 ## Validation
 
 ```bash
-python3 tools/ci/check_server_readiness.py
-make docker-build-check
-make pr-check
+bash test/testrunner.sh
+bash docker/run-tests.sh --tag project-template:server-check
 ```
 
 ## Related

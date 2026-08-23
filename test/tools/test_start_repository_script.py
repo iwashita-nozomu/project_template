@@ -43,6 +43,23 @@ def clone_current(tmp_path: Path) -> Path:
     return clone
 
 
+def replace_validation_scripts(
+    clone: Path,
+    *,
+    runner_body: str,
+    fresh_body: str = "#!/usr/bin/env bash\necho fresh-clone-check\n",
+) -> None:
+    """Install and commit bounded validation fixtures in one clean clone."""
+    runner = clone / "test/testrunner.sh"
+    fresh = clone / "tools/check_fresh_clone.sh"
+    runner.write_text(runner_body, encoding="utf-8")
+    fresh.write_text(fresh_body, encoding="utf-8")
+    runner.chmod(0o755)
+    fresh.chmod(0o755)
+    run(["git", "add", "test/testrunner.sh", "tools/check_fresh_clone.sh"], clone)
+    run(["git", "commit", "--quiet", "-m", "validation fixtures"], clone)
+
+
 def test_bootstrap_is_local_and_idempotent(tmp_path: Path) -> None:
     """Initialization is offline, complete, and safe to repeat."""
     clone = clone_current(tmp_path)
@@ -156,27 +173,13 @@ def test_non_kebab_project_slug_is_rejected(tmp_path: Path) -> None:
 def test_validate_only_runs_project_owned_checks_and_is_read_only(tmp_path: Path) -> None:
     """Validation mode runs project checks without changing the fixture."""
     clone = clone_current(tmp_path)
-    make = tmp_path / "make"
-    make.write_text(
-        "#!/usr/bin/env bash\n"
-        "echo make:$@\n"
-        "case \"$1\" in\n"
-        "  runtime-independence-check|docs-check|github-workflow-check|fresh-clone-check) exit 0 ;;\n"
-        "esac\n"
-        "exit 2\n",
-        encoding="utf-8",
+    replace_validation_scripts(
+        clone,
+        runner_body="#!/usr/bin/env bash\necho test-runner\n",
     )
-    make.chmod(0o755)
-    env = os.environ.copy()
-    env["PATH"] = f"{tmp_path}:{env['PATH']}"
-    result = run(["bash", "scripts/start_repository.sh", "--validate-only"], clone, env)
-    for target in (
-        "runtime-independence-check",
-        "docs-check",
-        "github-workflow-check",
-        "fresh-clone-check",
-    ):
-        assert f"make:{target}" in result.stdout
+    result = run(["bash", "scripts/start_repository.sh", "--validate-only"], clone)
+    assert "test-runner" in result.stdout
+    assert "fresh-clone-check" in result.stdout
     assert "start_repository_validation=pass" in result.stdout
     assert run(["git", "status", "--short"], clone).stdout == ""
 
@@ -184,20 +187,16 @@ def test_validate_only_runs_project_owned_checks_and_is_read_only(tmp_path: Path
 def test_validate_only_refuses_check_side_effects(tmp_path: Path) -> None:
     """Validation mode fails when a selected checker dirties the repository."""
     clone = clone_current(tmp_path)
-    make = tmp_path / "make"
-    make.write_text(
-        "#!/usr/bin/env bash\n"
-        "if [[ \"$1\" == \"docs-check\" ]]; then printf drift > drift.txt; fi\n"
-        "exit 0\n",
-        encoding="utf-8",
+    replace_validation_scripts(
+        clone,
+        runner_body=(
+            "#!/usr/bin/env bash\n"
+            "printf drift > drift.txt\n"
+        ),
     )
-    make.chmod(0o755)
-    env = os.environ.copy()
-    env["PATH"] = f"{tmp_path}:{env['PATH']}"
     result = run(
         ["bash", "scripts/start_repository.sh", "--validate-only"],
         clone,
-        env,
         check=False,
     )
     assert result.returncode == 1

@@ -24,11 +24,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Check repository-owned static contracts
-        run: |
-          make runtime-independence-check docs-check github-workflow-check
-          make docker-check
-
       - name: Build and run the parent test image
         run: bash docker/run-tests.sh --tag project-template:ci
 
@@ -42,4 +37,4 @@ jobs:
           persist-credentials: false
 
       - name: Run descendant fresh-clone acceptance
-        run: make fresh-clone-check
+        run: bash tools/check_fresh_clone.sh

@@ -41,7 +41,7 @@ ci = (WORKFLOWS / "ci.yml").read_text(encoding="utf-8")
 for required_name in ("name: Repository CI", "name: Fresh Clone Acceptance"):
     if required_name not in ci:
         fail(f"required-check-name-missing:{required_name}")
-if "make fresh-clone-check" not in ci:
+if "bash tools/check_fresh_clone.sh" not in ci:
     fail("canonical-command-missing")
 for command in (
     "bash docker/run-tests.sh --tag project-template:ci",

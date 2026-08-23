@@ -8,9 +8,9 @@ CI does not pay that dependency cost when it only validates the repository.
 
 The project uses `docker/Dockerfile` directly. `test/testlist.toml` is the
 commented command contract and `test/testrunner.sh` is its single execution
-entrypoint. Each failed command reports its command, `environment_owner`, and
-`responsibility`, keeping product failures attributable to the project
-container.
+entrypoint. Static entries execute on the Host before build; portable tooling
+and C++ entries execute in the image. Each failed command reports its command,
+`environment_owner`, and `responsibility`.
 
 GitHub Actions checks the same Dockerfile with
 `docker/check_zero_build_contract.sh` and one build/test run through

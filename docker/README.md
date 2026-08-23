@@ -15,8 +15,9 @@ docker build --target gpu-runtime -f docker/Dockerfile -t project-template:gpu .
 
 The image contains the reviewed project source and runs as the non-root
 `project` user. `test/testlist.toml` is the commented, parent-owned test
-contract; `test/testrunner.sh` executes each command from that list and emits
-the command, environment owner, and responsibility when a test fails.
+contract. `docker/run-tests.sh` runs `static` entries on the Host and
+`portable` entries in the image. The runner emits the command, environment
+owner, and responsibility when a test fails.
 
 `docker/run-tests.sh` refuses to overwrite an existing image tag and removes
 the exact image it creates. `docker/check_zero_build_contract.sh` validates the static boundary.

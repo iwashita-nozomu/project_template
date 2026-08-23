@@ -23,7 +23,6 @@ def make_fixture(tmp_path: Path) -> Path:
     (root / "tools").mkdir(parents=True)
     (root / "scripts").mkdir()
     shutil.copy2(CHECKER, root / "tools/check_runtime_independence.py")
-    (root / "Makefile").write_text("check:\n\t@true\n", encoding="utf-8")
     (root / "AGENTS.md").write_text(
         "Optional AgentCanon development notes are documentation only.\n",
         encoding="utf-8",

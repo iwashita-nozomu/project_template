@@ -45,7 +45,6 @@ FORBIDDEN_TRACKED_PATH_MARKERS = (
 # intentionally outside this set; this avoids turning a boundary check into a
 # repository-wide prose linter.
 EXECUTION_PATHS = (
-    "Makefile",
     "bootstrap.sh",
     "pyproject.toml",
     ".codex/",

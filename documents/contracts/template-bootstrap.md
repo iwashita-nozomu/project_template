@@ -32,7 +32,7 @@ Review and commit the result before validation:
 git diff --check
 git add --all
 git commit -m "Initialize example"
-make pr-check
+bash test/testrunner.sh
 ```
 
 The project bootstrap does not install language tools. The project Dockerfile
