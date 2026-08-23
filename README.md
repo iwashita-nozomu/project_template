@@ -56,7 +56,7 @@ COMMON=(--control-parent-root "$ROOT" --runtime-root "$RUNTIME")
 ```
 
 The project remains the owner of its own Docker/test runner. Do not mount
-`tests/`, project build state, or project credentials into the AgentCanon tool
+`test/`, project build state, or project credentials into the AgentCanon tool
 runtime. AgentCanon's `eval collect` may read the explicitly registered project
 target, and `eval sync` publishes only to the separate
 [`agent-canon-log`](https://github.com/iwashita-nozomu/agent-canon-log) archive.
@@ -79,12 +79,13 @@ make pr-check
 `make docs-check` verifies reader-facing local links and `make pr-check`
 composes the project-owned pull-request gate. No project check initializes or
 loads AgentCanon.
+`make cpp-test` is the targeted native check; `make test` runs the complete
+list from `test/testlist.toml`.
 
 `make ci` is the full project-owned host gate. Docker checks use the same tracked Dockerfile:
 
 ```bash
-docker build -f docker/Dockerfile -t project-template .
-docker run --rm project-template test/testrunner.sh
+bash docker/run-tests.sh --tag project-template:test
 ```
 
 The source tree and its parent test list are copied into the image at build
@@ -92,21 +93,25 @@ time. The test command therefore needs no workspace mount or interactive
 development-container lifecycle. The commented command contract lives in
 `test/testlist.toml` and is executed by `test/testrunner.sh`.
 
-The default image is CPU-only. GPU support remains an explicit Docker target and requires a compatible host driver.
+The default image is a bounded CPU test image. Full project dependencies use
+the explicit `full-runtime` target; GPU support uses `gpu-runtime` and requires
+a compatible host driver.
 
 ## Repository layout
 
 ```text
 .
 ├── AGENTS.md                  # parent project instructions
-├── cpp/                      # C++ project and CTest targets
+├── CMakeLists.txt            # root C++ project entrypoint
+├── include/                  # public C++ headers
+├── src/                      # production C++ sources
 ├── python/                   # Python package source
 ├── experiments/              # project experiments
 ├── documents/                # project contracts, design, notes, and sources
 ├── docker/                   # canonical image definition and checks
 ├── scripts/                  # offline repository initialization
 ├── tools/                    # project-owned validation tools
-├── tests/                    # project-owned tests
+├── test/                     # runner, test list, tooling tests, and CTest sources
 ├── vendor/                   # empty placeholder for project-owned third-party sources
 └── workspace/agent-canondevelop/ # ignored, temporary AgentCanon edit clones
 ```

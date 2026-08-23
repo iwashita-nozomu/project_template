@@ -27,8 +27,8 @@ flowchart TD
   push[Push to main or master] --> ci
   manual[Manual dispatch] --> ci
   ci --> static[Parent static contracts]
-  ci --> build[docker build docker/Dockerfile]
-  build --> run[docker run test/testrunner.sh]
+  ci --> build[docker/run-tests.sh builds docker/Dockerfile]
+  build --> run[script runs test/testrunner.sh]
   ci --> fresh[Fresh Clone Acceptance]
   fresh --> init[Offline descendant initialization]
   init --> boundary[No gitlink, source projection, or hidden runtime]
@@ -42,11 +42,13 @@ flowchart TD
 1. Check out the project without recursive submodules or persisted credentials.
 2. Run the parent-owned runtime-independence, documentation, workflow, and
    Docker contract checks on the runner.
-3. Build one self-contained project image from `docker/Dockerfile`.
+3. Run `docker/run-tests.sh`, which builds one self-contained project image
+   from `docker/Dockerfile`, runs the test entry, and removes the exact image.
 4. Run `test/testrunner.sh` inside that image. The TOML list owns the parent
    Python and C++ commands and reports `environment_owner=project-container`
    and `responsibility=parent-repository` on failure.
-5. Remove the exact CI image in an `always()` cleanup step.
+5. Let the script's trap remove the exact CI image on success, failure, or
+   interruption; it refuses to overwrite a pre-existing tag.
 
 The job does not install a second Host Python environment or run the same test
 list on both Host and container. Project source is copied at build time, so no
@@ -82,7 +84,6 @@ the AgentCanon closeout lifecycle.
 make github-workflow-check
 make docs-check
 make docker-check
-docker build --platform linux/amd64 -f docker/Dockerfile -t project-template .
-docker run --rm --platform linux/amd64 project-template test/testrunner.sh
+bash docker/run-tests.sh --tag project-template:docs-check
 git diff --check
 ```

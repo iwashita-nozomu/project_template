@@ -2,13 +2,13 @@ PYTHON ?= python3
 DOCKER ?= docker
 DOCKER_IMAGE ?= project-template:local
 CPP_PROFILE ?= dev
-CPP_BUILD_DIR ?= build/cpp/$(CPP_PROFILE)
-CPP_INSTALL_DIR ?= .state/cpp-install/$(CPP_PROFILE)
+CPP_BUILD_DIR ?= build/$(CPP_PROFILE)
+CPP_INSTALL_DIR ?= .state/install/$(CPP_PROFILE)
 
 .PHONY: test ci ci-quick pr-check check-matrix docs-check github-workflow-check
 .PHONY: runtime-independence-check fresh-clone-check start-repository
-.PHONY: docker-check docker-build-check docker-test docker-run docker-shell
-.PHONY: cpp-configure cpp-build cpp-test cpp-install cpp-experiments
+.PHONY: docker-check docker-test docker-run docker-shell
+.PHONY: cpp-configure cpp-build cpp-test cpp-install
 .PHONY: dev-setup tools-help clean-generated
 
 runtime-independence-check:
@@ -46,12 +46,8 @@ start-repository:
 docker-check:
 	bash docker/check_zero_build_contract.sh
 
-docker-build-check:
-	$(DOCKER) build --platform linux/amd64 --tag $(DOCKER_IMAGE) --file docker/Dockerfile .
-
 docker-test:
-	$(DOCKER) build --platform linux/amd64 --tag $(DOCKER_IMAGE) --file docker/Dockerfile .
-	$(DOCKER) run --rm --platform linux/amd64 $(DOCKER_IMAGE) test/testrunner.sh
+	bash docker/run-tests.sh --tag $(DOCKER_IMAGE)
 
 docker-run:
 	$(DOCKER) run --rm --platform linux/amd64 $(DOCKER_IMAGE) $(ARGS)
@@ -60,7 +56,7 @@ docker-shell:
 	$(DOCKER) run --rm -it --platform linux/amd64 $(DOCKER_IMAGE) /bin/zsh
 
 cpp-configure:
-	cmake -S cpp -B "$(CPP_BUILD_DIR)" -DCMAKE_INSTALL_PREFIX="$(CPP_INSTALL_DIR)"
+	cmake -S . -B "$(CPP_BUILD_DIR)" -DCMAKE_INSTALL_PREFIX="$(CPP_INSTALL_DIR)"
 
 cpp-build: cpp-configure
 	cmake --build "$(CPP_BUILD_DIR)" --parallel
@@ -71,11 +67,8 @@ cpp-test: cpp-build
 cpp-install: cpp-build
 	cmake --install "$(CPP_BUILD_DIR)"
 
-cpp-experiments: cpp-configure
-	cmake --build "$(CPP_BUILD_DIR)" --target cpp-experiments --parallel
-
 clean-generated:
-	git clean -Xdf .pytest_cache .ruff_cache .state build logs reports
+	git clean -Xdf .pytest_cache .ruff_cache .state build dist logs reports test/logs experiments/_template
 
 dev-setup:
 	@echo 'Clone is complete. Read documents/contracts/template-bootstrap.md, then run make pr-check.'

@@ -40,12 +40,11 @@ repo は `/home/...` など Linux filesystem 側に置くことを推奨しま�
 Project の `docker/Dockerfile` と test runner が project dependency、build、test を
 所有します。GPU は project の明示的な Docker 実行時オプションでのみ渡し、既定では
 CPU-only とします。AgentCanon tool runtime と project image は別の責務であり、相互に
-`tests/` や build directory を mount しません。
+`test/` や build directory を mount しません。
 
 ```bash
 docker version
-docker build -f docker/Dockerfile -t project-template .
-docker run --rm project-template python3 --version
+bash docker/run-tests.sh --tag project-template:host-check
 ```
 
 ## AgentCanon の任意利用

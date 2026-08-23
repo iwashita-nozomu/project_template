@@ -3,7 +3,7 @@
 # responsibility Owns the GPU-only Python lock layered on the CPU base lock.
 # upstream environment ./requirements.txt provides the CPU dependency base.
 # upstream implementation ./install_python_dependencies.sh installs the selected dependency profile.
-# downstream implementation ./Dockerfile selects the GPU runtime dependency profile.
+# downstream implementation ./Dockerfile gpu-runtime consumes the GPU dependency profile.
 # @dependency-end
 
 # GPU-only Python additions. The CPU lock remains the base and is installed

@@ -3,8 +3,8 @@
 The repository owns its normal validation entry points:
 
 - `make docs-check` verifies reader-facing local links;
-- `make cpp-test` builds and runs the parent CTest surface;
-- `make test` runs parent repository tooling tests;
+- `make cpp-test` builds and runs the parent CTest surface directly;
+- `make test` runs the single parent test list, including tooling and C++;
 - `make pr-check` composes the pull-request gate;
 - `make fresh-clone-check` validates an ordinary source-free descendant clone
   when the project provides that acceptance check.

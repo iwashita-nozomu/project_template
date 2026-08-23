@@ -9,7 +9,6 @@ Usage:
 Options:
   --project-slug <slug>      Required. Kebab-case project slug.
   --display-name <name>      Optional. Human-facing display name.
-  --bare-repo <name>.git     Optional. Defaults to <slug>.git.
   --force                    Allow running with a dirty worktree.
   --dry-run                  Print the planned updates without writing files.
 USAGE
@@ -17,7 +16,6 @@ USAGE
 
 PROJECT_SLUG=""
 DISPLAY_NAME=""
-BARE_REPO=""
 FORCE=0
 DRY_RUN=0
 
@@ -25,7 +23,6 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --project-slug) PROJECT_SLUG="${2:-}"; shift 2 ;;
     --display-name) DISPLAY_NAME="${2:-}"; shift 2 ;;
-    --bare-repo) BARE_REPO="${2:-}"; shift 2 ;;
     --force) FORCE=1; shift ;;
     --dry-run) DRY_RUN=1; shift ;;
     -h|--help) usage; exit 0 ;;
@@ -34,12 +31,11 @@ while [[ $# -gt 0 ]]; do
 done
 
 [[ -n "$PROJECT_SLUG" ]] || { echo "--project-slug is required" >&2; usage >&2; exit 2; }
-[[ "$PROJECT_SLUG" =~ ^[a-z0-9][a-z0-9._-]*$ ]] || {
-  echo "project slug must be lowercase and shell-safe: $PROJECT_SLUG" >&2
+[[ "$PROJECT_SLUG" =~ ^[a-z0-9]+(-[a-z0-9]+)*$ ]] || {
+  echo "project slug must be lowercase kebab-case: $PROJECT_SLUG" >&2
   exit 2
 }
 DISPLAY_NAME="${DISPLAY_NAME:-$PROJECT_SLUG}"
-BARE_REPO="${BARE_REPO:-${PROJECT_SLUG}.git}"
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 cd "$ROOT_DIR"
@@ -51,7 +47,6 @@ fi
 
 export TEMPLATE_PROJECT_SLUG="$PROJECT_SLUG"
 export TEMPLATE_DISPLAY_NAME="$DISPLAY_NAME"
-export TEMPLATE_BARE_REPO="$BARE_REPO"
 export TEMPLATE_DRY_RUN="$DRY_RUN"
 
 python3 - <<'PY'
@@ -63,24 +58,35 @@ from pathlib import Path
 root = Path.cwd()
 slug = os.environ["TEMPLATE_PROJECT_SLUG"]
 display = os.environ["TEMPLATE_DISPLAY_NAME"]
-bare_repo = os.environ["TEMPLATE_BARE_REPO"]
+cmake_name = slug.replace("-", "_")
 dry_run = os.environ["TEMPLATE_DRY_RUN"] == "1"
 
 replacements: dict[str, list[tuple[str, str]]] = {
     "pyproject.toml": [('name = "project-template"', f'name = "{slug}"')],
     "README.md": [
         ("# Project Template", f"# {display}"),
-        ("docker build -f docker/Dockerfile -t project-template .", f"docker build -f docker/Dockerfile -t {slug} ."),
-        ("docker run --rm project-template test/testrunner.sh", f"docker run --rm {slug} test/testrunner.sh"),
+        ("bash docker/run-tests.sh --tag project-template:test", f"bash docker/run-tests.sh --tag {slug}:test"),
     ],
     "QUICK_START.md": [
-        ("docker build -f docker/Dockerfile -t project-template .", f"docker build -f docker/Dockerfile -t {slug} ."),
-        ("docker run --rm project-template test/testrunner.sh", f"docker run --rm {slug} test/testrunner.sh"),
+        ("bash docker/run-tests.sh --tag project-template:test", f"bash docker/run-tests.sh --tag {slug}:test"),
     ],
     "Makefile": [("DOCKER_IMAGE ?= project-template:local", f"DOCKER_IMAGE ?= {slug}:local")],
+    "CMakeLists.txt": [
+        ("project(project_template VERSION", f"project({cmake_name} VERSION"),
+    ],
+    "docker/README.md": [
+        ("project-template:test", f"{slug}:test"),
+        ("project-template:full", f"{slug}:full"),
+        ("project-template:gpu", f"{slug}:gpu"),
+    ],
+    "docker/run-tests.sh": [
+        ("image_tag=project-template:test", f"image_tag={slug}:test"),
+    ],
+    "documents/contracts/linux-wsl-host-requirements.md": [
+        ("project-template:host-check", f"{slug}:host-check"),
+    ],
     "documents/contracts/template-bootstrap.md": [
         ("`project-template`", f"`{slug}`"),
-        ("`/mnt/git/template.git`", f"`/mnt/git/{bare_repo}`"),
     ],
 }
 
@@ -102,7 +108,7 @@ for relative, pairs in replacements.items():
 
 print(f"project_slug={slug}")
 print(f"display_name={display}")
-print(f"bare_repo={bare_repo}")
+print(f"cmake_project={cmake_name}")
 print("template_bootstrap=local_offline")
 print("project_runtime=source_free")
 print(f"changed_files={len(changed)}")

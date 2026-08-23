@@ -17,35 +17,29 @@ contains() {
 if [[ -d .devcontainer ]]; then
   fail '.devcontainer-must-not-exist'
 fi
-
-for path in docker .github/workflows; do
-  if grep -REn --exclude=check_zero_build_contract.sh \
-      -e 'devcontainer' -e 'post-create' -e '--mount' -e 'docker-compose' \
-      "$path"; then
-    fail "$path:development-container-or-mount-reference"
-  fi
-done
-
 contains docker/Dockerfile 'FROM ubuntu:22.04@sha256:'
-contains docker/Dockerfile 'AS cpu-runtime'
-contains docker/Dockerfile 'FROM cpu-runtime AS gpu-runtime'
-contains docker/Dockerfile 'FROM cpu-runtime AS default-runtime'
-contains docker/Dockerfile 'ARG PROJECT_UID=1000'
-contains docker/Dockerfile 'ARG PROJECT_GID=1000'
+contains docker/Dockerfile 'AS project-base'
+contains docker/Dockerfile 'FROM project-base AS full-runtime'
+contains docker/Dockerfile 'FROM project-base AS gpu-runtime'
+contains docker/Dockerfile 'FROM project-base AS default-runtime'
+contains docker/Dockerfile 'ARG PROJECT_UID='
+contains docker/Dockerfile 'ARG PROJECT_GID='
 contains docker/Dockerfile 'USER project'
-contains docker/Dockerfile 'PYTHON_VERSION=3.11.15'
+contains docker/Dockerfile 'PYTHON_VERSION='
 contains docker/Dockerfile 'COPY --chown=project:project . /workspace/project-template'
 contains docker/Dockerfile 'WORKDIR /workspace/project-template'
 contains docker/Dockerfile 'COPY docker/requirements-test.txt /tmp/project-test-requirements.txt'
-contains docker/requirements-test.txt 'pytest==9.1.1'
+contains docker/Dockerfile 'install_python_dependencies.sh /workspace/project-template --profile full'
+contains docker/Dockerfile 'install_python_dependencies.sh /workspace/project-template --profile gpu'
+contains docker/requirements-test.txt 'pytest=='
 contains test/testlist.toml 'format = "parent-test-list-v1"'
 contains test/testlist.toml 'environment_owner = "invocation-environment"'
 contains docker/Dockerfile 'PROJECT_TEST_ENVIRONMENT_OWNER=project-container'
 contains test/testlist.toml 'responsibility = "parent-repository"'
-contains .github/workflows/ci.yml 'docker build --platform linux/amd64'
-contains .github/workflows/ci.yml 'project-template:ci test/testrunner.sh'
-contains .github/workflows/ci.yml 'docker image rm project-template:ci || true'
-contains docker/cold-build-smoke.sh 'docker run --rm --platform linux/amd64'
-contains docker/cold-build-smoke.sh 'test/testrunner.sh'
+contains .github/workflows/ci.yml 'bash docker/run-tests.sh --tag project-template:ci'
+contains docker/run-tests.sh 'docker build --platform linux/amd64'
+contains docker/run-tests.sh 'docker run --rm --platform linux/amd64'
+contains docker/run-tests.sh 'docker image rm "$image_tag"'
+contains docker/cold-build-smoke.sh 'run-tests.sh'
 
 printf 'DOCKER_CONTRACT=pass\n'

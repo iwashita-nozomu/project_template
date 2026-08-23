@@ -10,10 +10,18 @@ __pycache__/
 /.venv/
 /venv/
 
+# Generated project outputs
+/build/
+/dist/
+/.state/
+/logs/
+/reports/
+/test/logs/
+/experiments/**/result/
+
 # Host and editor metadata
 .DS_Store
 
 # Local worktrees and scratch checkouts
 /.worktrees/
 /workspace/
-/workspace/agent-canondevelop/

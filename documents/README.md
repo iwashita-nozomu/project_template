@@ -15,6 +15,7 @@
 ## Design documents
 
 - [Docker environment boundary](design/docker-zero-build-environment.md)
+- [C++ build layout](design/cpp-build-layout.md)
 - [GitHub Actions design](design/github-actions.md)
 - [Experiment workflow](design/experiment-workflow.md)
 

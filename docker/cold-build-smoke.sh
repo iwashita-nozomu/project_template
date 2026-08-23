@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 image_tag=project-template:zero-build-cold-smoke
 pull=0
 no_cache=0
@@ -19,12 +18,5 @@ done
 
 [[ $pull -eq 1 ]] || { echo "cold acceptance requires --pull" >&2; exit 2; }
 [[ $no_cache -eq 1 ]] || { echo "cold acceptance requires --no-cache" >&2; exit 2; }
-command -v docker >/dev/null 2>&1 || { echo "docker is required" >&2; exit 2; }
-
-build=(docker build --platform linux/amd64 --pull --no-cache \
-  --tag "$image_tag" --file "$repo_root/docker/Dockerfile" "$repo_root")
-printf 'cold-build:'; printf ' %q' "${build[@]}"; printf '\n'
-"${build[@]}"
-
-docker run --rm --platform linux/amd64 \
-  "$image_tag" test/testrunner.sh
+exec bash "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)/run-tests.sh" \
+  --pull --no-cache --tag "$image_tag"

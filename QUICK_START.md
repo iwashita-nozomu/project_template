@@ -61,7 +61,7 @@ COMMON=(--control-parent-root "$ROOT" --runtime-root "$RUNTIME")
 
 The AgentCanon runtime is for AgentCanon tools and skills. Run project tests
 with the project's own `docker/Dockerfile` and test runner; never mount the
-parent `tests/` directory into AgentCanon. Collect and publish AgentCanon evals
+parent `test/` directory into AgentCanon. Collect and publish AgentCanon evals
 only through its external runtime spool and `agent-canon-log` archive. After
 merged-main readback, return to the project root and run
 `scripts/agent-canon-develop.sh cleanup "$TASK"` to uninstall and remove the
@@ -70,8 +70,7 @@ exact task resources.
 ## 5. Use Docker
 
 ```bash
-docker build -f docker/Dockerfile -t project-template .
-docker run --rm project-template test/testrunner.sh
+bash docker/run-tests.sh --tag project-template:test
 ```
 
 For the repository checks:
