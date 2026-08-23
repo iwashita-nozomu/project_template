@@ -17,8 +17,6 @@ contains() {
 if [[ -d .devcontainer ]]; then
   fail '.devcontainer-must-not-exist'
 fi
-[[ -x docker/run-tests.sh ]] || fail 'docker/run-tests.sh:not-executable'
-
 contains docker/Dockerfile 'FROM ubuntu:22.04@sha256:'
 contains docker/Dockerfile 'AS project-base'
 contains docker/Dockerfile 'FROM project-base AS full-runtime'

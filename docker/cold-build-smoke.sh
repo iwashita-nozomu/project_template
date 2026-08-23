@@ -18,5 +18,5 @@ done
 
 [[ $pull -eq 1 ]] || { echo "cold acceptance requires --pull" >&2; exit 2; }
 [[ $no_cache -eq 1 ]] || { echo "cold acceptance requires --no-cache" >&2; exit 2; }
-exec "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)/run-tests.sh" \
+exec bash "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)/run-tests.sh" \
   --pull --no-cache --tag "$image_tag"
