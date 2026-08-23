@@ -64,9 +64,9 @@ git clone "$bare_remote" "$descendant_clone" >/dev/null
   python3 tools/check_runtime_independence.py
   python3 tools/check_markdown_links.py
   python3 tools/check_github_workflows.py
-  cmake -S . -B build/fresh-clone -DCMAKE_BUILD_TYPE=Debug
-  cmake --build build/fresh-clone --parallel
-  ctest --test-dir build/fresh-clone --output-on-failure
+  cmake --preset dev
+  cmake --build --preset dev --parallel
+  ctest --preset dev
 
   test -z "$(git status --short --untracked-files=all)"
 )

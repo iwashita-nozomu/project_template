@@ -33,6 +33,18 @@ def fake_docker(tmp_path: Path) -> tuple[Path, Path, Path]:
         encoding="utf-8",
     )
     executable.chmod(0o755)
+    bash = bin_dir / "bash"
+    bash.write_text(
+        "#!/bin/bash\n"
+        "if [[ \"${1:-}\" == */test/testrunner.sh "
+        "&& \"${2:-}\" == --phase && \"${3:-}\" == static ]]; then\n"
+        "  echo STATIC_FIXTURE=pass\n"
+        "  exit 0\n"
+        "fi\n"
+        "exec /bin/bash \"$@\"\n",
+        encoding="utf-8",
+    )
+    bash.chmod(0o755)
     return bin_dir, marker, log
 
 
@@ -65,7 +77,10 @@ def test_image_is_removed_after_success(tmp_path: Path) -> None:
     assert not (tmp_path / "image-present").exists()
     log = (tmp_path / "docker.log").read_text(encoding="utf-8")
     assert "build --platform linux/amd64" in log
-    assert "run --rm --platform linux/amd64 fixture:test test/testrunner.sh" in log
+    assert (
+        "run --rm --platform linux/amd64 fixture:test "
+        "test/testrunner.sh --phase portable"
+    ) in log
     assert "image rm fixture:test" in log
 
 

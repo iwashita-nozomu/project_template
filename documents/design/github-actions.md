@@ -26,28 +26,27 @@ flowchart TD
   pr[Pull request] --> ci[CI workflow]
   push[Push to main or master] --> ci
   manual[Manual dispatch] --> ci
-  ci --> static[Parent static contracts]
-  ci --> build[docker/run-tests.sh builds docker/Dockerfile]
-  build --> run[script runs test/testrunner.sh]
+  ci --> static[docker/run-tests.sh runs static phase]
+  static --> build[script builds docker/Dockerfile]
+  build --> run[container runs portable phase]
+  run --> checks[Tooling and C++ checks]
   ci --> fresh[Fresh Clone Acceptance]
   fresh --> init[Offline descendant initialization]
   init --> boundary[No gitlink, source projection, or hidden runtime]
-  static --> result[Required project result]
-  run --> result
+  checks --> result[Required project result]
   boundary --> result
 ```
 
 ### Repository CI
 
 1. Check out the project without recursive submodules or persisted credentials.
-2. Run the parent-owned runtime-independence, documentation, workflow, and
-   Docker contract checks on the runner.
-3. Run `docker/run-tests.sh`, which builds one self-contained project image
-   from `docker/Dockerfile`, runs the test entry, and removes the exact image.
-4. Run `test/testrunner.sh` inside that image. The TOML list owns the parent
-   Python and C++ commands and reports `environment_owner=project-container`
-   and `responsibility=parent-repository` on failure.
-5. Let the script's trap remove the exact CI image on success, failure, or
+2. Run `docker/run-tests.sh`, which runs the static phase on the Host, builds
+   one self-contained project image from `docker/Dockerfile`, and removes the
+   exact image.
+3. Run the portable phase of `test/testrunner.sh` inside that image. The TOML
+   list reports `environment_owner=project-container` and
+   `responsibility=parent-repository` on failure.
+4. Let the script's trap remove the exact CI image on success, failure, or
    interruption; it refuses to overwrite a pre-existing tag.
 
 The job does not install a second Host Python environment or run the same test
@@ -81,9 +80,7 @@ the AgentCanon closeout lifecycle.
 ## Validation
 
 ```bash
-make github-workflow-check
-make docs-check
-make docker-check
+bash test/testrunner.sh
 bash docker/run-tests.sh --tag project-template:docs-check
 git diff --check
 ```

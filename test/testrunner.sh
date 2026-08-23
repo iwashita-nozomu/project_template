@@ -3,6 +3,21 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 test_list="${TEST_LIST_PATH:-$repo_root/test/testlist.toml}"
+selected_phase=all
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --phase) [[ $# -ge 2 ]] || { echo "--phase requires a value" >&2; exit 2; }; selected_phase="$2"; shift 2 ;;
+    --phase=*) selected_phase="${1#*=}"; shift ;;
+    -h|--help) echo "usage: $0 [--phase all|static|portable]"; exit 0 ;;
+    *) echo "unknown option: $1" >&2; exit 2 ;;
+  esac
+done
+
+case "$selected_phase" in
+  all|static|portable) ;;
+  *) echo "unsupported phase: $selected_phase" >&2; exit 2 ;;
+esac
 
 [[ -f "$test_list" ]] || {
   printf 'TEST_RUNNER_ERROR=missing-test-list path=%s\n' "$test_list" >&2
@@ -12,6 +27,7 @@ test_list="${TEST_LIST_PATH:-$repo_root/test/testlist.toml}"
 export PROJECT_TEST_REPOSITORY_ROOT="$repo_root"
 export PROJECT_TEST_LIST_PATH="$test_list"
 export PROJECT_TEST_ENVIRONMENT_OWNER="${PROJECT_TEST_ENVIRONMENT_OWNER:-host-project-environment}"
+export PROJECT_TEST_PHASE="$selected_phase"
 
 python3 - <<'PY'
 from __future__ import annotations
@@ -29,6 +45,8 @@ TEST_LIST = Path(os.environ["PROJECT_TEST_LIST_PATH"]).resolve()
 DECLARED_ENVIRONMENT_OWNER = "invocation-environment"
 EXPECTED_RESPONSIBILITY = "parent-repository"
 ENVIRONMENT_OWNER = os.environ["PROJECT_TEST_ENVIRONMENT_OWNER"].strip()
+SELECTED_PHASE = os.environ["PROJECT_TEST_PHASE"].strip()
+VALID_PHASES = {"static", "portable"}
 
 
 def fail(message: str) -> "NoReturn":
@@ -64,16 +82,24 @@ print(f"TEST_RUNNER_ENVIRONMENT_OWNER={ENVIRONMENT_OWNER}")
 print(f"TEST_RUNNER_RESPONSIBILITY={EXPECTED_RESPONSIBILITY}")
 print(f"TEST_RUNNER_ROOT={ROOT}")
 print(f"TEST_RUNNER_LIST={TEST_LIST}")
+print(f"TEST_RUNNER_PHASE={SELECTED_PHASE}")
 
+executed = 0
 for index, entry in enumerate(tests, start=1):
     if not isinstance(entry, dict):
         fail(f"test-entry-not-table:index={index}")
 
     name = entry.get("name")
     command = entry.get("command")
+    phase = entry.get("phase")
     working_directory = entry.get("working_directory", ".")
     if not isinstance(name, str) or not name:
         fail(f"test-name-invalid:index={index}")
+    if phase not in VALID_PHASES:
+        fail(f"test-phase-invalid:name={name}")
+    if SELECTED_PHASE != "all" and phase != SELECTED_PHASE:
+        print(f"TEST_SKIP name={name} phase={phase}", flush=True)
+        continue
     if (
         not isinstance(command, list)
         or not command
@@ -92,6 +118,7 @@ for index, entry in enumerate(tests, start=1):
         fail(f"test-working-directory-missing:name={name}:path={cwd}")
 
     argv = [str(part) for part in command]
+    executed += 1
     rendered = command_text(argv)
     print(f"TEST_START name={name} command={rendered}", flush=True)
     try:
@@ -117,5 +144,7 @@ for index, entry in enumerate(tests, start=1):
 
     print(f"TEST_PASS name={name}", flush=True)
 
-print(f"TEST_RUNNER_RESULT=pass count={len(tests)}")
+if executed == 0:
+    fail(f"selected-phase-has-no-tests:phase={SELECTED_PHASE}")
+print(f"TEST_RUNNER_RESULT=pass count={executed}")
 PY

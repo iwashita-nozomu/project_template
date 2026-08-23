@@ -70,7 +70,6 @@ replacements: dict[str, list[tuple[str, str]]] = {
     "QUICK_START.md": [
         ("bash docker/run-tests.sh --tag project-template:test", f"bash docker/run-tests.sh --tag {slug}:test"),
     ],
-    "Makefile": [("DOCKER_IMAGE ?= project-template:local", f"DOCKER_IMAGE ?= {slug}:local")],
     "CMakeLists.txt": [
         ("project(project_template VERSION", f"project({cmake_name} VERSION"),
     ],
@@ -116,5 +115,5 @@ PY
 
 if [[ "$DRY_RUN" != 1 ]]; then
   python3 tools/check_runtime_independence.py
-  echo "next: review the diff, commit it, run make pr-check, then run make fresh-clone-check"
+  echo "next: review the diff, commit it, run bash test/testrunner.sh, then run bash tools/check_fresh_clone.sh"
 fi

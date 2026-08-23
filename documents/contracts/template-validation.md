@@ -1,13 +1,14 @@
 # Template validation contract
 
-The repository owns its normal validation entry points:
+The repository owns two normal validation entry points:
 
-- `make docs-check` verifies reader-facing local links;
-- `make cpp-test` builds and runs the parent CTest surface directly;
-- `make test` runs the single parent test list, including tooling and C++;
-- `make pr-check` composes the pull-request gate;
-- `make fresh-clone-check` validates an ordinary source-free descendant clone
-  when the project provides that acceptance check.
+- `bash test/testrunner.sh` runs the complete static, tooling, Docker-contract,
+  and C++ list;
+- `bash tools/check_fresh_clone.sh` validates an initialized ordinary
+  source-free descendant clone.
+
+Targeted CMake development uses `cmake --preset dev`,
+`cmake --build --preset dev`, and `ctest --preset dev`.
 
 Project checks do not initialize a submodule, resolve an AgentCanon source
 root, load Codex hooks, contact `agent-canon-log`, or inspect an external

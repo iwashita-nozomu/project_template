@@ -45,8 +45,10 @@ def test_parent_test_entrypoints_are_tracked_and_executable() -> None:
 def test_root_layout_has_one_source_test_and_experiment_owner() -> None:
     """The reader-facing layout matches the executable repository structure."""
     assert (PROJECT_ROOT / "CMakeLists.txt").is_file()
+    assert (PROJECT_ROOT / "CMakePresets.json").is_file()
     assert (PROJECT_ROOT / "include/project/version.hpp").is_file()
     assert (PROJECT_ROOT / "src/version.cpp").is_file()
     assert (PROJECT_ROOT / "test/cpp/version_test.cpp").is_file()
     assert not (PROJECT_ROOT / "cpp").exists()
     assert not (PROJECT_ROOT / "tests").exists()
+    assert not (PROJECT_ROOT / "Makefile").exists()

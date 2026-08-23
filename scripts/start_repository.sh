@@ -52,11 +52,9 @@ if [[ "$VALIDATE_ONLY" == 1 ]]; then
     echo "--validate-only requires a clean worktree" >&2
     exit 1
   }
-  run_step make runtime-independence-check
-  run_step make docs-check
-  run_step make github-workflow-check
+  run_step bash "$ROOT_DIR/test/testrunner.sh"
   if [[ "$RUN_FRESH_CLONE_CHECK" == 1 ]]; then
-    run_step make fresh-clone-check
+    run_step bash "$ROOT_DIR/tools/check_fresh_clone.sh"
   fi
   final_status="$(git status --short --untracked-files=all)"
   [[ -z "$final_status" ]] || {

@@ -15,7 +15,7 @@ WSL2 です。AgentCanon の tool runtime は別 repository の standalone boots
 ## 必須
 
 - Linux filesystem 上で作業できること
-- `git`、`python3`、`make`、`rg` が使えること
+- `git`、`python3`、`cmake`、`rg` が使えること
 - project Docker を使う場合は `docker version` または `podman version` が通ること
 - workspace の正本 path が決まっていること
 
@@ -74,10 +74,10 @@ COMMON=(--control-parent-root "$ROOT" --runtime-root "$RUNTIME")
 uname -a
 python3 --version
 git --version
-make --version
+cmake --version
 docker version
 git status --short
-make pr-check
+bash test/testrunner.sh
 ```
 
 ## Related

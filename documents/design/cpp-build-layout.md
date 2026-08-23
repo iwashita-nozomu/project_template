@@ -29,10 +29,9 @@ without taking ownership of its source or build graph.
 The standard route is:
 
 ```bash
-cmake -S . -B build/dev -DCMAKE_BUILD_TYPE=Debug \
-  -DCMAKE_INSTALL_PREFIX=.state/install/dev
-cmake --build build/dev --parallel
-ctest --test-dir build/dev --output-on-failure
+cmake --preset dev
+cmake --build --preset dev --parallel
+ctest --preset dev
 cmake --install build/dev
 ```
 
