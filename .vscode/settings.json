@@ -22,7 +22,6 @@
   "explorer.excludeGitIgnore": false,
   "python.analysis.extraPaths": [
     "./python",
-    "./src",
     "./tools"
   ],
   "python-envs.defaultEnvManager": "ms-python.python:system",

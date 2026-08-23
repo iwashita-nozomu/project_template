@@ -1,28 +1,23 @@
-# Experiment Reports
-
+# Experiment reports
 <!--
 @dependency-start
 contract design
-responsibility Documents Experiment Reports for this repository.
-upstream design ../README.md experiments hub guidance
-upstream design ../../documents/design/experiment-workflow.md report style contract
+responsibility Documents durable reader-facing reports for concrete experiment runs.
+upstream design ../README.md experiment placement guidance
+upstream design ../../documents/design/experiment-workflow.md report boundary
 @dependency-end
 -->
 
-`experiments/report/` には 1 回の run に対応する report を置きます。
-report 名は `run_name` とそろえ、`experiments/<topic>/result/<run_name>/` と 1 対 1 で辿れるようにします。
+Store one report per concrete run and link it to
+`experiments/<topic>/result/<run-name>/`.
 
-最低限、次を report 側で辿れるようにします。
+Each report records:
 
-- `Question:`
-- `Comparison Target:`
-- exact command
-- `result/<run_name>/` の path
-- `run_manifest.json`
-- `eval_manifest.json`
-- `summary.json`
-- `cases.jsonl`
-- `result/<run_name>/logs/`
-- 可視化 notebook
+- the question and comparison target;
+- the exact command, source revision, and configuration;
+- the result directory and relevant environment identity;
+- the principal generated files and their digests;
+- limitations and the next action.
 
-cross-run の要約やcampaign全体の知見は`documents/notes/experiments/`へ移します。
+Do not cite generic manifest or log names unless the topic runner actually
+creates and owns them.

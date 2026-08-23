@@ -4,32 +4,42 @@
 from __future__ import annotations
 
 import re
+import subprocess
 import sys
 from pathlib import Path
 from urllib.parse import unquote
 
 ROOT = Path(__file__).resolve().parents[1]
-DOCS = (
-    ROOT / "README.md",
-    ROOT / "QUICK_START.md",
-    ROOT / "scripts/README.md",
-    ROOT / "docker/README.md",
-    ROOT / "documents/README.md",
-    ROOT / "documents/contracts/licensing-policy.md",
-    ROOT / "documents/contracts/template-bootstrap.md",
-    ROOT / "documents/contracts/template-github-remote.md",
-    ROOT / "documents/contracts/template-validation.md",
-    ROOT / "documents/design/docker-zero-build-environment.md",
-)
 LINK = re.compile(r"(?<!!)\[[^\]]*\]\(([^)]+)\)")
 
 
 def fail(message: str) -> None:
+    """Emit one documentation finding and stop."""
     print(f"DOCS_FINDING={message}", file=sys.stderr)
     raise SystemExit(1)
 
 
-for document in DOCS:
+tracked = subprocess.run(
+    [
+        "git",
+        "-C",
+        str(ROOT),
+        "ls-files",
+        "--cached",
+        "--others",
+        "--exclude-standard",
+        "--",
+        "*.md",
+    ],
+    check=True,
+    capture_output=True,
+    text=True,
+).stdout.splitlines()
+
+for relative in tracked:
+    document = ROOT / relative
+    if not document.is_file():
+        continue
     if not document.is_file():
         fail(f"missing:{document.relative_to(ROOT)}")
     text = document.read_text(encoding="utf-8")

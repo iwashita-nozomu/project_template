@@ -9,8 +9,12 @@ if [[ -n "$(git status --short --untracked-files=all)" ]]; then
   exit 1
 fi
 
-workdir="$(mktemp -d)"
-cleanup() { rm -rf "$workdir"; }
+mkdir -p "$repo_root/workspace"
+workdir="$(mktemp -d "$repo_root/workspace/fresh-clone.XXXXXX")"
+cleanup() {
+  find "$workdir" -depth -delete 2>/dev/null || true
+  rmdir "$repo_root/workspace" 2>/dev/null || true
+}
 trap cleanup EXIT HUP INT TERM
 
 template_clone="$workdir/template"
@@ -37,7 +41,7 @@ git -C "$template_clone" config user.name "Fixture"
   git --git-dir="$bare_remote" symbolic-ref HEAD refs/heads/main
 )
 
-rm -rf "$template_clone"
+find "$template_clone" -depth -delete
 git clone "$bare_remote" "$descendant_clone" >/dev/null
 
 (
@@ -55,11 +59,16 @@ git clone "$bare_remote" "$descendant_clone" >/dev/null
   test ! -e .agent-canon
   test -x test/testrunner.sh
   test -x scripts/agent-canon-develop.sh
+  grep -Fq 'name = "descendant-fixture"' pyproject.toml
+  grep -Fq 'project(descendant_fixture VERSION' CMakeLists.txt
   python3 tools/check_runtime_independence.py
   python3 tools/check_markdown_links.py
   python3 tools/check_github_workflows.py
+  cmake -S . -B build/fresh-clone -DCMAKE_BUILD_TYPE=Debug
+  cmake --build build/fresh-clone --parallel
+  ctest --test-dir build/fresh-clone --output-on-failure
 
   test -z "$(git status --short --untracked-files=all)"
 )
 
-printf 'FRESH_CLONE_ACCEPTANCE=pass docker=not-applicable\n'
+printf 'FRESH_CLONE_ACCEPTANCE=pass cmake=pass docker=not-applicable\n'

@@ -50,6 +50,8 @@ EXECUTION_PATHS = (
     "pyproject.toml",
     ".codex/",
     "scripts/",
+    "test/testrunner.sh",
+    "test/testlist.toml",
     "docker/",
     ".devcontainer/",
     ".github/workflows/",

@@ -54,7 +54,7 @@ convention = "pep257"
 
 [tool.pyright]
 typeCheckingMode = "strict"
-include = ["./python", "./tests"]
+include = ["./python", "./test"]
 exclude = [
   "**/.*",
   "**/node_modules",
@@ -81,4 +81,4 @@ match_dir = ".*"
 ignore = ["D104", "D105", "D107", "D203"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["test"]

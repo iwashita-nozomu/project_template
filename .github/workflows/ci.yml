@@ -30,16 +30,7 @@ jobs:
           make docker-check
 
       - name: Build and run the parent test image
-        run: |
-          docker build --platform linux/amd64 \
-            --tag project-template:ci \
-            --file docker/Dockerfile .
-          docker run --rm --platform linux/amd64 \
-            project-template:ci test/testrunner.sh
-
-      - name: Remove parent test image
-        if: always()
-        run: docker image rm project-template:ci || true
+        run: bash docker/run-tests.sh --tag project-template:ci
 
   fresh-clone-acceptance:
     name: Fresh Clone Acceptance

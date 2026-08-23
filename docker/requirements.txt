@@ -4,7 +4,7 @@
 # upstream environment ../pyproject.toml parent direct dependency declarations
 # upstream design ../documents/design/docker-zero-build-environment.md parent Python dependency boundary
 # downstream implementation ./install_python_dependencies.sh installs this lock fail-closed
-# downstream environment ../.github/workflows/ci.yml uses this lock for installation and cache identity
+# downstream environment ./Dockerfile full-runtime and gpu-runtime consume this lock
 # @dependency-end
 # Generated for Linux x86_64 with CPython 3.11.15 and pip-tools 7.6.0.
 # Edit pyproject.toml and rerun the command below; do not edit package pins directly.

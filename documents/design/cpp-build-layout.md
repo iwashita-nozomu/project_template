@@ -1,27 +1,41 @@
 # C++ build layout
-
 <!--
 @dependency-start
 contract design
-responsibility Documents the parent-owned C++ project and CTest build boundary.
-downstream implementation ../../cpp/CMakeLists.txt single C++ project entrypoint
-downstream design ../../cpp/README.md language-local layout
+responsibility Defines the root CMake project, source, test, build, and install paths.
+downstream implementation ../../CMakeLists.txt root CMake entrypoint
+downstream implementation ../../include/project/version.hpp public interface
+downstream implementation ../../src/version.cpp production implementation
+downstream implementation ../../test/cpp/CMakeLists.txt CTest consumer
 @dependency-end
 -->
 
-`cpp/` is the parent repository's only CMake project root. The parent owns the
-source inventory, CTest graph, native experiment targets, install tree, and all
-build artifacts. AgentCanon is not a build dependency and is not read by CMake.
+The repository root is the only CMake project root.
 
-```bash
-cmake -S cpp -B build/cpp/dev \
-  -DCMAKE_INSTALL_PREFIX="$PWD/.state/cpp-install/dev"
-cmake --build build/cpp/dev --parallel
-ctest --test-dir build/cpp/dev --output-on-failure
+```text
+.
+├── CMakeLists.txt
+├── include/          public C++ headers
+├── src/              production C++ sources
+├── test/cpp/         CTest sources
+├── build/<profile>/  ignored configure/build output
+└── .state/install/   ignored local install output
 ```
 
-Use out-of-source build directories under `build/cpp/<profile>/`. Do not place
-generated files, compiler caches, test fixtures, or reports in the source tree.
-The project container and its CI job provide C++ dependencies; the separate
-AgentCanon tool container must not mount `cpp/`, `tests/`, or the CMake build
-tree for project execution.
+There is no `cpp/` wrapper and no language-local experiment tree. Concrete
+experiments live below root `experiments/` and may invoke a built executable
+without taking ownership of its source or build graph.
+
+The standard route is:
+
+```bash
+cmake -S . -B build/dev -DCMAKE_BUILD_TYPE=Debug \
+  -DCMAKE_INSTALL_PREFIX=.state/install/dev
+cmake --build build/dev --parallel
+ctest --test-dir build/dev --output-on-failure
+cmake --install build/dev
+```
+
+The template carries one real library source and one CTest executable so a
+green C++ check cannot mean “zero tests discovered.” Derived projects replace
+or extend these files in the same owning directories.

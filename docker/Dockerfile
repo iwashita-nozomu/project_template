@@ -1,4 +1,4 @@
-FROM ubuntu:22.04@sha256:0d779ea97881505f5ef0039336ee85edba27519bdba968c284c86ee066a973c8 AS cpu-runtime
+FROM ubuntu:22.04@sha256:0d779ea97881505f5ef0039336ee85edba27519bdba968c284c86ee066a973c8 AS project-base
 
 ARG PROJECT_UID=1000
 ARG PROJECT_GID=1000
@@ -9,8 +9,8 @@ ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     CMAKE_GENERATOR=Ninja \
-    PROJECT_TEMPLATE_CPP_BUILD_ROOT=/workspace/build/cpp \
-    PROJECT_TEMPLATE_CPP_INSTALL_ROOT=/workspace/.state/cpp-install \
+    PROJECT_BUILD_ROOT=/workspace/build \
+    PROJECT_INSTALL_ROOT=/workspace/.state/install \
     PYTHONPATH=/workspace/project-template/python \
     SHELL=/bin/zsh \
     HOME=/home/project
@@ -78,8 +78,8 @@ RUN python3 -m pip install --no-cache-dir --require-hashes \
  && rm -f /tmp/project-test-requirements.txt
 
 RUN set -eux; \
-    case "$PROJECT_UID" in ''|0|*[!0-9]*) echo "PROJECT_UID must be positive" >&2; exit 1 ;; esac; \
-    case "$PROJECT_GID" in ''|0|*[!0-9]*) echo "PROJECT_GID must be positive" >&2; exit 1 ;; esac; \
+    case "$PROJECT_UID" in ''|0|0*|*[!0-9]*) echo "PROJECT_UID must be positive" >&2; exit 1 ;; esac; \
+    case "$PROJECT_GID" in ''|0|0*|*[!0-9]*) echo "PROJECT_GID must be positive" >&2; exit 1 ;; esac; \
     groupadd --gid "$PROJECT_GID" project; \
     useradd --uid "$PROJECT_UID" --gid "$PROJECT_GID" --create-home --shell /bin/zsh project; \
     install -d -m 0755 -o project -g project /workspace; \
@@ -94,15 +94,21 @@ RUN set -eux; \
 # the test contract does not rebuild the compiler and Python toolchain.
 ENV PROJECT_TEST_ENVIRONMENT_OWNER=project-container
 
-# The product image is self-contained: tests run against the exact source that
-# was reviewed at build time, with no external lifecycle hook.
+# The repository test image is self-contained: tests run against the exact
+# source reviewed at build time, with no external lifecycle hook.
 COPY --chown=project:project . /workspace/project-template
 WORKDIR /workspace/project-template
 EXPOSE 8888
 CMD ["/bin/zsh"]
 USER project
 
-FROM cpu-runtime AS gpu-runtime
+FROM project-base AS full-runtime
+
+USER root
+RUN bash docker/install_python_dependencies.sh /workspace/project-template --profile full
+USER project
+
+FROM project-base AS gpu-runtime
 
 ARG CUDA_KEYRING_URL=https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb
 ARG CUDA_KEYRING_SHA256=d93190d50b98ad4699ff40f4f7af50f16a76dac3bb8da1eaaf366d47898ff8df
@@ -122,8 +128,9 @@ RUN set -eux; \
       libnccl2=2.25.1-1+cuda12.8 \
       libnccl-dev=2.25.1-1+cuda12.8; \
     rm -f "$keyring_deb"; \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/*; \
+    bash docker/install_python_dependencies.sh /workspace/project-template --profile gpu
 USER project
 
-FROM cpu-runtime AS default-runtime
+FROM project-base AS default-runtime
 USER project

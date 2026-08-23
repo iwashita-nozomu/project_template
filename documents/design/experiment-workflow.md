@@ -1,20 +1,22 @@
 # Experiment workflow
-
 <!--
 @dependency-start
 contract design
-responsibility Documents the parent-owned experiment registry, run, and report boundary.
-downstream design ../../experiments/README.md experiment hub
+responsibility Defines one parent-owned experiment source, result, and report boundary.
+downstream design ../../experiments/README.md experiment placement guide
 @dependency-end
 -->
 
-The parent repository owns `experiments/registry.toml`, topic source, run
-configuration, result artifacts, and reports. A managed experiment must record
-the exact command, commit, configuration, environment (with secrets redacted),
-and output paths under the topic's result directory.
+The parent repository owns topic source, run configuration, result artifacts,
+and reports below one root `experiments/` tree. The template defines placement,
+not a generic runner or registry.
 
-AgentCanon is not an experiment runner dependency. If AgentCanon evaluates an
-experiment, it is an external analysis consumer: register the parent target
-explicitly, keep project tests and build state out of the AgentCanon tool
-runtime, and write eval evidence to AgentCanon's external spool. Publication,
-when authorized, goes to `agent-canon-log` and does not write this source tree.
+Each concrete topic documents its exact command, source revision,
+configuration, relevant environment identity, output paths, and cleanup. A
+language-specific build may produce an executable used by a topic, but it does
+not create a second experiment lifecycle beneath `src/`, `test/`, or another
+language directory.
+
+AgentCanon is not an experiment runner dependency. It may inspect a registered
+project target as an external analysis consumer, but project execution and
+results remain parent-owned.

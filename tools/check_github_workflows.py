@@ -20,6 +20,7 @@ FORBIDDEN = (
 
 
 def fail(message: str) -> None:
+    """Emit one workflow finding and stop."""
     print(f"WORKFLOW_FINDING={message}", file=sys.stderr)
     raise SystemExit(1)
 
@@ -43,10 +44,7 @@ for required_name in ("name: Repository CI", "name: Fresh Clone Acceptance"):
 if "make fresh-clone-check" not in ci:
     fail("canonical-command-missing")
 for command in (
-    "docker build --platform linux/amd64",
-    "--file docker/Dockerfile .",
-    "docker run --rm --platform linux/amd64",
-    "project-template:ci test/testrunner.sh",
+    "bash docker/run-tests.sh --tag project-template:ci",
 ):
     if command not in ci:
         fail(f"project-container-command-missing:{command}")

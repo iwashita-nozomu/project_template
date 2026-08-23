@@ -170,6 +170,19 @@ def test_execution_vendor_reference_is_rejected(tmp_path: Path) -> None:
     assert "forbidden-runtime-reference:docker/run.sh:vendor/agent-canon" in result.stderr
 
 
+def test_test_entry_vendor_reference_is_rejected(tmp_path: Path) -> None:
+    """The executable test list cannot restore an AgentCanon source dependency."""
+    root = make_fixture(tmp_path)
+    add_and_commit(
+        root,
+        "test/testlist.toml",
+        'command = ["python3", "vendor/agent-canon/tool.py"]\n',
+    )
+    result = check(root)
+    assert result.returncode == 1
+    assert "forbidden-runtime-reference:test/testlist.toml:vendor/agent-canon" in result.stderr
+
+
 def test_documentation_and_ignored_development_workspace_are_not_runtime_dependencies(
     tmp_path: Path,
 ) -> None:
