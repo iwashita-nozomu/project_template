@@ -26,32 +26,34 @@ flowchart TD
   pr[Pull request] --> ci[CI workflow]
   push[Push to main or master] --> ci
   manual[Manual dispatch] --> ci
-  ci --> static[docker/run-tests.sh runs static phase]
-  static --> build[script builds docker/Dockerfile]
-  build --> run[container runs portable phase]
-  run --> checks[Tooling and C++ checks]
+  ci --> build[docker/run-tests.sh builds docker/Dockerfile]
+  build --> run[container runs all phases]
+  run --> static[Static repository contracts]
+  run --> portable[Tooling and C++ checks]
   ci --> fresh[Fresh Clone Acceptance]
   fresh --> init[Offline descendant initialization]
   init --> boundary[No gitlink, source projection, or hidden runtime]
-  checks --> result[Required project result]
+  static --> result[Required project result]
+  portable --> result
   boundary --> result
 ```
 
 ### Repository CI
 
 1. Check out the project without recursive submodules or persisted credentials.
-2. Run `docker/run-tests.sh`, which runs the static phase on the Host, builds
-   one self-contained project image from `docker/Dockerfile`, and removes the
-   exact image.
-3. Run the portable phase of `test/testrunner.sh` inside that image. The TOML
-   list reports `environment_owner=project-container` and
-   `responsibility=parent-repository` on failure.
+2. Run `docker/run-tests.sh`, which builds one self-contained project image from
+   `docker/Dockerfile` without invoking the test runner on the Host checkout.
+3. Run the complete `all` phase of `test/testrunner.sh` inside that disposable
+   image. Static and portable failures retain their test-list
+   `environment_owner` and `responsibility` classification.
 4. Let the script's trap remove the exact CI image on success, failure, or
    interruption; it refuses to overwrite a pre-existing tag.
 
-The job does not install a second Host Python environment or run the same test
-list on both Host and container. Project source is copied at build time, so no
-workspace/test mount or Docker socket is required at run time.
+The job does not install a second Host Python environment or give test commands
+write capability to the caller checkout. Project source is copied at build time,
+so no workspace/test mount or Docker socket is required at run time. The phase
+classification remains available for direct focused checks, but the Docker
+validation path has one source snapshot and one execution boundary.
 
 ### Fresh Clone Acceptance
 
