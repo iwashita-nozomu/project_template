@@ -51,11 +51,12 @@ Docker uses the same test entry with the tracked Dockerfile:
 bash docker/run-tests.sh --tag project-template:test
 ```
 
-The source tree and its parent test list are copied into the image at build
-time. The Docker wrapper runs the list's `static` phase on the Host, then its
-`portable` phase in the image, so Git-bound checks are not duplicated or run
-against a snapshot without `.git`. The workflow has no workspace mount,
-interactive development-container lifecycle, or post-create setup.
+The source tree and its test list are copied into the image at build time. The
+Docker wrapper runs the complete `all` phase inside that disposable image, so
+no test command receives write capability to the caller checkout. Static and
+portable classifications remain in the canonical list for direct focused use;
+the Docker path has no workspace mount, interactive development-container
+lifecycle, or post-create setup.
 
 The single image is a bounded Ubuntu 24.04 test image. It intentionally omits
 scientific Python, notebook, CUDA, GPU, and general developer-tool profiles;
