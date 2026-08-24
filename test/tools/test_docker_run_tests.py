@@ -1,4 +1,4 @@
-"""Tests for the exact-image lifecycle owned by docker/run-tests.sh."""
+"""Tests for the disposable-image lifecycle owned by docker/run-tests.sh."""
 
 from __future__ import annotations
 
@@ -36,10 +36,9 @@ def fake_docker(tmp_path: Path) -> tuple[Path, Path, Path]:
     bash = bin_dir / "bash"
     bash.write_text(
         "#!/bin/bash\n"
-        "if [[ \"${1:-}\" == */test/testrunner.sh "
-        "&& \"${2:-}\" == --phase && \"${3:-}\" == static ]]; then\n"
-        "  echo STATIC_FIXTURE=pass\n"
-        "  exit 0\n"
+        "if [[ \"${1:-}\" == */test/testrunner.sh ]]; then\n"
+        "  echo HOST_TEST_RUNNER_FORBIDDEN >&2\n"
+        "  exit 99\n"
         "fi\n"
         "exec /bin/bash \"$@\"\n",
         encoding="utf-8",
@@ -71,7 +70,7 @@ def run_runner(tmp_path: Path, *, run_exit: int = 0) -> subprocess.CompletedProc
 
 
 def test_image_is_removed_after_success(tmp_path: Path) -> None:
-    """A successful test run removes the exact image it created."""
+    """All checks run in the image and its exact tag is removed."""
     result = run_runner(tmp_path)
     assert result.returncode == 0, result.stdout + result.stderr
     assert not (tmp_path / "image-present").exists()
@@ -79,7 +78,7 @@ def test_image_is_removed_after_success(tmp_path: Path) -> None:
     assert "build --platform linux/amd64" in log
     assert (
         "run --rm --platform linux/amd64 fixture:test "
-        "test/testrunner.sh --phase portable"
+        "test/testrunner.sh --phase all"
     ) in log
     assert "image rm fixture:test" in log
 
