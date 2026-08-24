@@ -1,6 +1,7 @@
 # Parent-repository test contract.
 # TOML comments are intentional: keep the command list reviewable and local.
-# static entries require the Git checkout; portable entries run in the image.
+# Phase labels support focused execution. Docker builds an image-local Git
+# snapshot and runs both phases through the same disposable `all` boundary.
 
 format = "parent-test-list-v1"
 environment_owner = "invocation-environment"
