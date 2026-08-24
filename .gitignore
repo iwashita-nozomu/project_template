@@ -1,0 +1,27 @@
+# Cross-tree Python and notebook artifacts
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+
+# Root Python tooling and environments
+/.pytest_cache/
+/.ruff_cache/
+/.venv/
+/venv/
+
+# Generated project outputs
+/build/
+/dist/
+/.state/
+/logs/
+/reports/
+/test/logs/
+/experiments/**/result/
+
+# Host and editor metadata
+.DS_Store
+
+# Local worktrees and scratch checkouts
+/.worktrees/
+/workspace/

@@ -1,0 +1,15 @@
+.git
+.codex
+.devcontainer
+vendor
+workspace
+.pytest_cache
+.ruff_cache
+.state
+build
+logs
+reports
+dist
+experiments/**/result
+__pycache__
+*.egg-info
