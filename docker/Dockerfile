@@ -45,9 +45,19 @@ RUN set -eux; \
 # the test contract does not rebuild the compiler and Python toolchain.
 ENV PROJECT_TEST_ENVIRONMENT_OWNER=project-container
 
-# The repository test image is self-contained: tests run against the exact
-# source reviewed at build time, with no external lifecycle hook.
+# The caller's .git directory is excluded from the build context. Create one
+# deterministic image-local commit so Git-bound checks see the exact source
+# snapshot without receiving caller history, credentials, index, or worktree.
 COPY --chown=project . /workspace/project-template
 WORKDIR /workspace/project-template
-CMD ["/bin/bash"]
 USER project
+RUN git init --quiet --initial-branch=snapshot \
+ && git add --all \
+ && GIT_AUTHOR_DATE='2000-01-01T00:00:00Z' \
+    GIT_COMMITTER_DATE='2000-01-01T00:00:00Z' \
+    git -c user.name='Project Template Test' \
+        -c user.email='project-template-test@localhost' \
+        commit --quiet -m 'project source snapshot' \
+ && test -z "$(git status --short)"
+
+CMD ["/bin/bash"]
