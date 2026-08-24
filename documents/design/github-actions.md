@@ -27,7 +27,8 @@ flowchart TD
   push[Push to main or master] --> ci
   manual[Manual dispatch] --> ci
   ci --> build[docker/run-tests.sh builds docker/Dockerfile]
-  build --> run[container runs all phases]
+  build --> snapshot[Image creates clean local Git snapshot]
+  snapshot --> run[Container runs all phases]
   run --> static[Static repository contracts]
   run --> portable[Tooling and C++ checks]
   ci --> fresh[Fresh Clone Acceptance]
@@ -43,17 +44,21 @@ flowchart TD
 1. Check out the project without recursive submodules or persisted credentials.
 2. Run `docker/run-tests.sh`, which builds one self-contained project image from
    `docker/Dockerfile` without invoking the test runner on the Host checkout.
-3. Run the complete `all` phase of `test/testrunner.sh` inside that disposable
+3. Exclude the caller `.git` directory from the build context and create one
+   clean, fixed-identity/fixed-time commit from the copied source snapshot.
+   This supplies Git-bound static checks with an image-local index while keeping
+   caller history, credentials, index, and worktree outside the container.
+4. Run the complete `all` phase of `test/testrunner.sh` inside that disposable
    image. Static and portable failures retain their test-list
    `environment_owner` and `responsibility` classification.
-4. Let the script's trap remove the exact CI image on success, failure, or
+5. Let the script's trap remove the exact CI image on success, failure, or
    interruption; it refuses to overwrite a pre-existing tag.
 
 The job does not install a second Host Python environment or give test commands
-write capability to the caller checkout. Project source is copied at build time,
-so no workspace/test mount or Docker socket is required at run time. The phase
-classification remains available for direct focused checks, but the Docker
-validation path has one source snapshot and one execution boundary.
+write capability to the caller checkout. No workspace/test mount or Docker
+socket is required at run time. The phase classification remains available for
+direct focused checks, but the Docker validation path has one copied source
+snapshot, one image-local Git baseline, and one execution boundary.
 
 ### Fresh Clone Acceptance
 
@@ -66,8 +71,7 @@ execution is already owned once by `Repository CI`.
 
 Protected `main` should require `Repository CI` and `Fresh Clone Acceptance`.
 Neither job forwards GitHub tokens, SSH agents, Docker credentials, or project
-secrets into the project container. GPU access is
-not a CI prerequisite.
+secrets into the project container. GPU access is not a CI prerequisite.
 
 ## Validation
 
