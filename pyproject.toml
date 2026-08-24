@@ -10,30 +10,13 @@ readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.11"
 classifiers = ["License :: OSI Approved :: Apache Software License"]
-dependencies = ["jax", "jaxtyping", "typeguard", "equinox", "optax", "scipy"]
+dependencies = []
 
 [project.optional-dependencies]
-gpu = ["jax[cuda12-local]"]
 dev = [
   "pytest>=8",
   "ruff>=0.5",
-  "scipy-stubs",
-  "pydocstyle>=6.3",
-  "pyyaml>=6",
   "pyright",
-  "pydeps",
-  "pipdeptree",
-  "deptry",
-  "snakeviz",
-  "psutil",
-  "jupyterlab",
-  "notebook",
-  "ipykernel",
-  "mdformat",
-  "mdformat-myst",
-  "jsonschema>=4.0.0",
-  "cryptography>=41.0.0",
-  "pydantic>=2.0.0",
 ]
 
 [tool.setuptools]
@@ -74,11 +57,6 @@ stubPath = "./python/typings"
 reportUnusedVariable = "warning"
 reportConstantRedefinition = "warning"
 reportMissingTypeStubs = "warning"
-
-[tool.pydocstyle]
-match = ".*\\.py"
-match_dir = ".*"
-ignore = ["D104", "D105", "D107", "D203"]
 
 [tool.pytest.ini_options]
 testpaths = ["test"]

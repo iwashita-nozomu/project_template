@@ -87,12 +87,12 @@ bash docker/run-tests.sh --tag project-template:test
 The source tree and its parent test list are copied into the image at build
 time. The Docker wrapper runs the list's `static` phase on the Host, then its
 `portable` phase in the image, so Git-bound checks are not duplicated or run
-against a snapshot without `.git`. The workflow needs no workspace mount or interactive
-development-container lifecycle is needed.
+against a snapshot without `.git`. The workflow has no workspace mount,
+interactive development-container lifecycle, or post-create setup.
 
-The default image is a bounded CPU test image. Full project dependencies use
-the explicit `full-runtime` target; GPU support uses `gpu-runtime` and requires
-a compatible host driver.
+The single image is a bounded Ubuntu 24.04 test image. It intentionally omits
+scientific Python, notebook, CUDA, GPU, and general developer-tool profiles;
+descendant repositories add only the product dependencies they actually need.
 
 ## Repository layout
 

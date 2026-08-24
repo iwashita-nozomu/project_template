@@ -75,8 +75,6 @@ replacements: dict[str, list[tuple[str, str]]] = {
     ],
     "docker/README.md": [
         ("project-template:test", f"{slug}:test"),
-        ("project-template:full", f"{slug}:full"),
-        ("project-template:gpu", f"{slug}:gpu"),
     ],
     "docker/run-tests.sh": [
         ("image_tag=project-template:test", f"image_tag={slug}:test"),

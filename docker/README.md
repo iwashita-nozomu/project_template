@@ -1,16 +1,11 @@
 # Docker environment
 
-`docker/Dockerfile` defines three explicit project surfaces:
-
-- default `default-runtime`: bounded repository test image;
-- `full-runtime`: project and development Python dependencies;
-- `gpu-runtime`: full GPU Python dependencies plus the pinned CUDA stack.
+`docker/Dockerfile` defines one bounded Ubuntu 24.04 repository test image.
+It contains only the dependencies required by the parent-owned portable Python
+and C++ checks.
 
 ```bash
 bash docker/run-tests.sh --tag project-template:test
-
-docker build --target full-runtime -f docker/Dockerfile -t project-template:full .
-docker build --target gpu-runtime -f docker/Dockerfile -t project-template:gpu .
 ```
 
 The image contains the reviewed project source and runs as the non-root
@@ -24,3 +19,7 @@ the exact image it creates. `docker/check_zero_build_contract.sh` validates the 
 `docker/cold-build-smoke.sh --pull --no-cache` performs one cold build and
 executes the same self-contained test runner. Neither path needs a workspace
 mount or a development-container lifecycle.
+
+Descendant repositories add product dependencies to their own project metadata
+and Dockerfile. This template does not preinstall scientific Python, notebook,
+CUDA, GPU, or general developer-tool profiles.
