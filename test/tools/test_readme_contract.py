@@ -13,19 +13,13 @@ def test_root_readme_describes_source_free_project_boundary() -> None:
     text = README.read_text(encoding="utf-8")
     lowered = text.lower()
 
-    for forbidden in (
-        "vendor/agent-canon",
-        ".gitmodules",
-        "git submodule update",
-        ".codex/config.toml",
-    ):
+    for forbidden in (".gitmodules", "git submodule update", ".codex/config.toml"):
         assert forbidden not in lowered
 
     normalized = " ".join(text.split())
     for required in (
-        "source-free with respect to AgentCanon",
+            "project development",
         "project Docker images",
-        "workspace/agent-canondevelop",
         "bash docker/run-tests.sh --tag project-template:test",
         "test/testlist.toml",
         "no workspace mount",

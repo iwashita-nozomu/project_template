@@ -1,12 +1,12 @@
 # Project Template
 
 A starting point for Python, C++, documents, experiments, and containerized
-project development. The repository is source-free with respect to AgentCanon:
-it owns product code, project Docker images, tests, documents, and CI only.
+project development. It owns product code, project Docker images, tests,
+documents, and CI only.
 
 A normal clone contains every project-owned file required to bootstrap, build,
-test, and validate the project. It does not contain an AgentCanon submodule,
-vendor checkout, source projection, or Codex runtime state.
+test, and validate the project. It does not contain external tool checkouts,
+source projections, or runtime state.
 
 ## Start a repository
 
@@ -23,8 +23,8 @@ bash test/testrunner.sh
 ```
 
 The initializer is an offline, repository-local identity conversion. It rewrites
-project metadata and reader-facing examples only. It does not acquire or
-initialize AgentCanon and does not write outside the project checkout.
+project metadata and reader-facing examples only. It does not acquire another
+repository or write outside the project checkout.
 
 After committing the initialized tree, run the descendant acceptance check:
 
@@ -33,38 +33,6 @@ bash tools/check_fresh_clone.sh
 ```
 
 This publishes the generated repository to a temporary local bare remote, clones it normally without recursive options, hides the template source, and reruns project-owned checks.
-
-## Use AgentCanon with Codex
-
-AgentCanon is a separate tool and policy repository. When a task needs its
-skills, hooks, or analysis tools, create a qualified, ignored development clone
-under this repository's workspace and run the standalone bootstrap there:
-
-```bash
-ROOT="$PWD"
-TASK="<qualified-task>"
-DEV="$ROOT/workspace/agent-canondevelop/$TASK"
-scripts/agent-canon-develop.sh clone "$TASK"
-cd "$DEV/agent-canon"
-RUNTIME="$ROOT/workspace/agent-canon-runtime/$TASK"
-COMMON=(--control-parent-root "$ROOT" --runtime-root "$RUNTIME")
-./bootstrap.sh "${COMMON[@]}" install
-./bootstrap.sh "${COMMON[@]}" start
-./bootstrap.sh "${COMMON[@]}" target add --root "$ROOT" --mode read-only
-./bootstrap.sh "${COMMON[@]}" codex prepare
-./bootstrap.sh "${COMMON[@]}" codex launch --project-root "$ROOT"
-```
-
-The project remains the owner of its own Docker/test runner. Do not mount
-`test/`, project build state, or project credentials into the AgentCanon tool
-runtime. AgentCanon's `eval collect` may read the explicitly registered project
-target, and `eval sync` publishes only to the separate
-[`agent-canon-log`](https://github.com/iwashita-nozomu/agent-canon-log) archive.
-When the task is complete, return to the project root and run
-`scripts/agent-canon-develop.sh cleanup "$TASK"`. It verifies merged-main and
-clean-checkout state, uninstalls the exact runtime, and removes only the
-task-qualified clone/runtime paths. Finally verify that the project worktree is
-clean.
 
 ## Canonical checks
 
@@ -77,8 +45,7 @@ ctest --preset dev
 ```
 
 `test/testlist.toml` owns the complete static, tooling, and C++ validation list.
-No project check initializes or loads AgentCanon. Docker uses the same test
-entry with the tracked Dockerfile:
+Docker uses the same test entry with the tracked Dockerfile:
 
 ```bash
 bash docker/run-tests.sh --tag project-template:test
@@ -98,7 +65,7 @@ descendant repositories add only the product dependencies they actually need.
 
 ```text
 .
-├── AGENTS.md                  # parent project instructions
+├── AGENTS.md                  # project instructions
 ├── CMakeLists.txt            # root C++ project entrypoint
 ├── include/                  # public C++ headers
 ├── src/                      # production C++ sources
@@ -110,7 +77,7 @@ descendant repositories add only the product dependencies they actually need.
 ├── tools/                    # project-owned validation tools
 ├── test/                     # runner, test list, tooling tests, and CTest sources
 ├── vendor/                   # empty placeholder for project-owned third-party sources
-└── workspace/agent-canondevelop/ # ignored, temporary AgentCanon edit clones
+└── workspace/                # ignored project scratch space
 ```
 
 See `QUICK_START.md`, `documents/contracts/template-bootstrap.md`, and

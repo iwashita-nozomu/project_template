@@ -13,8 +13,8 @@ git push -u origin main
 
 Creating the destination repository and authenticating that push are caller
 responsibilities. They are the only network-dependent publication steps for a
-parent project. No recursive clone, submodule credential, AgentCanon token, or
-source/runtime seed refresh is part of publication.
+parent project. No recursive clone, submodule credential, or source/runtime seed
+refresh is part of publication.
 
 ## Branch protection baseline
 

@@ -112,6 +112,5 @@ print(f"changed_files={len(changed)}")
 PY
 
 if [[ "$DRY_RUN" != 1 ]]; then
-  python3 tools/check_runtime_independence.py
   echo "next: review the diff, commit it, run bash test/testrunner.sh, then run bash tools/check_fresh_clone.sh"
 fi

@@ -9,8 +9,8 @@ upstream design ../design/docker-zero-build-environment.md project container bou
 # Server Host Contract
 
 この文書は、server または SSH orchestration からこの parent repo を実行する host の
-最小契約を定めます。AgentCanon の source、runtime、eval archive は別 repository の
-責務であり、parent server host に常駐させません。
+最小契約を定めます。外部のsource、runtime、archiveはこのparent server hostに
+常駐させません。
 
 ## 必須
 
@@ -24,15 +24,15 @@ upstream design ../design/docker-zero-build-environment.md project container bou
 
 bare repo root と workspace root は分けます。Docker state、build cache、runtime artifact
 は local Linux filesystem に置き、CIFS、9p、network share を正本にしません。
-project checkout の `workspace/agent-canondevelop/` は AgentCanon 編集時だけ使う ignored
-作業領域で、task 終了時に exact task directory を削除します。
+project checkoutのignored `workspace/` は一時的なproject作業領域として使い、task終了時に
+exact task directoryを削除します。
 
 ## Container
 
 remote execution は project が定義する `docker/Dockerfile` と test runner を使います。
-server 固有の ad-hoc command、parent test directory の AgentCanon runtime mount、
-AgentCanon managed devcontainer は使いません。GPU は project command の明示的な run
-option でのみ渡します。daemon が rootful/rootless かを契約条件にしません。
+server固有のad-hoc commandやparent test directoryの外部runtime mountは使いません。
+GPUはproject commandの明示的なrun optionでのみ渡します。daemonがrootful/rootlessかを
+契約条件にしません。
 
 ## Git and artifacts
 

@@ -10,11 +10,6 @@ ROOT = Path(__file__).resolve().parents[1]
 WORKFLOWS = ROOT / ".github/workflows"
 DESIGN = ROOT / "documents/design/github-actions.md"
 FORBIDDEN = (
-    "vendor/agent-canon",
-    "tools/agent-canon",
-    "AGENT_CANON_",
-    "agent_canon_source_root",
-    "checkout_agent_canon_submodule",
     "submodules: recursive",
 )
 

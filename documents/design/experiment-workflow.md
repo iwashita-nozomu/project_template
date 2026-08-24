@@ -17,6 +17,5 @@ language-specific build may produce an executable used by a topic, but it does
 not create a second experiment lifecycle beneath `src/`, `test/`, or another
 language directory.
 
-AgentCanon is not an experiment runner dependency. It may inspect a registered
-project target as an external analysis consumer, but project execution and
-results remain parent-owned.
+External analysis tools are not experiment-runner dependencies. Project
+execution and results remain parent-owned.

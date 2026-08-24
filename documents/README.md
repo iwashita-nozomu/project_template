@@ -1,6 +1,6 @@
 # Repository documents
 
-`documents/` contains contracts, design material, durable notes, and external source records owned by this repository. A normal clone carries every project-owned document needed by bootstrap and validation; no document resolver or initialized AgentCanon checkout is required.
+`documents/` contains contracts, design material, durable notes, and external source records owned by this repository. A normal clone carries every project-owned document needed by bootstrap and validation; no external document resolver or initialized tool checkout is required.
 
 ## Operational contracts
 
@@ -18,8 +18,6 @@
 - [C++ build layout](design/cpp-build-layout.md)
 - [GitHub Actions design](design/github-actions.md)
 - [Experiment workflow](design/experiment-workflow.md)
-
-AgentCanon runtime definitions are not duplicated as template documents. AgentCanon is a separate standalone repository. When its tools are needed, use the ignored task clone and external runtime described by the bootstrap contract; never add its source, symlinks, tests, or runtime state to this tree.
 
 ## Notes and source records
 

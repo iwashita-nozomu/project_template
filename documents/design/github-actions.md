@@ -1,8 +1,8 @@
 # GitHub Actions design
 
 This document defines the repository-owned GitHub Actions graph. Template CI
-validates only the parent project; it never checks out AgentCanon, starts its
-tool runtime, publishes evals, or reads credentials for another repository.
+validates only the parent project and does not start external tool runtimes or
+read credentials for another repository.
 
 ## Workflow inventory
 
@@ -63,19 +63,9 @@ execution is already owned once by `Repository CI`.
 ## Required checks and security
 
 Protected `main` should require `Repository CI` and `Fresh Clone Acceptance`.
-Neither job forwards GitHub tokens, SSH agents, Docker credentials, project
-secrets, or AgentCanon capabilities into the project container. GPU access is
+Neither job forwards GitHub tokens, SSH agents, Docker credentials, or project
+secrets into the project container. GPU access is
 not a CI prerequisite.
-
-## AgentCanon boundary
-
-Optional AgentCanon work occurs only in the ignored
-`workspace/agent-canondevelop/<qualified-task>/agent-canon` clone. Its
-`bootstrap.sh` owns the shared tool image/container, isolated Codex home, eval
-spool, and typed publication to
-[`iwashita-nozomu/agent-canon-log`](https://github.com/iwashita-nozomu/agent-canon-log).
-Those resources are not nodes in this project CI graph and are removed through
-the AgentCanon closeout lifecycle.
 
 ## Validation
 

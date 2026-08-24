@@ -8,8 +8,8 @@ cd my-project
 ```
 
 A normal clone contains only project-owned source. Project bootstrap, build,
-tests, documentation, Docker, and CI do not require AgentCanon, a submodule, a
-source checkout, or network access.
+tests, documentation, Docker, and CI do not require an external tool checkout
+or hidden runtime state.
 
 ## 2. Preview and initialize the project
 
@@ -39,35 +39,7 @@ bash tools/check_fresh_clone.sh
 
 `tools/check_fresh_clone.sh` requires a clean committed tree because it validates exactly what another user receives from an ordinary, non-recursive clone.
 
-## 4. Use AgentCanon only when the task needs it
-
-Keep the parent project source-free. Clone AgentCanon into the ignored,
-task-qualified workspace and use its standalone bootstrap:
-
-```bash
-ROOT="$PWD"
-TASK="<qualified-task>"
-DEV="$ROOT/workspace/agent-canondevelop/$TASK"
-scripts/agent-canon-develop.sh clone "$TASK"
-cd "$DEV/agent-canon"
-RUNTIME="$ROOT/workspace/agent-canon-runtime/$TASK"
-COMMON=(--control-parent-root "$ROOT" --runtime-root "$RUNTIME")
-./bootstrap.sh "${COMMON[@]}" install
-./bootstrap.sh "${COMMON[@]}" start
-./bootstrap.sh "${COMMON[@]}" target add --root "$ROOT" --mode read-only
-./bootstrap.sh "${COMMON[@]}" codex prepare
-./bootstrap.sh "${COMMON[@]}" codex launch --project-root "$ROOT"
-```
-
-The AgentCanon runtime is for AgentCanon tools and skills. Run project tests
-with the project's own `docker/Dockerfile` and test runner; never mount the
-parent `test/` directory into AgentCanon. Collect and publish AgentCanon evals
-only through its external runtime spool and `agent-canon-log` archive. After
-merged-main readback, return to the project root and run
-`scripts/agent-canon-develop.sh cleanup "$TASK"` to uninstall and remove the
-exact task resources.
-
-## 5. Use Docker
+## 4. Use Docker
 
 ```bash
 bash docker/run-tests.sh --tag project-template:test

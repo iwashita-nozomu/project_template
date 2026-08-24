@@ -9,7 +9,7 @@ upstream design ../design/docker-zero-build-environment.md project container bou
 # Remote Execution Repo Contract
 
 この文書は、server や orchestration layer から SSH 経由で parent repo を実行するための
-最小契約です。AgentCanon の source、tool runtime、eval archive は別 repository の責務です。
+最小契約です。外部のsource、tool runtime、eval archiveは別repositoryの責務です。
 
 ## 必須
 
@@ -35,7 +35,7 @@ upstream design ../design/docker-zero-build-environment.md project container bou
 - remote execution は repo 定義の Dockerfile と test runner を使う
 - server 固有の ad-hoc command 断片に依存しない
 - 必要な env や mount は project pack か repo 内 script に寄せる
-- project pack は AgentCanon の managed devcontainer や tool runtime を呼ばない
+- project pack は外部のmanaged devcontainerやtool runtimeを呼ばない
 - nested Codex の state と credentials は明示的に分離する
 
 ## artifact 契約
@@ -43,11 +43,3 @@ upstream design ../design/docker-zero-build-environment.md project container bou
 - 実行結果の log と artifact の置き場を決める
 - repo 内に残すものと orchestration 側で集約するものを分ける
 - partial run を正式結果として扱うかどうかを repo 文書で明示する
-
-## AgentCanon separation
-
-AgentCanon が必要な分析は、親 repo の ignored
-`workspace/agent-canondevelop/<qualified-task>/agent-canon` から standalone bootstrap
-で別途実行します。project tests はその runtime に mount しません。eval は external
-spool に収集し、認可された場合だけ
-[`agent-canon-log`](https://github.com/iwashita-nozomu/agent-canon-log) に同期します。

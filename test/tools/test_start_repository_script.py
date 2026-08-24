@@ -106,7 +106,6 @@ def test_bootstrap_is_local_and_idempotent(tmp_path: Path) -> None:
     assert "project_runtime=source_free" in result.stdout
     assert "start_repository_init=pass" in result.stdout
     assert not (clone / ".gitmodules").exists()
-    assert not (clone / "vendor/agent-canon").exists()
     assert not (clone / ".codex").exists()
     assert not (clone / "AGENTS.md").is_symlink()
     assert 'name = "seeded-project"' in (clone / "pyproject.toml").read_text(
