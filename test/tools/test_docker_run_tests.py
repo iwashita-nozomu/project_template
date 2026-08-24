@@ -8,6 +8,8 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 RUNNER = PROJECT_ROOT / "docker/run-tests.sh"
+DOCKERFILE = PROJECT_ROOT / "docker/Dockerfile"
+DOCKERIGNORE = PROJECT_ROOT / ".dockerignore"
 
 
 def fake_docker(tmp_path: Path) -> tuple[Path, Path, Path]:
@@ -67,6 +69,34 @@ def run_runner(tmp_path: Path, *, run_exit: int = 0) -> subprocess.CompletedProc
         capture_output=True,
         text=True,
     )
+
+
+def test_image_has_a_clean_local_git_snapshot_without_caller_metadata() -> None:
+    """Git-bound checks use an image-owned commit, never the caller `.git`."""
+    dockerfile = DOCKERFILE.read_text(encoding="utf-8")
+    ignored = {
+        line.strip()
+        for line in DOCKERIGNORE.read_text(encoding="utf-8").splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    }
+
+    assert ".git" in ignored
+    copy_index = dockerfile.index(
+        "COPY --chown=project . /workspace/project-template"
+    )
+    user_index = dockerfile.index("USER project", copy_index)
+    snapshot_index = dockerfile.index(
+        "RUN git init --quiet --initial-branch=snapshot", user_index
+    )
+    assert copy_index < user_index < snapshot_index
+    for required in (
+        "git add --all",
+        "GIT_AUTHOR_DATE='2000-01-01T00:00:00Z'",
+        "GIT_COMMITTER_DATE='2000-01-01T00:00:00Z'",
+        "test -z \"$(git status --short)\"",
+    ):
+        assert required in dockerfile
+    assert "COPY .git" not in dockerfile
 
 
 def test_image_is_removed_after_success(tmp_path: Path) -> None:
