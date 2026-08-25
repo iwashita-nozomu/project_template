@@ -1,12 +1,11 @@
-FROM ubuntu:24.04@sha256:33ceb71981b602c1a7443a53469e4dba065f7503eab3078a2d7a57a2ab987517 AS project-test
+FROM ubuntu:24.04@sha256:33ceb71981b602c1a7443a53469e4dba065f7503eab3078a2d7a57a2ab987517 AS project-dependencies
 
 ARG PROJECT_UID=1000
 
 ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    PATH=/opt/project-venv/bin:${PATH} \
-    HOME=/home/project
+    PATH=/opt/project-venv/bin:${PATH}
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
@@ -20,10 +19,10 @@ RUN apt-get update \
  && python3 -m venv /opt/project-venv \
  && rm -rf /var/lib/apt/lists/*
 
-COPY docker/requirements-test.txt /tmp/project-test-requirements.txt
+COPY docker/requirements.txt /tmp/project-requirements.txt
 RUN python -m pip install --no-cache-dir --require-hashes \
-      --requirement /tmp/project-test-requirements.txt \
- && rm -f /tmp/project-test-requirements.txt
+      --requirement /tmp/project-requirements.txt \
+ && rm -f /tmp/project-requirements.txt
 
 RUN set -eux; \
     case "$PROJECT_UID" in ''|0|0*|*[!0-9]*) echo "PROJECT_UID must be positive" >&2; exit 1 ;; esac; \
@@ -41,12 +40,10 @@ RUN set -eux; \
     test "$(id -u project)" = "$PROJECT_UID"; \
     test "$(id -u project)" != 0
 
-# Keep invocation metadata after the expensive dependency layers so changing
-# the test contract does not rebuild the compiler and Python toolchain.
-ENV PROJECT_TEST_ENVIRONMENT_OWNER=project-container
+ENV HOME=/home/project
 
-# The repository test image is self-contained: tests run against the exact
-# source reviewed at build time, with no external lifecycle hook.
+# Copy the source snapshot after the dependency layers so derived projects can
+# revise product files without rebuilding their dependency installation.
 COPY --chown=project . /workspace/project-template
 WORKDIR /workspace/project-template
 CMD ["/bin/bash"]

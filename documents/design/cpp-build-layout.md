@@ -26,13 +26,13 @@ There is no `cpp/` wrapper and no language-local experiment tree. Concrete
 experiments live below root `experiments/` and may invoke a built executable
 without taking ownership of its source or build graph.
 
-The standard route is:
+Derived projects may choose a route such as:
 
 ```bash
-cmake --preset dev
-cmake --build --preset dev --parallel
-ctest --preset dev
-cmake --install build/dev
+cmake -S . -B build -G Ninja
+cmake --build build --parallel
+ctest --test-dir build
+cmake --install build
 ```
 
 The template carries one real library source and one CTest executable so a
