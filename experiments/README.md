@@ -16,9 +16,18 @@ Create one topic directory only when the project has a concrete experiment:
 ```text
 experiments/<topic>/
 ├── README.md
+├── CMakeLists.txt  # for a C++ experiment
 ├── <entrypoint and configuration owned by the topic>
 └── result/<run-name>/
 ```
+
+A C++ topic owns its sources and `CMakeLists.txt`. It may define an independent
+CMake project or be included by another project with `add_subdirectory()`.
+For an independent project, define its CMake minimum version, `project()`, and
+dependency configuration, and document its configure/build commands in the
+topic README. Keep build output in an ignored location such as
+`workspace/build/experiments/<topic>/`. See the
+[C++ build layout](../documents/design/cpp-build-layout.md).
 
 The topic README records the question, exact command, configuration, source
 revision, and expected result files. Generated run output belongs below

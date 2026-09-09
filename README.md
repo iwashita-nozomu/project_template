@@ -1,67 +1,37 @@
 # Project Template
 
 A starting point for Python, C++, documents, experiments, and containerized
-project development. It owns product code, project Docker images, tests,
-documents, and CI only.
+project development. It owns product code, a Docker dependency example,
+documents, and local project policy.
 
-A normal clone contains every project-owned file required to bootstrap, build,
-test, and validate the project. It does not contain external tool checkouts,
-source projections, or runtime state.
+A normal clone contains the project source layout and dependency-template
+documents. It does not require a bootstrap script, validation runner, CI setup,
+or external tool checkout.
 
-## Start a repository
+## Start a project
 
 ```bash
 git clone <template-url> my-project
 cd my-project
-bash scripts/start_repository.sh \
-  --project-slug my-project \
-  --display-name "My Project"
-git diff --check
-git add --all
-git commit -m "Initialize my-project"
-bash test/testrunner.sh
+git status --short
 ```
 
-The initializer is an offline, repository-local identity conversion. It rewrites
-project metadata and reader-facing examples only. It does not acquire another
-repository or write outside the project checkout.
+The template has no project bootstrap or validation command. Derived projects
+choose their own identity, build, and validation workflow.
 
-After committing the initialized tree, run the descendant acceptance check:
+## Docker dependency example
 
 ```bash
-bash tools/check_fresh_clone.sh
+docker build -f docker/Dockerfile -t project-template:dependencies .
+docker run --rm project-template:dependencies python --version
 ```
 
-This publishes the generated repository to a temporary local bare remote, clones it normally without recursive options, hides the template source, and reruns project-owned checks.
+The Dockerfile demonstrates OS packages, the virtual environment, and the
+non-root runtime user. Language dependency definitions live in
+[dependencies/](dependencies/README.md), and the image installs the Python lock.
+The Dockerfile is an example input, not a required host environment.
 
-## Canonical checks
-
-```bash
-bash test/testrunner.sh
-bash tools/check_fresh_clone.sh
-cmake --preset dev
-cmake --build --preset dev --parallel
-ctest --preset dev
-```
-
-`test/testlist.toml` owns the complete static, tooling, and C++ validation list.
-Docker uses the same test entry with the tracked Dockerfile:
-
-```bash
-bash docker/run-tests.sh --tag project-template:test
-```
-
-The source tree and its test list are copied into the image at build time, while
-`.dockerignore` excludes the caller's `.git` directory. The image creates one
-clean, deterministic Git commit from that copied snapshot so Git-bound checks
-receive tracked-file semantics without caller history, credentials, index, or
-worktree access. The Docker wrapper then runs the complete `all` phase inside
-the disposable image; no test command receives write capability to the caller
-checkout. Static and portable classifications remain available for direct
-focused use, and the Docker path has no workspace mount, interactive
-development-container lifecycle, or post-create setup.
-
-The single image is a bounded Ubuntu 24.04 test image. It intentionally omits
+The image is a bounded Ubuntu 24.04 dependency example. It intentionally omits
 scientific Python, notebook, CUDA, GPU, and general developer-tool profiles;
 descendant repositories add only the product dependencies they actually need.
 
@@ -69,20 +39,27 @@ descendant repositories add only the product dependencies they actually need.
 
 ```text
 .
-├── AGENTS.md                  # project instructions
-├── CMakeLists.txt            # root C++ project entrypoint
-├── include/                  # public C++ headers
-├── src/                      # production C++ sources
-├── python/                   # Python package source
-├── experiments/              # project experiments
-├── documents/                # project contracts, design, notes, and sources
-├── docker/                   # canonical image definition and checks
-├── scripts/                  # offline repository initialization
-├── tools/                    # project-owned validation tools
-├── test/                     # runner, test list, tooling tests, and CTest sources
-├── vendor/                   # empty placeholder for project-owned third-party sources
-└── workspace/                # ignored project scratch space
+├── AGENTS.md                     # project instructions
+├── CMakeLists.txt                # product C++ build entrypoint
+├── include/                      # public C++ headers
+├── src/                          # production C++ sources
+├── python/                       # Python package source
+├── experiments/                  # project experiments
+├── documents/                    # project contracts, design, notes, and sources
+├── dependencies/                 # external dependency installation definitions
+│   ├── README.md                 # dependency addition and usage guide
+│   ├── cpp/CMakeLists.txt        # empty C++ dependency entrypoint
+│   └── python/requirements.txt   # Python dependency lock example
+├── docker/                       # container definition and usage example
+├── test/                         # optional project test sources
+├── vendor/                       # empty placeholder for project-owned third-party sources
+└── workspace/                    # ignored project scratch space
 ```
 
-See `QUICK_START.md`, `documents/contracts/template-bootstrap.md`, and
-`documents/contracts/template-validation.md` for the operational contracts.
+CMake configuration lives with each purpose: the product root, dependency
+installation, and individual C++ experiments and tests. Local `CMakeLists.txt`
+files may define independent projects or be included with `add_subdirectory()`;
+see the [C++ build layout](documents/design/cpp-build-layout.md).
+
+See [QUICK_START.md](QUICK_START.md), [dependencies/README.md](dependencies/README.md),
+and [docker/README.md](docker/README.md) for setup and dependency examples.

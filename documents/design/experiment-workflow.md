@@ -13,9 +13,12 @@ not a generic runner or registry.
 
 Each concrete topic documents its exact command, source revision,
 configuration, relevant environment identity, output paths, and cleanup. A
-language-specific build may produce an executable used by a topic, but it does
-not create a second experiment lifecycle beneath `src/`, `test/`, or another
-language directory.
+C++ topic owns its source and `experiments/<topic>/CMakeLists.txt`. That build
+configuration may define an independent CMake project or be included through
+`add_subdirectory()`; it can also consume product libraries or executables.
+Independent projects document their own configure entrypoint and build directory.
+This does not create a second experiment lifecycle beneath `src/`, `test/`, or
+another language directory.
 
 External analysis tools are not experiment-runner dependencies. Project
 execution and results remain parent-owned.

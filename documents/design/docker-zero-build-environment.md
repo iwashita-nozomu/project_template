@@ -1,31 +1,24 @@
-# Docker environment boundary
+# Docker dependency example
 
-The tracked Dockerfile owns one Ubuntu 24.04 test image: the distro Python
-runtime, an image-local Python virtual environment, the native C++ test
-toolchain, non-root identity, and the reviewed project source. It installs only
-the dependencies required by the repository tests. Scientific Python,
-notebook, CUDA, GPU, and general developer-tool profiles are descendant project
-responsibilities rather than template defaults.
+The tracked Dockerfile is an Ubuntu 24.04 dependency example: it shows a
+distro Python runtime, an image-local Python virtual environment, native build
+tools, a non-root identity, and a reviewed source snapshot. It is not a
+required project validation environment.
 
-The project uses `docker/Dockerfile` directly. `test/testlist.toml` is the
-commented command contract and `test/testrunner.sh` is its single execution
-entrypoint. Static and portable labels remain available for focused execution,
-but `docker/run-tests.sh` runs the complete `all` phase inside one disposable
-image.
+Language dependency installation definitions live in
+[dependencies/](../../dependencies/README.md). The Dockerfile consumes
+`dependencies/python/requirements.txt` before copying the source snapshot.
+`dependencies/cpp/CMakeLists.txt` is an independent empty entrypoint that derived
+projects can populate and invoke in a dependency layer when needed. OS package
+installation remains in the Dockerfile.
 
-The caller's `.git` directory is excluded from the Docker build context. After
-copying the source, the image creates one clean Git commit with fixed identity
-and timestamps. Git-bound static checks therefore see the same copied source
-snapshot as the portable checks without receiving caller history, credentials,
-index, worktree, or a source mount. The commit is an execution adapter only; it
-is not durable project history and disappears with the temporary image.
+Build and run the example directly:
 
-GitHub Actions checks the same Dockerfile with
-`docker/check_zero_build_contract.sh` and one build/test run through
-`docker/run-tests.sh`. The image does not require an external source mount or a
-development-container lifecycle.
+```bash
+docker build -f docker/Dockerfile -t project-template:dependencies .
+docker run --rm project-template:dependencies python --version
+```
 
-The run script owns the temporary image tag and removes it on every exit path.
-The cold-build wrapper reuses that lifecycle with `--pull --no-cache`.
+Derived projects own their build, test, CI, and cleanup commands.
 
 Reference: [Ubuntu image](https://hub.docker.com/_/ubuntu)

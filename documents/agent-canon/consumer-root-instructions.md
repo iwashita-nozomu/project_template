@@ -7,26 +7,22 @@ It is a source fragment, not a root instruction entrypoint; keep it under
 
 ## Repository responsibility
 
-This repository owns the generated project's source, build, tests, Docker,
-documentation, CI, and local policy. External tool and runtime repositories
-are not part of this checkout.
+This repository owns the generated project's source, Docker dependency example,
+documentation, and local policy. External tool and runtime repositories are
+not part of this checkout.
 
 ## Working boundary
 
 - Make repository changes only beneath this repository root. Generated build,
   test, and report artifacts must use tracked project-owned paths or the
   ignored `workspace/` area.
-- Run project validation through `test/testrunner.sh`; the same entrypoint must
-  work in the project image built from `docker/Dockerfile`.
-- Project Docker and CI must work from this checkout and their explicit setup
-  inputs without hidden external repository state.
+- The Dockerfile is an example input and must not become a hidden bootstrap or
+  validation requirement for derived projects.
 
 ## Completion evidence
 
-Before delivery, inspect the exact diff, run the checks selected by the changed
-project responsibility, run the project container test path when Docker or
-test behavior changed, and report commands and failures with their environment
-owner and repository responsibility.
+Before delivery, inspect the exact diff and preserve the project source and
+dependency-template boundaries.
 
 ## AgentCanon composition maintenance
 
