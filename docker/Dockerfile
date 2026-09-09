@@ -13,6 +13,7 @@ RUN apt-get update \
     git \
     g++ \
     cmake \
+    make \
     ninja-build \
     python3 \
     python3-venv \
