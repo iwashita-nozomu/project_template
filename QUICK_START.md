@@ -19,12 +19,12 @@ git status --short
 ```
 
 Derived projects choose their own identity conversion and validation workflow.
-Add language dependencies under [dependencies/](dependencies/README.md):
-`cpp/CMakeLists.txt` is an empty C++ dependency entrypoint, and
-`python/requirements.txt` is the Python lock example. The product C++ build
-starts at the root `CMakeLists.txt`. Individual C++ experiments and tests keep
-their own local CMake configuration and may define independent projects; see
-the [C++ build layout](documents/design/cpp-build-layout.md).
+Keep the Python lock under [dependencies/](dependencies/README.md). Declare C++
+library dependencies in the root `CMakeLists.txt`, using commit-pinned
+`FetchContent` declarations. Each C++ experiment or validation case has its own
+CMake project and consumes the library target; it declares only its additional
+dependencies. See the [C++ build layout](documents/design/cpp-build-layout.md)
+and the standalone [version validation commands](test/cpp/README.md).
 
 ## 3. Optionally use the Docker dependency example
 

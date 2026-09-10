@@ -27,8 +27,9 @@ docker run --rm project-template:dependencies python --version
 ```
 
 The Dockerfile demonstrates OS packages, the virtual environment, and the
-non-root runtime user. Language dependency definitions live in
-[dependencies/](dependencies/README.md), and the image installs the Python lock.
+non-root runtime user. The image installs the Python lock from
+[dependencies/](dependencies/README.md); C++ library dependencies are declared
+in the root CMake project.
 The Dockerfile is an example input, not a required host environment.
 
 The image is a bounded Ubuntu 24.04 dependency example. It intentionally omits
@@ -46,9 +47,8 @@ descendant repositories add only the product dependencies they actually need.
 ├── python/                       # Python package source
 ├── experiments/                  # project experiments
 ├── documents/                    # project contracts, design, notes, and sources
-├── dependencies/                 # external dependency installation definitions
+├── dependencies/                 # Python dependency installation definitions
 │   ├── README.md                 # dependency addition and usage guide
-│   ├── cpp/CMakeLists.txt        # empty C++ dependency entrypoint
 │   └── python/requirements.txt   # Python dependency lock example
 ├── docker/                       # container definition and usage example
 ├── test/                         # optional project test sources
@@ -56,10 +56,11 @@ descendant repositories add only the product dependencies they actually need.
 └── workspace/                    # ignored project scratch space
 ```
 
-CMake configuration lives with each purpose: the product root, dependency
-installation, and individual C++ experiments and tests. Local `CMakeLists.txt`
-files may define independent projects or be included with `add_subdirectory()`;
-see the [C++ build layout](documents/design/cpp-build-layout.md).
+The root CMake project owns the library and its C++ dependencies. Individual
+C++ experiments and validation cases own their executables and additional
+dependencies, consuming the library through `FetchContent` or `add_subdirectory()`.
+See the [C++ build layout](documents/design/cpp-build-layout.md) and the runnable
+[version validation case](test/cpp/README.md).
 
 See [QUICK_START.md](QUICK_START.md), [dependencies/README.md](dependencies/README.md),
 and [docker/README.md](docker/README.md) for setup and dependency examples.

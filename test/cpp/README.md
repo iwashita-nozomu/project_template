@@ -1,18 +1,20 @@
-# C++ tests
+# C++ validation projects
 
-`version_test.cpp` is the concrete CTest smoke test for the root
-`project::core` library. The current `CMakeLists.txt` is included by the product
-root through `add_subdirectory()` and relies on that target; configure this
-sample from the repository root.
+Each case under `test/cpp/<case>/` owns its executable and `CMakeLists.txt`.
+The root library build uses this directory's `CMakeLists.txt` to aggregate cases.
 
-Keep C++ test build definitions alongside their sources. Register tests in
-`test/cpp/CMakeLists.txt`, or give a concrete case its own
-`test/cpp/<case>/CMakeLists.txt`. A case may be included through
-`add_subdirectory()` or define an independent project when it needs a separate
-configure entrypoint. Independent projects define their CMake minimum version,
-`project()`, dependencies, and CTest setup, and document their exact commands in
-the case README. Keep separate build output under an ignored location such as
-`workspace/build/test/<case>/`.
+The [version case](version/CMakeLists.txt) is also a standalone project. It
+adds the root library with `add_subdirectory()` only if `project::core` is not
+already available, then links that target. From the repository root:
 
-See the [C++ build layout](../../documents/design/cpp-build-layout.md) for the
-product, dependency, experiment, and test project boundaries.
+```bash
+cmake -S test/cpp/version -B workspace/build/version
+cmake --build workspace/build/version --parallel
+ctest --test-dir workspace/build/version --output-on-failure
+```
+
+Add a case's own dependencies in its local CMake project. Library dependencies
+remain declared by the root library and arrive through the consumed target.
+A consumer may also obtain the library with `FetchContent_MakeAvailable()`;
+use a full commit SHA when fetching from Git. Do not `include()` the root
+`CMakeLists.txt`. See the [C++ build layout](../../documents/design/cpp-build-layout.md).

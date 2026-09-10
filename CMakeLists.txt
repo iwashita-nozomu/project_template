@@ -11,18 +11,27 @@ cmake_minimum_required(VERSION 3.22)
 
 project(project_template VERSION 0.1.0 LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+if(PROJECT_IS_TOP_LEVEL)
+  set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+endif()
 
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+# Declare library dependencies here so every consumer gets the same build graph.
+# Replace the placeholders and uncomment only when a dependency is needed:
+# include(FetchContent)
+# FetchContent_Declare(
+#   example_dependency
+#   GIT_REPOSITORY https://example.com/owner/dependency.git
+#   GIT_TAG <full-commit-sha>
+# )
+# FetchContent_MakeAvailable(example_dependency)
+# Link its target to project-core below with the appropriate PUBLIC/PRIVATE scope.
 
 add_library(project-core STATIC src/version.cpp)
 add_library(project::core ALIAS project-core)
-set_target_properties(project-core PROPERTIES EXPORT_NAME core)
+set_target_properties(project-core PROPERTIES EXPORT_NAME core CXX_EXTENSIONS OFF)
 target_include_directories(
   project-core
   PUBLIC
@@ -47,7 +56,9 @@ install(
   DESTINATION lib/cmake/project
 )
 
-include(CTest)
-if(BUILD_TESTING)
-  add_subdirectory(test/cpp)
+if(PROJECT_IS_TOP_LEVEL)
+  include(CTest)
+  if(BUILD_TESTING)
+    add_subdirectory(test/cpp)
+  endif()
 endif()

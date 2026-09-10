@@ -37,3 +37,9 @@ revision, and expected result files. Generated run output belongs below
 This template does not claim a generic experiment creator, registry, runner,
 or context synchronizer. Add such a tool only with the project behavior that
 needs it and document the actual command in the topic README.
+
+A C++ experiment consumes `project::core` through `FetchContent` or
+`add_subdirectory()`. Library dependencies are declared by the root library;
+the experiment declares only experiment-specific dependencies in its own
+`CMakeLists.txt`. Pin Git dependencies to full commit SHAs. Do not `include()`
+the root library's `CMakeLists.txt`.

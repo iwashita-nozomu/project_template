@@ -5,12 +5,11 @@ distro Python runtime, an image-local Python virtual environment, native build
 tools, a non-root identity, and a reviewed source snapshot. It is not a
 required project validation environment.
 
-Language dependency installation definitions live in
-[dependencies/](../../dependencies/README.md). The Dockerfile consumes
+The Dockerfile consumes the Python lock at
 `dependencies/python/requirements.txt` before copying the source snapshot.
-`dependencies/cpp/CMakeLists.txt` is an independent empty entrypoint that derived
-projects can populate and invoke in a dependency layer when needed. OS package
-installation remains in the Dockerfile.
+OS package installation remains in the Dockerfile. C++ library dependencies
+are declared and resolved by the root CMake project, as described in the
+[C++ build layout](cpp-build-layout.md).
 
 Build and run the example directly:
 

@@ -22,3 +22,9 @@ another language directory.
 
 External analysis tools are not experiment-runner dependencies. Project
 execution and results remain parent-owned.
+
+A C++ experiment consumes `project::core` through `FetchContent` or
+`add_subdirectory()`. Library dependencies are declared by the root library;
+the experiment declares only experiment-specific dependencies in its own
+`CMakeLists.txt`. Pin Git dependencies to full commit SHAs. Do not `include()`
+the root library's `CMakeLists.txt`.
