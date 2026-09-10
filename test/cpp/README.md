@@ -1,9 +1,10 @@
 # C++ validation projects
 
 Each case under `test/cpp/<case>/` owns its executable and `CMakeLists.txt`.
-The root library build uses this directory's `CMakeLists.txt` to aggregate cases.
+Configure each case independently. The root library never includes validation
+projects; each case consumes the library in one direction.
 
-The [version case](version/CMakeLists.txt) is also a standalone project. It
+The [version case](version/CMakeLists.txt) is a standalone project. It
 adds the root library with `add_subdirectory()` only if `project::core` is not
 already available, then links that target. From the repository root:
 

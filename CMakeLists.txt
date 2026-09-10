@@ -1,10 +1,9 @@
 # @dependency-start
 # contract configuration
-# responsibility Defines the root C++ project, install surface, and CTest entrypoint.
-# upstream design documents/design/cpp-build-layout.md root source and test layout
+# responsibility Defines the reusable C++ library, dependencies, and install surface.
+# upstream design documents/design/cpp-build-layout.md library build ownership
 # downstream implementation include/project/version.hpp public header
 # downstream implementation src/version.cpp production implementation
-# downstream implementation test/cpp/CMakeLists.txt CTest consumer
 # @dependency-end
 
 cmake_minimum_required(VERSION 3.22)
@@ -55,10 +54,3 @@ install(
   NAMESPACE project::
   DESTINATION lib/cmake/project
 )
-
-if(PROJECT_IS_TOP_LEVEL)
-  include(CTest)
-  if(BUILD_TESTING)
-    add_subdirectory(test/cpp)
-  endif()
-endif()

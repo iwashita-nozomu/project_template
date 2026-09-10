@@ -59,7 +59,8 @@ descendant repositories add only the product dependencies they actually need.
 └── workspace/                    # ignored project scratch space
 ```
 
-The root CMake project owns the library and its C++ dependencies. Individual
+The root CMake project builds only the library and its C++ dependencies; it
+never reads test or experiment projects. Individual
 C++ experiments and validation cases own their executables and additional
 dependencies, consuming the library through `FetchContent` or `add_subdirectory()`.
 See the [C++ build layout](documents/design/cpp-build-layout.md) and the runnable

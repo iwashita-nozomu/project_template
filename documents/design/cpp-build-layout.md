@@ -7,20 +7,20 @@ responsibility Defines reusable library, dependency, experiment, and validation 
 downstream implementation ../../CMakeLists.txt library entrypoint
 downstream implementation ../../include/project/version.hpp public interface
 downstream implementation ../../src/version.cpp production implementation
-downstream implementation ../../test/cpp/CMakeLists.txt validation aggregate
 downstream implementation ../../test/cpp/version/CMakeLists.txt standalone validation project
 @dependency-end
 -->
 
 CMake projects are organized by purpose. The repository root builds the library
 and declares its dependencies. Each C++ experiment or validation case has its
-own `CMakeLists.txt` and consumes the library target.
+own `CMakeLists.txt` and consumes the library target. The root builds only the
+library and its dependencies; it never reads test or experiment CMake projects,
+including when configured as the top-level project.
 
 | Location | Responsibility |
 | --- | --- |
 | `CMakeLists.txt` | Library targets, their dependencies, and install rules |
 | `experiments/<topic>/CMakeLists.txt` | Experiment executable and experiment-only dependencies |
-| `test/cpp/CMakeLists.txt` | Aggregate of validation cases for the root build |
 | `test/cpp/<case>/CMakeLists.txt` | Standalone validation executable and case-only dependencies |
 
 ## Dependency and consumer policy
@@ -39,19 +39,18 @@ Experiments and validation cases declare only their own extra dependencies;
 they do not repeat the library's dependency declarations.
 
 The library requires C++20 through its target usage requirements. When embedded,
-it does not enable its own tests or change the consumer's global language
-standard, output directories, or compilation database settings. Its install
-rules remain available to consumers. Root-only convenience settings and CTest
-setup are guarded by `PROJECT_IS_TOP_LEVEL`.
+it does not change the consumer's global language standard, output directories,
+or compilation database settings. Its install rules remain available to
+consumers. Root-only convenience settings are guarded by `PROJECT_IS_TOP_LEVEL`.
+CTest setup belongs to validation projects, not the root library.
 
 ## Build and validate
 
-From the repository root, build the library and all registered validation cases:
+From the repository root, build and install the library:
 
 ```bash
 cmake -S . -B workspace/build/project
 cmake --build workspace/build/project --parallel
-ctest --test-dir workspace/build/project --output-on-failure
 cmake --install workspace/build/project --prefix "$PWD/workspace/install"
 ```
 
@@ -63,9 +62,10 @@ cmake --build workspace/build/version --parallel
 ctest --test-dir workspace/build/version --output-on-failure
 ```
 
-The version case adds the root library only when `project::core` is absent.
-When the root includes this case, it reuses the existing target. When the case
-adds the root, the root is embedded and does not include tests recursively.
+The version case adds the root library only when `project::core` is absent;
+it can also reuse a target supplied by a consuming project. Dependency flow is
+one way: validation and experiment projects consume the library, and the
+library does not discover or include those projects.
 
 Public headers remain in `include/`, library sources in `src/`, concrete
 experiments in `experiments/`, and validation cases in `test/cpp/`. Generated
