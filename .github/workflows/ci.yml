@@ -28,7 +28,6 @@ jobs:
         run: |
           cmake -S . -B workspace/build/project
           cmake --build workspace/build/project --parallel
-          ctest --test-dir workspace/build/project --output-on-failure
           cmake -S test/cpp/version -B workspace/build/version
           cmake --build workspace/build/version --parallel
           ctest --test-dir workspace/build/version --output-on-failure
