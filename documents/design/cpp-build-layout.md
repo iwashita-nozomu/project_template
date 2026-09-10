@@ -20,7 +20,7 @@ including when configured as the top-level project.
 | Location | Responsibility |
 | --- | --- |
 | `CMakeLists.txt` | Library targets, their dependencies, and install rules |
-| `experiments/<topic>/CMakeLists.txt` | Experiment executable and experiment-only dependencies |
+| `experiments/<topic>/CMakeLists.txt` | Experiment executable and dependencies, retained on its experiment branch |
 | `test/cpp/<case>/CMakeLists.txt` | Standalone validation executable and case-only dependencies |
 
 ## Dependency and consumer policy
@@ -68,7 +68,8 @@ one way: validation and experiment projects consume the library, and the
 library does not discover or include those projects.
 
 Public headers remain in `include/`, library sources in `src/`, concrete
-experiments in `experiments/`, and validation cases in `test/cpp/`. Generated
+experiment-specific code in `experiments/` on experiment branches, and validation
+cases in `test/cpp/`. Experiment code is not merged to `main`. Generated
 build and install output belongs in ignored paths such as `workspace/`.
 Docker is an optional dependency example. See the
 [experiment workflow](experiment-workflow.md) and

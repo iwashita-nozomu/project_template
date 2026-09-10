@@ -48,7 +48,7 @@ descendant repositories add only the product dependencies they actually need.
 ├── include/                      # public C++ headers
 ├── src/                          # production C++ sources
 ├── python/                       # Python package source
-├── experiments/                  # project experiments
+├── experiments/                  # shared guidance; topic code stays on experiment branches
 ├── documents/                    # project contracts, design, notes, and sources
 ├── dependencies/                 # Python dependency installation definitions
 │   ├── README.md                 # dependency addition and usage guide
@@ -63,6 +63,8 @@ The root CMake project builds only the library and its C++ dependencies; it
 never reads test or experiment projects. Individual
 C++ experiments and validation cases own their executables and additional
 dependencies, consuming the library through `FetchContent` or `add_subdirectory()`.
+Experiment-specific code stays on its experiment branch and is not merged to
+`main`; see the [experiment policy](documents/design/experiment-workflow.md).
 See the [C++ build layout](documents/design/cpp-build-layout.md) and the runnable
 [version validation case](test/cpp/README.md).
 
