@@ -17,7 +17,10 @@ git status --short
 ```
 
 The template has no project bootstrap or validation command. Derived projects
-choose their own identity, build, and validation workflow.
+choose their own identity, build, and validation workflow. The checked-in
+[GitHub CI example](.github/workflows/ci.yml) validates the library, standalone
+validation project, and a normal fresh clone. It requires no Docker or external
+tool checkout; descendants may replace it with their own CI.
 
 ## Docker dependency example
 
