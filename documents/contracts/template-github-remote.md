@@ -4,7 +4,7 @@
 
 ## Publish a derived repository
 
-After local initialization, review and commit the generated tree. Then attach the destination repository and push the committed branch:
+After local project setup, review and commit the tree. Then attach the destination repository and push the committed branch:
 
 ```bash
 git remote set-url origin <destination-url>
@@ -18,9 +18,4 @@ refresh is part of publication.
 
 ## Branch protection baseline
 
-For repositories that use protected `main`, require pull requests and these project-owned checks:
-
-- `Repository CI`
-- `Fresh Clone Acceptance`
-
-Require the Docker workflow when Docker-owned paths change. Disable force-push and branch deletion for the protected branch, and keep conversation resolution enabled when review is required.
+Repositories choose their own branch protection, checks, and review policy.

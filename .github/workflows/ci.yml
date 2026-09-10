@@ -20,21 +20,43 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
 
-      - name: Build and run the parent test image
-        run: bash docker/run-tests.sh --tag project-template:ci
+      - name: Build library and validation cases
+        run: |
+          cmake -S . -B workspace/build/project
+          cmake --build workspace/build/project --parallel
+          ctest --test-dir workspace/build/project --output-on-failure
+          cmake -S test/cpp/version -B workspace/build/version
+          cmake --build workspace/build/version --parallel
+          ctest --test-dir workspace/build/version --output-on-failure
+
+      - name: Check composed project instructions
+        run: |
+          python3 - <<'PY'
+          import runpy
+          tests = runpy.run_path("test/tools/test_agent_canon_composition.py")
+          tests["test_consumer_agents_is_composed_regular_file_with_specific_tail"]()
+          tests["test_project_specific_clauses_are_not_lost_from_composition"]()
+          PY
 
   fresh-clone-acceptance:
     name: Fresh Clone Acceptance
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
 
-      - name: Run descendant fresh-clone acceptance
-        run: bash tools/check_fresh_clone.sh
+      - name: Validate a normal independent clone
+        run: |
+          mkdir -p workspace
+          git clone --no-local "$GITHUB_WORKSPACE" workspace/fresh-clone
+          test "$(git -C workspace/fresh-clone rev-parse HEAD)" = "$(git rev-parse HEAD)"
+          cd workspace/fresh-clone
+          cmake -S test/cpp/version -B workspace/build/version
+          cmake --build workspace/build/version --parallel
+          ctest --test-dir workspace/build/version --output-on-failure

@@ -1,25 +1,25 @@
 # Docker environment
 
-`docker/Dockerfile` defines one bounded Ubuntu 24.04 repository test image.
-It contains only the dependencies required by the parent-owned portable Python
-and C++ checks.
+`docker/Dockerfile` is a single Ubuntu 24.04 dependency-installation example.
+It demonstrates OS packages, an image-local Python virtual environment, a
+hash-pinned [Python dependency lock](../dependencies/python/requirements.txt),
+and a non-root runtime user.
 
 ```bash
-bash docker/run-tests.sh --tag project-template:test
+docker build -f docker/Dockerfile -t project-template:dependencies .
+docker run --rm project-template:dependencies python --version
 ```
 
 The image contains the reviewed project source and runs as the non-root
-`project` user. `test/testlist.toml` is the commented, parent-owned test
-contract. `docker/run-tests.sh` runs `static` entries on the Host and
-`portable` entries in the image. The runner emits the command, environment
-owner, and responsibility when a test fails.
+`project` user. Derived projects may replace the dependency lock, add build
+tools, and choose their own entrypoint and validation commands.
 
-`docker/run-tests.sh` refuses to overwrite an existing image tag and removes
-the exact image it creates. `docker/check_zero_build_contract.sh` validates the static boundary.
-`docker/cold-build-smoke.sh --pull --no-cache` performs one cold build and
-executes the same self-contained test runner. Neither path needs a workspace
-mount or a development-container lifecycle.
+Keep Python dependency definitions under [dependencies/](../dependencies/README.md)
+and OS packages in the Dockerfile. The Python lock is copied before the source
+snapshot to preserve dependency layer caching. C++ library dependencies belong
+in the root CMake project and are resolved when that project is configured;
+experiments and validation cases consume its targets. See the
+[C++ build layout](../documents/design/cpp-build-layout.md).
 
-Descendant repositories add product dependencies to their own project metadata
-and Dockerfile. This template does not preinstall scientific Python, notebook,
-CUDA, GPU, or general developer-tool profiles.
+This template does not preinstall scientific Python, notebook, CUDA, GPU, or
+general developer-tool profiles.

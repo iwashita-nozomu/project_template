@@ -1,40 +1,75 @@
 # C++ build layout
+
 <!--
 @dependency-start
 contract design
-responsibility Defines the root CMake project, source, test, build, and install paths.
-downstream implementation ../../CMakeLists.txt root CMake entrypoint
+responsibility Defines reusable library, dependency, experiment, and validation CMake ownership.
+downstream implementation ../../CMakeLists.txt library entrypoint
 downstream implementation ../../include/project/version.hpp public interface
 downstream implementation ../../src/version.cpp production implementation
-downstream implementation ../../test/cpp/CMakeLists.txt CTest consumer
+downstream implementation ../../test/cpp/CMakeLists.txt validation aggregate
+downstream implementation ../../test/cpp/version/CMakeLists.txt standalone validation project
 @dependency-end
 -->
 
-The repository root is the only CMake project root.
+CMake projects are organized by purpose. The repository root builds the library
+and declares its dependencies. Each C++ experiment or validation case has its
+own `CMakeLists.txt` and consumes the library target.
 
-```text
-.
-├── CMakeLists.txt
-├── include/          public C++ headers
-├── src/              production C++ sources
-├── test/cpp/         CTest sources
-├── build/<profile>/  ignored configure/build output
-└── .state/install/   ignored local install output
-```
+| Location | Responsibility |
+| --- | --- |
+| `CMakeLists.txt` | Library targets, their dependencies, and install rules |
+| `experiments/<topic>/CMakeLists.txt` | Experiment executable and experiment-only dependencies |
+| `test/cpp/CMakeLists.txt` | Aggregate of validation cases for the root build |
+| `test/cpp/<case>/CMakeLists.txt` | Standalone validation executable and case-only dependencies |
 
-There is no `cpp/` wrapper and no language-local experiment tree. Concrete
-experiments live below root `experiments/` and may invoke a built executable
-without taking ownership of its source or build graph.
+## Dependency and consumer policy
 
-The standard route is:
+Declare library dependencies in the root CMake project with
+`FetchContent_Declare()` and `FetchContent_MakeAvailable()`. Pin Git sources to
+full commit SHAs and link dependency targets to `project-core` with the
+appropriate `PUBLIC` or `PRIVATE` scope. The root contains a commented
+placeholder example; no external library is fetched by the template.
+
+Consumers add the library with `FetchContent_MakeAvailable()` or
+`add_subdirectory()` and link `project::core`. Use a separate binary directory
+when adding a source directory outside the consumer. Do not `include()` the
+root `CMakeLists.txt`: it is a project entrypoint, not an include module.
+Experiments and validation cases declare only their own extra dependencies;
+they do not repeat the library's dependency declarations.
+
+The library requires C++20 through its target usage requirements. When embedded,
+it does not enable its own tests or change the consumer's global language
+standard, output directories, or compilation database settings. Its install
+rules remain available to consumers. Root-only convenience settings and CTest
+setup are guarded by `PROJECT_IS_TOP_LEVEL`.
+
+## Build and validate
+
+From the repository root, build the library and all registered validation cases:
 
 ```bash
-cmake --preset dev
-cmake --build --preset dev --parallel
-ctest --preset dev
-cmake --install build/dev
+cmake -S . -B workspace/build/project
+cmake --build workspace/build/project --parallel
+ctest --test-dir workspace/build/project --output-on-failure
+cmake --install workspace/build/project --prefix "$PWD/workspace/install"
 ```
 
-The template carries one real library source and one CTest executable so a
-green C++ check cannot mean “zero tests discovered.” Derived projects replace
-or extend these files in the same owning directories.
+Build the concrete version validation project independently:
+
+```bash
+cmake -S test/cpp/version -B workspace/build/version
+cmake --build workspace/build/version --parallel
+ctest --test-dir workspace/build/version --output-on-failure
+```
+
+The version case adds the root library only when `project::core` is absent.
+When the root includes this case, it reuses the existing target. When the case
+adds the root, the root is embedded and does not include tests recursively.
+
+Public headers remain in `include/`, library sources in `src/`, concrete
+experiments in `experiments/`, and validation cases in `test/cpp/`. Generated
+build and install output belongs in ignored paths such as `workspace/`.
+Docker is an optional dependency example. See the
+[experiment workflow](experiment-workflow.md) and
+[C++ validation guide](../../test/cpp/README.md).

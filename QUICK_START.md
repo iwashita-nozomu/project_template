@@ -7,43 +7,31 @@ git clone <template-url> my-project
 cd my-project
 ```
 
-A normal clone contains only project-owned source. Project bootstrap, build,
-tests, documentation, Docker, and CI do not require an external tool checkout
-or hidden runtime state.
+A normal clone contains only project-owned source and examples. It does not
+require a bootstrap script, validation runner, CI setup, or external tool
+checkout.
 
-## 2. Preview and initialize the project
-
-```bash
-bash scripts/start_repository.sh \
-  --project-slug my-project \
-  --display-name "My Project" \
-  --dry-run
-
-bash scripts/start_repository.sh \
-  --project-slug my-project \
-  --display-name "My Project"
-```
-
-Initialization is local and offline. It does not fetch or initialize another
-repository, and it writes only the project identity files.
-
-## 3. Commit and validate
+## 2. Inspect the project layout
 
 ```bash
-git diff --check
-git add --all
-git commit -m "Initialize my-project"
-bash test/testrunner.sh
-bash tools/check_fresh_clone.sh
+find src include python test documents dependencies docker -maxdepth 2 -type f | sort
+git status --short
 ```
 
-`tools/check_fresh_clone.sh` requires a clean committed tree because it validates exactly what another user receives from an ordinary, non-recursive clone.
+Derived projects choose their own identity conversion and validation workflow.
+Keep the Python lock under [dependencies/](dependencies/README.md). Declare C++
+library dependencies in the root `CMakeLists.txt`, using commit-pinned
+`FetchContent` declarations. Each C++ experiment or validation case has its own
+CMake project and consumes the library target; it declares only its additional
+dependencies. See the [C++ build layout](documents/design/cpp-build-layout.md)
+and the standalone [version validation commands](test/cpp/README.md).
 
-## 4. Use Docker
+## 3. Optionally use the Docker dependency example
 
 ```bash
-bash docker/run-tests.sh --tag project-template:test
+docker build -f docker/Dockerfile -t project-template:dependencies .
+docker run --rm project-template:dependencies python --version
 ```
 
-The Docker wrapper executes the same complete repository test list and removes
-the exact temporary image.
+The image is a dependency and runtime example. A derived project may replace
+the lock, OS packages, entrypoint, and validation commands for its own needs.

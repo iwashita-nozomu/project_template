@@ -38,9 +38,9 @@ def test_project_specific_clauses_are_not_lost_from_composition() -> None:
     output = OUTPUT.read_bytes()
     specific = SPECIFIC.read_bytes()
     unique_clauses = (
-        b"generated project's source, build, tests, Docker",
-        b"test/testrunner.sh",
-        b"without hidden external repository state",
+        b"generated project's source, Docker dependency example",
+        b"The Dockerfile is an example input",
+        b"dependency-template boundaries",
         b"self-contained and usable without an",
     )
     for clause in unique_clauses:

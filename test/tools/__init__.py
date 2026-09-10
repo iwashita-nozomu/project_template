@@ -1,1 +1,0 @@
-"""Project-owned tooling tests."""

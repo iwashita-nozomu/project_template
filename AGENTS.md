@@ -2,8 +2,8 @@
 <!-- agent-canon:source-commit=8be93bbc5e8efcc461013e5972b653f49f6dc6f6 -->
 <!-- agent-canon:base-sha256=c1f4f2ea9fa6db66eb5ce09e99d54a1717645aa98ef0d5ade735b7f84506751f -->
 <!-- agent-canon:base-bytes=3884 -->
-<!-- agent-canon:specific-sha256=e2b0e7899515ae2643ec5d5b7c6dbf9f7f045ac2667e9ee2f7c8c631337cf6a8 -->
-<!-- agent-canon:specific-bytes=2071 -->
+<!-- agent-canon:specific-sha256=e5e058372e0377d77581fb45bd091789547a0c3aa417cacfbfd614d7814665c0 -->
+<!-- agent-canon:specific-bytes=1766 -->
 <!-- agent-canon:consumer-root-base:start -->
 # AgentCanon Consumer Instructions
 
@@ -91,26 +91,22 @@ It is a source fragment, not a root instruction entrypoint; keep it under
 
 ## Repository responsibility
 
-This repository owns the generated project's source, build, tests, Docker,
-documentation, CI, and local policy. External tool and runtime repositories
-are not part of this checkout.
+This repository owns the generated project's source, Docker dependency example,
+documentation, and local policy. External tool and runtime repositories are
+not part of this checkout.
 
 ## Working boundary
 
 - Make repository changes only beneath this repository root. Generated build,
   test, and report artifacts must use tracked project-owned paths or the
   ignored `workspace/` area.
-- Run project validation through `test/testrunner.sh`; the same entrypoint must
-  work in the project image built from `docker/Dockerfile`.
-- Project Docker and CI must work from this checkout and their explicit setup
-  inputs without hidden external repository state.
+- The Dockerfile is an example input and must not become a hidden bootstrap or
+  validation requirement for derived projects.
 
 ## Completion evidence
 
-Before delivery, inspect the exact diff, run the checks selected by the changed
-project responsibility, run the project container test path when Docker or
-test behavior changed, and report commands and failures with their environment
-owner and repository responsibility.
+Before delivery, inspect the exact diff and preserve the project source and
+dependency-template boundaries.
 
 ## AgentCanon composition maintenance
 
