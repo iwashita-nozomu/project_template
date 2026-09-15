@@ -35,3 +35,16 @@ docker run --rm project-template:dependencies python --version
 
 The image is a dependency and runtime example. A derived project may replace
 the lock, OS packages, entrypoint, and validation commands for its own needs.
+
+## 4. Run a file with Make and Docker
+
+```bash
+make test/cpp/version/version_test.cpp
+# The basename also works when unique:
+make version_test.cpp
+```
+
+For Python, use `make path/to/script.py`; pass program arguments with
+`ARGS='"two words" --option'`. The file must exist in your working tree.
+The [file runner](docker/README.md#run-a-source-file) builds the Docker image
+using its cache and runs the current source, with build outputs under `workspace/`.

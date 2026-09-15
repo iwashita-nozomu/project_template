@@ -32,6 +32,9 @@ jobs:
           cmake --build workspace/build/version --parallel
           ctest --test-dir workspace/build/version --output-on-failure
 
+      - name: Check source runner target discovery
+        run: python3 -m unittest discover -s test/tools -p test_run_file.py
+
       - name: Check composed project instructions
         run: |
           python3 - <<'PY'

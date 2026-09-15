@@ -22,6 +22,23 @@ choose their own identity, build, and validation workflow. The checked-in
 validation project, and a normal fresh clone. It requires no Docker or external
 tool checkout; descendants may replace it with their own CI.
 
+## Run a source file
+
+From the repository root, use Make and Docker to run Python or build and run a
+C++ executable:
+
+```bash
+make test/cpp/version/version_test.cpp
+make version_test.cpp
+make path/to/script.py ARGS='"two words" --verbose'
+```
+
+Use a repository-relative path or a unique filename. C++ execution configures
+the nearest enclosing standalone CMake project and builds the executable target
+that contains the source, including its dependencies. Python uses the image's
+virtual environment. See the [file runner contract](docker/README.md#run-a-source-file).
+Direct CMake commands remain available independently of this Docker route.
+
 ## Docker dependency example
 
 ```bash
