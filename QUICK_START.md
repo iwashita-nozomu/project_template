@@ -36,6 +36,12 @@ docker run --rm project-template:dependencies python --version
 The image is a dependency and runtime example. A derived project may replace
 the lock, OS packages, entrypoint, and validation commands for its own needs.
 
+For an interactive Compose container:
+
+```bash
+docker compose -f docker/compose.yml run --rm project
+```
+
 ## 4. Run a file with Make and Docker
 
 ```bash

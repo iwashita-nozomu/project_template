@@ -1,0 +1,17 @@
+services:
+  project:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    working_dir: /workspace/project-template
+    volumes:
+      - ..:/workspace/project-template
+      # Private Git dependencies can opt into SSH agent forwarding locally.
+      # Uncomment this line and export SSH_AUTH_SOCK before starting Compose.
+      # - ${SSH_AUTH_SOCK}:/ssh-agent
+    stdin_open: true
+    tty: true
+
+    # Uncomment this line together with the SSH mount above.
+    # environment:
+    #   SSH_AUTH_SOCK: /ssh-agent

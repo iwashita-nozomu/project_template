@@ -24,6 +24,17 @@ experiments and validation cases consume its targets. See the
 This template does not preinstall scientific Python, notebook, CUDA, GPU, or
 general developer-tool profiles.
 
+## Compose
+
+`docker/compose.yml` is a minimal interactive project container. It mounts the
+repository and does not require an SSH agent. For a private Git dependency,
+uncomment the SSH agent mount and environment lines in the file, export
+`SSH_AUTH_SOCK`, and start it with:
+
+```bash
+docker compose -f docker/compose.yml run --rm project
+```
+
 ## Run a source file
 
 The root [Makefile](../Makefile) provides `make <file>` using the image above.

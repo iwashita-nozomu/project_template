@@ -52,6 +52,10 @@ non-root runtime user. The image installs the Python lock from
 in the root CMake project.
 The Dockerfile is an example input, not a required host environment.
 
+For an interactive container, use the minimal [Compose example](docker/compose.yml).
+SSH agent forwarding is optional and is enabled by uncommenting its two lines
+when a derived project needs private Git dependencies.
+
 The image is a bounded Ubuntu 24.04 dependency example. It intentionally omits
 scientific Python, notebook, CUDA, GPU, and general developer-tool profiles;
 descendant repositories add only the product dependencies they actually need.
