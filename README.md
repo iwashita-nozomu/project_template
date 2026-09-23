@@ -16,11 +16,12 @@ cd my-project
 git status --short
 ```
 
-The template has no project bootstrap or validation command. Derived projects
-choose their own identity, build, and validation workflow. The checked-in
-[GitHub CI example](.github/workflows/ci.yml) validates the library, standalone
-validation project, and a normal fresh clone. It requires no Docker or external
-tool checkout; descendants may replace it with their own CI.
+The template has no required project bootstrap or validation command. Derived
+projects choose their own identity, build, execution, and validation workflow.
+The checked-in [GitHub CI example](.github/workflows/ci.yml) builds the library,
+runs the standalone C++ validation case, and checks the optional source runner.
+It requires no Docker or external tool checkout; descendants may replace it
+with their own CI.
 
 ## Docker dependency example
 
@@ -33,7 +34,19 @@ The Dockerfile demonstrates OS packages, the virtual environment, and the
 non-root runtime user. The image installs the Python lock from
 [dependencies/](dependencies/README.md); C++ library dependencies are declared
 in the root CMake project.
-The Dockerfile is an example input, not a required host environment.
+The Dockerfile is an example input, not a required host environment. A derived
+project owns its container execution and host mount policy.
+
+For a single source file, the optional [Make and Docker runner](docker/README.md#run-a-source-file)
+can run Python or build and run a C++ executable:
+
+```bash
+make test/cpp/version/version_test.cpp
+make path/to/script.py ARGS='"two words" --verbose'
+```
+
+The runner uses the example image and requires a working Docker daemon. Direct
+Python and CMake commands remain available without this helper.
 
 The image is a bounded Ubuntu 24.04 dependency example. It intentionally omits
 scientific Python, notebook, CUDA, GPU, and general developer-tool profiles;
