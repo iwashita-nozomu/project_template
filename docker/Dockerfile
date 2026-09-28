@@ -12,6 +12,7 @@ RUN apt-get update \
     ca-certificates \
     git \
     g++ \
+    clangd \
     cmake \
     make \
     ninja-build \

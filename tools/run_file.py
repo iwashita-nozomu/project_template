@@ -49,7 +49,10 @@ def executable_for_source(root: Path, source: Path) -> Path:
     query = build / ".cmake/api/v1/query"
     query.mkdir(parents=True, exist_ok=True)
     (query / "codemodel-v2").touch()
-    subprocess.run(["cmake", "-S", str(project), "-B", str(build), "-G", "Ninja"], check=True)
+    subprocess.run([
+        "cmake", "-S", str(project), "-B", str(build), "-G", "Ninja",
+        "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+    ], check=True)
     reply = build / ".cmake/api/v1/reply"
     index_path = max(reply.glob("index-*.json"), key=lambda path: path.stat().st_mtime_ns)
     index = json.loads(index_path.read_text())
