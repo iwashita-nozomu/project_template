@@ -2,7 +2,7 @@
 <!--
 @dependency-start
 contract design
-responsibility Defines one parent-owned experiment source, result, and report boundary.
+responsibility Defines experiment branch ownership, placement, and report boundaries.
 downstream design ../../experiments/README.md experiment placement guide
 @dependency-end
 -->
@@ -10,6 +10,26 @@ downstream design ../../experiments/README.md experiment placement guide
 The parent repository owns topic source, run configuration, result artifacts,
 and reports below one root `experiments/` tree. The template defines placement,
 not a generic runner or registry.
+
+## Branch ownership
+
+`main` carries shared experiment guidance. Develop and retain each topic's
+source, `CMakeLists.txt`, configuration, and topic README on its experiment
+branch under `experiments/<topic>/`; do not merge that experiment code into
+`main` or merge the experiment branch wholesale.
+
+Promote reusable product improvements through a separate change based on
+`main`, extracting only the product changes and their relevant validation.
+Keep experiment-specific code out of that change. Preserve the experiment
+branch and its history after promotion; integrating a product improvement
+does not make its experiment branch disposable.
+
+Durable reports are handled separately from experiment code. A report intended
+for `main` is a separate documentation change identifying the experiment
+branch, exact commit, and result location; it does not bring the topic's code
+into `main`. See the [report guide](../../experiments/report/README.md).
+
+## Topic layout and execution
 
 Each concrete topic documents its exact command, source revision,
 configuration, relevant environment identity, output paths, and cleanup. A

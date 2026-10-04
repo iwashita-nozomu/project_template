@@ -11,7 +11,17 @@ downstream design report/README.md run report guidance
 `experiments/` is the only experiment owner. Do not create a language-local
 experiment directory such as `cpp/experiments/`.
 
-Create one topic directory only when the project has a concrete experiment:
+`main` keeps the shared guidance in this tree. Create each concrete topic on
+its experiment branch, keeping its source, CMake/configuration files, and topic
+README there. Do not merge experiment code or the whole experiment branch into
+`main`.
+
+Extract reusable product improvements into a separate change based on `main`,
+without the experiment code. Retain the experiment branch and history after
+that improvement is integrated. See the
+[experiment branch policy](../documents/design/experiment-workflow.md).
+
+Create a topic directory on its experiment branch when there is a concrete experiment:
 
 ```text
 experiments/<topic>/
