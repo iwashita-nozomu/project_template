@@ -1,129 +1,169 @@
 <!-- agent-canon:consumer-root-agents:v1 -->
-<!-- agent-canon:source-commit=8be93bbc5e8efcc461013e5972b653f49f6dc6f6 -->
-<!-- agent-canon:base-sha256=c1f4f2ea9fa6db66eb5ce09e99d54a1717645aa98ef0d5ade735b7f84506751f -->
-<!-- agent-canon:base-bytes=3884 -->
-<!-- agent-canon:specific-sha256=e5e058372e0377d77581fb45bd091789547a0c3aa417cacfbfd614d7814665c0 -->
-<!-- agent-canon:specific-bytes=1766 -->
+<!-- agent-canon:source-commit=ea1a7d04c08d5cd49264ce19eddd3694a16f23bf -->
+<!-- agent-canon:base-sha256=90260c468099adb3b58b39fd7952375c26ab674cbaa461e515164497b9c75857 -->
+<!-- agent-canon:base-bytes=9291 -->
+<!-- agent-canon:specific-sha256=26d052d2577dc76fdb28d578d35cd306ca00538274bb52547eed067f73470bc9 -->
+<!-- agent-canon:specific-bytes=544 -->
 <!-- agent-canon:consumer-root-base:start -->
 # AgentCanon Consumer Instructions
 
 <!--
 @dependency-start
 contract agent-runtime
-responsibility Provides the common, source-free base for a consumer repository's generated root AGENTS.md.
-upstream design documents/design/entrypoint-owner-map.md root entrypoint grammar and consumer composition boundary
-upstream design documents/conventions/software-engineering-principles.md contract-complete engineering decision policy
-downstream implementation tools/agent_tools/entrypoint_composer.py composes the regular consumer root file
-downstream implementation tools/agent_tools/check_entrypoint_owner_map.py validates the base grammar
+responsibility Provides the portable minimum shared by source and consumer roots.
+upstream design documents/design/entrypoint-owner-map.md reading and composition boundary
+downstream implementation tools/runtime/dispatch/agent-canon/src/entrypoint_composer.rs consumer composition
 @dependency-end
 -->
 
-This is the common base for a consumer repository's root `AGENTS.md`. The
-consumer keeps that generated file as a regular tracked file by composing this
-base with its own specific instructions. The composition is an explicit
-consumer maintenance operation; it is not a live AgentCanon projection,
-runtime import, updater, vendor checkout, submodule, or symlink.
-
 ## Repository Role
 
-The consumer repository owns its product source, build environment, tests,
-documentation, CI, and tracked instruction extension. AgentCanon does not
-become a second source of truth for those surfaces. The generated root file is
-self-contained after it is committed and remains usable when the AgentCanon
-source checkout and runtime are unavailable.
+Consumers own their product, environment, tests, credentials, and local
+instructions. Their generated [AGENTS.md](AGENTS.md) is self-contained and needs
+no AgentCanon checkout/runtime. Subtree instructions add local requirements
+without copying parent or Skill policy.
 
 ## Reader Map
 
-| Task intent | Consumer-owned reader |
-| --- | --- |
-| product implementation and behavior | the consumer's source and design owners |
-| build, test, and execution environment | the consumer's build and test owners |
-| repository structure and file responsibility | the consumer's structure documentation |
-| consumer-specific agent instructions | the appended consumer-owned section of this file |
-| AgentCanon maintenance | a separately selected AgentCanon development checkout |
+Read applicable instructions and the selected owner; consult an index only for
+an unresolved owner and conditional references only when needed. Reuse unchanged
+context/evidence. The contracts below apply without an installed Skill/runtime.
 
 ## Always-On Boundary
 
-The explicit user request and the current consumer-owned canonical owner are
-the source of truth. Preserve unknown dirty, staged, untracked, branch, and
-worktree state until the consumer's Git safety owner classifies it. Keep
-product behavior, environment policy, tests, CI, credentials, and runtime
-semantics with their consumer owners.
-
-This common base only establishes the consumer instruction boundary. It does
-not re-own task procedures, command recipes, role lifecycles, implementation
-policy, validation schemas, or AgentCanon source-editing policy. Those details
-belong to the consumer-specific section or the consumer's own canonical owner.
+- **Authority:** the latest explicit user agreement defines outcome, acceptance,
+  and authority. Current conversation instructions override repository/Skill
+  guidance and past procedures, subject to system/developer instructions.
+  Preserve explicit read limits across continuation, handoff, and Skill use,
+  including instructions, Issues, and logs; continue authorized work from known
+  facts when further reading is forbidden. Honor agreed stop boundaries.
+- **State and scope:** confirm checkout/revision and preserve unknown Git state
+  and user data. Establish all requested targets from the request and relevant
+  sources before choosing what to examine first. Keep those targets in scope
+  throughout the task and agree with the user before dropping any. Task
+  authority excludes unrelated changes/publication. Code cleanup
+  must reduce the owning implementation while preserving guarantees; unrelated
+  document/artifact deletion does not offset source growth. Functional expansion
+  needs separate current-user agreement.
+- **Memory safety:** preserve ownership, lifetimes, access bounds, and
+  synchronization before performance or implementation convenience.
+- **Tool implementation:** write agent-authored tools and task automation in
+  shell scripts or Rust. Do not create or add Python tool implementations,
+  including temporary scripts, inline execution payloads, and generated tool code.
+- **Numerical fidelity:** implement the agreed equations, assumptions and method.
+  Obtain agreement before adding stabilization that changes the model, valid
+  inputs, update, derivatives or failure semantics. Use equivalent numerical
+  evaluation only when it preserves that contract; retain required safety checks.
+- **Terminology:** use established terms and preserve API/tool identifiers.
+  Briefly explain necessary unfamiliar terms at first use for the intended
+  reader; replace needless internal jargon with concrete actions. In Japanese,
+  use conventional terminology or the original term rather than inventing a translation.
+- **Documentation:** write established facts and their sources in explanatory
+  documents. Refer to the owning procedure or run record for commands, steps,
+  and execution conditions.
+- **Reuse:** extend the existing capability owner first. A separate implementation
+  needs a concrete requirement, responsibility, or contract gap extension cannot fill.
+  Use standard Git for repository operations and `gh` or the configured GitHub
+  connection for PRs.
+- **Investigation:** start local repair at the target code, diff, and contract.
+  Before rejecting a claim or asking about a premise, read the relevant assumptions
+  and valid input domain in the governing sources and apply them to the case.
+  For a decision that remains unresolved, name the missing fact and its source.
+  Cross-module/API migrations use their declared dependency scope.
+- **Correctness:** follow current requirements and input/output contracts while
+  preserving external boundaries. History explains causes, not correctness;
+  restore old behavior only when required. Source and applicable tests can establish
+  a stale description: follow established in-scope behavior and report the mismatch,
+  while keeping governing requirements, authorized migrations, safety, and permissions.
+  Record consequential changes at their owner: why needed, why the old approach did
+  not fit, and retained/retired behavior; consult this rationale when reconsidering.
+- **Repair:** compare expected and actual behavior at the owning boundary.
+  Preserve the required input domain, shared guarantees, and test oracle.
+  Match guards and fallbacks to demonstrated needs. Fix the cause and resume
+  the interrupted task with its original acceptance criteria.
+- **Transport:** use configured Git/GitHub transports. Do not discover, create,
+  copy, link, or configure credentials/auth agents; return auth failures to the owner.
+- **Experiment context:** before work, record the origin base ref and exact commit,
+  purpose/research question, and intended delta in the existing branch README, plan,
+  or task record. Keep that origin immutable and later comparison bases separate.
+  Carry this context through progress, handoff, and resumption; compare actual
+  diff/evidence with the purpose. Ask only about genuinely unsettled major direction,
+  otherwise proceed from the known agreement without new manifests or paperwork.
+- **Experiment branches:** keep topic code/config on its experiment branch and
+  active raw logs in ignored scratch. Preserve reproduction inputs, execution commit,
+  and selected archived evidence. Complete its manuscript and selected report
+  before closing the research experiment branch;
+  retain a self-contained, arXiv-quality manuscript source at the project's existing
+  manuscript owner/path, grounded in the actual question, related work, method,
+  evidence/results, limitations, and reproduction. State missing evidence honestly;
+  this requires neither arXiv upload nor a new paper for each run. For experiment
+  repositories, `main` retains shared models/helpers, execution/regression infrastructure,
+  concise completed `summary.md` files, and stable manuscript/result/archive references
+  with retrieval method, execution commit, results, and limits. Preserve the manuscript
+  and these references before retiring topic/diagnostic code or deleting its branch.
+  Treat closed verification/diagnosis separately; ordinary product code may live on `main`.
 
 ## Runtime Owner Map
 
-| Responsibility | Consumer canonical owner | Validation / reader route |
-| --- | --- | --- |
-| product implementation and behavior | consumer source and design owners | consumer implementation route |
-| build, tests, and runtime environment | consumer build and test owners | consumer execution route |
-| repository structure and file placement | consumer structure owner | consumer structure route |
-| root instruction extension | consumer-specific section in this file | consumer instruction route |
-| AgentCanon source maintenance | selected AgentCanon development checkout | AgentCanon maintenance route |
+| Responsibility | Consumer owner |
+| --- | --- |
+| product implementation and behavior | consumer source and design owners |
+| build, tests, and runtime environment | consumer build and test owners |
+| repository structure and file placement | consumer structure owner |
+| root instruction extension | consumer-specific section in this file |
+| AgentCanon source maintenance | selected AgentCanon development checkout |
 
 ## Task Entry
 
-Start with this common base and the appended consumer-specific instructions.
-Resolve the task owner and the consumer validation oracle from those surfaces.
-When the task changes AgentCanon itself, move to a qualified AgentCanon
-development checkout and keep the consumer tree unchanged unless the consumer
-task explicitly owns the resulting generated file.
+- Incorporate additional user instructions into the active task, retaining its
+  objective and acceptance. After answering a question, reporting status, or
+  updating guidance, continue the next unfinished authorized step. Change or
+  pause the task for an explicit stop, cancellation, or incompatible new objective.
+- The selected workflow owns execution, delegation, and validation; activate
+  specialists only when applicable. AgentCanon maintenance does not authorize
+  edits to consumers' generated instructions.
+- Prefer the current agent. Delegate when explicit requirements, needed independent
+  judgment, or separable parallel work justify transfer/integration cost.
+- Keep the plan and handoff in the current conversation. Do not create or maintain
+  work, progress, reuse, scope, or per-commit validation ledgers. Implement the
+  planned migration, review obsolete code and references, then validate its final
+  state together; intermediate edits and commits are not separate test gates.
+- Match each requested outcome to the actual artifact or execution result.
+  Start image-provided tools in the configured execution container. Resolve
+  missing image tools and setup failures at the image's installation boundary.
+  When an approach fails or leaves a required outcome unverified, identify what
+  blocked it and try an applicable authorized alternative against the original
+  requirement. Continue independent work while resolving the blocker. If the
+  available approaches still leave work open, state what you tried, the concrete
+  blocker, and what remains to finish.
+- Report commit/push separately and distinguish implemented, verified, published,
+  and applied. State the reason beside each material conclusion. Explain how the
+  source, derivation, or observed result supports that judgment. State material
+  limits and uncertainty. Keep secrets private.
 
 ## Validation Routing
 
-Use the validation route owned by the changed consumer responsibility. Validate
-the changed contract and its failure semantics, then use the consumer's normal
-closeout route when required. A generated root file does not authorize
-unrelated AgentCanon checks, product checks, or runtime changes.
+Judge acceptance and completion by evidence of the required behavior. Treat
+processing time as an observation. Add consumer checks for explicit consumer migration.
+Reuse unchanged results; broaden suites only when those guarantees require it.
+Format final edited files with the configured formatter before delivery and include
+its diff; unavailable formatting stays unverified. Tests, observations, and proofs
+establish different properties: report only what the evidence establishes.
 
 <!-- agent-canon:consumer-root-base:end -->
 <!-- agent-canon:consumer-root-specific:start -->
-# Consumer-specific instructions
-
-This section is owned by the `project_template` repository and is appended to
-the common AgentCanon consumer base when the root `AGENTS.md` is regenerated.
-It is a source fragment, not a root instruction entrypoint; keep it under
-`documents/` so it is not discovered as an additional agent instruction file.
-
-## Repository responsibility
+# Project template instructions
 
 This repository owns the generated project's source, Docker dependency example,
-documentation, and local policy. External tool and runtime repositories are
-not part of this checkout.
-
-## Working boundary
+documentation, and local policy.
 
 - Make repository changes only beneath this repository root. Generated build,
   test, and report artifacts must use tracked project-owned paths or the
   ignored `workspace/` area.
-- The Dockerfile is an example input and must not become a hidden bootstrap or
-  validation requirement for derived projects.
-
-## Completion evidence
+- The Dockerfile is an example input. Each derived project chooses its
+  bootstrap and validation commands.
 
 Before delivery, inspect the exact diff and preserve the project source and
 dependency-template boundaries.
-
-## AgentCanon composition maintenance
-
-The root `AGENTS.md` is a generated regular file composed from the AgentCanon
-`ROOT_AGENTS.md` base followed by this fragment. Regenerate it only through the
-explicit maintainer command below, passing the AgentCanon source checkout as
-its argument:
-
-```bash
-./tools/compose_agent_instructions.sh /path/to/agent-canon
-```
-
-The committed root file must remain self-contained and usable without an
-AgentCanon checkout, runtime, vendor directory, submodule, live projection, or
-symlink. Do not add a singular `AGENT.md` or make the root `AGENTS.md` a
-symlink. The composer records the AgentCanon source commit as provenance; it
-does not create a runtime dependency or an automatic updater for this
-consumer file.
 
 <!-- agent-canon:consumer-root-specific:end -->

@@ -6,6 +6,22 @@
 
 - [Licensing policy](contracts/licensing-policy.md)
 
+## Agent instructions
+
+[AGENTS.md](../AGENTS.md) is a self-contained tracked file combining the
+AgentCanon common instructions and the
+[project-specific fragment](agent-canon/consumer-root-instructions.md).
+Maintainers regenerate it from the template root with the AgentCanon CLI
+and a current source checkout.
+
+```bash
+agent-canon compose-consumer-entrypoint \
+  --source-root /path/to/agent-canon \
+  --base /path/to/agent-canon/ROOT_AGENTS.md \
+  --specific documents/agent-canon/consumer-root-instructions.md \
+  --output ./AGENTS.md
+```
+
 ## Design documents
 
 - [Docker dependency example](design/docker-zero-build-environment.md)
