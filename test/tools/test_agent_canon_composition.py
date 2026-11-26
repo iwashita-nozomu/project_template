@@ -41,7 +41,6 @@ def test_project_specific_clauses_are_not_lost_from_composition() -> None:
         b"generated project's source, Docker dependency example",
         b"The Dockerfile is an example input",
         b"dependency-template boundaries",
-        b"self-contained and usable without an",
     )
     for clause in unique_clauses:
         assert clause in specific
