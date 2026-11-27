@@ -16,6 +16,6 @@ esac
 # Docker instead uses the host UID/GID, keeping bind-mounted outputs writable.
 exec docker run --rm -i --user "$run_user" \
   --env HOME=/tmp --env RUN_ARGS \
-  --mount "type=bind,src=$repo_root,dst=/workspace/project-template" \
-  --workdir /workspace/project-template \
+  --mount "type=bind,src=$repo_root,dst=$repo_root" \
+  --workdir "$repo_root" \
   "$image" python tools/run_file.py "$RUN_FILE"

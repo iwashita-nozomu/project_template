@@ -29,10 +29,11 @@ general developer-tool profiles.
 The root [Makefile](../Makefile) provides optional `make <file>` using the image
 above. This helper is not a project bootstrap or a rule for derived projects.
 The host needs GNU Make, Docker with a working local daemon, and standard Unix
-shell utilities. The compiler, CMake, Ninja, and Python run inside Docker.
+shell utilities. The compiler, CMake, Ninja, Python, and clangd run inside Docker.
 
 Each invocation builds `docker/Dockerfile` using Docker's cache, then bind-mounts
-the current repository so edits and ignored source files are available. Set
+the current repository at the host's identical absolute path so edits, ignored
+source files, and compilation database paths are shared. Set
 `RUN_IMAGE=<tag>` to choose the image tag (default `project-template:dependencies`).
 The process runs with the repository root as its working directory; relative
 output paths persist in the host checkout. Place generated output in `workspace/`
@@ -56,6 +57,11 @@ arguments without evaluating it as a shell command. Every requested file target
 runs even when that file already exists. Program failures fail the Docker command
 and Make recipe; GNU Make reports recipe failure with its own exit code, usually 2.
 Paths containing whitespace are not supported as Make goals.
+
+C++ configuration always exports `compile_commands.json`; the root `.clangd`
+selects the sample version project's database. See the
+[container clangd contract](../documents/design/cpp-build-layout.md#container-clangd-and-editor-paths)
+for host-editor integration and derived CUDA projects.
 
 C++ build directories live under `workspace/run-file/<project-path>/` (the root
 project uses `_root`). Rootless Docker runs with container UID 0, which maps to

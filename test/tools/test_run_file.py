@@ -1,6 +1,7 @@
 """Regression checks for source selection and CMake target discovery."""
 
 import importlib.util
+import json
 from pathlib import Path
 import tempfile
 import unittest
@@ -44,6 +45,11 @@ set_target_properties(different_target PROPERTIES OUTPUT_NAME actual_binary)
         artifact = runner.executable_for_source(self.root, source)
         self.assertEqual(artifact.name, "actual_binary")
         self.assertTrue(artifact.is_file())
+        # Standalone consumers must export real commands, not editor-only flags.
+        database = self.root / "workspace/run-file/_root/compile_commands.json"
+        commands = json.loads(database.read_text())
+        self.assertEqual(Path(commands[0]["file"]), source)
+        self.assertEqual(Path(commands[0]["directory"]), database.parent)
 
     def test_ambiguous_executables_and_library_source_are_not_guessed(self):
         source = self.source("example.cpp")
